@@ -17,142 +17,7 @@
 //
 //
 
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
-
-//DS for gsf
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
-using namespace edm;
-using namespace reco;
-//SD
-
-//
-// class declaration
-//
-
-class HistoAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit HistoAnalyzer(const edm::ParameterSet&);
-      ~HistoAnalyzer();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
-      // ----------member data ---------------------------
-      edm::InputTag electronCollection_;
-
-
-      TH1F * histNum;
-
-      //EB
-      TH1D * h_IsoTrk_EB;
-      TH1D * h_IsoEcal_EB;
-      TH1D * h_IsoHcal_EB;
-      TH1D * h_HE_EB;
-      TH1F * h_DeltaPhiTkClu_EB;
-      TH1F * h_DeltaEtaTkClu_EB;
-      TH1F * h_sigmaIeIe_EB;
-      //EE
-      TH1D * h_IsoTrk_EE;
-      TH1D * h_IsoEcal_EE;
-      TH1D * h_IsoHcal_EE;
-      TH1D * h_HE_EE;
-      TH1F * h_DeltaPhiTkClu_EE;
-      TH1F * h_DeltaEtaTkClu_EE;
-      TH1F * h_sigmaIeIe_EE;
-      //common
-      TH1D * h_fbrem;
-      TH1D * h_etaSC;
-      TH1F * h_Dcot;
-      TH1F * h_Dist;
-      TH1C * h_NumberOfExpectedInnerHits;
-
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-
-//
-// constructors and destructor
-//
-HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf)
-{
-
-  electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
-
-//FIXME controlla nome degli istogrammi
-  //now do what ever initialization is needed
-  edm::Service<TFileService> fs; 
-  //fs->cd(); //PAY ATTENTION entering the working dir
-  histNum = fs->make<TH1F>("h_histNum","# of electrons",10, 0.,10.);
-
-  //EB
-  h_IsoTrk_EB = fs->make<TH1D>("h_IsoTrk_EB","IsoTrk",20,0.,0.20);
-  h_IsoEcal_EB = fs->make<TH1D>("h_IsoEcal_EB","IsoEcal",20,0.,0.20);
-  h_IsoHcal_EB = fs->make<TH1D>("h_IsoHcal_EB","IsoHcal",20,0.,0.20);
-  h_HE_EB = fs->make<TH1D>("h_HE_EB","H/E",20,0.,0.20);
-  h_DeltaPhiTkClu_EB = fs->make<TH1F>("h_DeltaPhiTkClu_EB","DeltaPhiTkClu",20,0.,0.2);
-  h_DeltaEtaTkClu_EB = fs->make<TH1F>("h_DeltaEtaTkClu_EB","DeltaEtaTkClu",20,0.,.05);
-  h_sigmaIeIe_EB = fs->make<TH1F>("h_sigmaIeIe_EB","sigmaIeIe",20,0.,0.1);
-  //EE
-  h_IsoTrk_EE = fs->make<TH1D>("h_IsoTrk_EE","IsoTrk",20,0.,0.20);
-  h_IsoEcal_EE = fs->make<TH1D>("h_IsoEcal_EE","IsoEcal",20,0.,0.20);
-  h_IsoHcal_EE = fs->make<TH1D>("h_IsoHcal_EE","IsoHcal",20,0.,0.20);
-  h_HE_EE = fs->make<TH1D>("h_HE_EE","H/E",20,0.,0.20);
-  h_DeltaPhiTkClu_EE = fs->make<TH1F>("h_DeltaPhiTkClu_EE","DeltaPhiTkClu",20,0.,0.2);
-  h_DeltaEtaTkClu_EE = fs->make<TH1F>("h_DeltaEtaTkClu_EE","DeltaEtaTkClu",20,0.,.05);
-  h_sigmaIeIe_EE = fs->make<TH1F>("h_sigmaIeIe_EE","sigmaIeIe",20,0.,0.1);
-
-
-  h_fbrem = fs->make<TH1D>("h_fbrem","fbrem",100,0.,1.0);
-  h_etaSC = fs->make<TH1D>("h_etaSC","etaSC",54,-2.7,2.7);
-  h_Dcot = fs->make<TH1F>("h_Dcot","Dcot",40,-0.2,0.2);
-  h_Dist = fs->make<TH1F>("h_Dist","Dist",40,-0.2,0.2);
-  h_NumberOfExpectedInnerHits = fs->make<TH1C>("h_NumberOfExpectedInnerHits","make title :)",20,0.,0.1);
-
-
-}
-
-
-HistoAnalyzer::~HistoAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
+#include "Histo/HistoAnalyzer/interface/HistoAnalyzer.h"
 
 
 //
@@ -164,6 +29,14 @@ void
 HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+
+///  edm::LuminosityBlockNumber_t 	LS = iEvent.id().luminosityBlock();
+///  edm::EventNumber_t 		Events = iEvent.id().event();
+///  edm::RunNumber_t 		Run = iEvent.id().run();
+
+ //IMPORTANTE
+ clean_vectors();
+ nEvents_++;
 
  //Define Isolation variables
  double IsoTrk;
@@ -182,10 +55,50 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  float Dcot;
  float Dist;
  int NumberOfExpectedInnerHits;
-
  //EODefinitions
 
 
+ //Match The HLT Trigger
+ using edm::TriggerResults;
+ Handle<TriggerResults> HLTResults;
+ iEvent.getByLabel(triggerCollection_, HLTResults);
+ const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
+ int trigger_size = HLTResults->size();
+ bool boolpass=0;
+
+//cout << "trigger size is " << trigger_size << "\n";
+ if (HLTResults.isValid()) {
+	 //	if (nEvents_==1) { //questo ti permette di fare il lavro solo al primo evento... sarÃ  utile se farme le cose in maniera diversa piÃ avanti
+	 for (int i=0; i<trigger_size;i++){
+		 path.push_back(triggerNames.triggerName(i));
+		 int pos=(int)triggerNames.triggerIndex(triggerNames.triggerName(i));
+		 if(pos<trigger_size){
+			 //accept serve per sapere se quel particolare path di HLT Ã¨ presente o meno
+			 boolpass=(bool) HLTResults->accept(pos);
+			 if (boolpass) {
+				 //std::cout<<"Matched "<<path[i]<< "\n";
+				 h_HLTbits->Fill(path[i].c_str(),1);
+				 if(path[i]=="HLT_Ele10_LW_L1R"){b_HLT_Ele10_LW_L1R=1;}
+				 if(path[i]=="HLT_Ele15_SW_L1R"){b_HLT_Ele15_SW_L1R=1;}
+				 if(path[i]=="HLT_Ele15_SW_CaloEleId_L1R"){b_HLT_Ele15_SW_CaloEleId_L1R=1;}
+				 if(path[i]=="HLT_Ele17_SW_CaloEleId_L1R"){b_HLT_Ele17_SW_CaloEleId_L1R=1;}
+				 if(path[i]=="HLT_Ele17_SW_TightEleId_L1R"){b_HLT_Ele17_SW_TightEleId_L1R=1;}
+				 if(path[i]=="HLT_Ele17_SW_TightEleId_L1R_v2"){b_HLT_Ele17_SW_TightEleId_L1R_v2=1;}
+				 if(path[i]=="HLT_Ele17_SW_TightEleId_L1R_v3"){b_HLT_Ele17_SW_TightEleId_L1R_v3=1;}
+				 if(path[i]=="HLT_Photon10_L1R"){b_HLT_Photon10_L1R=1;}
+				 if(path[i]=="HLT_Photon15_L1R"){b_HLT_Photon15_L1R=1;}
+				 if(path[i]=="HLT_Photon15_Cleaned_L1R"){b_HLT_Photon15_Cleaned_L1R=1;}
+				 if(path[i]=="HLT_Photon26_IsoVL_Photon18_IsoVL_v3"){b_HLT_Photon26_IsoVL_Photon18_IsoVL_v3=1;}
+			 }
+			 //else{std::cout<<"Not Matched \n";}
+		 }
+	 }
+	 //	}  
+ }
+
+
+
+   //Getting the Electron Collection
    using reco::GsfElectronCollection;
    Handle<GsfElectronCollection> gsfElectrons;
    iEvent.getByLabel(electronCollection_,gsfElectrons);
@@ -196,26 +109,27 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 	   //Assign Isolation variables
-	   IsoTrk	= (itElect->dr03TkSumPt () / itElect->et ());
-	   IsoEcal	= (itElect->dr03EcalRecHitSumEt () / itElect->et ());
-	   IsoHcal 	= (itElect->dr03HcalTowerSumEt () / itElect->et ());
-	   HE		= (itElect->hcalOverEcal ());
+	   IsoTrk	= (itElect->dr03TkSumPt() / itElect->et());
+	   IsoEcal	= (itElect->dr03EcalRecHitSumEt() / itElect->et());
+	   IsoHcal 	= (itElect->dr03HcalTowerSumEt() / itElect->et());
+	   HE		= (itElect->hcalOverEcal());
 	   fbrem	= itElect->fbrem();
 	   etaSC	= itElect->superCluster()->eta();
 
 	   //Assign ID variables
-	   DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx ();
-	   DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx ();
+	   DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
+	   DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
 	   sigmaIeIe     = itElect->sigmaIetaIeta ();
 
 	   //Assign Conversion Rejection Variables
-	   Dcot		= itElect->convDcot ();
-	   Dist 	= itElect->convDist ();
-	   NumberOfExpectedInnerHits = itElect->gsfTrack ()->trackerExpectedHitsInner ().numberOfHits ();
+	   Dcot		= itElect->convDcot();
+	   Dist 	= itElect->convDist();
+	   NumberOfExpectedInnerHits = itElect->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
 
 	   //Filling Histos
 	   //EB
-	   if (fabs (itElect->eta ()) <= 1.4442) {
+	   if (fabs (itElect->eta()) <= 1.4442) {
+		   //histos
 		   h_IsoTrk_EB->Fill(IsoTrk);
 		   h_IsoEcal_EB->Fill(IsoEcal);
 		   h_IsoHcal_EB->Fill(IsoHcal);
@@ -224,10 +138,20 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   h_DeltaPhiTkClu_EB->Fill(DeltaPhiTkClu);
 		   h_DeltaEtaTkClu_EB->Fill(DeltaEtaTkClu);
 		   h_sigmaIeIe_EB->Fill(sigmaIeIe);
+
+		   //vectors
+		   vIsoTrkEB.push_back(IsoTrk);
+		   vIsoEcalEB.push_back(IsoEcal);
+		   vIsoHcalEB.push_back(IsoHcal);
+		   vHEEB.push_back(HE);
+		   vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
+		   vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
+		   vsigmaIeIeEB.push_back(sigmaIeIe);
 	   }
 	   //EE
 	   if (fabs (itElect->eta()) >= 1.5660
-	       && fabs (itElect->eta()) <= 2.5000) {
+			   && fabs (itElect->eta()) <= 2.5000) {
+		   //histos
 		   h_IsoTrk_EE->Fill(IsoTrk);
 		   h_IsoEcal_EE->Fill(IsoEcal);
 		   h_IsoHcal_EE->Fill(IsoHcal);
@@ -236,20 +160,36 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   h_DeltaPhiTkClu_EE->Fill(DeltaPhiTkClu);
 		   h_DeltaEtaTkClu_EE->Fill(DeltaEtaTkClu);
 		   h_sigmaIeIe_EE->Fill(sigmaIeIe);
+
+		   //vectors
+		   vIsoTrkEE.push_back(IsoTrk);
+		   vIsoEcalEE.push_back(IsoEcal);
+		   vIsoHcalEE.push_back(IsoHcal);
+		   vHEEE.push_back(HE);
+		   vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
+		   vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
+		   vsigmaIeIeEE.push_back(sigmaIeIe);
+
 	   }
 
-
+	   //Common (histo)
 	   h_fbrem->Fill(fbrem);
 	   h_etaSC->Fill(etaSC);
-
 	   h_Dcot->Fill(Dcot);
 	   h_Dist->Fill(Dist);
 	   h_NumberOfExpectedInnerHits->Fill(NumberOfExpectedInnerHits);
 
-   }
+	   //Common (vector)
+	   vfbrem.push_back(fbrem);
+	   vetaSC.push_back(etaSC);
+	   vDcot.push_back(Dcot);
+	   vDist.push_back(Dcot);
+	   vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
+
+   }//End for
 
 
-   //FIXME get axis per tutti, metto solo la Y perché la X è in unità UFO <_O_>
+   //FIXME get axis per tutti, metto solo la Y perchÃ© la  Ã¨ in unia' UFO <_O_>
    histNum-> GetXaxis()-> SetTitle("N_{ele}");
    histNum-> GetYaxis()-> SetTitle("Events");
    histNum->Fill((*gsfElectrons).size());
@@ -277,16 +217,10 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    h_Dist->GetYaxis()-> SetTitle("Events");
    h_NumberOfExpectedInnerHits->GetYaxis()-> SetTitle("Events");
 
+   //--------------------------------//
+   //---------Fill del Tree----------//
+   treeVJ_->Fill();
 
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
 
@@ -294,6 +228,49 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 HistoAnalyzer::beginJob()
 {
+
+nEvents_ = 0;
+
+	//TFile and TTree initialization
+	treeVJ_= new TTree("treeVJ_","treeVJ_");
+	//EB
+	treeVJ_->Branch("IsoTrkEB","IsoTrkEB",&vIsoTrkEB);
+	treeVJ_->Branch("IsoEcalEB","IsoEcalEB",&vIsoEcalEB);
+	treeVJ_->Branch("IsoHcalEB","IsoHcalEB",&vIsoHcalEB);
+	treeVJ_->Branch("HEEB","HEEB",&vHEEB);
+	treeVJ_->Branch("DeltaPhiTkCluEB","DeltaPhiTkCluEB",&vDeltaPhiTkCluEB);
+	treeVJ_->Branch("DeltaEtaTkCluEB","DeltaEtaTkCluEB",&vDeltaEtaTkCluEB);
+	treeVJ_->Branch("sigmaIeIeEB","sigmaIeIeEB",&vsigmaIeIeEB);
+	
+	//EB
+	treeVJ_->Branch("IsoTrkEE","IsoTrkEE",&vIsoTrkEE);
+	treeVJ_->Branch("IsoEcalEE","IsoEcalEE",&vIsoEcalEE);
+	treeVJ_->Branch("IsoHcalEE","IsoHcalEE",&vIsoHcalEE);
+	treeVJ_->Branch("HEEE","HEEE",&vHEEE);
+	treeVJ_->Branch("DeltaPhiTkCluEE","DeltaPhiTkCluEE",&vDeltaPhiTkCluEE);
+	treeVJ_->Branch("DeltaEtaTkCluEE","DeltaEtaTkCluEE",&vDeltaEtaTkCluEE);
+	treeVJ_->Branch("sigmaIeIeEE","sigmaIeIeEE",&vsigmaIeIeEE);
+
+	//Common
+	treeVJ_->Branch("fbrem","fbrem",&vfbrem);
+	treeVJ_->Branch("etaSC","etaSC",&vetaSC);
+	treeVJ_->Branch("Dcot","Dcot",&vDcot);
+	treeVJ_->Branch("Dist","Dist",&vDist);
+	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
+
+	//Branches for HLT variables
+	treeVJ_->Branch("HLT_Ele10_LW_L1R",&b_HLT_Ele10_LW_L1R,"HLT_Ele10_LW_L1R/S");
+	treeVJ_->Branch("HLT_Ele15_LW_L1R",&b_HLT_Ele15_SW_L1R,"HLT_Ele15_LW_L1R/S");
+	treeVJ_->Branch("HLT_Ele15_SW_CaloEleId_L1R",&b_HLT_Ele15_SW_CaloEleId_L1R,"HLT_Ele15_SW_CaloEleId_L1R/S");
+	treeVJ_->Branch("HLT_Ele17_SW_CaloEleId_L1R",&b_HLT_Ele17_SW_CaloEleId_L1R,"HLT_Ele17_SW_CaloEleId_L1R/S");
+	treeVJ_->Branch("HLT_Ele17_SW_TightEleId_L1R",&b_HLT_Ele17_SW_TightEleId_L1R,"HLT_Ele17_SW_TightEleId_L1R/S");
+	treeVJ_->Branch("HLT_Ele17_SW_TightEleId_L1R_v2",&b_HLT_Ele17_SW_TightEleId_L1R_v2,"HLT_Ele17_SW_TightEleId_L1R_v2/S");
+	treeVJ_->Branch("HLT_Ele17_SW_TightEleId_L1R_v3",&b_HLT_Ele17_SW_TightEleId_L1R_v3,"HLT_Ele17_SW_TightEleId_L1R_v3/S");
+	treeVJ_->Branch("HLT_Photon10_L1R",&b_HLT_Photon10_L1R,"HLT_Photon10_L1R/S");
+	treeVJ_->Branch("HLT_Photon15_L1R",&b_HLT_Photon15_L1R,"HLT_Photon15_L1R/S");
+	treeVJ_->Branch("HLT_Photon15_Cleaned_L1R",&b_HLT_Photon15_Cleaned_L1R,"HLT_Photon15_Cleaned_L1R/S");
+	treeVJ_->Branch("HLT_Photon26_IsoVL_Photon18_IsoVL_v3",&b_HLT_Photon26_IsoVL_Photon18_IsoVL_v3,"HLT_Photon26_IsoVL_Photon18_IsoVL_v3/S");
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -301,32 +278,7 @@ void
 HistoAnalyzer::endJob() 
 {
 
-//NON NECESSARY WITH "fs" :)
-/*  // rec event
-  histNum->Write();
-  h_IsoTrk_EB->Write();
-  h_IsoEcal_EB->Write();
-  h_IsoHcal_EB->Write();
-  h_HE_EB->Write();
-  h_IsoTrk_EE->Write();
-  h_IsoEcal_EE->Write();
-  h_IsoHcal_EE->Write();
-  h_HE_EE->Write();
-  h_fbrem->Write();
-  h_etaSC->Write();
 
-  h_DeltaPhiTkClu_EB->Write();
-  h_DeltaEtaTkClu_EB->Write();
-  h_sigmaIeIe_EB->Write();
-  h_DeltaPhiTkClu_EE->Write();
-  h_DeltaEtaTkClu_EE->Write();
-  h_sigmaIeIe_EE->Write();
- 
-  h_Dcot->Write();
-  h_Dist->Write();
-  h_NumberOfExpectedInnerHits->Write();
- // fs->Write();//PAY ATTENTION
-*/
 }
 
 // ------------ method called when starting to processes a run  ------------
