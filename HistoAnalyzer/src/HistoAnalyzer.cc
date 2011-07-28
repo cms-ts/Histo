@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Davide Scaini,27 1-013,+41227678527,
+// Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
 // $Id$
 //
@@ -26,13 +26,14 @@
 
 // ------------ method called for each event  ------------
 void
-HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HistoAnalyzer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  //Get The Run Parameters
+  edm::LuminosityBlockNumber_t 	LS = iEvent.id().luminosityBlock();
+  edm::EventNumber_t 		Events = iEvent.id().event();
+  edm::RunNumber_t 		Run = iEvent.id().run();
 
-///  edm::LuminosityBlockNumber_t 	LS = iEvent.id().luminosityBlock();
-///  edm::EventNumber_t 		Events = iEvent.id().event();
-///  edm::RunNumber_t 		Run = iEvent.id().run();
 
  //IMPORTANTE
  clean_vectors();
@@ -66,17 +67,14 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  int trigger_size = HLTResults->size();
  bool boolpass=0;
 
-//cout << "trigger size is " << trigger_size << "\n";
  if (HLTResults.isValid()) {
-	 //	if (nEvents_==1) { //questo ti permette di fare il lavro solo al primo evento... sarÃ  utile se farme le cose in maniera diversa piÃ avanti
 	 for (int i=0; i<trigger_size;i++){
 		 path.push_back(triggerNames.triggerName(i));
 		 int pos=(int)triggerNames.triggerIndex(triggerNames.triggerName(i));
 		 if(pos<trigger_size){
-			 //accept serve per sapere se quel particolare path di HLT Ã¨ presente o meno
 			 boolpass=(bool) HLTResults->accept(pos);
 			 if (boolpass) {
-				 //std::cout<<"Matched "<<path[i]<< "\n";
+			   if (debug) std::cout<<"Matched "<<path[i]<< "\n";
 				 h_HLTbits->Fill(path[i].c_str(),1);
 				 if(path[i]=="HLT_Ele10_LW_L1R"){b_HLT_Ele10_LW_L1R=1;}
 				 if(path[i]=="HLT_Ele15_SW_L1R"){b_HLT_Ele15_SW_L1R=1;}
@@ -90,13 +88,56 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				 if(path[i]=="HLT_Photon15_Cleaned_L1R"){b_HLT_Photon15_Cleaned_L1R=1;}
 				 if(path[i]=="HLT_Photon26_IsoVL_Photon18_IsoVL_v3"){b_HLT_Photon26_IsoVL_Photon18_IsoVL_v3=1;}
 			 }
-			 //else{std::cout<<"Not Matched \n";}
+
 		 }
 	 }
-	 //	}  
+
  }
 
 
+
+ /// Storing the Prescale information
+ // loop over the triggers and record prescale
+
+ //map<int, string> prescalemap;
+   unsigned int minimalPrescale(10000);
+   unsigned int prescale(0);
+   bool bit(true);
+   std::pair<int,int> prescalepair;
+   std::vector<int>  triggerSubset;
+   for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+     if(triggerIndices_[itrig]!=2048) {
+       // check trigger response
+       bit = HLTResults->accept(triggerIndices_[itrig]);
+       triggerSubset.push_back(bit);
+       if(bit) {
+	 // look at the prescale
+	 int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
+	 if(prescaleset!=-1) {
+	   prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
+	   if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
+	   // Check the use of useCombinedPrescales_
+	   bool useCombinedPrescales_=true;
+	   if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
+	     edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" 
+					   << prescalepair.first << ", " << prescalepair.second;
+	   }
+	   prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
+	   minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
+	   if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
+	   //prescalemap[prescale]=triggerNames.triggerName(itrig);
+	 } 
+       }else {
+	 edm::LogError("MyAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+       }
+     }
+     else {
+       // that trigger is presently not in the menu
+       triggerSubset.push_back(false);
+     }
+   }
+   
+   //FIX IT! Davide, chiedimi!!!!!!   HLTAndPrescale=prescalemap;
 
    //Getting the Electron Collection
    using reco::GsfElectronCollection;
@@ -228,11 +269,15 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 HistoAnalyzer::beginJob()
 {
-
 nEvents_ = 0;
 
 	//TFile and TTree initialization
 	treeVJ_= new TTree("treeVJ_","treeVJ_");
+
+	//////////////////
+	//// Z->EE SELECTION VARIABLES 
+	////////////////// 
+  
 	//EB
 	treeVJ_->Branch("IsoTrkEB","IsoTrkEB",&vIsoTrkEB);
 	treeVJ_->Branch("IsoEcalEB","IsoEcalEB",&vIsoEcalEB);
@@ -258,18 +303,8 @@ nEvents_ = 0;
 	treeVJ_->Branch("Dist","Dist",&vDist);
 	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
 
-	//Branches for HLT variables
-	treeVJ_->Branch("HLT_Ele10_LW_L1R",&b_HLT_Ele10_LW_L1R,"HLT_Ele10_LW_L1R/S");
-	treeVJ_->Branch("HLT_Ele15_LW_L1R",&b_HLT_Ele15_SW_L1R,"HLT_Ele15_LW_L1R/S");
-	treeVJ_->Branch("HLT_Ele15_SW_CaloEleId_L1R",&b_HLT_Ele15_SW_CaloEleId_L1R,"HLT_Ele15_SW_CaloEleId_L1R/S");
-	treeVJ_->Branch("HLT_Ele17_SW_CaloEleId_L1R",&b_HLT_Ele17_SW_CaloEleId_L1R,"HLT_Ele17_SW_CaloEleId_L1R/S");
-	treeVJ_->Branch("HLT_Ele17_SW_TightEleId_L1R",&b_HLT_Ele17_SW_TightEleId_L1R,"HLT_Ele17_SW_TightEleId_L1R/S");
-	treeVJ_->Branch("HLT_Ele17_SW_TightEleId_L1R_v2",&b_HLT_Ele17_SW_TightEleId_L1R_v2,"HLT_Ele17_SW_TightEleId_L1R_v2/S");
-	treeVJ_->Branch("HLT_Ele17_SW_TightEleId_L1R_v3",&b_HLT_Ele17_SW_TightEleId_L1R_v3,"HLT_Ele17_SW_TightEleId_L1R_v3/S");
-	treeVJ_->Branch("HLT_Photon10_L1R",&b_HLT_Photon10_L1R,"HLT_Photon10_L1R/S");
-	treeVJ_->Branch("HLT_Photon15_L1R",&b_HLT_Photon15_L1R,"HLT_Photon15_L1R/S");
-	treeVJ_->Branch("HLT_Photon15_Cleaned_L1R",&b_HLT_Photon15_Cleaned_L1R,"HLT_Photon15_Cleaned_L1R/S");
-	treeVJ_->Branch("HLT_Photon26_IsoVL_Photon18_IsoVL_v3",&b_HLT_Photon26_IsoVL_Photon18_IsoVL_v3,"HLT_Photon26_IsoVL_Photon18_IsoVL_v3/S");
+	//Branches For HLT and Prescale
+	//treeVJ_->Branch("HLTAndPrescale","HLTAndPrescale",&HLTAndPrescale);
 
 }
 
@@ -277,14 +312,38 @@ nEvents_ = 0;
 void 
 HistoAnalyzer::endJob() 
 {
-
-
 }
 
 // ------------ method called when starting to processes a run  ------------
 void 
-HistoAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
+HistoAnalyzer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 {
+//HLT names
+   std::vector<std::string>  hlNames;
+   bool changed (true);
+   if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
+     if (changed) {
+       hlNames = hltConfig_.triggerNames();
+     }
+   } else {
+     edm::LogError("MyAnalyzer") << " HLT config extraction failure with process name " << triggerCollection_.process();
+   }
+   triggerNames_ = hlNames;
+   //HLT indices
+   triggerIndices_.clear();
+   for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+     if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end())
+       triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
+     else
+       triggerIndices_.push_back(2048);
+   }
+
+   // text (debug) output
+   int i=0;
+   for(std::vector<std::string>::const_iterator it = hlNames.begin(); it<hlNames.end();++it) {
+     if (debug)  std::cout << (i++) << " = " << (*it) << std::endl;
+   } 
+
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -310,9 +369,9 @@ void
 HistoAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  //edm::ParameterSetDescription desc;
+  //desc.setUnknown();
+  //descriptions.addDefault(desc);
 
  //Specify that only 'tracks' is allowed
  //To use, remove the default given above and uncomment below
