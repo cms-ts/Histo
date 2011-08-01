@@ -17,9 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -28,6 +26,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
+// root includes
 #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -47,7 +46,7 @@ class TTree;
 // class declaration
 /////
 
-class HistoAnalyzer : public edm::EDProducer {
+class HistoAnalyzer : public edm::EDAnalyzer {
    public:
       explicit HistoAnalyzer(const edm::ParameterSet&);
       ~HistoAnalyzer();
@@ -56,8 +55,8 @@ class HistoAnalyzer : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void beginRun(edm::Run&, const edm::EventSetup&);
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginRun(edm::Run const &, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
 
@@ -66,17 +65,19 @@ class HistoAnalyzer : public edm::EDProducer {
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
+
+      //Retrieved from the .py
       edm::InputTag electronCollection_;
       edm::InputTag triggerCollection_;
-
+      bool useCombinedPrescales_; // switch between HLT only and L1*HLT prescales
+      bool useAllTriggers_; // if no trigger names are provided, use all triggers to find event weight
       HLTConfigProvider hltConfig_;        // to get configuration for L1s/Pre
       std::vector<std::string> triggerNames_; // name of the algorithms selected by our analysis
       std::vector<unsigned int> triggerIndices_; // index of the algorithms selected by our analysis
 
+      //Various
       TTree* treeVJ_;
-
       TH1F * histNum;
-
       unsigned int nEvents_;
 
       //EB
@@ -128,6 +129,11 @@ class HistoAnalyzer : public edm::EDProducer {
       std::vector<float> vDist;
       std::vector<int> vNumberOfExpectedInnerHits;
 
+      //Run Properties
+      int Run;
+      int LS;
+      int Event;
+
       void clean_vectors(){
 	      vIsoTrkEB.clear();
 	      vIsoEcalEB.clear();
@@ -151,57 +157,24 @@ class HistoAnalyzer : public edm::EDProducer {
 	      //statento che uccido ogni giro anche il vettore stringa!
 	      path.clear();
 
-	      b_HLT_Ele10_LW_L1R=0;
-	      b_HLT_Ele15_SW_L1R=0;
-	      b_HLT_Ele15_SW_CaloEleId_L1R=0;
-	      b_HLT_Ele17_SW_CaloEleId_L1R=0;
-	      b_HLT_Ele17_SW_TightEleId_L1R=0;
-	      b_HLT_Ele17_SW_TightEleId_L1R_v2=0;
-	      b_HLT_Ele17_SW_TightEleId_L1R_v3=0;
-	      b_HLT_Photon10_L1R=0;
-	      b_HLT_Photon15_L1R=0;
-	      b_HLT_Photon15_Cleaned_L1R=0;
-	      b_HLT_Photon26_IsoVL_Photon18_IsoVL_v3=0;
       }
 
-	//Bools for HLT paths
-	short int b_HLT_Ele10_LW_L1R;
-	short int b_HLT_Ele15_SW_L1R;
-	short int b_HLT_Ele15_SW_CaloEleId_L1R;
-	short int b_HLT_Ele17_SW_CaloEleId_L1R;
-	short int b_HLT_Ele17_SW_TightEleId_L1R;
-	short int b_HLT_Ele17_SW_TightEleId_L1R_v2;
-	short int b_HLT_Ele17_SW_TightEleId_L1R_v3;
-	short int b_HLT_Photon10_L1R;
-	short int b_HLT_Photon15_L1R;
-	short int b_HLT_Photon15_Cleaned_L1R;
-	short int b_HLT_Photon26_IsoVL_Photon18_IsoVL_v3;
-
 	//HLT and Prescale
-	   //FIX IT! Davide, chiedimi!!!!!! std::map<int, string> HLTAndPrescale;
+      std::vector<pair<std::string,int> > HLTAndPrescale;
 
 };
 
-//
-// constants, enums and typedefs
-//
+HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
 
-//
-// static data member definitions
-//
-
-
-//
-// constructors and destructor
-//
-HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf)
 {
 
 
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   triggerCollection_  = conf.getParameter<edm::InputTag>("triggerCollection");
+  useCombinedPrescales_ = conf.getParameter<bool>("UseCombinedPrescales");
+  triggerNames_         = conf.getParameter< std::vector<std::string> > ("TriggerNames");
+  useAllTriggers_       = (triggerNames_.size()==0);
 
-//FIXME controlla nome degli istogrammi
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 
   histNum = fs->make<TH1F>("h_histNum","# of electrons",10, 0.,10.);
