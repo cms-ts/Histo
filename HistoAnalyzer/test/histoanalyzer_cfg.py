@@ -53,7 +53,7 @@ process.demo = cms.EDAnalyzer('HistoAnalyzer',
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('../root/histo.root')
+    fileName = cms.string('histo.root')
 )
 
 process.p = cms.Path(process.demo)
