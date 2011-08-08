@@ -69,11 +69,15 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       //Retrieved from the .py
       edm::InputTag electronCollection_;
       edm::InputTag triggerCollection_;
+      edm::InputTag VertexCollectionTag_;
+ 
       bool useCombinedPrescales_; // switch between HLT only and L1*HLT prescales
       bool useAllTriggers_; // if no trigger names are provided, use all triggers to find event weight
       HLTConfigProvider hltConfig_;        // to get configuration for L1s/Pre
       std::vector<std::string> triggerNames_; // name of the algorithms selected by our analysis
       std::vector<unsigned int> triggerIndices_; // index of the algorithms selected by our analysis
+      bool removePU_;
+      bool doTheHLTAnalysis_;
 
       //Various
       TTree* treeVJ_;
@@ -134,32 +138,36 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       int LS;
       int Event;
 
-      void clean_vectors(){
-	      vIsoTrkEB.clear();
-	      vIsoEcalEB.clear();
-	      vIsoHcalEB.clear();
-	      vHEEB.clear();
-	      vDeltaPhiTkCluEB.clear();
-	      vDeltaEtaTkCluEB.clear();
-	      vsigmaIeIeEB.clear();
-	      vIsoTrkEE.clear();
-	      vIsoEcalEE.clear();
-	      vIsoHcalEE.clear();
-	      vHEEE.clear();
-	      vDeltaPhiTkCluEE.clear();
-	      vDeltaEtaTkCluEE.clear();
-	      vsigmaIeIeEE.clear();
-	      vfbrem.clear();
-	      vetaSC.clear();
-	      vDcot.clear();
-	      vDist.clear();
-	      vNumberOfExpectedInnerHits.clear();
-	      //statento che uccido ogni giro anche il vettore stringa!
-	      path.clear();
+      //vertices
+      int numberOfVertices;
 
+      void clean_vectors(){
+	numberOfVertices=0;
+	vIsoTrkEB.clear();
+	vIsoEcalEB.clear();
+	vIsoHcalEB.clear();
+	vHEEB.clear();
+	vDeltaPhiTkCluEB.clear();
+	vDeltaEtaTkCluEB.clear();
+	vsigmaIeIeEB.clear();
+	vIsoTrkEE.clear();
+	vIsoEcalEE.clear();
+	vIsoHcalEE.clear();
+	vHEEE.clear();
+	vDeltaPhiTkCluEE.clear();
+	vDeltaEtaTkCluEE.clear();
+	vsigmaIeIeEE.clear();
+	vfbrem.clear();
+	vetaSC.clear();
+	vDcot.clear();
+	vDist.clear();
+	vNumberOfExpectedInnerHits.clear();
+	//statento che uccido ogni giro anche il vettore stringa!
+	path.clear();
+	
       }
 
-	//HLT and Prescale
+      //HLT and Prescale
       std::vector<pair<std::string,int> > HLTAndPrescale;
 
 };
@@ -174,6 +182,9 @@ HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
   useCombinedPrescales_ = conf.getParameter<bool>("UseCombinedPrescales");
   triggerNames_         = conf.getParameter< std::vector<std::string> > ("TriggerNames");
   useAllTriggers_       = (triggerNames_.size()==0);
+  removePU_             = conf.getParameter<bool>("removePU");
+  doTheHLTAnalysis_     = conf.getParameter<bool>("doTheHLTAnalysis");
+  VertexCollectionTag_      = conf.getParameter<edm::InputTag>("VertexCollectionTag");
 
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 

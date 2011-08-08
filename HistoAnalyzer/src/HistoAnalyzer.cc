@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //
 // member functions
@@ -66,7 +68,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
   std::vector<std::pair<string,int> > HLTPres; 
 
- if (HLTResults.isValid()) {
+ if (HLTResults.isValid() && doTheHLTAnalysis_) {
    /// Storing the Prescale information: loop over the triggers and record prescale
    
    unsigned int minimalPrescale(10000);
@@ -100,7 +102,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   HLTPres.push_back(pr2);
 	 } 
        }else {
-	 edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+	 //edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
 	 }
      }
      else {
@@ -126,11 +128,39 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
  for(GsfElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
       
+    if (removePU_){
+      double lepIsoRho;
+      
+      /////// Pileup density "rho" for lepton isolation subtraction /////
+      
+      edm::Handle<double> rhoLepIso;
+      const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
+      iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
+      if( *rhoLepIso == *rhoLepIso)  lepIsoRho = *rhoLepIso;
+      else  lepIsoRho =  -999999.9;
+
+      if (fabs (itElect->eta()) <= 1.4442) {      
+	IsoEcal = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
+	IsoTrk = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
+	IsoHcal = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
+	HE = itElect->hadronicOverEm();
+      }
+      else{
+	IsoEcal = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
+	IsoTrk = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
+	IsoHcal = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
+	HE = itElect->hadronicOverEm();
+      }
+    }
+    else{
+      // Define Isolation variables
+      IsoTrk = (itElect->dr03TkSumPt () / itElect->et ());
+      IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
+      IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
+      HE = itElect->hadronicOverEm();
+    }
+
    //Assign Isolation variables
-   IsoTrk	= (itElect->dr03TkSumPt() / itElect->et());
-   IsoEcal	= (itElect->dr03EcalRecHitSumEt() / itElect->et());
-   IsoHcal 	= (itElect->dr03HcalTowerSumEt() / itElect->et());
-   HE		= (itElect->hcalOverEcal());
    fbrem	= itElect->fbrem();
    etaSC	= itElect->superCluster()->eta();
    
@@ -232,6 +262,15 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  h_Dcot->GetYaxis()-> SetTitle("Events");
  h_Dist->GetYaxis()-> SetTitle("Events");
  h_NumberOfExpectedInnerHits->GetYaxis()-> SetTitle("Events");
+
+ ///////////////////////
+ ///// Vertex Analysis
+ ///////////////////////
+
+ edm::Handle<reco::VertexCollection> Vertexes;
+ iEvent.getByLabel(VertexCollectionTag_, Vertexes);
+ numberOfVertices = Vertexes->size();
+
  
  //--------------------------------//
  //---------Fill del Tree----------//
@@ -286,6 +325,8 @@ nEvents_ = 0;
 	treeVJ_->Branch("LS",&LS);
 	treeVJ_->Branch("Event",&Event);
 	
+	//Vertices
+	treeVJ_->Branch("numberOfVertices",&numberOfVertices);
 
 }
 

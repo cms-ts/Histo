@@ -49,11 +49,19 @@ process.demo = cms.EDAnalyzer('HistoAnalyzer',
                               electronCollection = cms.InputTag('gsfElectrons'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(True),
-                              TriggerNames = alltriggers 
+                              TriggerNames = alltriggers,
+                              removePU=  cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(False),
+                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                              
 )
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo.root')
 )
 
-process.p = cms.Path(process.demo)
+process.load("JetCollections_cfi")
+
+
+process.p = cms.Path(process.PFJetPath
+                     *process.demo)
