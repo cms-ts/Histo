@@ -141,6 +141,9 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       //vertices
       int numberOfVertices;
 
+      //SC study
+      double etaSCPF;
+
       void clean_vectors(){
 	numberOfVertices=0;
 	vIsoTrkEB.clear();

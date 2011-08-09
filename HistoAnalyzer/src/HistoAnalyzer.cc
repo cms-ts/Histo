@@ -20,6 +20,14 @@
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+
+//PU reweight
+#include "Histo/HistoAnalyzer/interface/Flat10.h"
+#include "Histo/HistoAnalyzer/interface/ZSkim_v1.h"
+
 
 //
 // member functions
@@ -115,6 +123,45 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  HLTAndPrescale=HLTPres;
   HLTPres.clear();
 
+
+  //////////////////
+  ////// Pile UP studies
+  /////////////////
+
+  bool MC_=true;
+
+  if (MC_){
+    edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
+    Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+    iEvent.getByLabel(PileupSrc_, PupInfo);
+    
+    std::vector<PileupSummaryInfo>::const_iterator PVI;
+    int npv = -1;
+    
+    for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+      int BX = PVI->getBunchCrossing();
+      if(BX == 0) { 
+	npv = PVI->getPU_NumInteractions();
+	continue;
+      }      
+      if (debug) std::cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
+    }   
+
+    std::vector<float> simulated;
+    std::vector<float> trueD;
+    edm::LumiReWeighting LumiWeights_;
+
+    //Calculate the distributions (our data and MC)
+    for( int i=0; i<25; ++i) {
+      trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
+      simulated.push_back(probdistFlat10[i]); // Name of the vector included in Flat10.h !
+    }
+
+    LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
+    double MyWeight = LumiWeights_.weight( npv );
+    if (debug) cout<<"weight is "<<MyWeight<<endl;
+  }
+
  ///////////////////
  /// Electrons Study
  ///////////////////
@@ -163,7 +210,8 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //Assign Isolation variables
    fbrem	= itElect->fbrem();
    etaSC	= itElect->superCluster()->eta();
-   
+   //etaSCPF      = itElect->pflowSuperCluster()->eta();
+
    //Assign ID variables
    DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
    DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
@@ -328,6 +376,8 @@ nEvents_ = 0;
 	//Vertices
 	treeVJ_->Branch("numberOfVertices",&numberOfVertices);
 
+	//SC
+	treeVJ_->Branch("etaSC",&etaSCPF);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
