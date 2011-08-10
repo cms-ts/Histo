@@ -1,0 +1,276 @@
+#include "NCutil.C"
+#include "tdrstyle.C"
+
+TCanvas *xsionly;
+TCanvas *xsi;
+TCanvas *HFCompar;
+TCanvas *etaMaxC;
+TCanvas *xsiCorEffect;
+TCanvas *HFZeroFunctionOfLumi;
+TCanvas *EventRW;
+TCanvas *csi2;
+TCanvas *xLStudies;
+TCanvas *xLStudies2;
+TCanvas *Signific;
+TCanvas *Signific2;
+
+void MakeThesisPlots(void){
+
+  Signific=new TCanvas("Signific","Signific",400,20,1200,800);
+
+  //Allora... 1.8 e' il peso Evento/CS... 1.58 e' il ri peso medio di un evento... 29.5 il bkg con Z2 e 8.96 con D6T... 44.8 e' il signale...
+
+  TF1 *Nevents= new TF1("Nevents","(x-29.5)/sqrt( pow((x/44.8)*10.5,2) + 29.5)",30,130);
+  TF1 *Nevents2= new TF1("Nevents","(x-8.96)/sqrt( pow((x/44.8)*10.5,2) + 8.96)",30,130);
+  TF1 *ref= new TF1("ref","3",30,130);
+  ref->SetLineColor(kBlue); 
+  TF1 *ref2= new TF1("ref2","5",30,130);
+  ref->SetLineColor(kBlack); 
+  ref2->SetLineColor(kGreen); 
+  Nevents2->GetXaxis()->SetTitle("Total Number of Events");
+  Nevents2->GetYaxis()->SetTitle("Significance [sigma]");
+  Nevents2->SetLineWidth(2); 
+  Nevents2->Draw();
+  Nevents->SetLineColor(kBlack);
+  Nevents->SetLineWidth(2); 
+  Nevents->Draw("SAME");
+  ref->Draw("SAME");
+  //ref2->Draw("SAME");
+  TLegend *leg = new TLegend(0.6,0.6,0.8,0.89);
+  leg->AddEntry(Nevents2,"Background simulated with D6T","l");
+  leg->AddEntry(Nevents,"Background simulated with Z2","l");
+  leg->AddEntry(ref,"3 sigma","l");
+  //leg->AddEntry(ref2,"5 sigma","l");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03);
+  leg->Draw();
+  NLine(44.8,2,44.8,7);
+  Signific2=new TCanvas("Signific2","Signific2",400,20,1200,800);
+  TF1 *LumiD6T= new TF1("LumiD6T","( (x/7.65)*(27.35-8.5) )/( sqrt( (x/7.65)*pow(1.26,2)*(27.35) + (x/6.3)*7.65 ) )",0,150); 
+  TF1 *LumiZ2= new TF1("LumiD6T","( (x/6.3)*(27.35-23.12) )/( sqrt( (x/6.3)*pow(1.26,2)*(23.12) + (x/6.3)*23.12 ) )",0,150); 
+  LumiD6T->GetXaxis()->SetTitle("Integrated Luminosity [pb^{1}]");
+  LumiD6T->GetYaxis()->SetTitle("Significance [sigma]");
+  LumiD6T->Draw();
+  //  LumiZ2->Draw("SAME");
+  TF1 *ref4= new TF1("ref4","3",0,150);
+  TF1 *ref5= new TF1("ref5","5",0,150);
+  TLegend *leg = new TLegend(0.6,0.6,0.8,0.89);
+  leg->AddEntry(LumiD6T,"Background simulated with D6T","l");
+  //leg->AddEntry(LumiZ2,"Background simulated with Z2","l");
+  leg->AddEntry(ref4,"3 sigma","l");
+  leg->AddEntry(ref5,"5 sigma","l");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03);
+  leg->Draw();
+  NLine(7.3,2,7.3,7);
+  ref5->SetLineColor(kBlack); 
+  ref4->SetLineColor(kGreen);
+  ref5->Draw("SAME");
+  ref4->Draw("SAME");
+
+  TFile *Control = TFile::Open("xsiAnalysis.root");
+  setTDRStyle();
+  xsionly=new TCanvas("xsionly","xsionly",400,20,1200,800);
+  TH1F *ee;
+  ee=(TH1F*)Control->Get("Data_ee");
+  ee->SetMarkerColor(kBlue);
+  ee->GetXaxis()->SetTitle("csi");
+  ee->GetYaxis()->SetTitle("Number of Events");
+  TH1F *mm;
+  mm=(TH1F*)Control->Get("Data_mm");
+  mm->SetMarkerColor(kRed);
+  TH1F *total;
+  total = NH1clone("total","total",ee);
+  total->Add(ee);
+  total->Add(mm);
+  total->SetMarkerSize(2);
+  total->SetMarkerStyle(20);
+  ee->SetMarkerSize(2);
+  ee->SetMarkerStyle(22);
+  mm->SetMarkerSize(2);
+  mm->SetMarkerStyle(33);
+  total->Draw("HIST");
+  total->SetMarkerColor(kBlack);
+  total->SetLineColor(0);
+  ee->SetLineColor(0);
+  mm->SetLineColor(0);
+  mm->Draw("SAME");  
+  ee->Draw("SAME");
+  TLegend *leg = new TLegend(0.6,0.6,0.8,0.89);
+  leg->AddEntry(ee,"Z->ee dataset, events with sumHF=0","p");
+  leg->AddEntry(mm,"Z->mm dataset, events with sumHF=0","p");
+  leg->AddEntry(total,"Combined Z->ee and Z->mm, events with sumHF=0","p");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03);
+  leg->Draw();
+  total->Draw("SAMES");
+
+  xsionly=new TCanvas("xsi","xsi",400,20,1200,800);
+  TFile *Control = TFile::Open("DiffractiveMC_ee_v1_2.root");
+  TH1F *total2;
+  TH1F *total2HFzero;
+  //NLogAxis(0,1);
+  total2 = new TH1F("total2","total2",20,0,0.15);
+  total2HFzero= new TH1F("total2HFzero","total2HFzero",20,0,0.15);
+  treeMCGen_->Draw("xi_gen>>total2");
+  tree_->Draw("xi_gen>>total2HFzero","TMath::Min(sumEHF_minus,sumEHF_plus)==0");
+  total2->GetXaxis()->SetTitle("csi");
+  total2->GetYaxis()->SetTitle("Number of Events");
+  total2->GetYaxis()->SetRangeUser(0,1000);
+
+  TFile *Control2 = TFile::Open("pythiaZ2_ee_v1_2.root");
+  total2Z2 = new TH1F("total2Z2","total2Z2",20,0,0.15);
+  total2HFzeroZ2= new TH1F("total2HFzeroZ2","total2HFzeroZ2",20,0,0.15);
+  tree_->Draw("xi_gen>>total2Z2");
+  tree_->Draw("xi_gen>>total2HFzeroZ2","TMath::Min(sumEHF_minus,sumEHF_plus)==0");
+
+  TFile *Control1 = TFile::Open("pythiaD6T_ee_v1_2.root");
+  total2D6 = new TH1F("total2D6","total2D6",20,0,0.15);
+  total2HFzeroD6= new TH1F("total2HFzeroD6","total2HFzeroD6",20,0,0.15);
+  tree_->Draw("xi_gen>>total2D6");
+  tree_->Draw("xi_gen>>total2HFzeroD6","TMath::Min(sumEHF_minus,sumEHF_plus)==0");
+
+  total2->SetLineColor(kRed);
+  total2->Draw();
+  total2HFzero->SetLineColor(kRed);
+  total2HFzero->Draw("SAME");
+
+  total2Z2->SetLineColor(kBlue);
+  total2Z2->Draw("SAME");
+  total2HFzeroZ2->SetLineColor(kBlue);
+  total2HFzeroZ2->Draw("SAME");
+
+  total2D6->SetLineColor(kGreen);
+  total2D6->Draw("SAME");
+  total2HFzeroD6->SetLineColor(kGreen);
+  total2HFzeroD6->Draw("SAME");
+
+
+  TLegend *leg = new TLegend(0.2,0.6,0.4,0.89);
+  leg->AddEntry(total2,"csi distribution simulated with pompyt","l");
+  leg->AddEntry(total2HFzero,"csi distribution simulated with pompyt, sumHF=0","l");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03); 
+  leg->Draw();
+
+  HFCompar=new TCanvas("HFCompar","HFCompar",400,20,1200,800);
+  TFile *Control2 = TFile::Open("ControlAnalysis.root");
+  TH1F *ee2;
+  NLogAxis(1,1);
+  ee2=(TH1F*)Control2->Get("SumHF_ee_tot");
+  ee2->SetMarkerColor(kBlue);
+  ee2->GetXaxis()->SetTitle("Min(HF-,HF+)");
+  ee2->GetYaxis()->SetTitle("Number of Events");
+  ee2->Draw();
+  TFile *Unf = TFile::Open("Unfolding_files_HF.root");
+  double scale=ee2->Integral();
+  TH1F *unf_1vtx;
+  unf_1vtx=(TH1F*)Unf->Get("EHF_unf_notscaled_1vtx");
+  unf_1vtx->Scale(scale);
+  unf_1vtx->SetMarkerColor(kBlue);  
+  unf_1vtx->Draw("SAMES");
+  TLegend *leg = new TLegend(0.2,0.6,0.4,0.89);
+  leg->AddEntry(ee2,"Distribution with PU contribution","l");
+  leg->AddEntry(unf_1vtx,"Distribution without PU contribution","p");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03); 
+  leg->Draw();
+
+  etaMaxC=new TCanvas("etaMaxC","etaMaxC",400,20,1200,800);
+  TFile *Control = TFile::Open("DiffractiveMC_ee_v1_3.root");
+  TH1F *etaMax;
+  //NLogAxis(0,1);
+  etaMaxMD= new TH1F("etaMaxMD","etaMaxMD",40,-2,5);
+  tree_->Draw("etaMax_PF>>etaMaxMD");
+  etaMaxMD->GetXaxis()->SetTitle("etaMax using PF");
+  etaMaxMD->GetYaxis()->SetTitle("Fraction of Events");
+  cout<<"---------- PomPyt -------------"<<endl;
+  cout<<"PomPyt ->using eta<1 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<1")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<1.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<1.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<2 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<2")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<2.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<2.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<3 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<3")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<3.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<3.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<4 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<4")/(double)tree_->GetEntries()<<endl;
+  cout<<"------------------------------"<<endl;
+  TFile *Control1 = TFile::Open("pythiaD6T_ee_v1_2.root");
+cout<<"---------- Z2 -------------"<<endl;
+  cout<<"PomPyt ->using eta<1 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<1")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<1.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<1.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<2 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<2")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<2.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<2.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<3 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<3")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<3.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<3.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<4 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<4")/(double)tree_->GetEntries()<<endl;
+  cout<<"------------------------------"<<endl;
+  TH1F *etaMaxD6T;
+  //NLogAxis(0,1);
+  etaMaxD6T= new TH1F("etaMaxD6T","etaMaxD6T",40,-2,5);
+  tree_->Draw("etaMax_PF>>etaMaxD6T");
+  etaMaxD6T->SetLineColor(kGreen);
+  etaMaxD6T->SetLineStyle(30);
+  etaMaxD6T->GetXaxis()->SetTitle("etaMax using PF");
+  etaMaxD6T->GetYaxis()->SetTitle("Fraction of Events");
+  TFile *Control2 = TFile::Open("pythiaZ2_ee_v1_2.root");
+  TH1F *etaMaxZ2;
+  //NLogAxis(0,1);
+  etaMaxZ2= new TH1F("etaMaxZ2","etaMaxZ2",40,-2,5);
+  tree_->Draw("etaMax_PF>>etaMaxZ2");  
+cout<<"---------- Z2 -------------"<<endl;
+  cout<<"PomPyt ->using eta<1 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<1")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<1.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<1.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<2 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<2")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<2.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<2.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<3 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<3")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<3.5 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<3.5")/(double)tree_->GetEntries()<<endl;
+  cout<<"PomPyt ->using eta<4 we select "<<(double)tree_->Draw("etaMax_PF","etaMax_PF<4")/(double)tree_->GetEntries()<<endl;
+  cout<<"------------------------------"<<endl;
+
+  etaMaxZ2->SetLineColor(kRed);
+  etaMaxZ2->SetLineStyle(40);
+  etaMaxD6T->Scale(1./(double)etaMaxD6T->GetEntries());
+  etaMaxZ2->Scale(1./(double)etaMaxZ2->GetEntries());
+  etaMaxMD->Scale(1./(double)etaMaxMD->GetEntries());
+  etaMaxMD->Draw();
+  etaMaxD6T->Draw("SAMES");
+  etaMaxZ2->Draw("SAME");
+  TLegend *leg = new TLegend(0.2,0.6,0.4,0.89);
+  leg->AddEntry(etaMaxMD,"etaMax distribution simulated with PomPyt","l");
+  leg->AddEntry(etaMaxD6T,"etaMax distribution simulated with Pythia D6T","l");
+  leg->AddEntry(etaMaxZ2,"etaMax distribution simulated with Pythia Z2","l");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03); 
+  leg->Draw();
+
+  xsiCorEffectC=new TCanvas("xsiCorEffectC","xsiCorEffectC",400,20,1200,800);
+  TFile *xsiCorFile = TFile::Open("xsiAnalysis.root");
+  csiafter->GetXaxis()->SetTitle("csi value");
+  csiafter->GetYaxis()->SetTitle("# of Events");  
+  csiafter->Draw();
+  csiafter->SetLineColor(kRed);
+  csiafter->SetLineStyle(40);
+  csibefore->Draw("SAME");
+  TLegend *leg = new TLegend(0.2,0.6,0.4,0.89);
+  leg->AddEntry(csibefore,"Events with sumHF=0","l");
+  leg->AddEntry(csiafter,"Events with sumHF=0, re-weighted","l");
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetTextSize(0.03); 
+  leg->Draw();
+
+  TCanvas *EventRW=new TCanvas("EventRW","EventRW",400,20,1200,800);
+  TFile *xsiCorFile = TFile::Open("Unfolding_files_HF.root");
+  EHF_unf_notscaled->Draw();
+
+  TCanvas *csi2=new TCanvas("csi2","EventRW",400,20,1200,800);
+  TFile *xsi2 = TFile::Open("DiffractiveMC_ee_v1_4.root");
+cout<<"Number of events having sumHF"<<tree_->Draw("TMath::Min(xi_PF_plus,xi_PF_minus)");
+  cout<<"Number of events having sumHF and csi < 0.03 per pompyt "<<tree_->Draw("TMath::Min(xi_PF_plus,xi_PF_minus)","TMath::Min(xi_PF_plus,xi_PF_minus)<0.03");
+
+}  
