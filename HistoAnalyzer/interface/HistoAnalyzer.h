@@ -84,6 +84,9 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       TH1F * histNum;
       unsigned int nEvents_;
 
+      //MC
+      double Weight;
+
       //EB
       TH1D * h_IsoTrk_EB;
       TH1D * h_IsoEcal_EB;
@@ -145,6 +148,7 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       double etaSCPF;
 
       void clean_vectors(){
+	Weight=0;
 	numberOfVertices=0;
 	vIsoTrkEB.clear();
 	vIsoEcalEB.clear();

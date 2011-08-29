@@ -153,13 +153,15 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //Calculate the distributions (our data and MC)
     for( int i=0; i<25; ++i) {
-      trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
+      //trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
+      trueD.push_back(ThirteenVertices[i]);    // Model the MC for a 7 verticex distribution!!!!!
       simulated.push_back(probdistFlat10[i]); // Name of the vector included in Flat10.h !
     }
 
     LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
     double MyWeight = LumiWeights_.weight( npv );
     if (debug) cout<<"weight is "<<MyWeight<<endl;
+    Weight=MyWeight;
   }
 
  ///////////////////
@@ -378,6 +380,9 @@ nEvents_ = 0;
 
 	//SC
 	treeVJ_->Branch("etaSC",&etaSCPF);
+
+	//MC
+	treeVJ_->Branch("Weight",&Weight);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
