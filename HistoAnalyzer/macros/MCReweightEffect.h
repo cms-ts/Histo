@@ -100,10 +100,10 @@ MCReweightEffect::MCReweightEffect(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/tmp/marone/MCSignal_DYToEE_M-20_TuneZ2_7TeV-pythia6_reweighted10Vertices/histo.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root");
       if (!f) {
-         f = new TFile("/tmp/marone/MCSignal_DYToEE_M-20_TuneZ2_7TeV-pythia6_reweighted10Vertices/histo.root");
-         f->cd("/tmp/marone/MCSignal_DYToEE_M-20_TuneZ2_7TeV-pythia6_reweighted10Vertices/histo.root:/demo");
+         f = new TFile("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root");
+         f->cd("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root:/demo");
       }
       tree = (TTree*)gDirectory->Get("treeVJ_");
 
