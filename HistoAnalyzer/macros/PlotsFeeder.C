@@ -8,10 +8,7 @@
 #include <TLegend.h>
 #include <TPaveStats.h>
 
-
-TCanvas * EB_plots;
-TCanvas * EE_plots;
-
+#include "MMutil.C"
 
 
 vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
@@ -158,6 +155,175 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	vHistograms.push_back(h_sigmaIeIe_EER);
 	
 
+
+//===================================//
+//=========== DEBUG AREA ============//
+//===================================//
+
+	bool debug=0;
+	if(debug==1){
+
+		TCanvas * EB_plots;
+		TCanvas * EE_plots;
+
+		//EB - Create a Canvas and divide it in Pads
+		EB_plots = new TCanvas("EB_plots","EB",400,20,1200,800);
+		EB_plots->Divide(4,2);
+
+		//First histogram
+		EB_plots->cd(1);
+		h_IsoTrk_EBR->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_IsoTrk_EBR->SetLineColor(1);
+		h_IsoTrk_EBR->Draw();
+
+		//WP Lines and Legend
+		TLegend *leg = new TLegend(0.4,0.55,0.8,0.9);
+		leg->SetBorderSize(0);
+		leg->SetEntrySeparation(0.01);
+		leg->SetFillColor(0);
+		leg->AddEntry(h_IsoTrk_EBR,"MC Reweighted","l");
+		TLine *Line80 = new TLine(0.09,0.,0.09,h_IsoTrk_EBR->GetMaximum());
+		Line80->SetLineColor(kBlue);
+		Line80->SetLineStyle(2);
+		Line80->Draw();
+		leg->AddEntry(Line80,"WP 80","l");
+		TLine *Line90 = new TLine(0.12,0.,0.12,h_IsoTrk_EBR->GetMaximum());
+		Line90->SetLineColor(kBlack);
+		Line90->SetLineStyle(2);
+		Line90->Draw();
+		leg->AddEntry(Line90,"WP 90","l");
+		leg->Draw();
+
+
+		//Second histogram
+		EB_plots->cd(2);
+		h_IsoEcal_EBR->GetYaxis()->SetTitle("Number of Events");
+		h_IsoEcal_EBR->Draw();
+		BLine(0.07,0.,0.07,h_IsoEcal_EBR->GetMaximum());
+		MLine(0.09,0.,0.09,h_IsoEcal_EBR->GetMaximum());
+
+		EB_plots->cd(3);
+		h_IsoHcal_EBR->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_IsoHcal_EBR->SetLineColor(1);
+		h_IsoHcal_EBR->Draw();
+		BLine(0.10,0.,0.10,h_IsoHcal_EBR->GetMaximum());
+		MLine(0.10,0.,0.10,h_IsoHcal_EBR->GetMaximum());
+
+		EB_plots->cd(4);
+		h_HE_EBR->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_HE_EBR->SetLineColor(1);
+		h_HE_EBR->Draw();
+		BLine(0.04,0.,0.04,h_HE_EBR->GetMaximum());
+		MLine(0.12,0.,0.12,h_HE_EBR->GetMaximum());
+
+		EB_plots->cd(5);
+		h_DeltaPhiTkClu_EBR->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_DeltaPhiTkClu_EBR->SetLineColor(1);
+		h_DeltaPhiTkClu_EBR->Draw();
+		BLine(0.06,0.,0.06,h_DeltaPhiTkClu_EBR->GetMaximum());
+		MLine(0.8,0.,0.8,h_DeltaPhiTkClu_EBR->GetMaximum());
+
+		EB_plots->cd(6);
+		h_DeltaEtaTkClu_EBR->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_DeltaEtaTkClu_EBR->SetLineColor(1);
+		h_DeltaEtaTkClu_EBR->Draw();
+		BLine(0.004,0.,0.004,h_DeltaEtaTkClu_EBR->GetMaximum());
+		MLine(0.007,0.,0.007,h_DeltaEtaTkClu_EBR->GetMaximum());
+
+		EB_plots->cd(7);
+		h_sigmaIeIe_EBR->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_sigmaIeIe_EBR->SetLineColor(1);
+		h_sigmaIeIe_EBR->Draw();
+		BLine(0.004,0.,0.004,h_sigmaIeIe_EBR->GetMaximum());
+		MLine(0.007,0.,0.007,h_sigmaIeIe_EBR->GetMaximum());
+
+
+		/*============================*/
+
+		// qua dei draw copi diretto da all plots
+		//EE - Create a Canvas and divide it in Pads
+		EE_plots = new TCanvas("EE_plots","EE",400,20,1200,800);
+		EE_plots->Divide(4,2);
+
+		//First histogram
+		EE_plots->cd(1);
+		h_IsoTrk_EER->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_IsoTrk_EER->SetLineColor(1);
+		h_IsoTrk_EER->Draw();
+
+		//WP Lines and Legend
+		TLegend *leg2 = new TLegend(0.4,0.55,0.8,0.9);
+		leg2->SetBorderSize(0);
+		leg2->SetEntrySeparation(0.01);
+		leg2->SetFillColor(0);
+		leg2->AddEntry(h_IsoTrk_EER,"MC Reweighted","l");
+		Line80->SetLineColor(kBlue);
+		Line80->SetLineStyle(2);
+		Line80->Draw();
+		leg2->AddEntry(Line80,"WP 80","l");
+		Line90->SetLineColor(kBlack);
+		Line90->SetLineStyle(2);
+		Line90->Draw();
+		leg2->AddEntry(Line90,"WP 90","l");
+		leg2->Draw();
+
+
+		//Second histogram
+		EE_plots->cd(2);
+		h_IsoEcal_EER->GetYaxis()->SetTitle("Number of Events");
+		h_IsoEcal_EER->SetLineColor(1);
+		h_IsoEcal_EER->Draw();
+		BLine(0.07,0.,0.07,h_IsoEcal_EER->GetMaximum());
+		MLine(0.09,0.,0.09,h_IsoEcal_EER->GetMaximum());
+
+		EE_plots->cd(3);
+		h_IsoHcal_EER->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_IsoHcal_EER->SetLineColor(1);
+		h_IsoHcal_EER->Draw();
+		BLine(0.10,0.,0.10,h_IsoHcal_EER->GetMaximum());
+		MLine(0.10,0.,0.10,h_IsoHcal_EER->GetMaximum());
+
+		EE_plots->cd(4);
+		h_HE_EER->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_HE_EER->SetLineColor(1);
+		h_HE_EER->Draw();
+		BLine(0.04,0.,0.04,h_HE_EER->GetMaximum());
+		MLine(0.12,0.,0.12,h_HE_EER->GetMaximum());
+
+		EE_plots->cd(5);
+		h_DeltaPhiTkClu_EER->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_DeltaPhiTkClu_EER->SetLineColor(1);
+		h_DeltaPhiTkClu_EER->Draw();
+		BLine(0.06,0.,0.06,h_DeltaPhiTkClu_EER->GetMaximum());
+		MLine(0.8,0.,0.8,h_DeltaPhiTkClu_EER->GetMaximum());
+
+		EE_plots->cd(6);
+		h_DeltaEtaTkClu_EER->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_DeltaEtaTkClu_EER->SetLineColor(1);
+		h_DeltaEtaTkClu_EER->Draw();
+		BLine(0.004,0.,0.004,h_DeltaEtaTkClu_EER->GetMaximum());
+		MLine(0.007,0.,0.007,h_DeltaEtaTkClu_EER->GetMaximum());
+
+		EE_plots->cd(7);
+		h_sigmaIeIe_EER->GetYaxis()->SetTitle("Number of Events");
+		gPad->SetLogy(1);
+		h_sigmaIeIe_EER->SetLineColor(1);
+		h_sigmaIeIe_EER->Draw();
+		BLine(0.004,0.,0.004,h_sigmaIeIe_EER->GetMaximum());
+		MLine(0.007,0.,0.007,h_sigmaIeIe_EER->GetMaximum());
+
+	}
 
 return  vHistograms;
 
