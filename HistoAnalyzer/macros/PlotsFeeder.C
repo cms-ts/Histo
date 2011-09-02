@@ -92,48 +92,92 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 
 		if(numberOfVertices==NumOfVtx){
 
-			if (IsoTrkEB->size()>0) {float var=IsoTrkEB->at(0);
-				h_IsoTrk_EBR->Fill(var,Weight);
+			if (IsoTrkEB->size()>0) {
+				for (unsigned int i=0; i<IsoTrkEB->size();i++){
+					float var=IsoTrkEB->at(i);
+					h_IsoTrk_EBR->Fill(var,Weight);
+				}
 			}
-			if (IsoEcalEB->size()>0) {float var=IsoEcalEB->at(0);
-				h_IsoEcal_EBR->Fill(var,Weight);
+			if (IsoEcalEB->size()>0) {
+				for (unsigned int i=0; i<IsoEcalEB->size();i++){
+					float var=IsoEcalEB->at(i);
+					h_IsoEcal_EBR->Fill(var,Weight);
+				}
 			}
-			if (IsoHcalEB->size()>0) {float var=IsoHcalEB->at(0);
-				h_IsoHcal_EBR->Fill(var,Weight);
+			if (IsoHcalEB->size()>0) {
+				for (unsigned int i=0; i<IsoEcalEB->size();i++){
+					float var=IsoHcalEB->at(i);
+					h_IsoHcal_EBR->Fill(var,Weight);
+				}
 			}
-			if (HEEB->size()>0) {float var=HEEB->at(0);
-				h_HE_EBR->Fill(var,Weight);
+			if (HEEB->size()>0) {
+				for (unsigned int i=0; i<HEEB->size();i++){
+					float var=HEEB->at(i);
+					h_HE_EBR->Fill(var,Weight);
+				}
 			}
-			if (DeltaPhiTkCluEB->size()>0) {float var=DeltaPhiTkCluEB->at(0);
-				h_DeltaPhiTkClu_EBR->Fill(var,Weight);
+			if (DeltaPhiTkCluEB->size()>0) {
+				for (unsigned int i=0; i<DeltaPhiTkCluEB->size();i++){
+					float var=DeltaPhiTkCluEB->at(i);
+					h_DeltaPhiTkClu_EBR->Fill(var,Weight);
+				}
 			}
-			if (DeltaEtaTkCluEB->size()>0) {float var=DeltaEtaTkCluEB->at(0);
-				h_DeltaEtaTkClu_EBR->Fill(var,Weight);
+			if (DeltaEtaTkCluEB->size()>0) {
+				for (unsigned int i=0; i<DeltaEtaTkCluEB->size();i++){
+					float var=DeltaEtaTkCluEB->at(i);
+					h_DeltaEtaTkClu_EBR->Fill(var,Weight);
+				}
 			}
-			if (sigmaIeIeEB->size()>0) {float var=sigmaIeIeEB->at(0);
-				h_sigmaIeIe_EBR->Fill(var,Weight);
+			if (sigmaIeIeEB->size()>0) {
+				for (unsigned int i=0; i<sigmaIeIeEB->size();i++){
+					float var=sigmaIeIeEB->at(i);
+					h_sigmaIeIe_EBR->Fill(var,Weight);
+				}
 			}
 
-			if (IsoTrkEE->size()>0) {float var=IsoTrkEE->at(0);
-				h_IsoTrk_EER->Fill(var,Weight);
+			//==== EE ====//
+
+			if (IsoTrkEE->size()>0) {
+				for (unsigned int i=0; i<IsoTrkEE->size();i++){
+					float var=IsoTrkEE->at(i);
+					h_IsoTrk_EER->Fill(var,Weight);
+				}
 			}
-			if (IsoEcalEE->size()>0) {float var=IsoEcalEE->at(0);
-				h_IsoEcal_EER->Fill(var,Weight);
+			if (IsoEcalEE->size()>0) {
+				for (unsigned int i=0; i<IsoEcalEE->size();i++){
+					float var=IsoEcalEE->at(i);
+					h_IsoEcal_EER->Fill(var,Weight);
+				}
 			}
-			if (IsoHcalEE->size()>0) {float var=IsoHcalEE->at(0);
-				h_IsoHcal_EER->Fill(var,Weight);
+			if (IsoHcalEE->size()>0) {
+				for (unsigned int i=0; i<IsoHcalEE->size();i++){
+					float var=IsoHcalEE->at(i);
+					h_IsoHcal_EER->Fill(var,Weight);
+				}
 			}
-			if (HEEE->size()>0) {float var=HEEE->at(0);
-				h_HE_EER->Fill(var,Weight);
+			if (HEEE->size()>0) {
+				for (unsigned int i=0; i<HEEE->size();i++){
+					float var=HEEE->at(i);
+					h_HE_EER->Fill(var,Weight);
+				}
 			}
-			if (DeltaPhiTkCluEE->size()>0) {float var=DeltaPhiTkCluEE->at(0);
-				h_DeltaPhiTkClu_EER->Fill(var,Weight);
+			if (DeltaPhiTkCluEE->size()>0) {
+				for (unsigned int i=0; i<DeltaPhiTkCluEE->size();i++){
+					float var=DeltaPhiTkCluEE->at(i);
+					h_DeltaPhiTkClu_EER->Fill(var,Weight);
+				}
 			}
-			if (DeltaEtaTkCluEE->size()>0) {float var=DeltaEtaTkCluEE->at(0);
-				h_DeltaEtaTkClu_EER->Fill(var,Weight);
+			if (DeltaEtaTkCluEE->size()>0) {
+				for (unsigned int i=0; i<DeltaEtaTkCluEE->size();i++){
+					float var=DeltaEtaTkCluEE->at(i);
+					h_DeltaEtaTkClu_EER->Fill(var,Weight);
+				}
 			}
-			if (sigmaIeIeEE->size()>0) {float var=sigmaIeIeEE->at(0);
-				h_sigmaIeIe_EER->Fill(var,Weight);
+			if (sigmaIeIeEE->size()>0) {
+				for (unsigned int i=0; i<sigmaIeIeEE->size();i++){
+					float var=sigmaIeIeEE->at(i);
+					h_sigmaIeIe_EER->Fill(var,Weight);
+				}
 			}
 		}
 	}
@@ -160,7 +204,7 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 //=========== DEBUG AREA ============//
 //===================================//
 
-	bool debug=0;
+	bool debug=1;
 	if(debug==1){
 
 		TCanvas * EB_plots;
