@@ -77,6 +77,7 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       std::vector<std::string> triggerNames_; // name of the algorithms selected by our analysis
       std::vector<unsigned int> triggerIndices_; // index of the algorithms selected by our analysis
       bool removePU_;
+      bool usingMC_;
       bool doTheHLTAnalysis_;
 
       //Various
@@ -136,6 +137,16 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       std::vector<float> vDist;
       std::vector<int> vNumberOfExpectedInnerHits;
 
+      // PileUp REMOVED variables
+      //EB
+      std::vector<double> vIsoTrkEB_PUR;
+      std::vector<double> vIsoEcalEB_PUR;
+      std::vector<double> vIsoHcalEB_PUR;
+      //EE
+      std::vector<double> vIsoTrkEE_PUR;
+      std::vector<double> vIsoEcalEE_PUR;
+      std::vector<double> vIsoHcalEE_PUR;
+      
       //Run Properties
       int Run;
       int LS;
@@ -171,7 +182,12 @@ class HistoAnalyzer : public edm::EDAnalyzer {
 	vNumberOfExpectedInnerHits.clear();
 	//statento che uccido ogni giro anche il vettore stringa!
 	path.clear();
-	
+	vIsoTrkEB_PUR.clear();
+	vIsoEcalEB_PUR.clear();
+	vIsoHcalEB_PUR.clear();
+	vIsoTrkEE_PUR.clear();
+	vIsoEcalEE_PUR.clear();
+	vIsoHcalEE_PUR.clear();
       }
 
       //HLT and Prescale
@@ -190,6 +206,7 @@ HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
   triggerNames_         = conf.getParameter< std::vector<std::string> > ("TriggerNames");
   useAllTriggers_       = (triggerNames_.size()==0);
   removePU_             = conf.getParameter<bool>("removePU");
+  usingMC_             = conf.getParameter<bool>("usingMC");
   doTheHLTAnalysis_     = conf.getParameter<bool>("doTheHLTAnalysis");
   VertexCollectionTag_      = conf.getParameter<edm::InputTag>("VertexCollectionTag");
 

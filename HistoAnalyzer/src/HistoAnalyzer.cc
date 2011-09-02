@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id$
+// $Id: HistoAnalyzer.cc,v 1.7 2011/08/29 08:37:05 marone Exp $
 //
 //
 
@@ -50,7 +50,12 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  clean_vectors();
  nEvents_++;
 
- //Define Isolation variables
+ //Isolation Variables for Removed PU
+ double IsoTrk_PUR;
+ double IsoEcal_PUR;
+ double IsoHcal_PUR;
+
+ //Define Isolation Variables (Non-Removed PU)
  double IsoTrk;
  double IsoEcal;
  double IsoHcal;
@@ -128,9 +133,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////// Pile UP studies
   /////////////////
 
-  bool MC_=true;
-
-  if (MC_){
+  if (usingMC_){
     edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
     iEvent.getByLabel(PileupSrc_, PupInfo);
@@ -176,116 +179,130 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  //Loop over the gsf collection to study the variables distributions
 
  for(GsfElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
-      
-    if (removePU_){
-      double lepIsoRho;
-      
-      /////// Pileup density "rho" for lepton isolation subtraction /////
-      
-      edm::Handle<double> rhoLepIso;
-      const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
-      iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
-      if( *rhoLepIso == *rhoLepIso)  lepIsoRho = *rhoLepIso;
-      else  lepIsoRho =  -999999.9;
 
-      if (fabs (itElect->eta()) <= 1.4442) {      
-	IsoEcal = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
-	IsoTrk = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
-	IsoHcal = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
-	HE = itElect->hadronicOverEm();
-      }
-      else{
-	IsoEcal = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
-	IsoTrk = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
-	IsoHcal = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
-	HE = itElect->hadronicOverEm();
-      }
-    }
-    else{
-      // Define Isolation variables
-      IsoTrk = (itElect->dr03TkSumPt () / itElect->et ());
-      IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
-      IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
-      HE = itElect->hadronicOverEm();
-    }
+	 if (removePU_){
+		 double lepIsoRho;
 
-   //Assign Isolation variables
-   fbrem	= itElect->fbrem();
-   etaSC	= itElect->superCluster()->eta();
-   //etaSCPF      = itElect->pflowSuperCluster()->eta();
+		 /////// Pileup density "rho" for lepton isolation subtraction /////
+		 edm::Handle<double> rhoLepIso;
+		 const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
+		 iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
+		 if( *rhoLepIso == *rhoLepIso)  lepIsoRho = *rhoLepIso;
+		 else  lepIsoRho =  -999999.9;
 
-   //Assign ID variables
-   DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
-   DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
-   sigmaIeIe     = itElect->sigmaIetaIeta ();
-   
-   //Assign Conversion Rejection Variables
-   Dcot		= itElect->convDcot();
-   Dist 	= itElect->convDist();
-   NumberOfExpectedInnerHits = itElect->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-   
-   //Filling Histos
-   //EB
-   if (fabs (itElect->eta()) <= 1.4442) {
-     //histos
-     h_IsoTrk_EB->Fill(IsoTrk);
-     h_IsoEcal_EB->Fill(IsoEcal);
-     h_IsoHcal_EB->Fill(IsoHcal);
-     h_HE_EB->Fill(HE);
-     
-     h_DeltaPhiTkClu_EB->Fill(DeltaPhiTkClu);
-     h_DeltaEtaTkClu_EB->Fill(DeltaEtaTkClu);
-     h_sigmaIeIe_EB->Fill(sigmaIeIe);
-     
-     //vectors
-     vIsoTrkEB.push_back(IsoTrk);
-     vIsoEcalEB.push_back(IsoEcal);
-     vIsoHcalEB.push_back(IsoHcal);
-     vHEEB.push_back(HE);
-     vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
-     vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
-     vsigmaIeIeEB.push_back(sigmaIeIe);
-   }
-   //EE
-   if (fabs (itElect->eta()) >= 1.5660
-       && fabs (itElect->eta()) <= 2.5000) {
-     //histos
-     h_IsoTrk_EE->Fill(IsoTrk);
-     h_IsoEcal_EE->Fill(IsoEcal);
-     h_IsoHcal_EE->Fill(IsoHcal);
-     h_HE_EE->Fill(HE);
-     
-     h_DeltaPhiTkClu_EE->Fill(DeltaPhiTkClu);
-     h_DeltaEtaTkClu_EE->Fill(DeltaEtaTkClu);
-     h_sigmaIeIe_EE->Fill(sigmaIeIe);
-     
-     //vectors
-     vIsoTrkEE.push_back(IsoTrk);
-     vIsoEcalEE.push_back(IsoEcal);
-     vIsoHcalEE.push_back(IsoHcal);
-     vHEEE.push_back(HE);
-     vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
-     vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
-     vsigmaIeIeEE.push_back(sigmaIeIe);
-     
-   }
-   
-   //Common (histo)
-   h_fbrem->Fill(fbrem);
-   h_etaSC->Fill(etaSC);
-   h_Dcot->Fill(Dcot);
-   h_Dist->Fill(Dist);
-   h_NumberOfExpectedInnerHits->Fill(NumberOfExpectedInnerHits);
-   
-   //Common (vector)
-   vfbrem.push_back(fbrem);
-   vetaSC.push_back(etaSC);
-   vDcot.push_back(Dcot);
-   vDist.push_back(Dcot);
-   vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
-   
+		 //EB
+		 if (fabs (itElect->eta()) <= 1.4442) {      
+			 //
+			 IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
+			 IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
+			 IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
+			 //vectors
+			 vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
+			 vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
+			 vIsoHcalEB_PUR.push_back(IsoHcal_PUR);
+		 }
+		 //EE
+		 if (fabs (itElect->eta()) >= 1.5660
+				 && fabs (itElect->eta()) <= 2.5000) {
+			 //
+			 IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
+			 IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
+			 IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
+			 //vectors
+			 vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
+			 vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
+			 vIsoHcalEE_PUR.push_back(IsoHcal_PUR);
+		 }
+	 }
+
+
+	 //Non-Removed-PU variables
+	 // Define Isolation variables
+	 IsoTrk = (itElect->dr03TkSumPt () / itElect->et ());
+	 IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
+	 IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
+	 HE = itElect->hadronicOverEm();
+
+	 //Assign Isolation variables
+	 fbrem	= itElect->fbrem();
+	 etaSC	= itElect->superCluster()->eta();
+	 //etaSCPF      = itElect->pflowSuperCluster()->eta();
+
+	 //Assign ID variables
+	 DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
+	 DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
+	 sigmaIeIe     = itElect->sigmaIetaIeta ();
+
+	 //Assign Conversion Rejection Variables
+	 Dcot		= itElect->convDcot();
+	 Dist 	= itElect->convDist();
+	 NumberOfExpectedInnerHits = itElect->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+
+	 //Filling Histos and Vectors
+	 //EB
+	 if (fabs (itElect->eta()) <= 1.4442) {
+		 //histos
+		 h_IsoTrk_EB->Fill(IsoTrk);
+		 h_IsoEcal_EB->Fill(IsoEcal);
+		 h_IsoHcal_EB->Fill(IsoHcal);
+		 h_HE_EB->Fill(HE);
+
+		 h_DeltaPhiTkClu_EB->Fill(DeltaPhiTkClu);
+		 h_DeltaEtaTkClu_EB->Fill(DeltaEtaTkClu);
+		 h_sigmaIeIe_EB->Fill(sigmaIeIe);
+
+		 //vectors
+		 vIsoTrkEB.push_back(IsoTrk);
+		 vIsoEcalEB.push_back(IsoEcal);
+		 vIsoHcalEB.push_back(IsoHcal);
+		 vHEEB.push_back(HE);
+		 vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
+		 vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
+		 vsigmaIeIeEB.push_back(sigmaIeIe);
+	 }
+	 //EE
+	 if (fabs (itElect->eta()) >= 1.5660
+			 && fabs (itElect->eta()) <= 2.5000) {
+		 //histos
+		 h_IsoTrk_EE->Fill(IsoTrk);
+		 h_IsoEcal_EE->Fill(IsoEcal);
+		 h_IsoHcal_EE->Fill(IsoHcal);
+		 h_HE_EE->Fill(HE);
+
+		 h_DeltaPhiTkClu_EE->Fill(DeltaPhiTkClu);
+		 h_DeltaEtaTkClu_EE->Fill(DeltaEtaTkClu);
+		 h_sigmaIeIe_EE->Fill(sigmaIeIe);
+
+		 //vectors
+		 vIsoTrkEE.push_back(IsoTrk);
+		 vIsoEcalEE.push_back(IsoEcal);
+		 vIsoHcalEE.push_back(IsoHcal);
+		 vHEEE.push_back(HE);
+		 vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
+		 vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
+		 vsigmaIeIeEE.push_back(sigmaIeIe);
+
+	 }
+
+	 //Common (histo)
+	 h_fbrem->Fill(fbrem);
+	 h_etaSC->Fill(etaSC);
+	 h_Dcot->Fill(Dcot);
+	 h_Dist->Fill(Dist);
+	 h_NumberOfExpectedInnerHits->Fill(NumberOfExpectedInnerHits);
+
+	 //Common (vector)
+	 vfbrem.push_back(fbrem);
+	 vetaSC.push_back(etaSC);
+	 vDcot.push_back(Dcot);
+	 vDist.push_back(Dcot);
+	 vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
+
  }//End for
-  
+
+
+
+ //Histograms
  histNum-> GetXaxis()-> SetTitle("N_{ele}");
  histNum-> GetYaxis()-> SetTitle("Events");
  histNum->Fill((*gsfElectrons).size());
@@ -341,7 +358,17 @@ nEvents_ = 0;
 	//////////////////
 	//// Z->EE SELECTION VARIABLES 
 	////////////////// 
-  
+ 
+	//EB PileUp REMOVED
+	treeVJ_->Branch("IsoTrkEB_PUR","IsoTrkEB_PUR",&vIsoTrkEB_PUR);
+	treeVJ_->Branch("IsoEcalEB_PUR","IsoEcalEB_PUR",&vIsoEcalEB_PUR);
+	treeVJ_->Branch("IsoHcalEB_PUR","IsoHcalEB_PUR",&vIsoHcalEB_PUR);
+
+	//EE PileUp REMOVED
+	treeVJ_->Branch("IsoTrkEE_PUR","IsoTrkEE_PUR",&vIsoTrkEE_PUR);
+	treeVJ_->Branch("IsoEcalEE_PUR","IsoEcalEE_PUR",&vIsoEcalEE_PUR);
+	treeVJ_->Branch("IsoHcalEE_PUR","IsoHcalEE_PUR",&vIsoHcalEE_PUR);
+
 	//EB
 	treeVJ_->Branch("IsoTrkEB","IsoTrkEB",&vIsoTrkEB);
 	treeVJ_->Branch("IsoEcalEB","IsoEcalEB",&vIsoEcalEB);
@@ -351,7 +378,7 @@ nEvents_ = 0;
 	treeVJ_->Branch("DeltaEtaTkCluEB","DeltaEtaTkCluEB",&vDeltaEtaTkCluEB);
 	treeVJ_->Branch("sigmaIeIeEB","sigmaIeIeEB",&vsigmaIeIeEB);
 	
-	//EB
+	//EE
 	treeVJ_->Branch("IsoTrkEE","IsoTrkEE",&vIsoTrkEE);
 	treeVJ_->Branch("IsoEcalEE","IsoEcalEE",&vIsoEcalEE);
 	treeVJ_->Branch("IsoHcalEE","IsoHcalEE",&vIsoHcalEE);
