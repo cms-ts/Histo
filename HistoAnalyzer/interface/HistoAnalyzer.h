@@ -192,6 +192,8 @@ class HistoAnalyzer : public edm::EDAnalyzer {
 
       //HLT and Prescale
       std::vector<pair<std::string,int> > HLTAndPrescale;
+      std::vector<string> HLTPaths;
+      std::vector<int> HLTPrescales;      
 
 };
 

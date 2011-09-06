@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.7 2011/08/29 08:37:05 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.8 2011/09/02 13:52:15 dscaini Exp $
 //
 //
 
@@ -112,6 +112,8 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
 	   string stringa=triggerNames_[itrig];
 	   pair<string, int> pr2(stringa, prescale);
+	   HLTPaths.push_back(stringa);
+	   HLTPrescales.push_back(prescale);
 	   HLTPres.push_back(pr2);
 	 } 
        }else {
@@ -156,8 +158,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //Calculate the distributions (our data and MC)
     for( int i=0; i<25; ++i) {
-      //trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
-      trueD.push_back(ThirteenVertices[i]);    // Model the MC for a 7 verticex distribution!!!!!
+      trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
       simulated.push_back(probdistFlat10[i]); // Name of the vector included in Flat10.h !
     }
 
@@ -396,6 +397,8 @@ nEvents_ = 0;
 	
 	//HLT and Prescale
 	treeVJ_->Branch("HLTAndPrescale",&HLTAndPrescale);
+	treeVJ_->Branch("HLTPaths",&HLTPaths);
+	treeVJ_->Branch("HLTPrescales",&HLTPrescales);
 
 	//Run Properties
 	treeVJ_->Branch("Run",&Run);
