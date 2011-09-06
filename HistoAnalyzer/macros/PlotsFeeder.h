@@ -26,6 +26,9 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
+   std::vector<double>  *IsoTrkEB_PUR;
+   std::vector<double>  *IsoEcalEB_PUR;
+   std::vector<double>  *IsoHcalEB_PUR;
    std::vector<double>  *IsoTrkEB;
    std::vector<double>  *IsoEcalEB;
    std::vector<double>  *IsoHcalEB;
@@ -33,6 +36,9 @@ public :
    std::vector<float>   *DeltaPhiTkCluEB;
    std::vector<float>   *DeltaEtaTkCluEB;
    std::vector<float>   *sigmaIeIeEB;
+   std::vector<double>  *IsoTrkEE_PUR;
+   std::vector<double>  *IsoEcalEE_PUR;
+   std::vector<double>  *IsoHcalEE_PUR;
    std::vector<double>  *IsoTrkEE;
    std::vector<double>  *IsoEcalEE;
    std::vector<double>  *IsoHcalEE;
@@ -54,6 +60,9 @@ public :
    Double_t        Weight;
 
    // List of branches
+   TBranch        *b_IsoTrkEB_PUR;   //!
+   TBranch        *b_IsoEcalEB_PUR;   //!
+   TBranch        *b_IsoHcalEB_PUR;   //!
    TBranch        *b_IsoTrkEB;   //!
    TBranch        *b_IsoEcalEB;   //!
    TBranch        *b_IsoHcalEB;   //!
@@ -61,6 +70,9 @@ public :
    TBranch        *b_DeltaPhiTkCluEB;   //!
    TBranch        *b_DeltaEtaTkCluEB;   //!
    TBranch        *b_sigmaIeIeEB;   //!
+   TBranch        *b_IsoTrkEE_PUR;   //!
+   TBranch        *b_IsoEcalEE_PUR;   //!
+   TBranch        *b_IsoHcalEE_PUR;   //!
    TBranch        *b_IsoTrkEE;   //!
    TBranch        *b_IsoEcalEE;   //!
    TBranch        *b_IsoHcalEE;   //!
@@ -100,10 +112,10 @@ PlotsFeeder::PlotsFeeder(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root");
       if (!f) {
-         f = new TFile("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root");
-         f->cd("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root:/demo");
+         f = new TFile("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root");
+         f->cd("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root:/demo");
       }
       tree = (TTree*)gDirectory->Get("treeVJ_");
 
@@ -149,6 +161,9 @@ void PlotsFeeder::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
+   IsoTrkEB_PUR = 0;
+   IsoEcalEB_PUR = 0;
+   IsoHcalEB_PUR = 0;
    IsoTrkEB = 0;
    IsoEcalEB = 0;
    IsoHcalEB = 0;
@@ -156,6 +171,9 @@ void PlotsFeeder::Init(TTree *tree)
    DeltaPhiTkCluEB = 0;
    DeltaEtaTkCluEB = 0;
    sigmaIeIeEB = 0;
+   IsoTrkEE_PUR = 0;
+   IsoEcalEE_PUR = 0;
+   IsoHcalEE_PUR = 0;
    IsoTrkEE = 0;
    IsoEcalEE = 0;
    IsoHcalEE = 0;
@@ -174,6 +192,9 @@ void PlotsFeeder::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
+   fChain->SetBranchAddress("IsoTrkEB_PUR", &IsoTrkEB_PUR, &b_IsoTrkEB_PUR);
+   fChain->SetBranchAddress("IsoEcalEB_PUR", &IsoEcalEB_PUR, &b_IsoEcalEB_PUR);
+   fChain->SetBranchAddress("IsoHcalEB_PUR", &IsoHcalEB_PUR, &b_IsoHcalEB_PUR);
    fChain->SetBranchAddress("IsoTrkEB", &IsoTrkEB, &b_IsoTrkEB);
    fChain->SetBranchAddress("IsoEcalEB", &IsoEcalEB, &b_IsoEcalEB);
    fChain->SetBranchAddress("IsoHcalEB", &IsoHcalEB, &b_IsoHcalEB);
@@ -181,6 +202,9 @@ void PlotsFeeder::Init(TTree *tree)
    fChain->SetBranchAddress("DeltaPhiTkCluEB", &DeltaPhiTkCluEB, &b_DeltaPhiTkCluEB);
    fChain->SetBranchAddress("DeltaEtaTkCluEB", &DeltaEtaTkCluEB, &b_DeltaEtaTkCluEB);
    fChain->SetBranchAddress("sigmaIeIeEB", &sigmaIeIeEB, &b_sigmaIeIeEB);
+   fChain->SetBranchAddress("IsoTrkEE_PUR", &IsoTrkEE_PUR, &b_IsoTrkEE_PUR);
+   fChain->SetBranchAddress("IsoEcalEE_PUR", &IsoEcalEE_PUR, &b_IsoEcalEE_PUR);
+   fChain->SetBranchAddress("IsoHcalEE_PUR", &IsoHcalEE_PUR, &b_IsoHcalEE_PUR);
    fChain->SetBranchAddress("IsoTrkEE", &IsoTrkEE, &b_IsoTrkEE);
    fChain->SetBranchAddress("IsoEcalEE", &IsoEcalEE, &b_IsoEcalEE);
    fChain->SetBranchAddress("IsoHcalEE", &IsoHcalEE, &b_IsoHcalEE);
