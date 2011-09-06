@@ -204,7 +204,7 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 //=========== DEBUG AREA ============//
 //===================================//
 
-	bool debug=1;
+	bool debug=0;
 	if(debug==1){
 
 		TCanvas * EB_plots;
