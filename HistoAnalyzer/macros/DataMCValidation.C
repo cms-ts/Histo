@@ -59,28 +59,26 @@
 	  dataf->cd("demo");
 	
 	//EB data
-
-	TH1D *h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",20,0.,0.2);
-	treeVJ_->Draw("IsoEcalEB>>h_ieEB_data",cut.c_str());
-
-	TH1D *h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",20,0.,0.2);
-	treeVJ_->Draw("IsoHcalEB>>h_ihEB_data",cut.c_str());
-
-	TH1D *h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",20,0.,0.2);
+	TH1D *h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",36,0.,0.09);
 	treeVJ_->Draw("IsoTrkEB>>h_trkEB_data",cut.c_str());
 
+	TH1D *h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",28,0.,0.07);
+	treeVJ_->Draw("IsoEcalEB>>h_ieEB_data",cut.c_str());
+
+	TH1D *h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",40,0.,0.10);
+	treeVJ_->Draw("IsoHcalEB>>h_ihEB_data",cut.c_str());
+
 	//EE data
-
-	TH1D *h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",20,0.,0.2);
-	treeVJ_->Draw("IsoEcalEE>>h_ieEE_data",cut.c_str());
-
-	TH1D *h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",20,0.,0.2);
-	treeVJ_->Draw("IsoHcalEE>>h_ihEE_data",cut.c_str());
-
-	TH1D *h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",20,0.,0.2);
+	TH1D *h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",16,0.,0.04);
 	treeVJ_->Draw("IsoTrkEE>>h_trkEE_data",cut.c_str());
 
+	TH1D *h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",20,0.,0.05);
+	treeVJ_->Draw("IsoEcalEE>>h_ieEE_data",cut.c_str());
 
+	TH1D *h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",10,0.,0.025);
+	treeVJ_->Draw("IsoHcalEE>>h_ihEE_data",cut.c_str());
+
+	
 	//Definizione canvas e riempimento
 	//EB
 	
@@ -112,7 +110,7 @@
 	r2->Draw();
 	Comp->Update();
 
-	TLegend *leg = new TLegend(0.4,0.75,0.8,0.9);
+	TLegend *leg = new TLegend(0.6,0.75,0.825,0.9);
 	leg->SetBorderSize(0);
 	leg->SetEntrySeparation(0.01);
 	leg->SetFillColor(0);
@@ -149,7 +147,7 @@
 	r5->Draw();
 	Comp->Update();
 	
-	TLegend *leg3 = new TLegend(0.4,0.75,0.8,0.9);
+	TLegend *leg3 = new TLegend(0.6,0.75,0.825,0.9);
 	leg3->SetBorderSize(0);
 	leg3->SetEntrySeparation(0.01);
 	leg3->SetFillColor(0);
@@ -184,7 +182,7 @@
 	r3->Draw();
 	Comp->Update();
 	
-	TLegend *leg2 = new TLegend(0.4,0.75,0.8,0.9);
+	TLegend *leg2 = new TLegend(0.6,0.75,0.825,0.9);
 	leg2->SetBorderSize(0);
 	leg2->SetEntrySeparation(0.01);
 	leg2->SetFillColor(0);
@@ -219,7 +217,7 @@
 	r6->Draw();
 	Comp->Update();
 	
-	TLegend *leg4 = new TLegend(0.4,0.75,0.8,0.9);
+	TLegend *leg4 = new TLegend(0.6,0.75,0.825,0.9);
 	leg4->SetBorderSize(0);
 	leg4->SetEntrySeparation(0.01);
 	leg4->SetFillColor(0);
@@ -254,7 +252,7 @@
 	r7->Draw();
 	Comp->Update();
 
-	TLegend *leg7 = new TLegend(0.4,0.75,0.8,0.9);
+	TLegend *leg7 = new TLegend(0.6,0.75,0.825,0.9);
 	leg7->SetBorderSize(0);
 	leg7->SetEntrySeparation(0.01);
 	leg7->SetFillColor(0);
@@ -288,7 +286,7 @@
 	r8->Draw();
 	Comp->Update();
 
-	TLegend *leg8 = new TLegend(0.4,0.75,0.8,0.9);
+	TLegend *leg8 = new TLegend(0.6,0.75,0.825,0.9);
 	leg8->SetBorderSize(0);
 	leg8->SetEntrySeparation(0.01);
 	leg8->SetFillColor(0);
