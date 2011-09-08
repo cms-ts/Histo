@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.8 2011/09/02 13:52:15 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.9 2011/09/06 11:22:33 marone Exp $
 //
 //
 
@@ -197,6 +197,8 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			 IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
 			 IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
 			 IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
+			 if(IsoEcal_PUR<=0.) IsoEcal_PUR=0.;
+			 if(IsoHcal_PUR<=0.) IsoHcal_PUR=0.;
 			 //vectors
 			 vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
 			 vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
@@ -209,6 +211,8 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			 IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
 			 IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
 			 IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
+			 if(IsoEcal_PUR<=0.) IsoEcal_PUR=0.;
+			 if(IsoHcal_PUR<=0.) IsoHcal_PUR=0.;
 			 //vectors
 			 vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
 			 vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
