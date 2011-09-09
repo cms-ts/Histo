@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.9 2011/09/06 11:22:33 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.10 2011/09/08 12:46:19 dscaini Exp $
 //
 //
 
@@ -164,7 +164,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
     double MyWeight = LumiWeights_.weight( npv );
-    if (debug) cout<<"weight is "<<MyWeight<<endl;
+    //if (debug) cout<<"weight is "<<MyWeight<<endl;
     Weight=MyWeight;
   }
 
