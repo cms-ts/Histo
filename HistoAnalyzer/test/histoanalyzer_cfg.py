@@ -4,9 +4,18 @@ process = cms.Process("Demo")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR_P_V20::All'
+
+#DS! added to suppress error messages
+process.MessageLogger.debugModules.append("ZAnalyzerFilter")
+process.MessageLogger.cerr.threshold = 'ERROR'
+
+process.MessageLogger.debugModules.append("HLTConfigData")
+process.MessageLogger.cerr.threshold = 'ERROR'
+
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
-     reportEvery = cms.untracked.int32(500),
+     reportEvery = cms.untracked.int32(5000),
  )
+#DS! it was: "report every 500, but changed due to enormous stdout
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -45,16 +54,24 @@ electrontriggers += cms.vstring("HLT_Ele22_SW_TighterCaloIdIsol_L1R_v1","HLT_Ele
 alltriggers       = muontriggers + electrontriggers
 alltriggers = cms.vstring() # In this way, the HLT string is empty and it will trigger every event
 
+
+process.Selection = cms.EDFilter('ZanalyzerFilter',
+		electronCollection = cms.InputTag("gsfElectrons"),
+		triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+		UseCombinedPrescales = cms.bool(False),
+		doTheHLTAnalysis = cms.bool(False),
+		TriggerNames = alltriggers
+)
+
 process.demo = cms.EDAnalyzer('HistoAnalyzer',
                               electronCollection = cms.InputTag('gsfElectrons'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
-                              UseCombinedPrescales = cms.bool(True),
+                              UseCombinedPrescales = cms.bool(False),
                               TriggerNames = alltriggers,
                               removePU=  cms.bool(True),
-                              usingMC=  cms.bool(False),
+                              usingMC=  cms.bool(True),
                               doTheHLTAnalysis = cms.bool(False),
-                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
-                              
+                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
 
 process.TFileService = cms.Service("TFileService",
@@ -64,5 +81,4 @@ process.TFileService = cms.Service("TFileService",
 process.load("JetCollections_cfi")
 
 
-process.p = cms.Path(process.PFJetPath
-                     *process.demo)
+process.p = cms.Path(process.Selection*process.PFJetPath*process.demo)
