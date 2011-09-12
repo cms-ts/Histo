@@ -22,7 +22,7 @@
 
 	gROOT->ForceStyle();
 	tdrStyle();
-	TFile *dataf = TFile::Open("/gpfs/cms/users/dscaini/data-v1-191pb-wPUR.root"); //data file
+	TFile *dataf = TFile::Open("/gpfs/cms/data/2011/v1/data-v1-doublele-nozfilt.root"); //data file
 
 	TDirectory *dir=(TDirectory*)dataf->Get("demo");
 	TTree *treeVJ_ = (TTree*)dir->Get("treeVJ_");
@@ -105,8 +105,8 @@
 	
 	Comp->Update();
 	
-	double plotentries = (IsoEcalplotsMC[1]->Integral()) / (h_ieEB_data_PUR->Integral());
-	h_ieEB_data_PUR->Scale(plotentries);
+	double plotentries = ((h_ieEB_data_PUR->Integral()) / IsoEcalplotsMC[1]->Integral()) ;
+	IsoEcalplotsMC[1]->Scale(plotentries);
 	
 
 	TPaveStats *r2 = (TPaveStats*)IsoEcalplotsMC[1]->FindObject("stats"); 
@@ -138,10 +138,8 @@
 	IsoEcalplotsMC[8]->Draw("HIST SAMES");
 	Comp->Update();
 	
-
-	double plotentries3 = (IsoEcalplotsMC[8]->Integral()) / (h_ieEE_data_PUR->Integral());
-	h_ieEE_data_PUR->Scale(plotentries3);
-
+double plotentries3 = ( (h_ieEE_data_PUR->Integral())/ IsoEcalplotsMC[8]->Integral());
+	IsoEcalplotsMC[8]->Scale(plotentries3);
 
 
 	TPaveStats *r5 = (TPaveStats*) IsoEcalplotsMC[8]->FindObject("stats"); 
@@ -175,9 +173,8 @@
 	 IsoEcalplotsMC[2]->Draw("HIST SAMES");
 	Comp->Update();
 
-	double plotentries2 = ( IsoEcalplotsMC[2]->Integral()) / (h_ihEB_data_PUR->Integral());
-	h_ihEB_data_PUR->Scale(plotentries2);
-
+double plotentries2 = ( (h_ihEB_data_PUR->Integral()) / IsoEcalplotsMC[2]->Integral());
+	IsoEcalplotsMC[2]->Scale(plotentries2);
 
 
 	TPaveStats *r3 = (TPaveStats*) IsoEcalplotsMC[2]->FindObject("stats"); 
@@ -209,9 +206,9 @@
 	IsoEcalplotsMC[9]->SetLineColor(kRed);
 	IsoEcalplotsMC[9]->Draw("HIST SAMES");
 	Comp->Update();
-	
-	double plotentries4 = (IsoEcalplotsMC[9]->Integral()) / (h_ihEE_data_PUR->Integral());
-	h_ihEE_data_PUR->Scale(plotentries4);
+
+	double plotentries4 = ( (h_ihEE_data_PUR->Integral())/ IsoEcalplotsMC[9]->Integral());
+	IsoEcalplotsMC[9]->Scale(plotentries4);
 
 	TPaveStats *r6 = (TPaveStats*)IsoEcalplotsMC[9]->FindObject("stats"); 
 	r6->SetY1NDC(0.878); 
@@ -246,9 +243,10 @@
 	
 	Comp->Update();
 	
-	double plotentries7 = (IsoEcalplotsMC[0]->Integral()) / (h_trkEB_data_PUR->Integral());
-	h_trkEB_data_PUR->Scale(plotentries7);
 	
+	double plotentries7 = ( (h_trkEB_data_PUR->Integral())/ IsoEcalplotsMC[0]->Integral());
+	IsoEcalplotsMC[0]->Scale(plotentries7);
+
 
 	TPaveStats *r7 = (TPaveStats*)IsoEcalplotsMC[0]->FindObject("stats"); 
 	r7->SetY1NDC(0.875); 
@@ -280,9 +278,9 @@
 	
 	Comp->Update();
 	
-	double plotentries8 = (IsoEcalplotsMC[7]->Integral()) / (h_trkEE_data_PUR->Integral());
-	h_trkEE_data_PUR->Scale(plotentries8);
-	
+	double plotentries8 = ( (h_trkEE_data_PUR->Integral())/ IsoEcalplotsMC[7]->Integral());
+	IsoEcalplotsMC[7]->Scale(plotentries8);
+
 
 	TPaveStats *r8 = (TPaveStats*)IsoEcalplotsMC[7]->FindObject("stats"); 
 	r8->SetY1NDC(0.875); 
