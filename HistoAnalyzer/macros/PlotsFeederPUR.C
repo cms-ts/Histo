@@ -53,7 +53,7 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	TH1F * h_sigmaIeIe_EBR;
 	//EB Reweight
 	h_IsoTrk_EBR_PUR = new TH1D("h_IsoTrk_EBR_PUR","IsoTrk_PUR",36,0.,0.09);
-	h_IsoEcal_EBR_PUR = new TH1D("h_IsoEcal_EBR_PUR","IsoEcal_PUR",24,0.,0.07);
+	h_IsoEcal_EBR_PUR = new TH1D("h_IsoEcal_EBR_PUR","IsoEcal_PUR",28,0.,0.07);
 	h_IsoHcal_EBR_PUR = new TH1D("h_IsoHcal_EBR_PUR","IsoHcal_PUR",40,0.,0.10);
 	/*h_IsoTrk_EBR_PUR = new TH1D("h_IsoTrk_EBR_PUR","IsoTrk_PUR",20,0.,0.20);
 	h_IsoEcal_EBR_PUR = new TH1D("h_IsoEcal_EBR_PUR","IsoEcal_PUR",20,0.,0.20);
