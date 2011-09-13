@@ -9,7 +9,6 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.10 2011/09/08 12:46:19 dscaini Exp $
 //
 //
 
@@ -188,8 +187,14 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 edm::Handle<double> rhoLepIso;
 		 const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
 		 iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
-		 if( *rhoLepIso == *rhoLepIso)  lepIsoRho = *rhoLepIso;
-		 else  lepIsoRho =  -999999.9;
+		 if( *rhoLepIso == *rhoLepIso) { 
+		 lepIsoRho = *rhoLepIso;
+		 vRho.push_back(lepIsoRho);
+		 }
+		 else { 
+		 lepIsoRho =  999999.9;
+		 vRho.push_back(lepIsoRho);
+		 }
 
 		 //EB
 		 if (fabs (itElect->eta()) <= 1.4442) {      
@@ -365,6 +370,7 @@ nEvents_ = 0;
 	////////////////// 
  
 	//EB PileUp REMOVED
+	treeVJ_->Branch("Rho","Rho",&vRho);
 	treeVJ_->Branch("IsoTrkEB_PUR","IsoTrkEB_PUR",&vIsoTrkEB_PUR);
 	treeVJ_->Branch("IsoEcalEB_PUR","IsoEcalEB_PUR",&vIsoEcalEB_PUR);
 	treeVJ_->Branch("IsoHcalEB_PUR","IsoHcalEB_PUR",&vIsoHcalEB_PUR);

@@ -114,6 +114,8 @@ class HistoAnalyzer : public edm::EDAnalyzer {
 
       //Strings
       std::vector<string> path;
+
+      std::vector<double> vRho;
       //EB
       std::vector<double> vIsoTrkEB;
       std::vector<double> vIsoEcalEB;
@@ -161,6 +163,7 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       void clean_vectors(){
 	Weight=0;
 	numberOfVertices=0;
+	vRho.clear();
 	vIsoTrkEB.clear();
 	vIsoEcalEB.clear();
 	vIsoHcalEB.clear();
