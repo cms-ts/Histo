@@ -70,16 +70,19 @@
 	Comp->Divide(2,3);
 	Comp->cd(1);
 	gPad->SetLogy(1);
+	
 	h_ieEB_data->SetTitle("PUR validation");
 	h_ieEB_data->SetMarkerColor(kBlack);
+	h_ieEB_data->SetLineColor(kBlack);
 	h_ieEB_data->GetXaxis()->SetTitle("IsoEcal Barrel");
 	h_ieEB_data->GetYaxis()->SetTitle("Entries");
-	h_ieEB_data->SetMarkerColor(kBlack);
 	h_ieEB_data->Draw("E1");
 	h_ieEB->SetMarkerColor(kRed);
+	h_ieEB->SetLineColor(kRed);
 	h_ieEB->Draw("E1 SAMES");
-	
 	Comp->Update();
+	double plotentries = ( (h_ieEB_data->Integral())/ h_ieEB->Integral());
+	h_ieEB->Scale(plotentries);
 
 	TPaveStats *r2 = (TPaveStats*)h_ieEB->FindObject("stats"); 
 	r2->SetY1NDC(0.875); 
@@ -97,28 +100,24 @@
 	leg->Draw();
 	Comp->Update();
 
-/*
 	//
 	Comp->cd(2);
-	MLogAxis(0,1);
-	h_ieEE_data->SetTitle(name.c_str());
+	gPad->SetLogy(1);
+	h_ieEE_data->SetTitle("PUR validation");
 	h_ieEE_data->SetMarkerColor(kBlack);
 	h_ieEE_data->SetLineColor(kBlack);
 	h_ieEE_data->GetXaxis()->SetTitle("IsoEcal Endcap");
 	h_ieEE_data->GetYaxis()->SetTitle("Entries");
 	h_ieEE_data->Draw("E1");
-	IsoEcalplotsMC[8]->SetMarkerColor(kRed);
-	IsoEcalplotsMC[8]->SetLineColor(kRed);
-	IsoEcalplotsMC[8]->Draw("HIST SAMES");
+	h_ieEE->SetMarkerColor(kRed);
+	h_ieEE->SetLineColor(kRed);
+	h_ieEE->Draw("E1 SAMES");
 	Comp->Update();
-	
-
-	double plotentries3 = ( (h_ieEE_data->Integral())/ IsoEcalplotsMC[8]->Integral());
-	IsoEcalplotsMC[8]->Scale(plotentries3);
+	double plotentries3 = ( (h_ieEE_data->Integral())/ h_ieEE->Integral());
+	h_ieEE->Scale(plotentries3);
 
 
-
-	TPaveStats *r5 = (TPaveStats*) IsoEcalplotsMC[8]->FindObject("stats"); 
+	TPaveStats *r5 = (TPaveStats*) h_ieEE->FindObject("stats"); 
 	r5->SetY1NDC(0.878); 
 	r5->SetY2NDC(0.75); 
 	r5->SetTextColor(kRed);
@@ -129,31 +128,31 @@
 	leg3->SetBorderSize(0);
 	leg3->SetEntrySeparation(0.01);
 	leg3->SetFillColor(0);
-	leg3->AddEntry(h_ieEE_data,"data","p");
-	leg3->AddEntry(IsoEcalplotsMC[8],"MonteCarlo","l");
+	leg3->AddEntry(h_ieEE_data,"data vtx==1","p");
+	leg3->AddEntry(h_ieEE,"data pur","p");
 	leg3->Draw();
 	Comp->Update();
 
 	//
 	Comp->cd(3);
-	MLogAxis(0,1);
-	h_ihEB_data->SetTitle(name.c_str());
+	gPad->SetLogy(1);
+	h_ihEB_data->SetTitle("PUR validation");
 	h_ihEB_data->SetMarkerColor(kBlack);
 	h_ihEB_data->SetLineColor(kBlack);
 	h_ihEB_data->GetXaxis()->SetTitle("IsoHcal Barrel");
 	h_ihEB_data->GetYaxis()->SetTitle("Entries");
 	h_ihEB_data->Draw("E1");
-	 IsoEcalplotsMC[2]->SetMarkerColor(kRed);
-	 IsoEcalplotsMC[2]->SetLineColor(kRed);
-	 IsoEcalplotsMC[2]->Draw("HIST SAMES");
+	 h_ihEB->SetMarkerColor(kRed);
+	 h_ihEB->SetLineColor(kRed);
+	 h_ihEB->Draw("E1 SAMES");
 	Comp->Update();
 
-	double plotentries2 = ( (h_ihEB_data->Integral()) / IsoEcalplotsMC[2]->Integral());
-	IsoEcalplotsMC[2]->Scale(plotentries2);
+	double plotentries2 = ( (h_ihEB_data->Integral()) / h_ihEB->Integral());
+	h_ihEB->Scale(plotentries2);
 
 
 
-	TPaveStats *r3 = (TPaveStats*) IsoEcalplotsMC[2]->FindObject("stats"); 
+	TPaveStats *r3 = (TPaveStats*) h_ihEB->FindObject("stats"); 
 	r3->SetY1NDC(0.878); 
 	r3->SetY2NDC(0.75); 
 	r3->SetTextColor(kRed);
@@ -164,31 +163,31 @@
 	leg2->SetBorderSize(0);
 	leg2->SetEntrySeparation(0.01);
 	leg2->SetFillColor(0);
-	leg2->AddEntry(h_ihEB_data,"data","p");
-	leg2->AddEntry( IsoEcalplotsMC[1],"MonteCarlo","l");
+	leg2->AddEntry(h_ihEB_data,"data vtx==1","p");
+	leg2->AddEntry(h_ihEB,"data pur","p");
 	leg2->Draw();
 	Comp->Update();
 
 	//
 	Comp->cd(4);
-	MLogAxis(0,1);
-	h_ihEE_data->SetTitle(name.c_str());
+	gPad->SetLogy(1);
+	h_ihEE_data->SetTitle("PUR validation");
 	h_ihEE_data->SetMarkerColor(kBlack);
 	h_ihEE_data->SetLineColor(kBlack);
 	h_ihEE_data->GetXaxis()->SetTitle("IsoHcal Endcap");
 	h_ihEE_data->GetYaxis()->SetTitle("Entries");
 	h_ihEE_data->Draw("E1");
-	IsoEcalplotsMC[9]->SetMarkerColor(kRed);
-	IsoEcalplotsMC[9]->SetLineColor(kRed);
-	IsoEcalplotsMC[9]->Draw("HIST SAMES");
+	h_ihEE->SetMarkerColor(kRed);
+	h_ihEE->SetLineColor(kRed);
+	h_ihEE->Draw("E1 SAMES");
 	Comp->Update();
 	
-	double plotentries4 = ( (h_ihEE_data->Integral())/ IsoEcalplotsMC[9]->Integral());
-	IsoEcalplotsMC[9]->Scale(plotentries4);
+	double plotentries4 = ( (h_ihEE_data->Integral())/ h_ihEE->Integral());
+	h_ihEE->Scale(plotentries4);
 
 
 
-	TPaveStats *r6 = (TPaveStats*)IsoEcalplotsMC[9]->FindObject("stats"); 
+	TPaveStats *r6 = (TPaveStats*)h_ihEE->FindObject("stats"); 
 	r6->SetY1NDC(0.878); 
 	r6->SetY2NDC(0.75); 
 	r6->SetTextColor(kRed);
@@ -199,31 +198,31 @@
 	leg4->SetBorderSize(0);
 	leg4->SetEntrySeparation(0.01);
 	leg4->SetFillColor(0);
-	leg4->AddEntry(h_ihEE_data,"data","p");
-	leg4->AddEntry(IsoEcalplotsMC[9],"MonteCarlo","l");
+	leg4->AddEntry(h_ihEE_data,"data vtx==1","p");
+	leg4->AddEntry(h_ihEE,"data pur","p");
 	leg4->Draw();
 	Comp->Update();
 
 	Comp->cd(5);
-	MLogAxis(0,1);
-	h_trkEB_data->SetTitle(name.c_str());
+	gPad->SetLogy(1);
+	h_trkEB_data->SetTitle("PUR validation");
 	h_trkEB_data->SetMarkerColor(kBlack);
 	h_trkEB_data->GetXaxis()->SetTitle("IsoTrk Barrel");
 	h_trkEB_data->GetYaxis()->SetTitle("Entries");
 	h_trkEB_data->SetLineColor(kBlack);
 	h_trkEB_data->SetMarkerColor(kBlack);
 	h_trkEB_data->Draw("E1");
-	IsoEcalplotsMC[0]->SetMarkerColor(kRed);
-	IsoEcalplotsMC[0]->SetLineColor(kRed);
-	IsoEcalplotsMC[0]->Draw("HIST SAMES");
+	h_trkEB->SetMarkerColor(kRed);
+	h_trkEB->SetLineColor(kRed);
+	h_trkEB->Draw("E1 SAMES");
 	
 	Comp->Update();
 	
-	double plotentries7 = ( (h_trkEB_data->Integral())/ IsoEcalplotsMC[0]->Integral());
-	IsoEcalplotsMC[0]->Scale(plotentries7);
+	double plotentries7 = ( (h_trkEB_data->Integral())/ h_trkEB->Integral());
+	h_trkEB->Scale(plotentries7);
 	
 
-	TPaveStats *r7 = (TPaveStats*)IsoEcalplotsMC[0]->FindObject("stats"); 
+	TPaveStats *r7 = (TPaveStats*)h_trkEB->FindObject("stats"); 
 	r7->SetY1NDC(0.875); 
 	r7->SetY2NDC(0.75); 
 	r7->SetTextColor(kRed);
@@ -234,30 +233,30 @@
 	leg7->SetBorderSize(0);
 	leg7->SetEntrySeparation(0.01);
 	leg7->SetFillColor(0);
-	leg7->AddEntry(h_trkEB_data,"data","p");
-	leg7->AddEntry( IsoEcalplotsMC[0],"MonteCarlo","l");
+	leg7->AddEntry(h_trkEB_data,"data vtx==1","p");
+	leg7->AddEntry( h_trkEB,"data pur","p");
 	leg7->Draw();
 
 	Comp->cd(6);
-	MLogAxis(0,1);
-	h_trkEE_data->SetTitle(name.c_str());
+	gPad->SetLogy(1);
+	h_trkEE_data->SetTitle("PUR validation");
 	h_trkEE_data->SetMarkerColor(kBlack);
 	h_trkEE_data->GetXaxis()->SetTitle("IsoTrk Endcap");
 	h_trkEE_data->GetYaxis()->SetTitle("Entries");
 	h_trkEE_data->SetLineColor(kBlack);
 	h_trkEE_data->SetMarkerColor(kBlack);
 	h_trkEE_data->Draw("E1");
-	IsoEcalplotsMC[7]->SetMarkerColor(kRed);
-	IsoEcalplotsMC[7]->SetLineColor(kRed);
-	IsoEcalplotsMC[7]->Draw("HIST SAMES");
+	h_trkEE->SetMarkerColor(kRed);
+	h_trkEE->SetLineColor(kRed);
+	h_trkEE->Draw("E1 SAMES");
 	
 	Comp->Update();
 	
-	double plotentries8 = ( (h_trkEE_data->Integral())/ IsoEcalplotsMC[7]->Integral());
-	IsoEcalplotsMC[7]->Scale(plotentries8);
+	double plotentries8 = ( (h_trkEE_data->Integral())/ h_trkEE->Integral());
+	h_trkEE->Scale(plotentries8);
 	
 
-	TPaveStats *r8 = (TPaveStats*)IsoEcalplotsMC[7]->FindObject("stats"); 
+	TPaveStats *r8 = (TPaveStats*)h_trkEE->FindObject("stats"); 
 	r8->SetY1NDC(0.875); 
 	r8->SetY2NDC(0.75); 
 	r8->SetTextColor(kRed);
@@ -268,21 +267,15 @@
 	leg8->SetBorderSize(0);
 	leg8->SetEntrySeparation(0.01);
 	leg8->SetFillColor(0);
-	leg8->AddEntry(h_trkEE_data,"data","p");
-	leg8->AddEntry(IsoEcalplotsMC[7],"MonteCarlo","l");
+	leg8->AddEntry(h_trkEE_data,"data vtx==1","p");
+	leg8->AddEntry(h_trkEE,"data pur","p");
 	leg8->Draw();
 
 	Comp->Update();
 
 
-
-	string picname="Trk-Ecal-Hcal-Isolation"+oss.str()+".png";
-	string eps="Trk-Ecal-Hcal-Isolation"+oss.str()+".eps";
-	Comp->Print(picname.c_str());
-	Comp->Print(eps.c_str());
-	oss.clear();
-	oss.str("");
-*/
+	Comp->Print("purvalidation.png");
+	Comp->Print("purvalidation.eps");
 
 	return;
 	}
