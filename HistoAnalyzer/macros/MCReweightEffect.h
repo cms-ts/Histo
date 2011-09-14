@@ -26,6 +26,9 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
+   std::vector<double>  *IsoTrkEB_PUR;
+   std::vector<double>  *IsoEcalEB_PUR;
+   std::vector<double>  *IsoHcalEB_PUR;
    std::vector<double>  *IsoTrkEB;
    std::vector<double>  *IsoEcalEB;
    std::vector<double>  *IsoHcalEB;
@@ -33,6 +36,9 @@ public :
    std::vector<float>   *DeltaPhiTkCluEB;
    std::vector<float>   *DeltaEtaTkCluEB;
    std::vector<float>   *sigmaIeIeEB;
+   std::vector<double>  *IsoTrkEE_PUR;
+   std::vector<double>  *IsoEcalEE_PUR;
+   std::vector<double>  *IsoHcalEE_PUR;
    std::vector<double>  *IsoTrkEE;
    std::vector<double>  *IsoEcalEE;
    std::vector<double>  *IsoHcalEE;
@@ -54,6 +60,9 @@ public :
    Double_t        Weight;
 
    // List of branches
+   TBranch        *b_IsoTrkEB_PUR;   //!
+   TBranch        *b_IsoEcalEB_PUR;   //!
+   TBranch        *b_IsoHcalEB_PUR;   //!
    TBranch        *b_IsoTrkEB;   //!
    TBranch        *b_IsoEcalEB;   //!
    TBranch        *b_IsoHcalEB;   //!
@@ -61,6 +70,9 @@ public :
    TBranch        *b_DeltaPhiTkCluEB;   //!
    TBranch        *b_DeltaEtaTkCluEB;   //!
    TBranch        *b_sigmaIeIeEB;   //!
+   TBranch        *b_IsoTrkEE_PUR;   //!
+   TBranch        *b_IsoEcalEE_PUR;   //!
+   TBranch        *b_IsoHcalEE_PUR;   //!
    TBranch        *b_IsoTrkEE;   //!
    TBranch        *b_IsoEcalEE;   //!
    TBranch        *b_IsoHcalEE;   //!
@@ -100,10 +112,10 @@ MCReweightEffect::MCReweightEffect(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root");
       if (!f) {
-         f = new TFile("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root");
-         f->cd("/gpfs/cms/users/dscaini/mc-reweight-fromdata-29ago.root:/demo");
+         f = new TFile("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root");
+         f->cd("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root:/demo");
       }
       tree = (TTree*)gDirectory->Get("treeVJ_");
 
