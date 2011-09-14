@@ -11,7 +11,7 @@
 #include "MMutil.C"
 
 
-vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
+TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 {
 //   In a ROOT session, you can do:
 //      Root > .L PlotsFeeder.C
@@ -37,8 +37,8 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
 
-
-	vector<TH1 *> vHistograms;
+	TObjArray* histarray = new TObjArray();
+//del	vector<TH1 *> vHistograms;
 
 	//EB Reweight
 	TH1D * h_IsoTrk_EBR; 
@@ -49,12 +49,9 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	TH1F * h_DeltaEtaTkClu_EBR;
 	TH1F * h_sigmaIeIe_EBR;
 	//EB Reweight
-	/*h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",36,0.,0.09);
-	h_IsoEcal_EBR = new TH1D("h_IsoEcal_EBR","IsoEcal",28,0.,0.07);
-	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",40,0.,0.10);*/
-	h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",20,0.,0.20);
-	h_IsoEcal_EBR = new TH1D("h_IsoEcal_EBR","IsoEcal",20,0.,0.20);
-	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",20,0.,0.20);
+	h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",tEB,tEBmin,tEBmax);
+	h_IsoEcal_EBR = new TH1D("h_IsoEcal_EBR","IsoEcal",eEB,eEBmin,eEBmax);
+	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",hEB,hEBmin,hEBmax);
 	h_HE_EBR = new TH1D("h_HE_EBR","H/E",20,0.,0.20);
 	h_DeltaPhiTkClu_EBR = new TH1F("h_DeltaPhiTkClu_EBR","DeltaPhiTkClu",20,0.,0.2);
 	h_DeltaEtaTkClu_EBR = new TH1F("h_DeltaEtaTkClu_EBR","DeltaEtaTkClu",20,0.,.05);
@@ -71,12 +68,9 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	TH1F * h_DeltaEtaTkClu_EER;
 	TH1F * h_sigmaIeIe_EER;
 	//EE Reweight
-	/*h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",16,0.,0.04);
-	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",20,0.,0.05);
-	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",10,0.,0.025);*/
-	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",20,0.,0.20);
-	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",20,0.,0.20);
-	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",20,0.,0.20);
+	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",tEB,tEBmin,tEBmax);
+	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",eEB,eEBmin,eEBmax);
+	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",hEB,hEBmin,hEBmax);
 	h_HE_EER = new TH1D("h_HE_EER","H/E",20,0.,0.20);
 	h_DeltaPhiTkClu_EER = new TH1F("h_DeltaPhiTkClu_EER","DeltaPhiTkClu",20,0.,0.2);
 	h_DeltaEtaTkClu_EER = new TH1F("h_DeltaEtaTkClu_EER","DeltaEtaTkClu",20,0.,.05);
@@ -85,7 +79,7 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	/*=========================*/
 
 
-	if (fChain == 0){ cout << " something went wrong in PlotsFeeder "; return vHistograms;}
+	if (fChain == 0){ cout << " something went wrong in PlotsFeeder "; return histarray;}
 
 	Long64_t nentries = fChain->GetEntriesFast();
 
@@ -188,21 +182,21 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 		}
 	}
 
-	vHistograms.push_back(h_IsoTrk_EBR); 
-	vHistograms.push_back(h_IsoEcal_EBR);
-	vHistograms.push_back(h_IsoHcal_EBR);
-	vHistograms.push_back(h_HE_EBR);
-	vHistograms.push_back(h_DeltaPhiTkClu_EBR);
-	vHistograms.push_back(h_DeltaEtaTkClu_EBR);
-	vHistograms.push_back(h_sigmaIeIe_EBR);
+	histarray->Add(h_IsoTrk_EBR); 
+	histarray->Add(h_IsoEcal_EBR);
+	histarray->Add(h_IsoHcal_EBR);
+	histarray->Add(h_HE_EBR);
+	histarray->Add(h_DeltaPhiTkClu_EBR);
+	histarray->Add(h_DeltaEtaTkClu_EBR);
+	histarray->Add(h_sigmaIeIe_EBR);
 	
-	vHistograms.push_back(h_IsoTrk_EER); 
-	vHistograms.push_back(h_IsoEcal_EER);
-	vHistograms.push_back(h_IsoHcal_EER);
-	vHistograms.push_back(h_HE_EER);
-	vHistograms.push_back(h_DeltaPhiTkClu_EER);
-	vHistograms.push_back(h_DeltaEtaTkClu_EER);
-	vHistograms.push_back(h_sigmaIeIe_EER);
+	histarray->Add(h_IsoTrk_EER); 
+	histarray->Add(h_IsoEcal_EER);
+	histarray->Add(h_IsoHcal_EER);
+	histarray->Add(h_HE_EER);
+	histarray->Add(h_DeltaPhiTkClu_EER);
+	histarray->Add(h_DeltaEtaTkClu_EER);
+	histarray->Add(h_sigmaIeIe_EER);
 	
 
 
@@ -375,6 +369,6 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 
 	}
 
-return  vHistograms;
+return  histarray;
 
 }

@@ -17,8 +17,23 @@
 #include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
+#include "TObjArray.h"
+
+
+
+   //TODO find a better way to have global parameters
+   //Plots Parameters
+   const int tEB = 20; const float tEBmin = 0.; const float tEBmax = 0.20;
+   const int eEB = 20; const float eEBmin = 0.; const float eEBmax = 0.20;
+   const int hEB = 20; const float hEBmin = 0.; const float hEBmax = 0.20;
+
+   const int tEE = 20; const float tEEmin = 0.; const float tEEmax = 0.20;
+   const int eEE = 20; const float eEEmin = 0.; const float eEEmax = 0.20;
+   const int hEE = 20; const float hEEmin = 0.; const float hEEmax = 0.20;
 
    const Int_t kMaxHLTAndPrescale = 1;
+
+
 
 class PlotsFeeder {
 public :
@@ -99,9 +114,10 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual vector<TH1*>   Loop(int NumOfVtx);
+   virtual TObjArray * Loop(int NumOfVtx);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+
 };
 
 #endif
@@ -159,6 +175,8 @@ void PlotsFeeder::Init(TTree *tree)
    // code, but the routine can be extended by the user if needed.
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
+
+
 
    // Set object pointer
    IsoTrkEB_PUR = 0;
@@ -251,4 +269,7 @@ Int_t PlotsFeeder::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
+
+
+
 #endif // #ifdef PlotsFeeder_cxx
