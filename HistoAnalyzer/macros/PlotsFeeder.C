@@ -49,12 +49,12 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	TH1F * h_DeltaEtaTkClu_EBR;
 	TH1F * h_sigmaIeIe_EBR;
 	//EB Reweight
-	h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",36,0.,0.09);
+	/*h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",36,0.,0.09);
 	h_IsoEcal_EBR = new TH1D("h_IsoEcal_EBR","IsoEcal",28,0.,0.07);
-	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",40,0.,0.10);
-	/*h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",20,0.,0.20);
+	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",40,0.,0.10);*/
+	h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",20,0.,0.20);
 	h_IsoEcal_EBR = new TH1D("h_IsoEcal_EBR","IsoEcal",20,0.,0.20);
-	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",20,0.,0.20);*/
+	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",20,0.,0.20);
 	h_HE_EBR = new TH1D("h_HE_EBR","H/E",20,0.,0.20);
 	h_DeltaPhiTkClu_EBR = new TH1F("h_DeltaPhiTkClu_EBR","DeltaPhiTkClu",20,0.,0.2);
 	h_DeltaEtaTkClu_EBR = new TH1F("h_DeltaEtaTkClu_EBR","DeltaEtaTkClu",20,0.,.05);
@@ -71,12 +71,12 @@ vector<TH1*> PlotsFeeder::Loop(int NumOfVtx)
 	TH1F * h_DeltaEtaTkClu_EER;
 	TH1F * h_sigmaIeIe_EER;
 	//EE Reweight
-	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",16,0.,0.04);
+	/*h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",16,0.,0.04);
 	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",20,0.,0.05);
-	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",10,0.,0.025);
-	/*h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",20,0.,0.20);
+	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",10,0.,0.025);*/
+	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",20,0.,0.20);
 	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",20,0.,0.20);
-	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",20,0.,0.20);*/
+	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",20,0.,0.20);
 	h_HE_EER = new TH1D("h_HE_EER","H/E",20,0.,0.20);
 	h_DeltaPhiTkClu_EER = new TH1F("h_DeltaPhiTkClu_EER","DeltaPhiTkClu",20,0.,0.2);
 	h_DeltaEtaTkClu_EER = new TH1F("h_DeltaEtaTkClu_EER","DeltaEtaTkClu",20,0.,.05);

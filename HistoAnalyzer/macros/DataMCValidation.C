@@ -36,28 +36,34 @@ void DataMCValidation(){
 	//EB data
 	TH1D* h_trkEB_data = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_data");
 	if (h_trkEB_data) delete h_trkEB_data;
-	h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",36,0.,0.09);
+	//h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",36,0.,0.09);
+	h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",20,0.,0.20);
 
 	TH1D* h_ieEB_data = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_data");
 	if (h_ieEB_data) delete h_ieEB_data;
-	h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",28,0.,0.07);
+	//h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",28,0.,0.07);
+	h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",20,0.,0.20);
 
 	TH1D* h_ihEB_data = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_data");
 	if (h_ihEB_data) delete h_ihEB_data;
-	h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",40,0.,0.10);
+	//h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",40,0.,0.10);
+	h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",20,0.,0.20);
 
 	//EE data
 	TH1D* h_trkEE_data = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_data");
 	if (h_trkEE_data) delete h_trkEE_data;
-	h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",16,0.,0.04);
+	//h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",16,0.,0.04);
+	h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",20,0.,0.20);
 
 	TH1D* h_ieEE_data = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_data");
 	if (h_ieEE_data) delete h_ieEE_data;
-	h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",20,0.,0.05);
+	//h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",20,0.,0.05);
+	h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",20,0.,0.20);
 
 	TH1D* h_ihEE_data = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_data");
 	if (h_ihEE_data) delete h_ihEE_data;
-	h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",10,0.,0.025);
+	//h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",10,0.,0.025);
+	h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",20,0.,0.20);
 
 	//--------------//
 	//    TOTALE    //
@@ -65,54 +71,66 @@ void DataMCValidation(){
 	//EB data
 	TH1D* h_trkEB = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB");
 	if (h_trkEB) delete h_trkEB;
-	h_trkEB = new TH1D("h_trkEB","IsoTracker EB",36,0.,0.09);
+	//h_trkEB = new TH1D("h_trkEB","IsoTracker EB",36,0.,0.09);
+	h_trkEB = new TH1D("h_trkEB","IsoTracker EB",20,0.,0.20);
 
 	TH1D* h_ieEB = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB");
 	if (h_ieEB) delete h_ieEB;
-	h_ieEB = new TH1D("h_ieEB","IsoEcal EB",28,0.,0.07);
+	//h_ieEB = new TH1D("h_ieEB","IsoEcal EB",28,0.,0.07);
+	h_ieEB = new TH1D("h_ieEB","IsoEcal EB",20,0.,0.20);
 
 	TH1D* h_ihEB = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB");
 	if (h_ihEB) delete h_ihEB;
-	h_ihEB = new TH1D("h_ihEB","IsoHcal EB",40,0.,0.10);
+	//h_ihEB = new TH1D("h_ihEB","IsoHcal EB",40,0.,0.10);
+	h_ihEB = new TH1D("h_ihEB","IsoHcal EB",20,0.,0.20);
 
 	//EB mc
 	TH1D* h_trkEB_mc = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_mc");
 	if (h_trkEB_mc) delete h_trkEB_mc;
-	h_trkEB_mc = new TH1D("h_trkEB_mc","IsoTracker EB_mc",36,0.,0.09);
+	//h_trkEB_mc = new TH1D("h_trkEB_mc","IsoTracker EB_mc",36,0.,0.09);
+	h_trkEB_mc = new TH1D("h_trkEB_mc","IsoTracker EB_mc",20,0.,0.20);
 
 	TH1D* h_ieEB_mc = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_mc");
 	if (h_ieEB_mc) delete h_ieEB_mc;
-	h_ieEB_mc = new TH1D("h_ieEB_mc","IsoEcal EB_mc",28,0.,0.07);
+	//h_ieEB_mc = new TH1D("h_ieEB_mc","IsoEcal EB_mc",28,0.,0.07);
+	h_ieEB_mc = new TH1D("h_ieEB_mc","IsoEcal EB_mc",20,0.,0.20);
 
 	TH1D* h_ihEB_mc = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_mc");
 	if (h_ihEB_mc) delete h_ihEB_mc;
-	h_ihEB_mc = new TH1D("h_ihEB_mc","IsoHcal EB_mc",40,0.,0.10);
+	//h_ihEB_mc = new TH1D("h_ihEB_mc","IsoHcal EB_mc",40,0.,0.10);
+	h_ihEB_mc = new TH1D("h_ihEB_mc","IsoHcal EB_mc",20,0.,0.20);
 
 	//EE data
 	TH1D* h_trkEE = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE");
 	if (h_trkEE) delete h_trkEE;
-	h_trkEE = new TH1D("h_trkEE","IsoTracker EE",16,0.,0.04);
+	//h_trkEE = new TH1D("h_trkEE","IsoTracker EE",16,0.,0.04);
+	h_trkEE = new TH1D("h_trkEE","IsoTracker EE",20,0.,0.20);
 
 	TH1D* h_ieEE = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE");
 	if (h_ieEE) delete h_ieEE;
-	h_ieEE = new TH1D("h_ieEE","IsoEcal EE",20,0.,0.05);
+	//h_ieEE = new TH1D("h_ieEE","IsoEcal EE",20,0.,0.05);
+	h_ieEE = new TH1D("h_ieEE","IsoEcal EE",20,0.,0.20);
 
 	TH1D* h_ihEE = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE");
 	if (h_ihEE) delete h_ihEE;
-	h_ihEE = new TH1D("h_ihEE","IsoHcal EE",10,0.,0.025);
+	//h_ihEE = new TH1D("h_ihEE","IsoHcal EE",10,0.,0.025);
+	h_ihEE = new TH1D("h_ihEE","IsoHcal EE",20,0.,0.20);
 
 	//EE mc
 	TH1D* h_trkEE_mc = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_mc");
 	if (h_trkEE_mc) delete h_trkEE_mc;
-	h_trkEE_mc = new TH1D("h_trkEE_mc","IsoTracker EE_mc",16,0.,0.04);
+	//h_trkEE_mc = new TH1D("h_trkEE_mc","IsoTracker EE_mc",16,0.,0.04);
+	h_trkEE_mc = new TH1D("h_trkEE_mc","IsoTracker EE_mc",20,0.,0.20);
 
 	TH1D* h_ieEE_mc = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_mc");
 	if (h_ieEE_mc) delete h_ieEE_mc;
-	h_ieEE_mc = new TH1D("h_ieEE_mc","IsoEcal EE_mc",20,0.,0.05);
+	//h_ieEE_mc = new TH1D("h_ieEE_mc","IsoEcal EE_mc",20,0.,0.05);
+	h_ieEE_mc = new TH1D("h_ieEE_mc","IsoEcal EE_mc",20,0.,0.20);
 
 	TH1D* h_ihEE_mc = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_mc");
 	if (h_ihEE_mc) delete h_ihEE_mc;
-	h_ihEE_mc = new TH1D("h_ihEE_mc","IsoHcal EE_mc",10,0.,0.025);
+	//h_ihEE_mc = new TH1D("h_ihEE_mc","IsoHcal EE_mc",10,0.,0.025);
+	h_ihEE_mc = new TH1D("h_ihEE_mc","IsoHcal EE_mc",20,0.,0.20);
 
 
 

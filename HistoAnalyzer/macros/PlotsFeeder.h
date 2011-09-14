@@ -112,10 +112,10 @@ PlotsFeeder::PlotsFeeder(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/data/2011/v1/mc-v1-zfilt-pythia-sum11.root");
       if (!f) {
-         f = new TFile("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root");
-         f->cd("/gpfs/cms/users/dscaini/mc-v1-wPUR_3set.root:/demo");
+         f = new TFile("/gpfs/cms/data/2011/v1/mc-v1-zfilt-pythia-sum11.root");
+         f->cd("/gpfs/cms/data/2011/v1/mc-v1-zfilt-pythia-sum11.root:/demo");
       }
       tree = (TTree*)gDirectory->Get("treeVJ_");
 
