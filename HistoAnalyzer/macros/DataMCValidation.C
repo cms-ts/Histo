@@ -18,11 +18,11 @@ void DataMCValidation(){
 	gROOT->LoadMacro("PlotsFeeder.C++");
 	PlotsFeeder p;
 
-	int numbofvertices=1;
+	int numbofvertices=15;
 
 	gROOT->ForceStyle();
 	tdrStyle();
-	TFile *dataf = TFile::Open("/gpfs/cms/data/2011/v1/data-v1-singlele-zfilt.root"); //data file
+	TFile *dataf = TFile::Open(datafile.c_str()); //data fil
 
 	TDirectory *dir=(TDirectory*)dataf->Get("demo");
 	TTree *treeVJ_ = (TTree*)dir->Get("treeVJ_");
@@ -33,31 +33,82 @@ void DataMCValidation(){
 	string cut;
 
 	//HISTOGRAMS FOR VTX CUT
+	TH1D* h_MCone_eEB = (TH1D*)gDirectory->GetList()->FindObject("h_MCone_eEB");
+	if (h_MCone_eEB) delete h_MCone_eEB;
+
+	TH1D* h_MCone_hEB = (TH1D*)gDirectory->GetList()->FindObject("h_MCone_hEB");
+	if (h_MCone_hEB) delete h_MCone_hEB;
+
+	TH1D* h_MCone_tEB = (TH1D*)gDirectory->GetList()->FindObject("h_MCone_tEB");
+	if (h_MCone_tEB) delete h_MCone_tEB;
+
+	TH1D* h_MCone_eEE = (TH1D*)gDirectory->GetList()->FindObject("h_MCone_eEE");
+	if (h_MCone_eEE) delete h_MCone_eEE;
+
+	TH1D* h_MCone_hEE = (TH1D*)gDirectory->GetList()->FindObject("h_MCone_hEE");
+	if (h_MCone_hEE) delete h_MCone_hEE;
+
+	TH1D* h_MCone_tEE = (TH1D*)gDirectory->GetList()->FindObject("h_MCone_tEE");
+	if (h_MCone_tEE) delete h_MCone_tEE;
+
+
 	//EB data
 	TH1D* h_trkEB_data = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_data");
 	if (h_trkEB_data) delete h_trkEB_data;
-	h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",20,0.,0.20);
+	h_trkEB_data = new TH1D("h_trkEB_data","IsoTracker EB",tEB,tEBmin,tEBmax);
 
 	TH1D* h_ieEB_data = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_data");
 	if (h_ieEB_data) delete h_ieEB_data;
-	h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",20,0.,0.20);
+	h_ieEB_data = new TH1D("h_ieEB_data","IsoEcal EB",eEB,eEBmin,eEBmax);
 
 	TH1D* h_ihEB_data = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_data");
 	if (h_ihEB_data) delete h_ihEB_data;
-	h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",20,0.,0.20);
+	h_ihEB_data = new TH1D("h_ihEB_data","IsoHcal EB",hEB,hEBmin,hEBmax);
 
 	//EE data
 	TH1D* h_trkEE_data = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_data");
 	if (h_trkEE_data) delete h_trkEE_data;
-	h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",20,0.,0.20);
+	h_trkEE_data = new TH1D("h_trkEE_data","IsoTracker EE",tEE,tEEmin,tEEmax);
 
 	TH1D* h_ieEE_data = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_data");
 	if (h_ieEE_data) delete h_ieEE_data;
-	h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",20,0.,0.20);
+	h_ieEE_data = new TH1D("h_ieEE_data","IsoEcal EE",eEE,eEEmin,eEEmax);
 
 	TH1D* h_ihEE_data = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_data");
 	if (h_ihEE_data) delete h_ihEE_data;
-	h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",20,0.,0.20);
+	h_ihEE_data = new TH1D("h_ihEE_data","IsoHcal EE",hEE,hEEmin,hEEmax);
+
+
+	// HISTOGRAMS FOR VTX CUT
+	// PUR version :)
+	//EB data
+	TH1D* h_trkEB_data_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_data_PUR");
+	if (h_trkEB_data_PUR) delete h_trkEB_data_PUR;
+	h_trkEB_data_PUR = new TH1D("h_trkEB_data_PUR","IsoTracker EB",tEB,tEBmin,tEBmax);
+
+	TH1D* h_ieEB_data_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_data_PUR");
+	if (h_ieEB_data_PUR) delete h_ieEB_data_PUR;
+	h_ieEB_data_PUR = new TH1D("h_ieEB_data_PUR","IsoEcal EB",eEB,eEBmin,eEBmax);
+
+	TH1D* h_ihEB_data_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_data_PUR");
+	if (h_ihEB_data_PUR) delete h_ihEB_data_PUR;
+	h_ihEB_data_PUR = new TH1D("h_ihEB_data_PUR","IsoHcal EB",hEB,hEBmin,hEBmax);
+
+	//EE data
+	TH1D* h_trkEE_data_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_data_PUR");
+	if (h_trkEE_data_PUR) delete h_trkEE_data_PUR;
+	h_trkEE_data_PUR = new TH1D("h_trkEE_data_PUR","IsoTracker EE",tEE,tEEmin,tEEmax);
+
+	TH1D* h_ieEE_data_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_data_PUR");
+	if (h_ieEE_data_PUR) delete h_ieEE_data_PUR;
+	h_ieEE_data_PUR = new TH1D("h_ieEE_data_PUR","IsoEcal EE",eEE,eEEmin,eEEmax);
+
+	TH1D* h_ihEE_data_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_data_PUR");
+	if (h_ihEE_data_PUR) delete h_ihEE_data_PUR;
+	h_ihEE_data_PUR = new TH1D("h_ihEE_data_PUR","IsoHcal EE",hEE,hEEmin,hEEmax);
+
+
+
 
 	//--------------//
 	//    TOTALE    //
@@ -127,47 +178,87 @@ void DataMCValidation(){
 		histarray = p.Loop(i);
 
 
-		//NEW STUFF - EB EE notPUR
+		//MONTECARLO - EB EE notPUR
 		if (!histarray->FindObject("h_IsoTrk_EBR")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_trkEB_pf = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_pf");
 		if (h_trkEB_pf) delete h_trkEB_pf;
 		h_trkEB_pf = (TH1D *)histarray->FindObject("h_IsoTrk_EBR");
+		if(i==1){ h_MCone_tEB = (TH1D *)h_trkEB_pf->Clone(); h_MCone_tEB->SetName("h_MCone_tEB"); }
 
 		if (!histarray->FindObject("h_IsoEcal_EBR")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ieEB_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_pf");
 		if (h_ieEB_pf) delete h_ieEB_pf;
 		h_ieEB_pf = (TH1D *)histarray->FindObject("h_IsoEcal_EBR");
+		if(i==1){ h_MCone_eEB = (TH1D *)h_ieEB_pf->Clone(); h_MCone_eEB->SetName("h_MCone_eEB"); }
 
 		if (!histarray->FindObject("h_IsoHcal_EBR")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ihEB_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_pf");
 		if (h_ihEB_pf) delete h_ihEB_pf;
 		h_ihEB_pf = (TH1D *)histarray->FindObject("h_IsoHcal_EBR");
+		if(i==1){ h_MCone_hEB = (TH1D *)h_ihEB_pf->Clone(); h_MCone_hEB->SetName("h_MCone_hEB"); }
 
 
 		if (!histarray->FindObject("h_IsoTrk_EER")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_trkEE_pf = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_pf");
 		if (h_trkEE_pf) delete h_trkEE_pf;
 		h_trkEE_pf = (TH1D *)histarray->FindObject("h_IsoTrk_EER");
+		if(i==1){ h_MCone_tEE = (TH1D *)h_trkEE_pf->Clone(); h_MCone_tEE->SetName("h_MCone_tEE"); }
 
 		if (!histarray->FindObject("h_IsoEcal_EER")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ieEE_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_pf");
 		if (h_ieEE_pf) delete h_ieEE_pf;
 		h_ieEE_pf = (TH1D *)histarray->FindObject("h_IsoEcal_EER");
+		if(i==1){ h_MCone_eEE = (TH1D *)h_ieEE_pf->Clone(); h_MCone_eEE->SetName("h_MCone_eEE"); }
 
 		if (!histarray->FindObject("h_IsoHcal_EER")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ihEE_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_pf");
 		if (h_ihEE_pf) delete h_ihEE_pf;
 		h_ihEE_pf = (TH1D *)histarray->FindObject("h_IsoHcal_EER");
+		if(i==1){ h_MCone_hEE = (TH1D *)h_ihEE_pf->Clone(); h_MCone_hEE->SetName("h_MCone_hEE"); }
 
-		//TODO - add new staff with PUR
+		//MONTECARLO PUR
+		if (!histarray->FindObject("h_IsoTrk_EBR_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
+		TH1D* h_trkEB_pf_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_pf_PUR");
+		if (h_trkEB_pf_PUR) delete h_trkEB_pf_PUR;
+		h_trkEB_pf_PUR = (TH1D *)histarray->FindObject("h_IsoTrk_EBR_PUR");
+
+		if (!histarray->FindObject("h_IsoEcal_EBR_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
+		TH1D* h_ieEB_pf_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_pf_PUR");
+		if (h_ieEB_pf_PUR) delete h_ieEB_pf_PUR;
+		h_ieEB_pf_PUR = (TH1D *)histarray->FindObject("h_IsoEcal_EBR_PUR");
+
+		if (!histarray->FindObject("h_IsoHcal_EBR_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
+		TH1D* h_ihEB_pf_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_pf_PUR");
+		if (h_ihEB_pf_PUR) delete h_ihEB_pf_PUR;
+		h_ihEB_pf_PUR = (TH1D *)histarray->FindObject("h_IsoHcal_EBR_PUR");
+
+
+		if (!histarray->FindObject("h_IsoTrk_EER_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
+		TH1D* h_trkEE_pf_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_pf_PUR");
+		if (h_trkEE_pf_PUR) delete h_trkEE_pf_PUR;
+		h_trkEE_pf_PUR = (TH1D *)histarray->FindObject("h_IsoTrk_EER_PUR");
+
+		if (!histarray->FindObject("h_IsoEcal_EER_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
+		TH1D* h_ieEE_pf_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_pf_PUR");
+		if (h_ieEE_pf_PUR) delete h_ieEE_pf_PUR;
+		h_ieEE_pf_PUR = (TH1D *)histarray->FindObject("h_IsoEcal_EER_PUR");
+
+		if (!histarray->FindObject("h_IsoHcal_EER_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
+		TH1D* h_ihEE_pf_PUR = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_pf_PUR");
+		if (h_ihEE_pf_PUR) delete h_ihEE_pf_PUR;
+		h_ihEE_pf_PUR = (TH1D *)histarray->FindObject("h_IsoHcal_EER_PUR");
 
 
 
 
+		//===================================
 		//set the string
 		oss<<i;
 		name=" Number of Vertices="+oss.str();
 		cut="numberOfVertices=="+oss.str();
+		string picname;
+		string eps;
+		
 
 		//DATA: scrive gli istogrammi tagliati al numero di verici
 		//EB data
@@ -180,11 +271,26 @@ void DataMCValidation(){
 		treeVJ_->Draw("IsoEcalEE>>h_ieEE_data",cut.c_str());
 		treeVJ_->Draw("IsoHcalEE>>h_ihEE_data",cut.c_str());
 
+
+		//EB_PUR data PUR
+		treeVJ_->Draw("IsoTrkEB_PUR>>h_trkEB_data_PUR",cut.c_str());
+		treeVJ_->Draw("IsoEcalEB_PUR>>h_ieEB_data_PUR",cut.c_str());
+		treeVJ_->Draw("IsoHcalEB_PUR>>h_ihEB_data_PUR",cut.c_str());
+
+		//EE_PUR data PUR
+		treeVJ_->Draw("IsoTrkEE_PUR>>h_trkEE_data_PUR",cut.c_str());
+		treeVJ_->Draw("IsoEcalEE_PUR>>h_ieEE_data_PUR",cut.c_str());
+		treeVJ_->Draw("IsoHcalEE_PUR>>h_ihEE_data_PUR",cut.c_str());
+		//===================================
+		
+
+
+//NON PUR
 		//Definizione canvas e riempimento
 		//EB
 		TCanvas* Comp = (TCanvas*)gDirectory->GetList()->FindObject("Comp");
 		if (Comp) delete Comp;
-		Comp = new TCanvas("Comp","Comp",0,0,800,600);
+		Comp = new TCanvas("Comp","Comp",0,0,1200,800);
 		Comp->Divide(2,3);
 		Comp->cd(1);
 
@@ -379,15 +485,13 @@ void DataMCValidation(){
 		leg8->Draw();
 		Comp->Update();
 
-		string picname="Trk-Ecal-Hcal-Isolation"+oss.str()+".png";
-		string eps="Trk-Ecal-Hcal-Isolation"+oss.str()+".eps";
+		picname="Trk-Ecal-Hcal-Isolation"+oss.str()+".png";
+		eps="Trk-Ecal-Hcal-Isolation"+oss.str()+".eps";
 		Comp->Print(picname.c_str());
 		Comp->Print(eps.c_str());
-		oss.clear();
-		oss.str("");
 
 
-		//TOTALE
+	//TOTALE NON PUR
 		h_ieEB->Add(h_ieEB_data);
 		h_ieEB_mc->Add(h_ieEB_pf);
 
@@ -407,13 +511,432 @@ void DataMCValidation(){
 		h_trkEE_mc->Add(h_trkEE_pf);
 
 
+//PUR
+		//Definizione canvas e riempimento
+		//EB
+		TCanvas* CompPUR = (TCanvas*)gDirectory->GetList()->FindObject("CompPUR");
+		if (CompPUR) delete CompPUR;
+		CompPUR = new TCanvas("CompPUR","CompPUR",0,0,1200,800);
+		CompPUR->Divide(2,3);
+		CompPUR->cd(1);
 
-	}
 
-	//TOTALE
+		gPad->SetLogy(1);
+		h_ieEB_data_PUR->SetTitle(name.c_str());
+		h_ieEB_data_PUR->SetMarkerColor(kBlack);
+		h_ieEB_data_PUR->GetXaxis()->SetTitle("IsoEcal Barrel");
+		h_ieEB_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ieEB_data_PUR->SetLineColor(kBlack);
+		h_ieEB_data_PUR->SetMarkerColor(kBlack);
+		h_ieEB_data_PUR->Draw("E1");
+		h_ieEB_pf_PUR->SetMarkerColor(kRed);
+		h_ieEB_pf_PUR->SetLineColor(kRed);
+		h_ieEB_pf_PUR->Draw("HIST SAMES");
+		CompPUR->Update();
+		double norm = ((h_ieEB_data_PUR->Integral()) / h_ieEB_pf_PUR->Integral()) ;
+		h_ieEB_pf_PUR->Scale(norm);
+
+		TPaveStats *stat2 = (TPaveStats*)h_ieEB_pf_PUR->FindObject("stats"); 
+		stat2->SetY1NDC(0.875); 
+		stat2->SetY2NDC(0.75); 
+		stat2->SetTextColor(kRed);
+		stat2->Draw();
+		CompPUR->Update();
+
+		TLegend *purleg = new TLegend(0.6,0.75,0.825,0.9);
+		purleg->SetBorderSize(0);
+		purleg->SetEntrySeparation(0.01);
+		purleg->SetFillColor(0);
+		purleg->AddEntry(h_ieEB_data_PUR,"data PUR","p");
+		purleg->AddEntry( h_ieEB_pf_PUR,"MonteCarlo PUR","l");
+		purleg->Draw();
+		CompPUR->Update();
+
+
+		//
+		CompPUR->cd(2);
+		gPad->SetLogy(1);
+		h_ieEE_data_PUR->SetTitle(name.c_str());
+		h_ieEE_data_PUR->SetMarkerColor(kBlack);
+		h_ieEE_data_PUR->SetLineColor(kBlack);
+		h_ieEE_data_PUR->GetXaxis()->SetTitle("IsoEcal Endcap");
+		h_ieEE_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ieEE_data_PUR->Draw("E1");
+		h_ieEE_pf_PUR->SetMarkerColor(kRed);
+		h_ieEE_pf_PUR->SetLineColor(kRed);
+		h_ieEE_pf_PUR->Draw("HIST SAMES");
+		CompPUR->Update();
+		double norm3 = ( (h_ieEE_data_PUR->Integral())/ h_ieEE_pf_PUR->Integral());
+		h_ieEE_pf_PUR->Scale(norm3);
+
+		TPaveStats *stat5 = (TPaveStats*) h_ieEE_pf_PUR->FindObject("stats"); 
+		stat5->SetY1NDC(0.878); 
+		stat5->SetY2NDC(0.75); 
+		stat5->SetTextColor(kRed);
+		stat5->Draw();
+		CompPUR->Update();
+
+		TLegend *purleg3 = new TLegend(0.6,0.75,0.825,0.9);
+		purleg3->SetBorderSize(0);
+		purleg3->SetEntrySeparation(0.01);
+		purleg3->SetFillColor(0);
+		purleg3->AddEntry(h_ieEE_data_PUR,"data PUR","p");
+		purleg3->AddEntry(h_ieEE_pf_PUR,"MonteCarlo PUR","l");
+		purleg3->Draw();
+		CompPUR->Update();
+
+		//
+		CompPUR->cd(3);
+		gPad->SetLogy(1);
+		h_ihEB_data_PUR->SetTitle(name.c_str());
+		h_ihEB_data_PUR->SetMarkerColor(kBlack);
+		h_ihEB_data_PUR->SetLineColor(kBlack);
+		h_ihEB_data_PUR->GetXaxis()->SetTitle("IsoHcal Barrel");
+		h_ihEB_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ihEB_data_PUR->Draw("E1");
+		h_ihEB_pf_PUR->SetMarkerColor(kRed);
+		h_ihEB_pf_PUR->SetLineColor(kRed);
+		h_ihEB_pf_PUR->Draw("HIST SAMES");
+		CompPUR->Update();
+		double norm2 = ( (h_ihEB_data_PUR->Integral()) / h_ihEB_pf_PUR->Integral());
+		h_ihEB_pf_PUR->Scale(norm2);
+
+		TPaveStats *stat3 = (TPaveStats*) h_ihEB_pf_PUR->FindObject("stats"); 
+		stat3->SetY1NDC(0.878); 
+		stat3->SetY2NDC(0.75); 
+		stat3->SetTextColor(kRed);
+		stat3->Draw();
+		CompPUR->Update();
+
+		TLegend *purleg2 = new TLegend(0.6,0.75,0.825,0.9);
+		purleg2->SetBorderSize(0);
+		purleg2->SetEntrySeparation(0.01);
+		purleg2->SetFillColor(0);
+		purleg2->AddEntry(h_ihEB_data_PUR,"data PUR","p");
+		purleg2->AddEntry( h_ihEB_pf_PUR,"MonteCarlo PUR","l");
+		purleg2->Draw();
+		CompPUR->Update();
+
+		//
+		CompPUR->cd(4);
+		gPad->SetLogy(1);
+		h_ihEE_data_PUR->SetTitle(name.c_str());
+		h_ihEE_data_PUR->SetMarkerColor(kBlack);
+		h_ihEE_data_PUR->SetLineColor(kBlack);
+		h_ihEE_data_PUR->GetXaxis()->SetTitle("IsoHcal Endcap");
+		h_ihEE_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ihEE_data_PUR->Draw("E1");
+		h_ihEE_pf_PUR->SetMarkerColor(kRed);
+		h_ihEE_pf_PUR->SetLineColor(kRed);
+		h_ihEE_pf_PUR->Draw("HIST SAMES");
+		CompPUR->Update();
+		double norm4 = ( (h_ihEE_data_PUR->Integral())/ h_ihEE_pf_PUR->Integral());
+		h_ihEE_pf_PUR->Scale(norm4);
+
+		TPaveStats *stat6 = (TPaveStats*)h_ihEE_pf_PUR->FindObject("stats"); 
+		stat6->SetY1NDC(0.878); 
+		stat6->SetY2NDC(0.75); 
+		stat6->SetTextColor(kRed);
+		stat6->Draw();
+		CompPUR->Update();
+
+		TLegend *purleg4 = new TLegend(0.6,0.75,0.825,0.9);
+		purleg4->SetBorderSize(0);
+		purleg4->SetEntrySeparation(0.01);
+		purleg4->SetFillColor(0);
+		purleg4->AddEntry(h_ihEE_data_PUR,"data PUR","p");
+		purleg4->AddEntry(h_ihEE_pf_PUR,"MonteCarlo PUR","l");
+		purleg4->Draw();
+		CompPUR->Update();
+
+		CompPUR->cd(5);
+		gPad->SetLogy(1);
+		h_trkEB_data_PUR->SetTitle(name.c_str());
+		h_trkEB_data_PUR->SetMarkerColor(kBlack);
+		h_trkEB_data_PUR->GetXaxis()->SetTitle("IsoTrk Barrel");
+		h_trkEB_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_trkEB_data_PUR->SetLineColor(kBlack);
+		h_trkEB_data_PUR->SetMarkerColor(kBlack);
+		h_trkEB_data_PUR->Draw("E1");
+		h_trkEB_pf_PUR->SetMarkerColor(kRed);
+		h_trkEB_pf_PUR->SetLineColor(kRed);
+		h_trkEB_pf_PUR->Draw("HIST SAMES");
+		CompPUR->Update();
+		double norm7 = ( (h_trkEB_data_PUR->Integral())/ h_trkEB_pf_PUR->Integral());
+		h_trkEB_pf_PUR->Scale(norm7);
+
+		TPaveStats *stat7 = (TPaveStats*)h_trkEB_pf_PUR->FindObject("stats"); 
+		stat7->SetY1NDC(0.875); 
+		stat7->SetY2NDC(0.75); 
+		stat7->SetTextColor(kRed);
+		stat7->Draw();
+		CompPUR->Update();
+
+		TLegend *purleg7 = new TLegend(0.6,0.75,0.825,0.9);
+		purleg7->SetBorderSize(0);
+		purleg7->SetEntrySeparation(0.01);
+		purleg7->SetFillColor(0);
+		purleg7->AddEntry(h_trkEB_data_PUR,"data PUR","p");
+		purleg7->AddEntry( h_trkEB_pf_PUR,"MonteCarlo PUR","l");
+		purleg7->Draw();
+
+		CompPUR->cd(6);
+		gPad->SetLogy(1);
+		h_trkEE_data_PUR->SetTitle(name.c_str());
+		h_trkEE_data_PUR->GetXaxis()->SetTitle("IsoTrk Endcap");
+		h_trkEE_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_trkEE_data_PUR->SetLineColor(kBlack);
+		h_trkEE_data_PUR->SetMarkerColor(kBlack);
+		h_trkEE_data_PUR->Draw("E1");
+		h_trkEE_pf_PUR->SetMarkerColor(kRed);
+		h_trkEE_pf_PUR->SetLineColor(kRed);
+		h_trkEE_pf_PUR->Draw("HIST SAMES");
+		CompPUR->Update();
+		double norm8 = ( (h_trkEE_data_PUR->Integral())/ h_trkEE_pf_PUR->Integral());
+		h_trkEE_pf_PUR->Scale(norm8);
+
+		TPaveStats *stat8 = (TPaveStats*)h_trkEE_pf_PUR->FindObject("stats"); 
+		stat8->SetY1NDC(0.875); 
+		stat8->SetY2NDC(0.75); 
+		stat8->SetTextColor(kRed);
+		stat8->Draw();
+		CompPUR->Update();
+
+		TLegend *purleg8 = new TLegend(0.6,0.75,0.825,0.9);
+		purleg8->SetBorderSize(0);
+		purleg8->SetEntrySeparation(0.01);
+		purleg8->SetFillColor(0);
+		purleg8->AddEntry(h_trkEE_data_PUR,"data PUR","p");
+		purleg8->AddEntry(h_trkEE_pf_PUR,"MonteCarlo PUR","l");
+		purleg8->Draw();
+		CompPUR->Update();
+
+		picname="Trk-Ecal-Hcal-Isolation-pur"+oss.str()+".png";
+		eps="Trk-Ecal-Hcal-Isolation-pur"+oss.str()+".eps";
+		CompPUR->Print(picname.c_str());
+		CompPUR->Print(eps.c_str());
+
+
+//ALTRO PLOT MC con VTX==1 vs. dataPUR con VTX==N
+
+		//Definizione canvas e riempimento
+		//EB
+		TCanvas* CompMC1data = (TCanvas*)gDirectory->GetList()->FindObject("CompMC1data");
+		if (CompMC1data) delete CompMC1data;
+		CompMC1data = new TCanvas("CompMC1data","CompMC1data",0,0,1200,800);
+		CompMC1data->Divide(2,3);
+		CompMC1data->cd(1);
+
+
+		gPad->SetLogy(1);
+		h_ieEB_data_PUR->SetTitle(name.c_str());
+		h_ieEB_data_PUR->SetMarkerColor(kBlack);
+		h_ieEB_data_PUR->GetXaxis()->SetTitle("IsoEcal Barrel");
+		h_ieEB_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ieEB_data_PUR->SetLineColor(kBlack);
+		h_ieEB_data_PUR->SetMarkerColor(kBlack);
+		h_ieEB_data_PUR->Draw("E1");
+		h_MCone_eEB->SetMarkerColor(kRed);
+		h_MCone_eEB->SetLineColor(kRed);
+		h_MCone_eEB->Draw("HIST SAMES");
+		CompMC1data->Update();
+		double normmc = ((h_ieEB_data_PUR->Integral()) / h_MCone_eEB->Integral()) ;
+		h_MCone_eEB->Scale(normmc);
+
+		TPaveStats *stamc2 = (TPaveStats*)h_MCone_eEB->FindObject("stats"); 
+		stamc2->SetY1NDC(0.875); 
+		stamc2->SetY2NDC(0.75); 
+		stamc2->SetTextColor(kRed);
+		stamc2->Draw();
+		CompMC1data->Update();
+
+		TLegend *mc1leg = new TLegend(0.6,0.75,0.825,0.9);
+		mc1leg->SetBorderSize(0);
+		mc1leg->SetEntrySeparation(0.01);
+		mc1leg->SetFillColor(0);
+		mc1leg->AddEntry(h_ieEB_data_PUR,"data PUR","p");
+		mc1leg->AddEntry(h_MCone_eEB,"MonteCarlo vtx=1","l");
+		mc1leg->Draw();
+		CompMC1data->Update();
+
+
+		//
+		CompMC1data->cd(2);
+		gPad->SetLogy(1);
+		h_ieEE_data_PUR->SetTitle(name.c_str());
+		h_ieEE_data_PUR->SetMarkerColor(kBlack);
+		h_ieEE_data_PUR->SetLineColor(kBlack);
+		h_ieEE_data_PUR->GetXaxis()->SetTitle("IsoEcal Endcap");
+		h_ieEE_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ieEE_data_PUR->Draw("E1");
+		h_MCone_eEE->SetMarkerColor(kRed);
+		h_MCone_eEE->SetLineColor(kRed);
+		h_MCone_eEE->Draw("HIST SAMES");
+		CompMC1data->Update();
+		double normmc3 = ( (h_ieEE_data_PUR->Integral())/ h_MCone_eEE->Integral());
+		h_MCone_eEE->Scale(normmc3);
+
+		TPaveStats *stamc5 = (TPaveStats*) h_MCone_eEE->FindObject("stats"); 
+		stamc5->SetY1NDC(0.878); 
+		stamc5->SetY2NDC(0.75); 
+		stamc5->SetTextColor(kRed);
+		stamc5->Draw();
+		CompMC1data->Update();
+
+		TLegend *mc1leg3 = new TLegend(0.6,0.75,0.825,0.9);
+		mc1leg3->SetBorderSize(0);
+		mc1leg3->SetEntrySeparation(0.01);
+		mc1leg3->SetFillColor(0);
+		mc1leg3->AddEntry(h_ieEE_data_PUR,"data PUR","p");
+		mc1leg3->AddEntry(h_MCone_eEE,"MonteCarlo vtx=1","l");
+		mc1leg3->Draw();
+		CompMC1data->Update();
+
+		//
+		CompMC1data->cd(3);
+		gPad->SetLogy(1);
+		h_ihEB_data_PUR->SetTitle(name.c_str());
+		h_ihEB_data_PUR->SetMarkerColor(kBlack);
+		h_ihEB_data_PUR->SetLineColor(kBlack);
+		h_ihEB_data_PUR->GetXaxis()->SetTitle("IsoHcal Barrel");
+		h_ihEB_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ihEB_data_PUR->Draw("E1");
+		h_MCone_hEB->SetMarkerColor(kRed);
+		h_MCone_hEB->SetLineColor(kRed);
+		h_MCone_hEB->Draw("HIST SAMES");
+		CompMC1data->Update();
+		double normmc2 = ( (h_ihEB_data_PUR->Integral()) / h_MCone_hEB->Integral());
+		h_MCone_hEB->Scale(normmc2);
+
+		TPaveStats *stamc3 = (TPaveStats*) h_MCone_hEB->FindObject("stats"); 
+		stamc3->SetY1NDC(0.878); 
+		stamc3->SetY2NDC(0.75); 
+		stamc3->SetTextColor(kRed);
+		stamc3->Draw();
+		CompMC1data->Update();
+
+		TLegend *mc1leg2 = new TLegend(0.6,0.75,0.825,0.9);
+		mc1leg2->SetBorderSize(0);
+		mc1leg2->SetEntrySeparation(0.01);
+		mc1leg2->SetFillColor(0);
+		mc1leg2->AddEntry(h_ihEB_data_PUR,"data PUR","p");
+		mc1leg2->AddEntry(h_MCone_hEB,"MonteCarlo vtx=1","l");
+		mc1leg2->Draw();
+		CompMC1data->Update();
+
+		//
+		CompMC1data->cd(4);
+		gPad->SetLogy(1);
+		h_ihEE_data_PUR->SetTitle(name.c_str());
+		h_ihEE_data_PUR->SetMarkerColor(kBlack);
+		h_ihEE_data_PUR->SetLineColor(kBlack);
+		h_ihEE_data_PUR->GetXaxis()->SetTitle("IsoHcal Endcap");
+		h_ihEE_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_ihEE_data_PUR->Draw("E1");
+		h_MCone_hEE->SetMarkerColor(kRed);
+		h_MCone_hEE->SetLineColor(kRed);
+		h_MCone_hEE->Draw("HIST SAMES");
+		CompMC1data->Update();
+		double normmc4 = ( (h_ihEE_data_PUR->Integral())/ h_MCone_hEE->Integral());
+		h_MCone_hEE->Scale(normmc4);
+
+		TPaveStats *stamc6 = (TPaveStats*)h_MCone_hEE->FindObject("stats"); 
+		stamc6->SetY1NDC(0.878); 
+		stamc6->SetY2NDC(0.75); 
+		stamc6->SetTextColor(kRed);
+		stamc6->Draw();
+		CompMC1data->Update();
+
+		TLegend *mc1leg4 = new TLegend(0.6,0.75,0.825,0.9);
+		mc1leg4->SetBorderSize(0);
+		mc1leg4->SetEntrySeparation(0.01);
+		mc1leg4->SetFillColor(0);
+		mc1leg4->AddEntry(h_ihEE_data_PUR,"data PUR","p");
+		mc1leg4->AddEntry(h_MCone_hEE,"MonteCarlo vtx=1","l");
+		mc1leg4->Draw();
+		CompMC1data->Update();
+
+		CompMC1data->cd(5);
+		gPad->SetLogy(1);
+		h_trkEB_data_PUR->SetTitle(name.c_str());
+		h_trkEB_data_PUR->SetMarkerColor(kBlack);
+		h_trkEB_data_PUR->GetXaxis()->SetTitle("IsoTrk Barrel");
+		h_trkEB_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_trkEB_data_PUR->SetLineColor(kBlack);
+		h_trkEB_data_PUR->SetMarkerColor(kBlack);
+		h_trkEB_data_PUR->Draw("E1");
+		h_MCone_tEB->SetMarkerColor(kRed);
+		h_MCone_tEB->SetLineColor(kRed);
+		h_MCone_tEB->Draw("HIST SAMES");
+		CompMC1data->Update();
+		double normmc7 = ( (h_trkEB_data_PUR->Integral())/ h_MCone_tEB->Integral());
+		h_MCone_tEB->Scale(normmc7);
+
+		TPaveStats *stamc7 = (TPaveStats*)h_MCone_tEB->FindObject("stats"); 
+		stamc7->SetY1NDC(0.875); 
+		stamc7->SetY2NDC(0.75); 
+		stamc7->SetTextColor(kRed);
+		stamc7->Draw();
+		CompMC1data->Update();
+
+		TLegend *mc1leg7 = new TLegend(0.6,0.75,0.825,0.9);
+		mc1leg7->SetBorderSize(0);
+		mc1leg7->SetEntrySeparation(0.01);
+		mc1leg7->SetFillColor(0);
+		mc1leg7->AddEntry(h_trkEB_data_PUR,"data PUR","p");
+		mc1leg7->AddEntry(h_MCone_tEB,"MonteCarlo vtx=1","l");
+		mc1leg7->Draw();
+
+		CompMC1data->cd(6);
+		gPad->SetLogy(1);
+		h_trkEE_data_PUR->SetTitle(name.c_str());
+		h_trkEE_data_PUR->GetXaxis()->SetTitle("IsoTrk Endcap");
+		h_trkEE_data_PUR->GetYaxis()->SetTitle("Entries");
+		h_trkEE_data_PUR->SetLineColor(kBlack);
+		h_trkEE_data_PUR->SetMarkerColor(kBlack);
+		h_trkEE_data_PUR->Draw("E1");
+		h_MCone_tEE->SetMarkerColor(kRed);
+		h_MCone_tEE->SetLineColor(kRed);
+		h_MCone_tEE->Draw("HIST SAMES");
+		CompMC1data->Update();
+		double normmc8 = ( (h_trkEE_data_PUR->Integral())/ h_MCone_tEE->Integral());
+		h_MCone_tEE->Scale(normmc8);
+
+		TPaveStats *stamc8 = (TPaveStats*)h_MCone_tEE->FindObject("stats"); 
+		stamc8->SetY1NDC(0.875); 
+		stamc8->SetY2NDC(0.75); 
+		stamc8->SetTextColor(kRed);
+		stamc8->Draw();
+		CompMC1data->Update();
+
+		TLegend *mc1leg8 = new TLegend(0.6,0.75,0.825,0.9);
+		mc1leg8->SetBorderSize(0);
+		mc1leg8->SetEntrySeparation(0.01);
+		mc1leg8->SetFillColor(0);
+		mc1leg8->AddEntry(h_trkEE_data_PUR,"data PUR","p");
+		mc1leg8->AddEntry(h_MCone_tEE,"MonteCarlo vtx=1","l");
+		mc1leg8->Draw();
+		CompMC1data->Update();
+
+		picname="Trk-Ecal-Hcal-Isolation-mc1data"+oss.str()+".png";
+		eps="Trk-Ecal-Hcal-Isolation-mc1data"+oss.str()+".eps";
+		CompMC1data->Print(picname.c_str());
+		CompMC1data->Print(eps.c_str());
+		oss.clear();
+		oss.str("");
+
+
+
+
+	} //END OF LOOP on vtx
+
+
+	//=================//
+	//      TOTALE     //
+	//=================//
 	TCanvas* Tot = (TCanvas*)gDirectory->GetList()->FindObject("Tot");
 	if (Tot) delete Tot;
-	Tot = new TCanvas("Totale","Totale",0,0,800,600);
+	Tot = new TCanvas("Totale","Totale",0,0,1200,800);
 	Tot->Divide(2,3);
 
 	Tot->cd(1);
@@ -489,8 +1012,6 @@ void DataMCValidation(){
 	t6->SetTextColor(kRed);
 	t6->Draw();
 	Tot->Update();
-
-
 
 //////////////
 

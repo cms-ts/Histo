@@ -31,6 +31,13 @@
    const int eEE = 20; const float eEEmin = 0.; const float eEEmax = 0.20;
    const int hEE = 20; const float hEEmin = 0.; const float hEEmax = 0.20;
 
+   //TODO find a better way to have global parameters
+   //FILE NAMES
+   const std::string mcfile   = "/gpfs/cms/data/2011/v6/pythia-v6_1.root";
+   const std::string datafile = "/gpfs/cms/data/2011/v6/singlele-v6_1.root";
+
+
+
    const Int_t kMaxHLTAndPrescale = 1;
 
 
@@ -128,10 +135,12 @@ PlotsFeeder::PlotsFeeder(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/data/2011/v1/mc-v1-zfilt-pythia-sum11.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(mcfile.c_str());
       if (!f) {
-         f = new TFile("/gpfs/cms/data/2011/v1/mc-v1-zfilt-pythia-sum11.root");
-         f->cd("/gpfs/cms/data/2011/v1/mc-v1-zfilt-pythia-sum11.root:/demo");
+         f = new TFile(mcfile.c_str());
+	 std::string fake = mcfile;
+	 fake = fake + ":/demo";
+         f->cd(fake.c_str());
       }
       tree = (TTree*)gDirectory->Get("treeVJ_");
 
