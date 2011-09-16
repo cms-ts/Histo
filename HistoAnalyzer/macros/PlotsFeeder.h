@@ -21,24 +21,32 @@
 
 
 
-   //TODO find a better way to have global parameters
-   //Plots Parameters
-   const int tEB = 20; const float tEBmin = 0.; const float tEBmax = 0.20;
-   const int eEB = 20; const float eEBmin = 0.; const float eEBmax = 0.20;
-   const int hEB = 20; const float hEBmin = 0.; const float hEBmax = 0.20;
+//TODO find a better way to have global parameters
+//Plots Parameters
+/*const int tEB = 20; const float tEBmin = 0.; const float tEBmax = 0.20;
+  const int eEB = 20; const float eEBmin = 0.; const float eEBmax = 0.20;
+  const int hEB = 20; const float hEBmin = 0.; const float hEBmax = 0.20;
 
-   const int tEE = 20; const float tEEmin = 0.; const float tEEmax = 0.20;
-   const int eEE = 20; const float eEEmin = 0.; const float eEEmax = 0.20;
-   const int hEE = 20; const float hEEmin = 0.; const float hEEmax = 0.20;
+  const int tEE = 20; const float tEEmin = 0.; const float tEEmax = 0.20;
+  const int eEE = 20; const float eEEmin = 0.; const float eEEmax = 0.20;
+  const int hEE = 20; const float hEEmin = 0.; const float hEEmax = 0.20;*/
 
-   //TODO find a better way to have global parameters
-   //FILE NAMES
-   const std::string mcfile   = "/gpfs/cms/data/2011/v6/pythia-v6_1.root";
-   const std::string datafile = "/gpfs/cms/data/2011/v6/singlele-v6_1.root";
+const int tEB = 36; const float tEBmin = 0.; const float tEBmax = 0.09;
+const int eEB = 28; const float eEBmin = 0.; const float eEBmax = 0.07;
+const int hEB = 40; const float hEBmin = 0.; const float hEBmax = 0.10;
+
+const int tEE = 16; const float tEEmin = 0.; const float tEEmax = 0.04;
+const int eEE = 20; const float eEEmin = 0.; const float eEEmax = 0.05;
+const int hEE = 10; const float hEEmin = 0.; const float hEEmax = 0.025;
+
+//TODO find a better way to have global parameters
+//FILE NAMES
+const std::string mcfile   = "/gpfs/cms/data/2011/v6/pythia-v6_1.root";
+const std::string datafile = "/gpfs/cms/data/2011/v6/singlele-v6_1.root";
 
 
 
-   const Int_t kMaxHLTAndPrescale = 1;
+const Int_t kMaxHLTAndPrescale = 1;
 
 
 

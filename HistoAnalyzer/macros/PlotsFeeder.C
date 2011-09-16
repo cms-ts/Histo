@@ -36,7 +36,6 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 //by  b_branchname->GetEntry(ientry); //read only this branch
 
 	TObjArray* histarray = new TObjArray();
-//del	vector<TH1 *> vHistograms;
 
 	
 	//==================//
