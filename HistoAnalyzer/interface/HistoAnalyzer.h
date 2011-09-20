@@ -87,6 +87,7 @@ class HistoAnalyzer : public edm::EDAnalyzer {
 
       //MC
       double Weight;
+      int npv;
 
       //EB
       TH1D * h_IsoTrk_EB;

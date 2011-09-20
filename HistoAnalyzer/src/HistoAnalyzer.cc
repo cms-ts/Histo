@@ -140,7 +140,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(PileupSrc_, PupInfo);
     
     std::vector<PileupSummaryInfo>::const_iterator PVI;
-    int npv = -1;
+    npv = -1;
     
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       int BX = PVI->getBunchCrossing();
@@ -423,6 +423,7 @@ nEvents_ = 0;
 
 	//MC
 	treeVJ_->Branch("Weight",&Weight);
+	treeVJ_->Branch("npv",&npv);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
