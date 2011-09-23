@@ -203,38 +203,37 @@ void DataMCValidation(){
 		TH1D* h_trkEB_pf = (TH1D*)gDirectory->GetList()->FindObject("h_trkEB_pf");
 		if (h_trkEB_pf) delete h_trkEB_pf;
 		h_trkEB_pf = (TH1D *)histarray->FindObject("h_IsoTrk_EBR");
-		if(i==1){ h_MCone_tEB = (TH1D *)h_trkEB_pf->Clone(); h_MCone_tEB->SetName("h_MCone_tEB"); }
+
 
 		//if (!histarray->FindObject("h_IsoEcal_EBR")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ieEB_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ieEB_pf");
 		if (h_ieEB_pf) delete h_ieEB_pf;
 		h_ieEB_pf = (TH1D *)histarray->FindObject("h_IsoEcal_EBR");
-		if(i==1){ h_MCone_eEB = (TH1D *)h_ieEB_pf->Clone(); h_MCone_eEB->SetName("h_MCone_eEB"); }
+
 
 		//if (!histarray->FindObject("h_IsoHcal_EBR")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ihEB_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ihEB_pf");
 		if (h_ihEB_pf) delete h_ihEB_pf;
 		h_ihEB_pf = (TH1D *)histarray->FindObject("h_IsoHcal_EBR");
-		if(i==1){ h_MCone_hEB = (TH1D *)h_ihEB_pf->Clone(); h_MCone_hEB->SetName("h_MCone_hEB"); }
+
 
 
 		//if (!histarray->FindObject("h_IsoTrk_EER")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_trkEE_pf = (TH1D*)gDirectory->GetList()->FindObject("h_trkEE_pf");
 		if (h_trkEE_pf) delete h_trkEE_pf;
 		h_trkEE_pf = (TH1D *)histarray->FindObject("h_IsoTrk_EER");
-		if(i==1){ h_MCone_tEE = (TH1D *)h_trkEE_pf->Clone(); h_MCone_tEE->SetName("h_MCone_tEE"); }
+
 
 		//if (!histarray->FindObject("h_IsoEcal_EER")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ieEE_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ieEE_pf");
 		if (h_ieEE_pf) delete h_ieEE_pf;
 		h_ieEE_pf = (TH1D *)histarray->FindObject("h_IsoEcal_EER");
-		if(i==1){ h_MCone_eEE = (TH1D *)h_ieEE_pf->Clone(); h_MCone_eEE->SetName("h_MCone_eEE"); }
+
 
 		//if (!histarray->FindObject("h_IsoHcal_EER")) { cout << " !!! non ho trovato un istogramma... \n "; }
 		TH1D* h_ihEE_pf = (TH1D*)gDirectory->GetList()->FindObject("h_ihEE_pf");
 		if (h_ihEE_pf) delete h_ihEE_pf;
 		h_ihEE_pf = (TH1D *)histarray->FindObject("h_IsoHcal_EER");
-		if(i==1){ h_MCone_hEE = (TH1D *)h_ihEE_pf->Clone(); h_MCone_hEE->SetName("h_MCone_hEE"); }
 
 		//MONTECARLO PUR
 		//if (!histarray->FindObject("h_IsoTrk_EBR_PUR")) { cout << " !!! non ho trovato un istogramma... \n "; }
@@ -269,6 +268,12 @@ void DataMCValidation(){
 		h_ihEE_pf_PUR = (TH1D *)histarray->FindObject("h_IsoHcal_EER_PUR");
 
 
+		if(i==1){ h_MCone_hEE = (TH1D *)h_ihEE_pf_PUR->Clone(); h_MCone_hEE->SetName("h_MCone_hEE"); } /*messo in tutte le var. fino a qui _PUR irocrda di toglierlo*/
+		if(i==1){ h_MCone_eEE = (TH1D *)h_ieEE_pf_PUR->Clone(); h_MCone_eEE->SetName("h_MCone_eEE"); }
+		if(i==1){ h_MCone_tEE = (TH1D *)h_trkEE_pf_PUR->Clone(); h_MCone_tEE->SetName("h_MCone_tEE"); }
+		if(i==1){ h_MCone_hEB = (TH1D *)h_ihEB_pf_PUR->Clone(); h_MCone_hEB->SetName("h_MCone_hEB"); }
+		if(i==1){ h_MCone_tEB = (TH1D *)h_trkEB_pf_PUR->Clone(); h_MCone_tEB->SetName("h_MCone_tEB"); }        
+		if(i==1){ h_MCone_eEB = (TH1D *)h_ieEB_pf_PUR->Clone(); h_MCone_eEB->SetName("h_MCone_eEB"); }
 
 
 		//===================================
@@ -309,12 +314,12 @@ void DataMCValidation(){
 		treeVJ_->Draw("IsoEcalEE_PUR>>h_ieEE_data_PUR",cut.c_str());
 		treeVJ_->Draw("IsoHcalEE_PUR>>h_ihEE_data_PUR",cut.c_str());
 		
-		if(i==1) { h_DATAone_eEB = (TH1D *) h_ieEB_data->Clone(); h_DATAone_eEB->SetName("h_DATAone_eEB"); }
-		if(i==1) { h_DATAone_hEB = (TH1D *) h_ihEB_data->Clone(); h_DATAone_hEB->SetName("h_DATAone_hEB"); }
-		if(i==1) { h_DATAone_tEB = (TH1D *) h_trkEB_data->Clone(); h_DATAone_tEB->SetName("h_DATAone_tEB"); }
-		if(i==1) { h_DATAone_eEE = (TH1D *) h_ieEE_data->Clone(); h_DATAone_eEE->SetName("h_DATAone_eEE"); }
-		if(i==1) { h_DATAone_hEE = (TH1D *) h_ihEE_data->Clone(); h_DATAone_hEE->SetName("h_DATAone_hEE"); }
-		if(i==1) { h_DATAone_tEE = (TH1D *) h_trkEE_data->Clone(); h_DATAone_tEE->SetName("h_DATAone_tEE"); }	
+		if(i==1) { h_DATAone_eEB = (TH1D *) h_ieEB_data_PUR  ->Clone(); h_DATAone_eEB->SetName("h_DATAone_eEB"); }
+		if(i==1) { h_DATAone_hEB = (TH1D *) h_ihEB_data_PUR  ->Clone(); h_DATAone_hEB->SetName("h_DATAone_hEB"); }
+		if(i==1) { h_DATAone_tEB = (TH1D *) h_trkEB_data_PUR ->Clone(); h_DATAone_tEB->SetName("h_DATAone_tEB"); }
+		if(i==1) { h_DATAone_eEE = (TH1D *) h_ieEE_data_PUR  ->Clone(); h_DATAone_eEE->SetName("h_DATAone_eEE"); }
+		if(i==1) { h_DATAone_hEE = (TH1D *) h_ihEE_data_PUR  ->Clone(); h_DATAone_hEE->SetName("h_DATAone_hEE"); }
+		if(i==1) { h_DATAone_tEE = (TH1D *) h_trkEE_data_PUR ->Clone(); h_DATAone_tEE->SetName("h_DATAone_tEE"); }	
 		//===================================
 		
 
@@ -334,7 +339,7 @@ void DataMCValidation(){
 		h_ieEB_pf->SetLineColor(kRed);
 		h_ieEB_pf->Draw("HIST SAMES");
 		Comp->Update();
-		double plotentries = ((h_ieEB_data->Integral()) / h_ieEB_pf->Integral()) ;
+		double plotentries = ((h_ieEB_data->Integral()) / h_ieEB_pf->Integral());
 		h_ieEB_pf->Scale(plotentries);
 
 		TPaveStats *r2 = (TPaveStats*)h_ieEB_pf->FindObject("stats"); 
@@ -769,10 +774,12 @@ void DataMCValidation(){
 		h_DATAone_eEB->SetMarkerColor(kBlue);
 		h_DATAone_eEB->SetLineColor(kBlue);
 		h_DATAone_eEB->Draw("E1 SAMES");
+		h_DATAone_eEB->SetMarkerStyle(22);
 		CompMC1data->Update();
 		double normda = ((h_ieEB_data_PUR->Integral()) / h_MCone_eEB->Integral()) ;
 		h_MCone_eEB->Scale(normda);
 		normda = ((h_ieEB_data_PUR->Integral()) / h_DATAone_eEB->Integral()) ;
+		h_DATAone_eEB->Sumw2();
 		h_DATAone_eEB->Scale(normda);
 		
 		TPaveStats *stada2 = (TPaveStats*)h_MCone_eEB->FindObject("stats"); 
@@ -808,10 +815,12 @@ void DataMCValidation(){
 		h_DATAone_eEE->SetMarkerColor(kBlue);
 		h_DATAone_eEE->SetLineColor(kBlue);
 		h_DATAone_eEE->Draw("E1 SAMES");
+		h_DATAone_eEE->SetMarkerStyle(22);
 		CompMC1data->Update();
 		double normda3 = ( (h_ieEE_data_PUR->Integral())/ h_MCone_eEE->Integral());
 		h_MCone_eEE->Scale(normda3);
 		normda3 = ( (h_ieEE_data_PUR->Integral())/ h_DATAone_eEE->Integral());
+		h_DATAone_eEE->Sumw2();
 		h_DATAone_eEE->Scale(normda3);
 
 		TPaveStats *stada5 = (TPaveStats*) h_MCone_eEE->FindObject("stats"); 
@@ -846,10 +855,12 @@ void DataMCValidation(){
 		h_DATAone_hEB->SetMarkerColor(kBlue);
 		h_DATAone_hEB->SetLineColor(kBlue);
 		h_DATAone_hEB->Draw("E1 SAMES");
+		h_DATAone_hEB->SetMarkerStyle(22);
 		CompMC1data->Update();
 		double normda2 = ( (h_ihEB_data_PUR->Integral()) / h_MCone_hEB->Integral());
 		h_MCone_hEB->Scale(normda2);
 		normda2 = ( (h_ihEB_data_PUR->Integral()) / h_DATAone_hEB->Integral());
+		h_DATAone_hEB->Sumw2();
 		h_DATAone_hEB->Scale(normda2);
 
 		TPaveStats *stada3 = (TPaveStats*) h_MCone_hEB->FindObject("stats"); 
@@ -884,10 +895,12 @@ void DataMCValidation(){
 		h_DATAone_hEE->SetMarkerColor(kBlue);
 		h_DATAone_hEE->SetLineColor(kBlue);
 		h_DATAone_hEE->Draw("E1 SAMES");
+		h_DATAone_hEE->SetMarkerStyle(22);
 		CompMC1data->Update();
 		double normda4 = ( (h_ihEE_data_PUR->Integral())/ h_MCone_hEE->Integral());
 		h_MCone_hEE->Scale(normda4);
 		normda4 = ( (h_ihEE_data_PUR->Integral())/ h_DATAone_hEE->Integral());
+		h_DATAone_hEE->Sumw2();
 		h_DATAone_hEE->Scale(normda4);
 
 
@@ -922,11 +935,13 @@ void DataMCValidation(){
 		h_DATAone_tEB->SetMarkerColor(kBlue);
 		h_DATAone_tEB->SetLineColor(kBlue);
 		h_DATAone_tEB->Draw("E1 SAMES");
+		h_DATAone_tEB->SetMarkerStyle(22);
 		h_MCone_tEB->Draw("HIST SAMES");
 		CompMC1data->Update();
 		double normda7 = ( (h_trkEB_data_PUR->Integral())/ h_MCone_tEB->Integral());
 		h_MCone_tEB->Scale(normda7);
 		normda7 = ( (h_trkEB_data_PUR->Integral())/ h_DATAone_tEB->Integral());
+		h_DATAone_tEB->Sumw2();
 		h_DATAone_tEB->Scale(normda7);
 
 		TPaveStats *stada7 = (TPaveStats*)h_MCone_tEB->FindObject("stats"); 
@@ -959,10 +974,12 @@ void DataMCValidation(){
 		h_DATAone_tEE->SetMarkerColor(kBlue);
 		h_DATAone_tEE->SetLineColor(kBlue);
 		h_DATAone_tEE->Draw("E1 SAMES");
+		h_DATAone_tEE->SetMarkerStyle(22);
 		CompMC1data->Update();
 		double normda8 = ( (h_trkEE_data_PUR->Integral())/ h_MCone_tEE->Integral());
 		h_MCone_tEE->Scale(normda8);
 		normda8 = ( (h_trkEE_data_PUR->Integral())/ h_DATAone_tEE->Integral());
+		h_DATAone_tEE->Sumw2();
 		h_DATAone_tEE->Scale(normda8);
 
 		TPaveStats *stada8 = (TPaveStats*)h_MCone_tEE->FindObject("stats"); 
