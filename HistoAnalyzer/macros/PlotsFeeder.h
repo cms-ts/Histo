@@ -41,7 +41,7 @@ const int hEE = 10; const float hEEmin = 0.; const float hEEmax = 0.025;
 
 //TODO find a better way to have global parameters
 //FILE NAMES
-const std::string mcfile   = "/gpfs/cms/data/2011/v6/pythia-v6_1.root";
+const std::string mcfile   = "/gpfs/cms/data/2011/v6/powheg-v6_1.root";
 const std::string datafile = "/gpfs/cms/data/2011/v6/singlele-v6_1.root";
 
 
