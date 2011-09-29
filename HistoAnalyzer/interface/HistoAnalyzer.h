@@ -38,7 +38,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-bool debug=false; //If true it will activate the cout verbosity
+bool debug=true; //If true it will activate the cout verbosity
 
 class TTree;
 
@@ -79,6 +79,8 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       bool removePU_;
       bool usingMC_;
       bool doTheHLTAnalysis_;
+      bool beginofarun;
+      TimeValue_t  Timestamp;
 
       //Various
       TTree* treeVJ_;
@@ -162,6 +164,7 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       double etaSCPF;
 
       void clean_vectors(){
+        Timestamp=0;
 	Weight=0;
 	numberOfVertices=0;
 	vRho.clear();
@@ -195,8 +198,8 @@ class HistoAnalyzer : public edm::EDAnalyzer {
       }
 
       //HLT and Prescale
-      std::vector<pair<std::string,int> > HLTAndPrescale;
-      std::vector<string> HLTPaths;
+      std::vector<std::pair <std::string,int> > HLTAndPrescale;
+      std::vector<std::string> HLTPaths;
       std::vector<int> HLTPrescales;      
 
 };

@@ -9,6 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
+// $Id: HistoAnalyzer.cc,v 1.9 2011/09/06 11:22:33 marone Exp $
 //
 //
 
@@ -37,330 +38,335 @@ void
 HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  //Get The Run Parameters
-  edm::LuminosityBlockNumber_t 	ls = iEvent.id().luminosityBlock();
-  edm::EventNumber_t 		events = iEvent.id().event();
-  edm::RunNumber_t 		run = iEvent.id().run();
-  Run=run;
-  Event=events;
-  LS=ls;
-
- //IMPORTANTE
- clean_vectors();
- nEvents_++;
-
- //Isolation Variables for Removed PU
- double IsoTrk_PUR;
- double IsoEcal_PUR;
- double IsoHcal_PUR;
-
- //Define Isolation Variables (Non-Removed PU)
- double IsoTrk;
- double IsoEcal;
- double IsoHcal;
- double HE;
- double fbrem;
- double etaSC;
-
- //Define ID variables
- float DeltaPhiTkClu;
- float DeltaEtaTkClu;
- float sigmaIeIe;
-
- //Define Conversion Rejection Variables
- float Dcot;
- float Dist;
- int NumberOfExpectedInnerHits;
- //EODefinitions
-
- //Match The HLT Trigger
- using edm::TriggerResults;
- Handle<TriggerResults> HLTResults;
- iEvent.getByLabel(triggerCollection_, HLTResults);
- const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
-  std::vector<std::pair<string,int> > HLTPres; 
-
- if (HLTResults.isValid() && doTheHLTAnalysis_) {
-   /// Storing the Prescale information: loop over the triggers and record prescale
-   
-   unsigned int minimalPrescale(10000);
-   unsigned int prescale(0);
-   bool bit(true);
-   std::pair<int,int> prescalepair;
-   std::vector<int>  triggerSubset;
-   for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
-     if(triggerIndices_[itrig]!=2048) {
-       path.push_back(triggerNames_[itrig]);
-       // check trigger response
-       bit = HLTResults->accept(triggerIndices_[itrig]);
-       triggerSubset.push_back(bit);
-       
-       if(bit) {
-	 //If path is accepted, then together with its prescale it is stored in a map.
-	 h_HLTbits->Fill(path[itrig].c_str(),1);
-	 int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
-	 if(prescaleset!=-1) {
-	   prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
-	   if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
-	   if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
-	     edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" 
-					   << prescalepair.first << ", " << prescalepair.second;
-	   }
-	   prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
-	   minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
-	   if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
-	   string stringa=triggerNames_[itrig];
-	   pair<string, int> pr2(stringa, prescale);
-	   HLTPaths.push_back(stringa);
-	   HLTPrescales.push_back(prescale);
-	   HLTPres.push_back(pr2);
-	 } 
-       }else {
-	 //edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
-	 }
-     }
-     else {
-       // that trigger is presently not in the menu
-       triggerSubset.push_back(false);
-     }
-   }
- }
- 
- HLTAndPrescale=HLTPres;
-  HLTPres.clear();
+	//IMPORTANTE
+	clean_vectors();
+	nEvents_++;
 
 
-  //////////////////
-  ////// Pile UP studies
-  /////////////////
+	//Get The Run Parameters
+	Timestamp = iEvent.time().value(); //lo fa ogni vento, ma se vuoi farlo ogni run, basta che ci metti prima if(nEvents_==1)
+	edm::LuminosityBlockNumber_t 	ls = iEvent.id().luminosityBlock();
+	edm::EventNumber_t 		events = iEvent.id().event();
+	edm::RunNumber_t 		run = iEvent.id().run();
+	Run=run;
+	Event=events;
+	LS=ls;
 
-  if (usingMC_){
-    edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
-    Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-    iEvent.getByLabel(PileupSrc_, PupInfo);
-    
-    std::vector<PileupSummaryInfo>::const_iterator PVI;
-    npv = -1;
-    
-    for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-      int BX = PVI->getBunchCrossing();
-      if(BX == 0) { 
-	npv = PVI->getPU_NumInteractions();
-	continue;
-      }      
-      if (debug) std::cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
-    }   
+	//Isolation Variables for Removed PU
+	double IsoTrk_PUR;
+	double IsoEcal_PUR;
+	double IsoHcal_PUR;
 
-    std::vector<float> simulated;
-    std::vector<float> trueD;
-    edm::LumiReWeighting LumiWeights_;
+	//Define Isolation Variables (Non-Removed PU)
+	double IsoTrk;
+	double IsoEcal;
+	double IsoHcal;
+	double HE;
+	double fbrem;
+	double etaSC;
 
-    //Calculate the distributions (our data and MC)
-    for( int i=0; i<25; ++i) {
-      trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
-      simulated.push_back(probdistFlat10[i]); // Name of the vector included in Flat10.h !
-    }
+	//Define ID variables
+	float DeltaPhiTkClu;
+	float DeltaEtaTkClu;
+	float sigmaIeIe;
 
-    LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
-    double MyWeight = LumiWeights_.weight( npv );
-    //if (debug) cout<<"weight is "<<MyWeight<<endl;
-    Weight=MyWeight;
-  }
+	//Define Conversion Rejection Variables
+	float Dcot;
+	float Dist;
+	int NumberOfExpectedInnerHits;
+	//EODefinitions
 
- ///////////////////
- /// Electrons Study
- ///////////////////
+	//Match The HLT Trigger
+	using edm::TriggerResults;
+	Handle<TriggerResults> HLTResults;
+	iEvent.getByLabel(triggerCollection_, HLTResults);
+	const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
 
- //Getting the Electron Collection
- using reco::GsfElectronCollection;
- Handle<GsfElectronCollection> gsfElectrons;
- iEvent.getByLabel(electronCollection_,gsfElectrons);
- 
- //Loop over the gsf collection to study the variables distributions
+	if (HLTResults.isValid() && doTheHLTAnalysis_) {
+		/// Storing the Prescale information: loop over the triggers and record prescale
 
- for(GsfElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
+		unsigned int minimalPrescale(10000);
+		unsigned int prescale(0);
+		bool bit(true);
+		std::pair<int,int> prescalepair;
+		std::vector<int>  triggerSubset;
+		for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+			if(triggerIndices_[itrig]!=2048) {
+				path.push_back(triggerNames_[itrig]);
+				// check trigger response
+				bit = HLTResults->accept(triggerIndices_[itrig]);
+				triggerSubset.push_back(bit);
 
-	 if (removePU_){
-		 double lepIsoRho;
+				if(bit) {
 
-		 /////// Pileup density "rho" for lepton isolation subtraction /////
-		 edm::Handle<double> rhoLepIso;
-		 const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
-		 iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
-		 if( *rhoLepIso == *rhoLepIso) { 
-		 lepIsoRho = *rhoLepIso;
-		 vRho.push_back(lepIsoRho);
-		 }
-		 else { 
-		 lepIsoRho =  999999.9;
-		 vRho.push_back(lepIsoRho);
-		 }
+					//WORKING HERE
+					//Se il path non esiste già nella lista dei paths, lo aggiungo
+					TString tstringa=triggerNames_[itrig]; //ci serve per l'IF
+					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("HLTFinalPath") ) && !(find(HLTPaths.begin(), HLTPaths.end(), tstringa)!=HLTPaths.end())  ){
+						//If path is accepted, then together with its prescale it is stored in a map.
+						h_HLTbits->Fill(path[itrig].c_str(),1); //questo fa il plottino...
+						
+						int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
+						if(prescaleset!=-1) {
+							prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
+							if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
+							if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
+								edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
+							}
+						}
 
-		 //EB
-		 if (fabs (itElect->eta()) <= 1.4442) {      
-			 //
-			 IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
-			 IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
-			 IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
-			 if(IsoEcal_PUR<=0.) IsoEcal_PUR=0.;
-			 if(IsoHcal_PUR<=0.) IsoHcal_PUR=0.;
-			 //vectors
-			 vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
-			 vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
-			 vIsoHcalEB_PUR.push_back(IsoHcal_PUR);
-		 }
-		 //EE
-		 if (fabs (itElect->eta()) >= 1.5660
-				 && fabs (itElect->eta()) <= 2.5000) {
-			 //
-			 IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
-			 IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
-			 IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
-			 if(IsoEcal_PUR<=0.) IsoEcal_PUR=0.;
-			 if(IsoHcal_PUR<=0.) IsoHcal_PUR=0.;
-			 //vectors
-			 vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
-			 vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
-			 vIsoHcalEE_PUR.push_back(IsoHcal_PUR);
-		 }
-	 }
+						//getting prescale info
+						prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
+						minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
+						if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
+						//filling path strings						
+						std::string stringa=triggerNames_[itrig];
+						std::pair<std::string, int> pr2(stringa, prescale);
 
-
-	 //Non-Removed-PU variables
-	 // Define Isolation variables
-	 IsoTrk = (itElect->dr03TkSumPt () / itElect->et ());
-	 IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
-	 IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
-	 HE = itElect->hadronicOverEm();
-
-	 //Assign Isolation variables
-	 fbrem	= itElect->fbrem();
-	 etaSC	= itElect->superCluster()->eta();
-	 //etaSCPF      = itElect->pflowSuperCluster()->eta();
-
-	 //Assign ID variables
-	 DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
-	 DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
-	 sigmaIeIe     = itElect->sigmaIetaIeta ();
-
-	 //Assign Conversion Rejection Variables
-	 Dcot		= itElect->convDcot();
-	 Dist 	= itElect->convDist();
-	 NumberOfExpectedInnerHits = itElect->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-
-	 //Filling Histos and Vectors
-	 //EB
-	 if (fabs (itElect->eta()) <= 1.4442) {
-		 //histos
-		 h_IsoTrk_EB->Fill(IsoTrk);
-		 h_IsoEcal_EB->Fill(IsoEcal);
-		 h_IsoHcal_EB->Fill(IsoHcal);
-		 h_HE_EB->Fill(HE);
-
-		 h_DeltaPhiTkClu_EB->Fill(DeltaPhiTkClu);
-		 h_DeltaEtaTkClu_EB->Fill(DeltaEtaTkClu);
-		 h_sigmaIeIe_EB->Fill(sigmaIeIe);
-
-		 //vectors
-		 vIsoTrkEB.push_back(IsoTrk);
-		 vIsoEcalEB.push_back(IsoEcal);
-		 vIsoHcalEB.push_back(IsoHcal);
-		 vHEEB.push_back(HE);
-		 vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
-		 vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
-		 vsigmaIeIeEB.push_back(sigmaIeIe);
-	 }
-	 //EE
-	 if (fabs (itElect->eta()) >= 1.5660
-			 && fabs (itElect->eta()) <= 2.5000) {
-		 //histos
-		 h_IsoTrk_EE->Fill(IsoTrk);
-		 h_IsoEcal_EE->Fill(IsoEcal);
-		 h_IsoHcal_EE->Fill(IsoHcal);
-		 h_HE_EE->Fill(HE);
-
-		 h_DeltaPhiTkClu_EE->Fill(DeltaPhiTkClu);
-		 h_DeltaEtaTkClu_EE->Fill(DeltaEtaTkClu);
-		 h_sigmaIeIe_EE->Fill(sigmaIeIe);
-
-		 //vectors
-		 vIsoTrkEE.push_back(IsoTrk);
-		 vIsoEcalEE.push_back(IsoEcal);
-		 vIsoHcalEE.push_back(IsoHcal);
-		 vHEEE.push_back(HE);
-		 vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
-		 vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
-		 vsigmaIeIeEE.push_back(sigmaIeIe);
-
-	 }
-
-	 //Common (histo)
-	 h_fbrem->Fill(fbrem);
-	 h_etaSC->Fill(etaSC);
-	 h_Dcot->Fill(Dcot);
-	 h_Dist->Fill(Dist);
-	 h_NumberOfExpectedInnerHits->Fill(NumberOfExpectedInnerHits);
-
-	 //Common (vector)
-	 vfbrem.push_back(fbrem);
-	 vetaSC.push_back(etaSC);
-	 vDcot.push_back(Dcot);
-	 vDist.push_back(Dcot);
-	 vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
-
- }//End for
+						HLTPaths.push_back(stringa);
+						HLTPrescales.push_back(prescale);
+						HLTAndPrescale.push_back(pr2);
+						beginofarun=false;
+					} 
+					else { //se il path già esiste faccio solo +1 sull'histogramma
+						h_HLTbits->Fill(path[itrig].c_str(),1); //questo fa il plottino...
+					}
+				
+				} //Chiusura del if(bit)
+				else {
+				//edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+				}
+			}
+			else {
+				// that trigger is presently not in the menu
+				triggerSubset.push_back(false);
+			}
+		}
+	}
 
 
 
- //Histograms
- histNum-> GetXaxis()-> SetTitle("N_{ele}");
- histNum-> GetYaxis()-> SetTitle("Events");
- histNum->Fill((*gsfElectrons).size());
- 
- h_IsoTrk_EB->GetYaxis()-> SetTitle("Events");
- h_IsoEcal_EB->GetYaxis()-> SetTitle("Events");
- h_IsoHcal_EB->GetYaxis()-> SetTitle("Events");
- h_HE_EB->GetYaxis()-> SetTitle("Events");
- h_IsoTrk_EE->GetYaxis()-> SetTitle("Events");
- h_IsoEcal_EE->GetYaxis()-> SetTitle("Events");
- h_IsoHcal_EE->GetYaxis()-> SetTitle("Events");
- h_HE_EE->GetYaxis()-> SetTitle("Events");
- h_fbrem->GetYaxis()-> SetTitle("Events");
- h_etaSC->GetYaxis()-> SetTitle("Events");
- 
- h_DeltaPhiTkClu_EB->GetYaxis()-> SetTitle("Events");
- h_DeltaEtaTkClu_EB->GetYaxis()-> SetTitle("Events");
- h_sigmaIeIe_EB->GetYaxis()-> SetTitle("Events");
- h_DeltaPhiTkClu_EE->GetYaxis()-> SetTitle("Events");
- h_DeltaEtaTkClu_EE->GetYaxis()-> SetTitle("Events");
- h_sigmaIeIe_EE->GetYaxis()-> SetTitle("Events");
- 
- 
- h_Dcot->GetYaxis()-> SetTitle("Events");
- h_Dist->GetYaxis()-> SetTitle("Events");
- h_NumberOfExpectedInnerHits->GetYaxis()-> SetTitle("Events");
+	//////////////////
+	////// Pile UP studies
+	/////////////////
 
- ///////////////////////
- ///// Vertex Analysis
- ///////////////////////
+	if (usingMC_){
+		edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
+		Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+		iEvent.getByLabel(PileupSrc_, PupInfo);
 
- edm::Handle<reco::VertexCollection> Vertexes;
- iEvent.getByLabel(VertexCollectionTag_, Vertexes);
- numberOfVertices = Vertexes->size();
+		std::vector<PileupSummaryInfo>::const_iterator PVI;
+		int npv = -1;
 
- 
- //--------------------------------//
- //---------Fill del Tree----------//
- treeVJ_->Fill();
- 
+		for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+			int BX = PVI->getBunchCrossing();
+			if(BX == 0) { 
+				npv = PVI->getPU_NumInteractions();
+				continue;
+			}      
+			if (debug) std::cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
+		}   
+
+		std::vector<float> simulated;
+		std::vector<float> trueD;
+		edm::LumiReWeighting LumiWeights_;
+
+		//Calculate the distributions (our data and MC)
+		for( int i=0; i<25; ++i) {
+			trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
+			simulated.push_back(probdistFlat10[i]); // Name of the vector included in Flat10.h !
+		}
+
+		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
+		double MyWeight = LumiWeights_.weight( npv );
+		if (debug) cout<<"weight is "<<MyWeight<<endl;
+		Weight=MyWeight;
+	}
+
+	///////////////////
+	/// Electrons Study
+	///////////////////
+
+	//Getting the Electron Collection
+	using reco::GsfElectronCollection;
+	Handle<GsfElectronCollection> gsfElectrons;
+	iEvent.getByLabel(electronCollection_,gsfElectrons);
+
+	//Loop over the gsf collection to study the variables distributions
+
+	for(GsfElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
+
+		if (removePU_){
+			double lepIsoRho;
+
+			/////// Pileup density "rho" for lepton isolation subtraction /////
+			edm::Handle<double> rhoLepIso;
+			const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
+			iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
+			if( *rhoLepIso == *rhoLepIso)  lepIsoRho = *rhoLepIso;
+			else  lepIsoRho =  -999999.9;
+
+			//EB
+			if (fabs (itElect->eta()) <= 1.4442) {      
+				//
+				IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
+				IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
+				IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
+				//vectors
+				vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
+				vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
+				vIsoHcalEB_PUR.push_back(IsoHcal_PUR);
+			}
+			//EE
+			if (fabs (itElect->eta()) >= 1.5660
+					&& fabs (itElect->eta()) <= 2.5000) {
+				//
+				IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
+				IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
+				IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
+				//vectors
+				vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
+				vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
+				vIsoHcalEE_PUR.push_back(IsoHcal_PUR);
+			}
+		}
+
+
+		//Non-Removed-PU variables
+		// Define Isolation variables
+		IsoTrk = (itElect->dr03TkSumPt () / itElect->et ());
+		IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
+		IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
+		HE = itElect->hadronicOverEm();
+
+		//Assign Isolation variables
+		fbrem	= itElect->fbrem();
+		etaSC	= itElect->superCluster()->eta();
+		//etaSCPF      = itElect->pflowSuperCluster()->eta();
+
+		//Assign ID variables
+		DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
+		DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
+		sigmaIeIe     = itElect->sigmaIetaIeta ();
+
+		//Assign Conversion Rejection Variables
+		Dcot		= itElect->convDcot();
+		Dist 	= itElect->convDist();
+		NumberOfExpectedInnerHits = itElect->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+
+		//Filling Histos and Vectors
+		//EB
+		if (fabs (itElect->eta()) <= 1.4442) {
+			//histos
+			h_IsoTrk_EB->Fill(IsoTrk);
+			h_IsoEcal_EB->Fill(IsoEcal);
+			h_IsoHcal_EB->Fill(IsoHcal);
+			h_HE_EB->Fill(HE);
+
+			h_DeltaPhiTkClu_EB->Fill(DeltaPhiTkClu);
+			h_DeltaEtaTkClu_EB->Fill(DeltaEtaTkClu);
+			h_sigmaIeIe_EB->Fill(sigmaIeIe);
+
+			//vectors
+			vIsoTrkEB.push_back(IsoTrk);
+			vIsoEcalEB.push_back(IsoEcal);
+			vIsoHcalEB.push_back(IsoHcal);
+			vHEEB.push_back(HE);
+			vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
+			vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
+			vsigmaIeIeEB.push_back(sigmaIeIe);
+		}
+		//EE
+		if (fabs (itElect->eta()) >= 1.5660
+				&& fabs (itElect->eta()) <= 2.5000) {
+			//histos
+			h_IsoTrk_EE->Fill(IsoTrk);
+			h_IsoEcal_EE->Fill(IsoEcal);
+			h_IsoHcal_EE->Fill(IsoHcal);
+			h_HE_EE->Fill(HE);
+
+			h_DeltaPhiTkClu_EE->Fill(DeltaPhiTkClu);
+			h_DeltaEtaTkClu_EE->Fill(DeltaEtaTkClu);
+			h_sigmaIeIe_EE->Fill(sigmaIeIe);
+
+			//vectors
+			vIsoTrkEE.push_back(IsoTrk);
+			vIsoEcalEE.push_back(IsoEcal);
+			vIsoHcalEE.push_back(IsoHcal);
+			vHEEE.push_back(HE);
+			vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
+			vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
+			vsigmaIeIeEE.push_back(sigmaIeIe);
+
+		}
+
+		//Common (histo)
+		h_fbrem->Fill(fbrem);
+		h_etaSC->Fill(etaSC);
+		h_Dcot->Fill(Dcot);
+		h_Dist->Fill(Dist);
+		h_NumberOfExpectedInnerHits->Fill(NumberOfExpectedInnerHits);
+
+		//Common (vector)
+		vfbrem.push_back(fbrem);
+		vetaSC.push_back(etaSC);
+		vDcot.push_back(Dcot);
+		vDist.push_back(Dcot);
+		vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
+
+	}//End for
+
+
+
+	//Histograms
+	histNum-> GetXaxis()-> SetTitle("N_{ele}");
+	histNum-> GetYaxis()-> SetTitle("Events");
+	histNum->Fill((*gsfElectrons).size());
+
+	h_IsoTrk_EB->GetYaxis()-> SetTitle("Events");
+	h_IsoEcal_EB->GetYaxis()-> SetTitle("Events");
+	h_IsoHcal_EB->GetYaxis()-> SetTitle("Events");
+	h_HE_EB->GetYaxis()-> SetTitle("Events");
+	h_IsoTrk_EE->GetYaxis()-> SetTitle("Events");
+	h_IsoEcal_EE->GetYaxis()-> SetTitle("Events");
+	h_IsoHcal_EE->GetYaxis()-> SetTitle("Events");
+	h_HE_EE->GetYaxis()-> SetTitle("Events");
+	h_fbrem->GetYaxis()-> SetTitle("Events");
+	h_etaSC->GetYaxis()-> SetTitle("Events");
+
+	h_DeltaPhiTkClu_EB->GetYaxis()-> SetTitle("Events");
+	h_DeltaEtaTkClu_EB->GetYaxis()-> SetTitle("Events");
+	h_sigmaIeIe_EB->GetYaxis()-> SetTitle("Events");
+	h_DeltaPhiTkClu_EE->GetYaxis()-> SetTitle("Events");
+	h_DeltaEtaTkClu_EE->GetYaxis()-> SetTitle("Events");
+	h_sigmaIeIe_EE->GetYaxis()-> SetTitle("Events");
+
+
+	h_Dcot->GetYaxis()-> SetTitle("Events");
+	h_Dist->GetYaxis()-> SetTitle("Events");
+	h_NumberOfExpectedInnerHits->GetYaxis()-> SetTitle("Events");
+
+	///////////////////////
+	///// Vertex Analysis
+	///////////////////////
+
+	edm::Handle<reco::VertexCollection> Vertexes;
+	iEvent.getByLabel(VertexCollectionTag_, Vertexes);
+	numberOfVertices = Vertexes->size();
+
+
+	//--------------------------------//
+	//---------Fill del Tree----------//
+	treeVJ_->Fill();
+
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+	void 
 HistoAnalyzer::beginJob()
 {
-nEvents_ = 0;
+	nEvents_ = 0;
 
 	//TFile and TTree initialization
 	treeVJ_= new TTree("treeVJ_","treeVJ_");
@@ -368,9 +374,8 @@ nEvents_ = 0;
 	//////////////////
 	//// Z->EE SELECTION VARIABLES 
 	////////////////// 
- 
+
 	//EB PileUp REMOVED
-	treeVJ_->Branch("Rho","Rho",&vRho);
 	treeVJ_->Branch("IsoTrkEB_PUR","IsoTrkEB_PUR",&vIsoTrkEB_PUR);
 	treeVJ_->Branch("IsoEcalEB_PUR","IsoEcalEB_PUR",&vIsoEcalEB_PUR);
 	treeVJ_->Branch("IsoHcalEB_PUR","IsoHcalEB_PUR",&vIsoHcalEB_PUR);
@@ -388,7 +393,7 @@ nEvents_ = 0;
 	treeVJ_->Branch("DeltaPhiTkCluEB","DeltaPhiTkCluEB",&vDeltaPhiTkCluEB);
 	treeVJ_->Branch("DeltaEtaTkCluEB","DeltaEtaTkCluEB",&vDeltaEtaTkCluEB);
 	treeVJ_->Branch("sigmaIeIeEB","sigmaIeIeEB",&vsigmaIeIeEB);
-	
+
 	//EE
 	treeVJ_->Branch("IsoTrkEE","IsoTrkEE",&vIsoTrkEE);
 	treeVJ_->Branch("IsoEcalEE","IsoEcalEE",&vIsoEcalEE);
@@ -404,17 +409,18 @@ nEvents_ = 0;
 	treeVJ_->Branch("Dcot","Dcot",&vDcot);
 	treeVJ_->Branch("Dist","Dist",&vDist);
 	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
-	
+
 	//HLT and Prescale
 	treeVJ_->Branch("HLTAndPrescale",&HLTAndPrescale);
 	treeVJ_->Branch("HLTPaths",&HLTPaths);
 	treeVJ_->Branch("HLTPrescales",&HLTPrescales);
+	treeVJ_->Branch("Timestamp",&Timestamp);
 
 	//Run Properties
 	treeVJ_->Branch("Run",&Run);
 	treeVJ_->Branch("LS",&LS);
 	treeVJ_->Branch("Event",&Event);
-	
+
 	//Vertices
 	treeVJ_->Branch("numberOfVertices",&numberOfVertices);
 
@@ -423,65 +429,65 @@ nEvents_ = 0;
 
 	//MC
 	treeVJ_->Branch("Weight",&Weight);
-	treeVJ_->Branch("npv",&npv);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+	void 
 HistoAnalyzer::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void 
+	void 
 HistoAnalyzer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
-//HLT names
-   std::vector<std::string>  hlNames;
-   bool changed (true);
-   if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
-     if (changed) {
-       hlNames = hltConfig_.triggerNames();
-     }
-   } else {
-     edm::LogError("MyAnalyzer") << " HLT config extraction failure with process name " << triggerCollection_.process();
-   }
-   if (debug) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
-   if(useAllTriggers_) triggerNames_ = hlNames;
-   //triggerNames_ = hlNames;
-   //HLT indices
-   triggerIndices_.clear();
-   for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
-     if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end())
-       triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
-     else
-       triggerIndices_.push_back(2048);
-   }
+	//HLT names
+	beginofarun=true;
+	std::vector<std::string>  hlNames;
+	bool changed (true);
+	if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
+		if (changed) {
+			hlNames = hltConfig_.triggerNames();
+		}
+	} else {
+		edm::LogError("MyAnalyzer") << " HLT config extraction failure with process name " << triggerCollection_.process();
+	}
+	if (debug) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
+	if(useAllTriggers_) triggerNames_ = hlNames;
+	//triggerNames_ = hlNames;
+	//HLT indices
+	triggerIndices_.clear();
+	for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+		if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end())
+			triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
+		else
+			triggerIndices_.push_back(2048);
+	}
 
-   if (debug){
-     // text (debug) output
-     int i=0;
-     for(std::vector<std::string>::const_iterator it = triggerNames_.begin(); it<triggerNames_.end();++it) {
-       std::cout << (i++) << " = " << (*it) << std::endl;
-     } 
-   }
+	if (debug){
+		// text (debug) output
+		int i=0;
+		for(std::vector<std::string>::const_iterator it = triggerNames_.begin(); it<triggerNames_.end();++it) {
+			std::cout << (i++) << " = " << (*it) << std::endl;
+		} 
+	}
 
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void 
+	void 
 HistoAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void 
+	void 
 HistoAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void 
+	void 
 HistoAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
