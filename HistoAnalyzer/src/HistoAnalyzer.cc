@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.9 2011/09/06 11:22:33 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.14 2011/09/29 13:31:12 dscaini Exp $
 //
 //
 
@@ -102,39 +102,40 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 					//WORKING HERE
 					//Se il path non esiste già nella lista dei paths, lo aggiungo
 					TString tstringa=triggerNames_[itrig]; //ci serve per l'IF
-					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("HLTFinalPath") ) && !(find(HLTPaths.begin(), HLTPaths.end(), tstringa)!=HLTPaths.end())  ){
-						//If path is accepted, then together with its prescale it is stored in a map.
-						h_HLTbits->Fill(path[itrig].c_str(),1); //questo fa il plottino...
-						
-						int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
-						if(prescaleset!=-1) {
-							prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
-							if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
-							if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
-								edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
+					std::string stringa=triggerNames_[itrig];
+					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("HLTFinalPath") )){
+						//Se il path è Ele* o Photon* allora riempiamo l'istogramma
+						h_HLTbits->Fill(stringa.c_str(),1); //questo fa il plottino...
+
+
+						//mette una nuova stringa solo se non è già presente
+						if(  !(find(HLTPaths.begin(), HLTPaths.end(), tstringa)!=HLTPaths.end())  ){  
+
+							//If path is accepted, then together with its prescale it is stored in a map.
+							int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
+							if(prescaleset!=-1) {
+								prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
+								if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
+								if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
+									edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
+								}
 							}
+
+							//getting prescale info
+							prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
+							minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
+							if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
+							//filling path strings						
+							std::pair<std::string, int> pr2(stringa, prescale);
+
+							HLTPaths.push_back(stringa);
+							HLTPrescales.push_back(prescale);
+							HLTAndPrescale.push_back(pr2);
 						}
-
-						//getting prescale info
-						prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
-						minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
-						if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
-						//filling path strings						
-						std::string stringa=triggerNames_[itrig];
-						std::pair<std::string, int> pr2(stringa, prescale);
-
-						HLTPaths.push_back(stringa);
-						HLTPrescales.push_back(prescale);
-						HLTAndPrescale.push_back(pr2);
-						beginofarun=false;
 					} 
-					else { //se il path già esiste faccio solo +1 sull'histogramma
-						h_HLTbits->Fill(path[itrig].c_str(),1); //questo fa il plottino...
-					}
-				
 				} //Chiusura del if(bit)
 				else {
-				//edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+					//edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
 				}
 			}
 			else {
@@ -442,7 +443,6 @@ HistoAnalyzer::endJob()
 HistoAnalyzer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
 	//HLT names
-	beginofarun=true;
 	std::vector<std::string>  hlNames;
 	bool changed (true);
 	if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
