@@ -9,7 +9,10 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Common"/>
 <use name="PhysicsTools/Utilities"/>
-<use   name="HLTrigger/HLTcore"/>
+<use name="JetMETCorrections/Objects"/>
+<use name="JetMETCorrections/Modules"/>
+<use name="JetMETCorrections/Algorithms"/>
+<use name="HLTrigger/HLTcore"/>
 
 <export>
 <lib name="1"/>
