@@ -20,6 +20,14 @@ void
 jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  ////////
+  //  Get The Weights
+  ///////
+
+  edm::Handle< std::vector<float> > weight;
+  iEvent.getByLabel("demo","EventWeight",weight);
+  const std::vector<float> & myweight=*weight;
+
    //IMPORTANTE  
    numberOfVertices=0;
    
@@ -38,7 +46,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<reco::VertexCollection> Vertexes;
    iEvent.getByLabel(VertexCollection_, Vertexes);
    numberOfVertices = Vertexes->size();  
-   h_nVtx->Fill(numberOfVertices);
+   h_nVtx->Fill(numberOfVertices,myweight[0]);
    ///////////////////////
    ///// Z Analysis
    ///////////////////////
@@ -65,28 +73,28 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 pfScEn  = it->pflowSuperCluster()->energy();
 	 pfScEta= it->pflowSuperCluster()->eta();
 
-	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta);
+	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta,myweight[0]);
 	 double deltaEta_ = 5.0/100.0;
 	 double deltaPhi_ = 2.0*pi_/100;
 	 for (int j=0; j< 100; j++){
 	    if ( it->eta()> j*deltaEta_ && it->eta()<(j+1)*deltaEta_){
 	       for (int k=0; k<100; k++){
 		  if ( it->phi()> k*deltaPhi_ && it->phi()<(k+1)*deltaPhi_){
-		     h_gsfPfSCEnVsEtaPhi->Fill((j+0.5)*deltaEta_,(k+0.5)*deltaPhi_,gsfScEn/pfScEn);
+		     h_gsfPfSCEnVsEtaPhi->Fill((j+0.5)*deltaEta_,(k+0.5)*deltaPhi_,gsfScEn/pfScEn,myweight[0]);
 		  }
 	       }
 	    }
 	 }
 	 if (fabs(gsfScEta)<edgeEB){
-	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta);
-	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn);
-	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn);
-	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta/pfScEta);
+	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
 	 } else if (fabs(gsfScEta)<edgeEE){
-	    h_gsfPfSCEta_EE->Fill(gsfScEta/pfScEta);
-	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn);
-	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn);
-	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta);
+	    h_gsfPfSCEta_EE->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
 	 }     
       }     
       // ================================
@@ -102,19 +110,19 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 pfScEn  = it->pflowSuperCluster()->energy();
 	 pfScEta= it->pflowSuperCluster()->eta();
 
-	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta);
-	 h_gsfPfSCEnVsEtaPhi->Fill(it->eta(),it->phi(),gsfScEn/pfScEn);
+	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta,myweight[0]);
+	 h_gsfPfSCEnVsEtaPhi->Fill(it->eta(),it->phi(),gsfScEn/pfScEn,myweight[0]);
 
 	 if (fabs(gsfScEta)<edgeEB){
-	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta);
-	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn);
-	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn);
-	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta/pfScEta);
+	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
 	 } else if (fabs(gsfScEta)<edgeEE){
-	    h_gsfPfSCEta_EE->Fill(gsfScEta/pfScEta);
-	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn);
-	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn);
-	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta);
+	    h_gsfPfSCEta_EE->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
 	 }     
       }      
       // ================================
@@ -155,115 +163,115 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet->Eta())<edgeEB){
 	    totJetsCk++;
 	    nJetsEB++;
-	    h_jetPt_EB->Fill(jet->Pt());
-	    h_jetEta_EB->Fill(jet->Eta());
-	    if (nJetsEB==1) h_jetPtFirst_EB->Fill(jet->Pt());
-	    else if (nJetsEB==2) h_jetPtSecond_EB->Fill(jet->Pt());
-	    else if (nJetsEB==3) h_jetPtThird_EB->Fill(jet->Pt());
-	    else if (nJetsEB==4) h_jetPtFourth_EB->Fill(jet->Pt());
-	    if (totJetsCk==1) h_jetPtFirstCk_EB->Fill(jet->Pt());
-	    else if (totJetsCk==2) h_jetPtSecondCk_EB->Fill(jet->Pt());
-	    else if (totJetsCk==3) h_jetPtThirdCk_EB->Fill(jet->Pt());
-	    else if (totJetsCk==4) h_jetPtFourthCk_EB->Fill(jet->Pt());
+	    h_jetPt_EB->Fill(jet->Pt(),myweight[0]);
+	    h_jetEta_EB->Fill(jet->Eta(),myweight[0]);
+	    if (nJetsEB==1) h_jetPtFirst_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (nJetsEB==2) h_jetPtSecond_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (nJetsEB==3) h_jetPtThird_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (nJetsEB==4) h_jetPtFourth_EB->Fill(jet->Pt(),myweight[0]);
+	    if (totJetsCk==1) h_jetPtFirstCk_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (totJetsCk==2) h_jetPtSecondCk_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (totJetsCk==3) h_jetPtThirdCk_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (totJetsCk==4) h_jetPtFourthCk_EB->Fill(jet->Pt(),myweight[0]);
 
-	    h_jetPtVsEta_EB->Fill(jet->Eta(),jet->Pt());
-	    if (numberOfVertices==1) h_jetPtVtx1_EB->Fill(jet->Pt());
-	    else if (numberOfVertices==2) h_jetPtVtx2_EB->Fill(jet->Pt());
-	    else if (numberOfVertices==3) h_jetPtVtx3_EB->Fill(jet->Pt());
-	    else if (numberOfVertices==4) h_jetPtVtx4_EB->Fill(jet->Pt());
-	    else if (numberOfVertices==5) h_jetPtVtx5_EB->Fill(jet->Pt());
+	    h_jetPtVsEta_EB->Fill(jet->Eta(),jet->Pt(),myweight[0]);
+	    if (numberOfVertices==1) h_jetPtVtx1_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==2) h_jetPtVtx2_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==3) h_jetPtVtx3_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==4) h_jetPtVtx4_EB->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==5) h_jetPtVtx5_EB->Fill(jet->Pt(),myweight[0]);
 	 }
 	 // jet in the ENDCAP
 	 if (fabs(jet->Eta())>edgeEB && fabs(jet->Eta())<edgeEE){
 	    totJetsCk++;
 	    nJetsEE++;
-	    h_jetPt_EE->Fill(jet->Pt());
-	    if (nJetsEE==1) h_jetPtFirst_EE->Fill(jet->Pt());
-	    else if (nJetsEE==2) h_jetPtSecond_EE->Fill(jet->Pt());
-	    else if (nJetsEE==3) h_jetPtThird_EE->Fill(jet->Pt());
-	    else if (nJetsEE==4) h_jetPtFourth_EE->Fill(jet->Pt());
-	    if (totJetsCk==1) h_jetPtFirstCk_EE->Fill(jet->Pt());
-	    else if (totJetsCk==2) h_jetPtSecondCk_EE->Fill(jet->Pt());
-	    else if (totJetsCk==3) h_jetPtThirdCk_EE->Fill(jet->Pt());
-	    else if (totJetsCk==4) h_jetPtFourthCk_EE->Fill(jet->Pt());
+	    h_jetPt_EE->Fill(jet->Pt(),myweight[0]);
+	    if (nJetsEE==1) h_jetPtFirst_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (nJetsEE==2) h_jetPtSecond_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (nJetsEE==3) h_jetPtThird_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (nJetsEE==4) h_jetPtFourth_EE->Fill(jet->Pt(),myweight[0]);
+	    if (totJetsCk==1) h_jetPtFirstCk_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (totJetsCk==2) h_jetPtSecondCk_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (totJetsCk==3) h_jetPtThirdCk_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (totJetsCk==4) h_jetPtFourthCk_EE->Fill(jet->Pt(),myweight[0]);
 	    
-	    if (numberOfVertices==1) h_jetPtVtx1_EE->Fill(jet->Pt());
-	    else if (numberOfVertices==2) h_jetPtVtx2_EE->Fill(jet->Pt());
-	    else if (numberOfVertices==3) h_jetPtVtx3_EE->Fill(jet->Pt());
-	    else if (numberOfVertices==4) h_jetPtVtx4_EE->Fill(jet->Pt());
-	    else if (numberOfVertices==5) h_jetPtVtx5_EE->Fill(jet->Pt());
+	    if (numberOfVertices==1) h_jetPtVtx1_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==2) h_jetPtVtx2_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==3) h_jetPtVtx3_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==4) h_jetPtVtx4_EE->Fill(jet->Pt(),myweight[0]);
+	    else if (numberOfVertices==5) h_jetPtVtx5_EE->Fill(jet->Pt(),myweight[0]);
 	 }
 	 // jet in ECAL
 	 if (fabs(jet->Eta())<edgeEE){
-	    h_jetEta_EE->Fill(jet->Eta());
-	    h_jetPtVsEta_EE->Fill(jet->Eta(),jet->Pt());
+	    h_jetEta_EE->Fill(jet->Eta(),myweight[0]);
+	    h_jetPtVsEta_EE->Fill(jet->Eta(),jet->Pt(),myweight[0]);
 	 } 
       }
-      h_jetNum_EB->Fill(nJetsEB);
-      h_jetNum_EE->Fill(nJetsEE);
+      h_jetNum_EB->Fill(nJetsEB,myweight[0]);
+      h_jetNum_EE->Fill(nJetsEE,myweight[0]);
       
       totJets = nJetsEB + nJetsEE;
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
-      h_invMass->Fill(zInvMass);
-      h_zEta->Fill(e_pair.Eta());
-      h_zRapidity->Fill(e_pair.Rapidity());
-      h_zYieldVsjets->Fill(totJets);
-      if (numberOfVertices==1) h_zYieldVsjetsVtx1->Fill(totJets);
-      if (numberOfVertices==5) h_zYieldVsjetsVtx5->Fill(totJets);
+      h_invMass->Fill(zInvMass,myweight[0]);
+      h_zEta->Fill(e_pair.Eta(),myweight[0]);
+      h_zRapidity->Fill(e_pair.Rapidity(),myweight[0]);
+      h_zYieldVsjets->Fill(totJets,myweight[0]);
+      if (numberOfVertices==1) h_zYieldVsjetsVtx1->Fill(totJets,myweight[0]);
+      if (numberOfVertices==5) h_zYieldVsjetsVtx5->Fill(totJets,myweight[0]);
       
       if (totJets == 1){ 
-	 h_zEtaNjet1->Fill(e_pair.Eta());
-	 h_zMassNjet1->Fill(zInvMass);
+	 h_zEtaNjet1->Fill(e_pair.Eta(),myweight[0]);
+	 h_zMassNjet1->Fill(zInvMass,myweight[0]);
       } else if (totJets == 2){ 
-	 h_zEtaNjet2->Fill(e_pair.Eta());
-	 h_zMassNjet2->Fill(zInvMass);
+	 h_zEtaNjet2->Fill(e_pair.Eta(),myweight[0]);
+	 h_zMassNjet2->Fill(zInvMass,myweight[0]);
       } else if (totJets == 3){ 
-	 h_zEtaNjet3->Fill(e_pair.Eta());
-	 h_zMassNjet3->Fill(zInvMass);
+	 h_zEtaNjet3->Fill(e_pair.Eta(),myweight[0]);
+	 h_zMassNjet3->Fill(zInvMass,myweight[0]);
       } else if (totJets == 4){ 
-	 h_zEtaNjet4->Fill(e_pair.Eta());
-	 h_zMassNjet4->Fill(zInvMass);
+	 h_zEtaNjet4->Fill(e_pair.Eta(),myweight[0]);
+	 h_zMassNjet4->Fill(zInvMass,myweight[0]);
       } 
 
-      if (totJets >= 1) h_zEtaNjet1Incl->Fill(e_pair.Eta());
-      if (totJets >= 2) h_zEtaNjet2Incl->Fill(e_pair.Eta());
-      if (totJets >= 3) h_zEtaNjet3Incl->Fill(e_pair.Eta());
-      if (totJets >= 4) h_zEtaNjet4Incl->Fill(e_pair.Eta());
+      if (totJets >= 1) h_zEtaNjet1Incl->Fill(e_pair.Eta(),myweight[0]);
+      if (totJets >= 2) h_zEtaNjet2Incl->Fill(e_pair.Eta(),myweight[0]);
+      if (totJets >= 3) h_zEtaNjet3Incl->Fill(e_pair.Eta(),myweight[0]);
+      if (totJets >= 4) h_zEtaNjet4Incl->Fill(e_pair.Eta(),myweight[0]);
       
       for (int i=0; i<11; i++)
       {
-	 if (totJets == i) h_ptZ_jet[i]->Fill(zPt);
-	 if (totJets >= i) h_ptZ_jetIncl[i]->Fill(zPt);
+	 if (totJets == i) h_ptZ_jet[i]->Fill(zPt,myweight[0]);
+	 if (totJets >= i) h_ptZ_jetIncl[i]->Fill(zPt,myweight[0]);
       }     
       
       for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin ();
 	   jet != JetContainer.end (); jet++) {
 	 // jet in the BARREL
 	 if (fabs(jet->Eta())<edgeEB){
-	    if (totJets == 1) h_jetPtNjet1_EB->Fill(jet->Pt());
-	    if (totJets == 2) h_jetPtNjet2_EB->Fill(jet->Pt());
-	    if (totJets == 3) h_jetPtNjet3_EB->Fill(jet->Pt());
-	    if (totJets == 4) h_jetPtNjet4_EB->Fill(jet->Pt());
+	    if (totJets == 1) h_jetPtNjet1_EB->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 2) h_jetPtNjet2_EB->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 3) h_jetPtNjet3_EB->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 4) h_jetPtNjet4_EB->Fill(jet->Pt(),myweight[0]);
 	 }
 	 // jet in the ENDCAP
 	 if (fabs(jet->Eta())>edgeEB && fabs(jet->Eta())<edgeEE){
-	    if (totJets == 1) h_jetPtNjet1_EE->Fill(jet->Pt());
-	    if (totJets == 2) h_jetPtNjet2_EE->Fill(jet->Pt());
-	    if (totJets == 3) h_jetPtNjet3_EE->Fill(jet->Pt());
-	    if (totJets == 4) h_jetPtNjet4_EE->Fill(jet->Pt());
+	    if (totJets == 1) h_jetPtNjet1_EE->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 2) h_jetPtNjet2_EE->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 3) h_jetPtNjet3_EE->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 4) h_jetPtNjet4_EE->Fill(jet->Pt(),myweight[0]);
 	 }
 	 // jet in ECAL
 	 if (fabs(jet->Eta())<edgeEE){
-	    if (totJets == 1) h_jetPtNjet1->Fill(jet->Pt());
-	    if (totJets == 2) h_jetPtNjet2->Fill(jet->Pt());
-	    if (totJets == 3) h_jetPtNjet3->Fill(jet->Pt());
-	    if (totJets == 4) h_jetPtNjet4->Fill(jet->Pt());
+	    if (totJets == 1) h_jetPtNjet1->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 2) h_jetPtNjet2->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 3) h_jetPtNjet3->Fill(jet->Pt(),myweight[0]);
+	    if (totJets == 4) h_jetPtNjet4->Fill(jet->Pt(),myweight[0]);
 
-	    if (totJets >= 1) h_jetPtNjet1Incl->Fill(jet->Pt());
-	    if (totJets >= 2) h_jetPtNjet2Incl->Fill(jet->Pt());
-	    if (totJets >= 3) h_jetPtNjet3Incl->Fill(jet->Pt());
-	    if (totJets >= 4) h_jetPtNjet4Incl->Fill(jet->Pt());
+	    if (totJets >= 1) h_jetPtNjet1Incl->Fill(jet->Pt(),myweight[0]);
+	    if (totJets >= 2) h_jetPtNjet2Incl->Fill(jet->Pt(),myweight[0]);
+	    if (totJets >= 3) h_jetPtNjet3Incl->Fill(jet->Pt(),myweight[0]);
+	    if (totJets >= 4) h_jetPtNjet4Incl->Fill(jet->Pt(),myweight[0]);
 	 }
       }
       

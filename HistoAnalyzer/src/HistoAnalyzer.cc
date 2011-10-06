@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.14 2011/09/29 13:31:12 dscaini Exp $
+// $Id: HistoProducer.cc,v 1.15 2011/10/03 08:07:27 dscaini Exp $
 //
 //
 
@@ -35,8 +35,10 @@
 
 // ------------ method called for each event  ------------
 void
-HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   // We need the output Muon association collection to fill
+   std::auto_ptr<std::vector<float> > EventWeight( new std::vector<float>);
 
 	//IMPORTANTE
 	clean_vectors();
@@ -117,7 +119,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 								prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
 								if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
 								if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
-									edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
+									edm::LogWarning("MyProducer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
 								}
 							}
 
@@ -135,7 +137,7 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 					} 
 				} //Chiusura del if(bit)
 				else {
-					//edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+					//edm::LogError("HistoProducer") << " Unable to get prescale set from event. Check that L1 data products are present.";
 				}
 			}
 			else {
@@ -182,8 +184,11 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		double MyWeight = LumiWeights_.weight( npv );
 		if (debug) cout<<"weight is "<<MyWeight<<endl;
 		Weight=MyWeight;
+		EventWeight->push_back(MyWeight);
 	}
-
+	else {
+	  EventWeight->push_back(1);
+	}
 	///////////////////
 	/// Electrons Study
 	///////////////////
@@ -359,13 +364,13 @@ HistoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//--------------------------------//
 	//---------Fill del Tree----------//
 	treeVJ_->Fill();
-
+	iEvent.put( EventWeight,"EventWeight" );
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 	void 
-HistoAnalyzer::beginJob()
+HistoProducer::beginJob()
 {
 	nEvents_ = 0;
 
@@ -434,13 +439,13 @@ HistoAnalyzer::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 	void 
-HistoAnalyzer::endJob() 
+HistoProducer::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
 	void 
-HistoAnalyzer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+HistoProducer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
 	//HLT names
 	std::vector<std::string>  hlNames;
@@ -450,7 +455,7 @@ HistoAnalyzer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 			hlNames = hltConfig_.triggerNames();
 		}
 	} else {
-		edm::LogError("MyAnalyzer") << " HLT config extraction failure with process name " << triggerCollection_.process();
+		edm::LogError("MyProducer") << " HLT config extraction failure with process name " << triggerCollection_.process();
 	}
 	if (debug) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
 	if(useAllTriggers_) triggerNames_ = hlNames;
@@ -476,26 +481,26 @@ HistoAnalyzer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 
 // ------------ method called when ending the processing of a run  ------------
 	void 
-HistoAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+HistoProducer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 	void 
-HistoAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HistoProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 	void 
-HistoAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HistoProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-HistoAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HistoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HistoAnalyzer);
+DEFINE_FWK_MODULE(HistoProducer);
