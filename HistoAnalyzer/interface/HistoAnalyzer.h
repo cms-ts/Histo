@@ -38,7 +38,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-bool debug=true; //If true it will activate the cout verbosity
+bool debug=false; //If true it will activate the cout verbosity
 
 class TTree;
 
@@ -46,17 +46,17 @@ class TTree;
 // class declaration
 /////
 
-class HistoAnalyzer : public edm::EDAnalyzer {
+class HistoProducer : public edm::EDProducer {
    public:
-      explicit HistoAnalyzer(const edm::ParameterSet&);
-      ~HistoAnalyzer();
+      explicit HistoProducer(const edm::ParameterSet&);
+      ~HistoProducer();
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
       virtual void beginJob() ;
       virtual void beginRun(edm::Run const &, const edm::EventSetup&);
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
 
@@ -204,10 +204,10 @@ class HistoAnalyzer : public edm::EDAnalyzer {
 
 };
 
-HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
+HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
 
 {
-
+  produces<std::vector<float> >("EventWeight");
 
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   triggerCollection_  = conf.getParameter<edm::InputTag>("triggerCollection");
@@ -248,11 +248,10 @@ HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
   h_NumberOfExpectedInnerHits = fs->make<TH1I>("h_NumberOfExpectedInnerHits","make title :)",20,0.,0.1);
 
   h_HLTbits = fs->make<TH1I>("h_HLTbits","fired",20,0.,0.1);
-
 }
 
 
-HistoAnalyzer::~HistoAnalyzer()
+HistoProducer::~HistoProducer()
 {
  
    // do anything here that needs to be done at desctruction time

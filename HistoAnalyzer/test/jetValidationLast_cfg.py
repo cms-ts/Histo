@@ -52,8 +52,6 @@ readFiles = cms.untracked.vstring()
 readFiles.extend([
     #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/0234F556-657C-E011-9556-002618943948.root",
     #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/FE8C3F99-D97B-E011-BEA4-0018F3D096EE.root",
-    "/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/0234F556-657C-E011-9556-002618943948.root",
-    "/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/FE8C3F99-D97B-E011-BEA4-0018F3D096EE.root",
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -63,9 +61,9 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                            fileNames = readFiles,
+                            #fileNames = readFiles,
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
-                            #fileNames =cms.untracked.vstring('file:/tmp/marone/0EA02EE5-617C-E011-BC49-00304867926C.root'),
+                            fileNames =cms.untracked.vstring('file:/tmp/FE8C3F99-D97B-E011-BEA4-0018F3D096EE.root'),
                             )
 
 trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v3","HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3","HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v3","HLT_Ele45_CaloIdVT_TrkIdT_v3","HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4")
@@ -73,6 +71,8 @@ trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL
 trigger2010    = cms.vstring("HLT_Ele17_CaloIdl_Ele8_CaloIsoIdL_CaloIsoVL_v3","HLT_Ele15_SW_L1R","HLT_Ele15_SW_CaloEleId_L1R","HLT_Ele17_SW_CaloEleId_L1R","HLT_Ele17_SW_TightEleId_L1R","HLT_Ele17_SW_TightEleId_L1R_v2","HLT_Ele17_SW_TightEleId_L1R_v3","HLT_Photon10_L1R","HLT_Photon15_L1R","HTL_Photon15_Cleaned_L1R")
 
 alltriggers    = cms.vstring() # In this way, the HLT string is empty and it will trigger every event
+
+trigger2011v2 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8")
 
 #Jet energy correction
 # kt6PFL1FastL2L3Residual = Service
@@ -89,8 +89,8 @@ process.Selection = cms.EDFilter('ZanalyzerFilter',
 		electronCollection = cms.InputTag("gsfElectrons"),
 		triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
 		UseCombinedPrescales = cms.bool(False),
-		doTheHLTAnalysis = cms.bool(False),
-		TriggerNames = alltriggers
+		doTheHLTAnalysis = cms.bool(True),
+		TriggerNames = trigger2011v2+trigger2010
 )
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
@@ -102,6 +102,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        jetCollection = cms.InputTag("kt6PFJetsL1FastL2L3Residual"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
+                                       tpMapName = cms.string('EventWeight'),
+##                                       weightCollection = cms.string('EventWeight'),
                                        )
 
 process.validation = cms.EDAnalyzer('jetValidation',
@@ -109,13 +111,42 @@ process.validation = cms.EDAnalyzer('jetValidation',
                                     jetCollection = cms.InputTag("kt6PFJets"),
                                     VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
                                     goodEPair = cms.InputTag("goodEPair"),
+                                    tpMapName = cms.string('EventWeight'),
+  ##                                  weightCollection = cms.string('EventWeight'),
                                     )
+
+process.demo = cms.EDProducer('HistoProducer',
+                              electronCollection = cms.InputTag('gsfElectrons'),
+                              triggerCollection = cms.InputTag("TriggerResults","","HLT"),
+                              UseCombinedPrescales = cms.bool(False),
+                              TriggerNames = alltriggers,
+                              removePU=  cms.bool(True),
+                              usingMC=  cms.bool(True),
+                              doTheHLTAnalysis = cms.bool(False),
+                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
+)
+
+process.load("JetCollections_cfi")
+
+process.out = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+       SelectEvents = cms.vstring('JetValidation')
+    ),
+    fileName = cms.untracked.string('test_filtering.root')
+)
+
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('jetValidation.root')
 )
 
-process.p = cms.Path(process.Selection*process.goodEPair*
-                     process.kt6PFJets*process.validation*
-                     process.kt6PFJetsL1FastL2L3Residual*process.validationJEC
-                     )
+process.JetValidation = cms.Path(
+    process.PFJetPath*
+    process.Selection*
+    process.demo*
+    process.goodEPair*
+    process.kt6PFJets*process.validation*
+    process.kt6PFJetsL1FastL2L3Residual*process.validationJEC
+     )
+
+#process.e= cms.EndPath(process.out)

@@ -71,6 +71,8 @@ class jetValidation : public edm::EDAnalyzer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
+
+      std::string tpMapName;
       // ----------member data ---------------------------
 
       //Retrieved from the .py
@@ -78,7 +80,7 @@ class jetValidation : public edm::EDAnalyzer {
       edm::InputTag VertexCollection_;
       edm::InputTag jetCollection_;
       edm::InputTag goodEPairTag;
-
+      std::string weightCollection_;
       bool usingMC;
 
       //EB
@@ -184,6 +186,9 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 {
 
   pi_ = acos(-1);
+  tpMapName = conf.getParameter<std::string>("tpMapName");
+  //  weightCollection_ = conf.getParameter<std::string>("EventWeight");
+  //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   jetCollection_      = conf.getParameter<edm::InputTag>("jetCollection");
   VertexCollection_   = conf.getParameter<edm::InputTag>("VertexCollection");
