@@ -2,8 +2,6 @@
 #include <memory>
 #include <string.h>
 #include <stddef.h>
-//#include <map>
-
 
 //vedi se puoi gestire le stringhe con questa sstream
 #include <sstream>
@@ -56,12 +54,12 @@ class HistoProducer : public edm::EDProducer {
 
    private:
       virtual void beginJob() ;
-      virtual void beginRun(edm::Run const &, const edm::EventSetup&);
+      virtual void beginRun(edm::Run&, const edm::EventSetup&);
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endRun(edm::Run&, const edm::EventSetup&);
       virtual void endJob() ;
 
 
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
@@ -170,6 +168,7 @@ class HistoProducer : public edm::EDProducer {
       std::vector<std::string> HLTNames;
       std::vector<double> HLTValue;
       std::vector<double> HLTRatio;
+      std::vector<int> vRun;
 
 
       void clean_vectors(){
@@ -263,5 +262,6 @@ HistoProducer::~HistoProducer()
    // (e.g. close files, deallocate resources etc.)
 
 }
+
 
 

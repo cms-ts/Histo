@@ -1,15 +1,15 @@
 // -*- C++ -*-
 //
-// Package:    HistoAnalyzer
-// Class:      HistoAnalyzer
+// Package:    HistoProducer
+// Class:      HistoProducer
 // 
-/**\class HistoAnalyzer HistoAnalyzer.cc Histo/HistoAnalyzer/src/HistoAnalyzer.cc
+/**\class HistoProducer HistoProducer.cc Histo/HistoProducer/src/HistoProducer.cc
 
 */
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.16 2011/10/06 12:08:03 marone Exp $
+// $Id: HistoProducer.cc,v 1.15 2011/10/03 08:07:27 dscaini Exp $
 //
 //
 
@@ -39,9 +39,6 @@ bool debug2 = false;
 void
 HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   // We need the output Muon association collection to fill
-   std::auto_ptr<std::vector<float> > EventWeight( new std::vector<float>);
-
 	//IMPORTANTE
 	clean_vectors();
 	nEvents_++;
@@ -138,7 +135,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 						HLTPaths.push_back(stringa);
 						HLTPrescales.push_back(prescale);
-						
+						vRun.push_back(Run);
 						}//chiusura if find ...
 
 						//Qui si riempie il vettore che mi servira'  per calcolare il ratio
@@ -215,11 +212,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		double MyWeight = LumiWeights_.weight( npv );
 		if (debug) cout<<"weight is "<<MyWeight<<endl;
 		Weight=MyWeight;
-		EventWeight->push_back(MyWeight);
 	}
-	else {
-	  EventWeight->push_back(1);
-	}
+
 	///////////////////
 	/// Electrons Study
 	///////////////////
@@ -230,7 +224,6 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.getByLabel(electronCollection_,gsfElectrons);
 
 	//Loop over the gsf collection to study the variables distributions
-
 	for(GsfElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
 
 		if (removePU_){
@@ -240,8 +233,14 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			edm::Handle<double> rhoLepIso;
 			const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
 			iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
-			if( *rhoLepIso == *rhoLepIso)  lepIsoRho = *rhoLepIso;
-			else  lepIsoRho =  -999999.9;
+			if( *rhoLepIso == *rhoLepIso) { 
+				lepIsoRho = *rhoLepIso;
+				vRho.push_back(lepIsoRho);
+			}
+			else { 
+				lepIsoRho =  999999.9;
+				vRho.push_back(lepIsoRho);
+			}
 
 			//EB
 			if (fabs (itElect->eta()) <= 1.4442) {      
@@ -249,6 +248,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
 				IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / itElect->et ();
 				IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / itElect->et ();
+				if(IsoEcal_PUR<=0.) IsoEcal_PUR=0.;
+				if(IsoHcal_PUR<=0.) IsoHcal_PUR=0.;
 				//vectors
 				vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
 				vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
@@ -261,6 +262,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				IsoTrk_PUR = (itElect->dr03TkSumPt () - lepIsoRho*0) / itElect->et ();
 				IsoEcal_PUR = (itElect->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / itElect->et ();
 				IsoHcal_PUR = (itElect->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / itElect->et ();
+				if(IsoEcal_PUR<=0.) IsoEcal_PUR=0.;
+				if(IsoHcal_PUR<=0.) IsoHcal_PUR=0.;
 				//vectors
 				vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
 				vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
@@ -395,7 +398,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//--------------------------------//
 	//---------Fill del Tree----------//
 	treeVJ_->Fill();
-	iEvent.put( EventWeight,"EventWeight" );
+
 }
 
 
@@ -410,6 +413,8 @@ HLTPrescales.clear();
 HLTNames.clear();
 HLTValue.clear();
 HLTRatio.clear();
+vRun.clear();
+
 
 
 	//TFile and TTree initialization
@@ -461,7 +466,7 @@ HLTRatio.clear();
 	treeHLT_->Branch("HLTNames",&HLTNames);
 	treeHLT_->Branch("HLTRatio",&HLTRatio);
 	treeHLT_->Branch("Timestamp",&Timestamp);
-	treeHLT_->Branch("Run",&Run);
+	treeHLT_->Branch("vRun",&vRun);
 
 	//Run Properties
 	treeVJ_->Branch("Run",&Run);
@@ -486,7 +491,7 @@ HistoProducer::endJob()
 
 // ------------ method called when starting to processes a run  ------------
 	void 
-HistoProducer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+HistoProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
 hltcounter=0; //ci serve per il rapporto sull'isogramma
@@ -499,7 +504,7 @@ if (debug2) cout << Run << " this is run number \n";
 			hlNames = hltConfig_.triggerNames();
 		}
 	} else {
-		edm::LogError("MyProducer") << " HLT config extraction failure with process name " << triggerCollection_.process();
+		edm::LogError("MyAnalyzer") << " HLT config extraction failure with process name " << triggerCollection_.process();
 	}
 	if (debug) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
 	if(useAllTriggers_) triggerNames_ = hlNames;
@@ -525,7 +530,7 @@ if (debug2) cout << Run << " this is run number \n";
 
 // ------------ method called when ending the processing of a run  ------------
 	void 
-HistoProducer::endRun(edm::Run const&, edm::EventSetup const&)
+HistoProducer::endRun(edm::Run&,const edm::EventSetup&)
 {
 
 	std::string name;
@@ -545,6 +550,7 @@ HistoProducer::endRun(edm::Run const&, edm::EventSetup const&)
 	if (debug2) cout << "BEWARE " << HLTNames.size() << " must be equal to "<<HLTRatio.size()<<"\n";
 	treeHLT_->Fill();
 
+cout << "End of Run \n";
 
 //clear dei vettori :)
 HLTPaths.clear();
@@ -552,7 +558,7 @@ HLTPrescales.clear();
 HLTNames.clear();
 HLTValue.clear();
 HLTRatio.clear();
-
+vRun.clear();
 
 
 }
