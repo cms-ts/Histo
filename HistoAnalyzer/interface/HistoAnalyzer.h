@@ -30,6 +30,7 @@
 #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TString.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -79,11 +80,11 @@ class HistoProducer : public edm::EDProducer {
       bool removePU_;
       bool usingMC_;
       bool doTheHLTAnalysis_;
-      bool beginofarun;
       TimeValue_t  Timestamp;
 
       //Various
       TTree* treeVJ_;
+      TTree* treeHLT_;
       TH1F * histNum;
       unsigned int nEvents_;
 
@@ -163,6 +164,14 @@ class HistoProducer : public edm::EDProducer {
       //SC study
       double etaSCPF;
 
+      //HLT and Prescale
+      std::vector<std::string> HLTPaths;
+      std::vector<int> HLTPrescales;
+      std::vector<std::string> HLTNames;
+      std::vector<double> HLTValue;
+      std::vector<double> HLTRatio;
+
+
       void clean_vectors(){
         Timestamp=0;
 	Weight=0;
@@ -196,11 +205,7 @@ class HistoProducer : public edm::EDProducer {
 	vIsoEcalEE_PUR.clear();
 	vIsoHcalEE_PUR.clear();
       }
-
-      //HLT and Prescale
-      std::vector<std::pair <std::string,int> > HLTAndPrescale;
-      std::vector<std::string> HLTPaths;
-      std::vector<int> HLTPrescales;      
+      
 
 };
 

@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoProducer.cc,v 1.15 2011/10/03 08:07:27 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.16 2011/10/06 12:08:03 marone Exp $
 //
 //
 
@@ -29,6 +29,8 @@
 #include "Histo/HistoAnalyzer/interface/ZSkim_v1.h"
 
 
+int hltcounter=0; //ci serve per il rapporto sull'isogramma
+bool debug2 = false;
 //
 // member functions
 //
@@ -78,6 +80,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	int NumberOfExpectedInnerHits;
 	//EODefinitions
 
+
 	//Match The HLT Trigger
 	using edm::TriggerResults;
 	Handle<TriggerResults> HLTResults;
@@ -102,39 +105,68 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				if(bit) {
 
 					//WORKING HERE
-					//Se il path non esiste già nella lista dei paths, lo aggiungo
-					TString tstringa=triggerNames_[itrig]; //ci serve per l'IF
-					std::string stringa=triggerNames_[itrig];
-					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("HLTFinalPath") )){
-						//Se il path è Ele* o Photon* allora riempiamo l'istogramma
-						h_HLTbits->Fill(stringa.c_str(),1); //questo fa il plottino...
+					//Se il path non esiste gia' nella lista dei paths, lo aggiungo
+					TString tstringa=(TString)triggerNames_[itrig]; //ci serve per l'IF
+					std::string stringa=(string)triggerNames_[itrig];
 
+					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("FinalPath") )){
+						//Se il path e' Ele* o Photon* allora riempiamo l'istogramma
+						h_HLTbits->Fill(stringa.c_str(),1); //questo fa il plottino... 
+						//pero' non mi va bene perchÃ© non lo scrivo per run.. FIXME
+						if(stringa=="HLTriggerFinalPath") { hltcounter++; }
 
-						//mette una nuova stringa solo se non è già presente
-						if(  !(find(HLTPaths.begin(), HLTPaths.end(), tstringa)!=HLTPaths.end())  ){  
-
-							//If path is accepted, then together with its prescale it is stored in a map.
-							int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
-							if(prescaleset!=-1) {
-								prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
-								if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
-								if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
-									edm::LogWarning("MyProducer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
-								}
-							}
-
+												
+						if( !(find(HLTPaths.begin(), HLTPaths.end(), stringa)!=HLTPaths.end()) ){  
+						//If path is accepted, then together with its prescale it is stored in a map.
+						int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
+						if(prescaleset!=-1) {
+							prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
+							if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
 							//getting prescale info
 							prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
-							minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
-							if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
-							//filling path strings						
-							std::pair<std::string, int> pr2(stringa, prescale);
+							if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
+								edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
+								prescale = -999;
+							}
 
-							HLTPaths.push_back(stringa);
-							HLTPrescales.push_back(prescale);
-							HLTAndPrescale.push_back(pr2);
+							if(prescalepair.first<0 || prescalepair.second<0) { prescale = -999; }
 						}
-					} 
+
+						minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
+						if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
+
+
+						HLTPaths.push_back(stringa);
+						HLTPrescales.push_back(prescale);
+						
+						}//chiusura if find ...
+
+						//Qui si riempie il vettore che mi servira'  per calcolare il ratio
+						if (debug2) cout << HLTValue.size() << " dimensione HLTAndValue \n";
+						if(HLTValue.size()==0){ HLTValue.push_back(1); HLTNames.push_back(stringa);
+							if (debug2) cout << HLTNames[0] << " THE FIRST!!! " << stringa << "\n";
+						}
+						else{
+						bool already = 0;
+							for(unsigned int dd=0;dd<HLTValue.size();dd++){
+
+								if(HLTNames[dd]==stringa){HLTValue[dd] = HLTValue[dd] + 1;
+								already=1;
+									if (debug2) cout << HLTNames[dd] << " is eq!!! " << stringa << " nuova dim vett " << HLTValue.size() << "\n";
+									if (debug2) cout << HLTValue[dd] << " this should be >= 2 \n";
+									
+									;
+								}
+							
+							} //chiusura for per vedere se c'Ã¨ il path
+
+							if(!already){ HLTValue.push_back(1); HLTNames.push_back(stringa);
+							int daeliminare = HLTValue.size();
+							if (debug2) cout << HLTNames[daeliminare-1] << " is eq? " << stringa << "\n"; 
+							if (debug2) cout << HLTValue[daeliminare-1] << " this should be 1 \n";
+							}
+						}
+					} // Chiusura filtro du HLTPaths
 				} //Chiusura del if(bit)
 				else {
 					//edm::LogError("HistoProducer") << " Unable to get prescale set from event. Check that L1 data products are present.";
@@ -144,9 +176,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				// that trigger is presently not in the menu
 				triggerSubset.push_back(false);
 			}
-		}
-	}
-
+		} //chiusura for
+	} //chiusura HLT studies
 
 
 	//////////////////
@@ -167,7 +198,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				npv = PVI->getPU_NumInteractions();
 				continue;
 			}      
-			if (debug) std::cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
+			if (debug) cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
 		}   
 
 		std::vector<float> simulated;
@@ -374,8 +405,16 @@ HistoProducer::beginJob()
 {
 	nEvents_ = 0;
 
+HLTPaths.clear();
+HLTPrescales.clear();
+HLTNames.clear();
+HLTValue.clear();
+HLTRatio.clear();
+
+
 	//TFile and TTree initialization
 	treeVJ_= new TTree("treeVJ_","treeVJ_");
+	treeHLT_= new TTree("treeHLT_","treeHLT_");
 
 	//////////////////
 	//// Z->EE SELECTION VARIABLES 
@@ -417,10 +456,12 @@ HistoProducer::beginJob()
 	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
 
 	//HLT and Prescale
-	treeVJ_->Branch("HLTAndPrescale",&HLTAndPrescale);
-	treeVJ_->Branch("HLTPaths",&HLTPaths);
-	treeVJ_->Branch("HLTPrescales",&HLTPrescales);
-	treeVJ_->Branch("Timestamp",&Timestamp);
+	treeHLT_->Branch("HLTPaths",&HLTPaths);
+	treeHLT_->Branch("HLTPrescales",&HLTPrescales);
+	treeHLT_->Branch("HLTNames",&HLTNames);
+	treeHLT_->Branch("HLTRatio",&HLTRatio);
+	treeHLT_->Branch("Timestamp",&Timestamp);
+	treeHLT_->Branch("Run",&Run);
 
 	//Run Properties
 	treeVJ_->Branch("Run",&Run);
@@ -447,7 +488,10 @@ HistoProducer::endJob()
 	void 
 HistoProducer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
-	//HLT names
+
+hltcounter=0; //ci serve per il rapporto sull'isogramma
+if (debug2) cout << Run << " this is run number \n";
+//HLT names
 	std::vector<std::string>  hlNames;
 	bool changed (true);
 	if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
@@ -473,7 +517,7 @@ HistoProducer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 		// text (debug) output
 		int i=0;
 		for(std::vector<std::string>::const_iterator it = triggerNames_.begin(); it<triggerNames_.end();++it) {
-			std::cout << (i++) << " = " << (*it) << std::endl;
+			if (debug2) cout << (i++) << " = " << (*it) << std::endl;
 		} 
 	}
 
@@ -483,6 +527,34 @@ HistoProducer::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 	void 
 HistoProducer::endRun(edm::Run const&, edm::EventSetup const&)
 {
+
+	std::string name;
+
+	int HTFPmax;
+	double ratio=0;
+	for(unsigned int y=0;y<HLTNames.size();y++){
+		if(HLTNames[y]=="HLTriggerFinalPath"){HTFPmax = HLTValue[y]; break; }
+	}
+
+	for(unsigned int y=0;y<HLTValue.size();y++){
+		ratio = (double)HLTValue[y] / (double)HTFPmax;
+		if (debug2) cout << HLTValue[y] << " max " << HTFPmax << " ratio " << ratio << " item " << y <<" path " << HLTNames[y] << "\n";
+		HLTRatio.push_back(ratio);
+	}
+
+	if (debug2) cout << "BEWARE " << HLTNames.size() << " must be equal to "<<HLTRatio.size()<<"\n";
+	treeHLT_->Fill();
+
+
+//clear dei vettori :)
+HLTPaths.clear();
+HLTPrescales.clear();
+HLTNames.clear();
+HLTValue.clear();
+HLTRatio.clear();
+
+
+
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
