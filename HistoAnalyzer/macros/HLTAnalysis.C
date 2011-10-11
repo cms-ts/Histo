@@ -58,10 +58,11 @@ void HLTAnalysis::Loop()
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
 		nb = fChain->GetEntry(jentry); // nbytes += nb;
-		cout << jentry << " entry number \n";
-		cout << "-> " << Run << " this is run number \n";
-	if(jentry==0){minRun=Run;}
-	if(Run>maxRun){maxRun=Run;}
+	if(jentry<50){	cout << jentry << " entry number \n";
+		if(vRun->size()!=0) {cout << "-> " << vRun->at(0) << " this is run number \n";}
+	}
+	if(jentry==0){minRun=vRun->at(0);}
+	if((vRun->size()!=0) && (vRun->at(0)>maxRun)){maxRun=vRun->at(0);}
 	}
 
 	TCanvas* Presc = (TCanvas*)gDirectory->GetList()->FindObject("Presc");
@@ -86,7 +87,7 @@ void HLTAnalysis::Loop()
 		if (fChain == 0) return;
 		// if (Cut(ientry) < 0) continue;
 
-		for(int it = 0; it < HLTPaths->size(); it++) { //questo for dovresti farlo solo sui path che ti interessano
+		for(int it = 0; it < HLTPrescales->size(); it++) { //questo for dovresti farlo solo sui path che ti interessano
 				if(jentry==0){
 					//cout << "-> " << Run << " this is run number \n";
 					//cout << HLTPrescales->at(it) << " this is prescale \n";
@@ -94,29 +95,29 @@ void HLTAnalysis::Loop()
 					if((HLTPrescales->at(it))>maxPres){maxPres=HLTPrescales->at(it);}
 					delete histogram;
 					histogram = new TH1I("histogram","prescale",binx,lowx,highx);
-					histogram->SetBinContent(Run-lowx+1,HLTPrescales->at(it));
+					histogram->SetBinContent(vRun->at(it)-lowx+1,HLTPrescales->at(it));
 					vec.push_back((TH1I*)histogram->Clone(HLTPaths->at(it).c_str()));
 
 				}
-				else{ //se nel vettore esiste un oggetto col nome del path lo riempi e basta, se non esiste lo aggiungi
+				else{ 
+				//se nel vettore esiste un oggetto col nome del path lo riempi e basta, se non esiste lo aggiungi
 					int existent = 0;
 					int temp;
 					for (unsigned int ui=0;ui<vec.size();ui++){
 						if( ((string)vec[ui]->GetName())==(HLTPaths->at(it).c_str()) ){ 
 						existent = 1; 
 						temp=ui; 
-						//continue; 
 						}
 					}//for sul vettore di TH1I
 					if(existent==1){
 						if((HLTPrescales->at(it))>maxPres){maxPres=HLTPrescales->at(it);}
-						vec[temp]->SetBinContent(Run-lowx+1,HLTPrescales->at(it));
+						vec[temp]->SetBinContent(vRun->at(it)-lowx+1,HLTPrescales->at(it));
 					}
 					else if(existent!=1){ 
 						if((HLTPrescales->at(it))>maxPres){maxPres=HLTPrescales->at(it);}
 						delete histogram;
 						histogram = new TH1I("histogram","prescale",binx,lowx,highx);
-						histogram->SetBinContent(Run-lowx+1,HLTPrescales->at(it));
+						histogram->SetBinContent(vRun->at(it)-lowx+1,HLTPrescales->at(it));
 						vec.push_back((TH1I*)histogram->Clone(HLTPaths->at(it).c_str()));
 
 					}//else
@@ -132,8 +133,8 @@ void HLTAnalysis::Loop()
 		vec[u]->SetLineColor((int)((u+20) % 50)+20);
 		vec[u]->SetFillColor((int)((u+20) % 50)+20);
 		vec[u]->SetFillStyle(3200+(u*2));
-		for(int p=0; p<6;p++){
-			if(((string)vec[u]->GetName())==paths[p]){
+		//for(int p=0; p<6;p++){
+		//	if(((string)vec[u]->GetName())==paths[p]){
 				if(serv==1){	
 					gPad->SetLogy(1);
 					vec[u]->SetMaximum((double)maxPres+1);
@@ -148,8 +149,8 @@ void HLTAnalysis::Loop()
 				//	Presc->Update();
 					leg->AddEntry(vec[u],vec[u]->GetName(),"l");
 				}
-			}
-		}
+		//	}
+		//}
 	}
 	leg->SetBorderSize(0);
 	leg->SetFillColor(0);
@@ -183,14 +184,14 @@ void HLTAnalysis::Loop()
 		if (fChain == 0) return;
 		// if (Cut(ientry) < 0) continue;
 
-		for(int it = 0; it < HLTNames->size(); it++) { //questo for dovresti farlo solo sui path che ti interessano
+		for(int it = 0; it < HLTRatio->size(); it++) { //questo for dovresti farlo solo sui path che ti interessano
 				if(jentry==0){
 					//cout << "-> " << Run << " this is run number \n";
-					//cout << HLTRatio->at(it) << " this is prescale \n";
+					//cout << HLTRatio->at(it) << " this is ratio \n";
 					//cout << HLTNames->at(it) << " this is path name \n";
 					delete historatio;
 					historatio = new TH1F("historatio","ratio",binx,lowx,highx);
-					historatio->SetBinContent(Run-lowx+1,HLTRatio->at(it));
+					historatio->SetBinContent(vRun->at(it)-lowx+1,HLTRatio->at(it));
 					dvec.push_back((TH1F*)historatio->Clone(HLTNames->at(it).c_str()));
 
 				}
@@ -201,18 +202,16 @@ void HLTAnalysis::Loop()
 						if( ((string)dvec[ui]->GetName())==(HLTNames->at(it).c_str()) ){ 
 						existent = 1; 
 						temp=ui; 
-						//continue; 
 						}
 					}//for sul vettore di TH1F
 					if(existent){
-						dvec[temp]->SetBinContent(Run-lowx+1,HLTRatio->at(it));
+						dvec[temp]->SetBinContent(vRun->at(it)-lowx+1,HLTRatio->at(it));
 						}
 					else if(!existent){ 
 						delete historatio;
 						historatio = new TH1F("historatio","ratio",binx,lowx,highx);
-						historatio->SetBinContent(Run-lowx+1,HLTRatio->at(it));
+						historatio->SetBinContent(vRun->at(it)-lowx+1,HLTRatio->at(it));
 						dvec.push_back((TH1F*)historatio->Clone(HLTNames->at(it).c_str()));
-
 					}//else
 
 				}//jentry != 0
@@ -224,10 +223,10 @@ void HLTAnalysis::Loop()
 	cout << " dvec size " << dvec.size() << "\n";
 	for (unsigned int u=0;u<(dvec.size());u++){
 		dvec[u]->SetLineColor((int)((u+20) % 50)+20);
-		dvec[u]->SetFillColor((int)((u+20) % 50)+20);
-		dvec[u]->SetFillStyle(3200+(u*2));
-		for(int p=0; p<6;p++){
-			if(((string)dvec[u]->GetName())==paths[p]){
+		//dvec[u]->SetFillColor((int)((u+20) % 50)+20);
+		//dvec[u]->SetFillStyle(3200+(u*2));
+		//for(int p=0; p<6;p++){
+		//	if(((string)dvec[u]->GetName())==paths[p]){
 				if(serv==1){	
 					gPad->SetLogy(1);
 					dvec[u]->SetMaximum((double)maxRatio);
@@ -242,8 +241,8 @@ void HLTAnalysis::Loop()
 				//	Ratio->Update();
 					ratleg->AddEntry(dvec[u],dvec[u]->GetName(),"l");
 				}
-			}
-		}
+		//	}
+		//}
 	}
 	ratleg->SetBorderSize(0);
 	ratleg->SetFillColor(0);

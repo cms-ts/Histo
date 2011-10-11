@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Mon Oct 10 16:46:19 2011 by ROOT version 5.27/06b
+// Tue Oct 11 11:17:03 2011 by ROOT version 5.27/06b
 // from TTree treeHLT_/treeHLT_
 // found on file: histo.root
 //////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ public :
    vector<string>  *HLTNames;
    vector<double>  *HLTRatio;
    ULong64_t       Timestamp;
-   Int_t           Run;
+   vector<int>     *vRun;
 
    // List of branches
    TBranch        *b_HLTPaths;   //!
@@ -31,7 +31,7 @@ public :
    TBranch        *b_HLTNames;   //!
    TBranch        *b_HLTRatio;   //!
    TBranch        *b_Timestamp;   //!
-   TBranch        *b_Run;   //!
+   TBranch        *b_vRun;   //!
 
    HLTAnalysis(TTree *tree=0);
    virtual ~HLTAnalysis();
@@ -105,6 +105,7 @@ void HLTAnalysis::Init(TTree *tree)
    HLTPrescales = 0;
    HLTNames = 0;
    HLTRatio = 0;
+   vRun = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -116,7 +117,7 @@ void HLTAnalysis::Init(TTree *tree)
    fChain->SetBranchAddress("HLTNames", &HLTNames, &b_HLTNames);
    fChain->SetBranchAddress("HLTRatio", &HLTRatio, &b_HLTRatio);
    fChain->SetBranchAddress("Timestamp", &Timestamp, &b_Timestamp);
-   fChain->SetBranchAddress("Run", &Run, &b_Run);
+   fChain->SetBranchAddress("vRun", &vRun, &b_vRun);
    Notify();
 }
 
