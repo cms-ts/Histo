@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.18 2011/10/11 12:26:01 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.19 2011/10/12 09:47:51 dscaini Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 
 int hltcounter=0; //ci serve per il rapporto sull'isogramma
-bool debug2 = true;
+bool debug2 = false;
 //
 // member functions
 //
