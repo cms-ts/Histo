@@ -6,6 +6,9 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TLegend.h>
+#include <TString.h>
+#include <TMath.h>
+#include <TPaveStats.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,6 +54,9 @@ void HLTAnalysis::Loop()
 	double maxRatio=1.1;
 	string paths[6]={"HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6"};
 
+	
+	
+	bool forminRun=true;
 	Long64_t nentries = fChain->GetEntriesFast();
 	cout << nentries << " numero di entries \n";
 	Long64_t nbytes = 0, nb = 0;
@@ -61,9 +67,11 @@ void HLTAnalysis::Loop()
 	if(jentry<50){	cout << jentry << " entry number \n";
 		if(vRun->size()!=0) {cout << "-> " << vRun->at(0) << " this is run number \n";}
 	}
-	if(jentry==0){minRun=vRun->at(0);}
+	if(forminRun && (vRun->size()!=0)){minRun=vRun->at(0); forminRun=false;}
 	if((vRun->size()!=0) && (vRun->at(0)>maxRun)){maxRun=vRun->at(0);}
 	}
+
+
 
 	TCanvas* Presc = (TCanvas*)gDirectory->GetList()->FindObject("Presc");
 	if (Presc) delete Presc;
@@ -130,27 +138,28 @@ void HLTAnalysis::Loop()
 	int serv = 1;
 	cout << " vec size " << vec.size() << "\n";
 	for (unsigned int u=0;u<(vec.size());u++){
-		vec[u]->SetLineColor((int)((u+20) % 50)+20);
-		vec[u]->SetFillColor((int)((u+20) % 50)+20);
+		vec[u]->SetLineColor((int)(u % 80)+20);
+		vec[u]->SetFillColor((int)(u % 80)+20);
 		vec[u]->SetFillStyle(3200+(u*2));
-		//for(int p=0; p<6;p++){
-		//	if(((string)vec[u]->GetName())==paths[p]){
+	//	for(int p=0; p<6;p++){ //per selezionare i path d'interesse
+			//if(((string)vec[u]->GetName())==paths[p]){//per selezionare i path d'interesse
+			if(((TString)vec[u]->GetName()).Contains("Ele17")){
 				if(serv==1){	
 					gPad->SetLogy(1);
 					vec[u]->SetMaximum((double)maxPres+1);
 					vec[u]->Draw();
 					vec[u]->GetXaxis()->SetTitle("run");
 					vec[u]->GetYaxis()->SetTitle("prescale");
-					leg->AddEntry(vec[u],vec[u]->GetName(),"l");
+					leg->AddEntry(vec[u],vec[u]->GetName(),"f");
 					serv++;
 				}
 				else if(serv>1) { 
 					vec[u]->Draw("SAME"); 
 				//	Presc->Update();
-					leg->AddEntry(vec[u],vec[u]->GetName(),"l");
+					leg->AddEntry(vec[u],vec[u]->GetName(),"f");
 				}
-		//	}
-		//}
+			}
+	//	}
 	}
 	leg->SetBorderSize(0);
 	leg->SetFillColor(0);
@@ -177,6 +186,9 @@ void HLTAnalysis::Loop()
 	TLegend *ratleg = new TLegend(0.6,0.75,0.825,0.9);
 
 
+	vector<double> HLTRatio;
+	int HTFPmax;
+	double ratio;
 	for (Long64_t jentry=0; jentry<nentries;jentry++){
 		Long64_t ientry = LoadTree(jentry);
 		if (ientry < 0) break;
@@ -184,14 +196,25 @@ void HLTAnalysis::Loop()
 		if (fChain == 0) return;
 		// if (Cut(ientry) < 0) continue;
 
-		for(int it = 0; it < HLTRatio->size(); it++) { //questo for dovresti farlo solo sui path che ti interessano
+		HLTRatio.clear();
+		for(unsigned int y=0;y<HLTNames->size();y++){
+			if(HLTNames->at(y)=="HLTriggerFinalPath"){HTFPmax = HLTValue->at(y); break; }
+		}
+
+		for(unsigned int y=0;y<HLTValue->size();y++){
+			ratio = (double)HLTValue->at(y) / (double)HTFPmax;
+			HLTRatio.push_back(ratio);
+		}
+
+		for(int it = 0; it < HLTRatio.size(); it++) { //questo for dovresti farlo solo sui path che ti interessano
 				if(jentry==0){
 					//cout << "-> " << Run << " this is run number \n";
 					//cout << HLTRatio->at(it) << " this is ratio \n";
 					//cout << HLTNames->at(it) << " this is path name \n";
 					delete historatio;
 					historatio = new TH1F("historatio","ratio",binx,lowx,highx);
-					historatio->SetBinContent(vRun->at(it)-lowx+1,HLTRatio->at(it));
+					historatio->SetBinContent(vRun->at(it)-lowx+1,HLTRatio.at(it));
+					historatio->SetBinError(vRun->at(it)-lowx+1,TMath::Sqrt(HLTValue->at(it))/HTFPmax);
 					dvec.push_back((TH1F*)historatio->Clone(HLTNames->at(it).c_str()));
 
 				}
@@ -205,12 +228,14 @@ void HLTAnalysis::Loop()
 						}
 					}//for sul vettore di TH1F
 					if(existent){
-						dvec[temp]->SetBinContent(vRun->at(it)-lowx+1,HLTRatio->at(it));
+						dvec[temp]->SetBinContent(vRun->at(it)-lowx+1,HLTRatio.at(it));
+						dvec[temp]->SetBinError(vRun->at(it)-lowx+1,TMath::Sqrt(HLTValue->at(it))/HTFPmax);
 						}
 					else if(!existent){ 
 						delete historatio;
 						historatio = new TH1F("historatio","ratio",binx,lowx,highx);
-						historatio->SetBinContent(vRun->at(it)-lowx+1,HLTRatio->at(it));
+						historatio->SetBinContent(vRun->at(it)-lowx+1,HLTRatio.at(it));
+						historatio->SetBinError(vRun->at(it)-lowx+1,TMath::Sqrt(HLTValue->at(it))/HTFPmax);
 						dvec.push_back((TH1F*)historatio->Clone(HLTNames->at(it).c_str()));
 					}//else
 
@@ -222,39 +247,34 @@ void HLTAnalysis::Loop()
 	serv = 1;
 	cout << " dvec size " << dvec.size() << "\n";
 	for (unsigned int u=0;u<(dvec.size());u++){
-		dvec[u]->SetLineColor((int)((u+20) % 50)+20);
-		//dvec[u]->SetFillColor((int)((u+20) % 50)+20);
-		//dvec[u]->SetFillStyle(3200+(u*2));
-		//for(int p=0; p<6;p++){
-		//	if(((string)dvec[u]->GetName())==paths[p]){
+		dvec[u]->SetLineColor((u % 8)+1);
+		dvec[u]->SetMarkerColor((u % 8)+1);
+		dvec[u]->SetMarkerStyle((u%3)+24);
+		dvec[u]->SetMarkerSize(1.0+(((double)(u%5))/10.));
+		for(int p=0; p<6;p++){//per selezionare i path d'interesse
+			if(((string)dvec[u]->GetName())==paths[p]){//per selezionare i path d'interesse
+			//if(((TString)dvec[u]->GetName()).Contains("Ele17")){
 				if(serv==1){	
-					gPad->SetLogy(1);
 					dvec[u]->SetMaximum((double)maxRatio);
-					dvec[u]->Draw();
+					dvec[u]->Draw("E1 9");
 					dvec[u]->GetXaxis()->SetTitle("run");
 					dvec[u]->GetYaxis()->SetTitle("ratio");
-					ratleg->AddEntry(dvec[u],dvec[u]->GetName(),"l");
+					ratleg->AddEntry(dvec[u],dvec[u]->GetName(),"p");
+					dvec[u]->SetStats(0);
 					serv++;
 				}
 				else if(serv>1){
-					dvec[u]->Draw("SAME"); 
+					dvec[u]->Draw("E1 9 SAME"); 
 				//	Ratio->Update();
-					ratleg->AddEntry(dvec[u],dvec[u]->GetName(),"l");
+					ratleg->AddEntry(dvec[u],dvec[u]->GetName(),"p");
+					dvec[u]->SetStats(0);
 				}
-		//	}
-		//}
+			}
+		}
 	}
 	ratleg->SetBorderSize(0);
 	ratleg->SetFillColor(0);
 	ratleg->Draw();
-
-
-
-
-
-
-
-
 
 
 }

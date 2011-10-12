@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoProducer.cc,v 1.15 2011/10/03 08:07:27 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.18 2011/10/11 12:26:01 dscaini Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 
 int hltcounter=0; //ci serve per il rapporto sull'isogramma
-bool debug2 = false;
+bool debug2 = true;
 //
 // member functions
 //
@@ -139,7 +139,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 						}//chiusura if find ...
 
 						//Qui si riempie il vettore che mi servira'  per calcolare il ratio
-						if (debug2) cout << HLTValue.size() << " dimensione HLTAndValue \n";
+						if (debug2) cout << HLTValue.size() << " dimensione HLTValue \n";
 						if(HLTValue.size()==0){ HLTValue.push_back(1); HLTNames.push_back(stringa);
 							if (debug2) cout << HLTNames[0] << " THE FIRST!!! " << stringa << "\n";
 						}
@@ -464,7 +464,7 @@ vRun.clear();
 	treeHLT_->Branch("HLTPaths",&HLTPaths);
 	treeHLT_->Branch("HLTPrescales",&HLTPrescales);
 	treeHLT_->Branch("HLTNames",&HLTNames);
-	treeHLT_->Branch("HLTRatio",&HLTRatio);
+	treeHLT_->Branch("HLTValue",&HLTValue);
 	treeHLT_->Branch("Timestamp",&Timestamp);
 	treeHLT_->Branch("vRun",&vRun);
 
@@ -533,7 +533,7 @@ if (debug2) cout << Run << " this is run number \n";
 HistoProducer::endRun(edm::Run&,const edm::EventSetup&)
 {
 
-	std::string name;
+/*	std::string name;
 
 	int HTFPmax;
 	double ratio=0;
@@ -547,19 +547,20 @@ HistoProducer::endRun(edm::Run&,const edm::EventSetup&)
 		HLTRatio.push_back(ratio);
 	}
 
-	if (debug2) cout << "BEWARE " << HLTNames.size() << " must be equal to "<<HLTRatio.size()<<"\n";
+	if (debug2) cout << "BEWARE " << HLTNames.size() << " must be equal to "<<HLTRatio.size()<<"\n";*/
+
+	//IMPORTANT!// Fill BEFORE clear()
 	treeHLT_->Fill();
 
-cout << "End of Run \n";
-
-//clear dei vettori :)
-HLTPaths.clear();
-HLTPrescales.clear();
-HLTNames.clear();
-HLTValue.clear();
-HLTRatio.clear();
-vRun.clear();
-
+/*
+	//clear dei vettori :)
+	HLTPaths.clear();
+	HLTPrescales.clear();
+	HLTNames.clear();
+	HLTValue.clear();
+	//HLTRatio.clear();
+	vRun.clear();
+*/
 
 }
 
