@@ -31,7 +31,7 @@ void comparisonJetMCData(string plot,int rebin){
 
 	if (probe = dynamic_cast<TH1F *>(obj) ){
 	  TString str=obj->GetTitle();
-	  if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld")) rebin=5;
+	  if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("h_meanPtZVsNjet")) rebin=5;
 	  gPad->SetLogy(1);
 	  Int_t entries = obj->Integral();
 	  //printf("Useful data:\ndata entries= %d \n",entries);
@@ -58,6 +58,7 @@ void comparisonJetMCData(string plot,int rebin){
 	  gStyle->SetPalette(1);
 	  gStyle->SetNumberContours(999);
 	  dataf->cd("validationJEC");
+	  gDirectory->GetObject(plot.c_str(),obje);
 	  obje->Draw("COLZ");
 	  string path="/afs/infn.it/ts/user/marone/html/ZJets/Jets/"+plot+"data.png";
 	  a.Print(path.c_str());
