@@ -11,6 +11,9 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <string.h>
+
+const std::string rootfile="histo-03Oct.root";
 
 class HLTAnalysis {
 public :
@@ -52,10 +55,11 @@ HLTAnalysis::HLTAnalysis(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("histo.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(rootfile.c_str());
       if (!f) {
-         f = new TFile("histo.root");
-         f->cd("histo.root:/demo");
+         f = new TFile(rootfile.c_str());
+	 std::string service=rootfile+":/demo";
+         f->cd(service.c_str());
       }
       tree = (TTree*)gDirectory->Get("treeHLT_");
 
