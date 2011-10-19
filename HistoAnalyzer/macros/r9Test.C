@@ -99,6 +99,8 @@ void r9Test(){
   g93->SetMarkerSize(.5);
   double ratio=(double)g94->GetEntries()/(double)g93->GetEntries();
   cout<<ratio;
+  cout<<"IF YOU READ TIHS LINE THE MANUAL RATIO IS ON...."<<endl;
+  ratio=112919./178795;
   g93->Scale(ratio);
   g93->Draw("E1SAMES");
   TLegend* legend_d = new TLegend(0.626506,0.19494,0.916667,0.447917);

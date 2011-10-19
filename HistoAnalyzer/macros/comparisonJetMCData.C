@@ -28,10 +28,12 @@ void comparisonJetMCData(string plot,int rebin){
 	TH2F *obje;
 	obj=gDirectory->GetObject(plot.c_str(),obj);
 	obje=gDirectory->GetObject(plot.c_str(),obje);
-	
+
 	if (probe = dynamic_cast<TH1F *>(obj) ){
+	  TString str=obj->GetTitle();
+	  if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld")) rebin=5;
 	  gPad->SetLogy(1);
-	  Int_t entries = obj->GetEntries();
+	  Int_t entries = obj->Integral();
 	  //printf("Useful data:\ndata entries= %d \n",entries);
 	  obj->SetLineColor(kBlack);
 	  obj->GetXaxis()->SetRangeUser(0,250);
@@ -40,7 +42,7 @@ void comparisonJetMCData(string plot,int rebin){
 	  mcf->cd("validationJEC");
 	  TH1F* obj;
 	  gDirectory->GetObject(plot.c_str(),obj);
-	  Int_t entriesmc = obj->GetEntries();
+	  Int_t entriesmc = obj->Integral();
 	  //printf("Useful data:\ndata entries= %d \n",entries);
 	  obj->SetLineColor(kRed);
 	  obj->Scale((double) entries/(double)entriesmc);

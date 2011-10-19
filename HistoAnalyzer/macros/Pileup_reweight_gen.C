@@ -198,7 +198,7 @@ void Pileup_reweight_gen() {
   // luminosity distribution from estimatePileup.py for May 10 JSON Muon file
   //scopo prendere i valori della TrueDist2011 da un file *.root
 
-  TFile *histof = TFile::Open("Pileup_2011_EPS_8_jul.root"); //here is the histogram
+  TFile *histof = TFile::Open("/gpfs/cms/data/2011/MCReweight/jul05.root"); //here is the histogram
   histof->cd();
 
   Int_t entries = pileup->GetEntries();
