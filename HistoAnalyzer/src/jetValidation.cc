@@ -57,6 +57,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<reco::GsfElectronCollection > goodEPair;
    iEvent.getByLabel (goodEPairTag, goodEPair);
+   
+   
+   edm::Handle<reco::GenParticleCollection> genPart;
+   if (usingMC==true){
+      iEvent.getByLabel (genParticleCollection_,genPart);
+   }
 
    if (goodEPair->size()==2)
    {   
@@ -70,6 +76,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       int cluSize2 =0;
       double cluTotEnergy1=0.;
       double cluTotEnergy2=0.;
+      double dist=0.;
+      double maxDist=0.1;
 
       reco::GsfElectronCollection::const_iterator it=goodEPair->begin();
       TLorentzVector e1, e2, e_pair;
@@ -125,6 +133,18 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
 	    pfe1.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
 	    
+	    if (usingMC==true){
+	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
+		  dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
+		  if (dist < maxDist){
+		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+		  }
+	       }
+	    }
+	    
 	 }
       }
       // ================================
@@ -172,6 +192,18 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_ptPFptVsEta->Fill(it->eta(),it->energy()/itPf->energy(),myweight[0]);
 	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
 	    pfe2.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
+
+	    if (usingMC==true){
+	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
+		  dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
+		  if (dist < maxDist){
+		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+		  }
+	       }
+	    }
 	 }
       }
       h_sizePf->Fill(pfSize,myweight[0]);

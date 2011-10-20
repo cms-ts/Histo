@@ -34,6 +34,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // root includes
 #include "TH1F.h"
@@ -80,6 +81,7 @@ class jetValidation : public edm::EDAnalyzer {
       //Retrieved from the .py
       edm::InputTag electronCollection_;
       edm::InputTag pflowEleCollection_;
+      edm::InputTag genParticleCollection_;
       edm::InputTag VertexCollection_;
       edm::InputTag jetCollection_;
       edm::InputTag goodEPairTag;
@@ -145,6 +147,11 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_superClusterSize;
       TH1F * h_gsfPfSCEnClu1;
 
+      TH2F * h_MCenPFenVsEn;
+      TH2F * h_MCenPFenVsEta;
+      TH2F * h_MCenGSFenVsEn;
+      TH2F * h_MCenGSFenVsEta;
+
       TH1F * h_nVtx;
       TH1F * h_ptZ_jetIncl[11];
       TH1F * h_ptZ_jet[11];
@@ -201,6 +208,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   pflowEleCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowEleCollection",edm::InputTag("particleFlow:electrons"));
+  genParticleCollection_ = conf.getUntrackedParameter<edm::InputTag>("genParticleCollection",edm::InputTag("genParticles"));
   jetCollection_      = conf.getParameter<edm::InputTag>("jetCollection");
   VertexCollection_   = conf.getParameter<edm::InputTag>("VertexCollection");
   goodEPairTag        = conf.getParameter<edm::InputTag>("goodEPair");
@@ -263,7 +271,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_ptECALptVsEn = fs->make<TH2F>("h_ptECALptVsEn","ptECALptVsEn",200,0,200,160,0.6,1.4);
   h_superClusterSize = fs->make<TH1F>("h_superClusterSize","superClusterSize",100,0,100);
   h_gsfPfSCEnClu1 = fs->make<TH1F>("h_gsfPfSCEnClu1","gsfPfSCEnClu1",160,0.6,1.4);
-
+ 
   h_nVtx = fs->make<TH1F>("h_nVtx","h_nVtx",10,0,10);
   h_zYieldVsjets  = fs->make<TH1F>("h_zYieldVsjets","zYieldVsjets",10,0,10);
   h_zYieldVsjetsVtx1  = fs->make<TH1F>("h_zYieldVsjetsVtx1","zYieldVsjetsVtx1",10,0,10);
@@ -345,6 +353,13 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     h_nJetVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
   }
   h_meanPtZVsNjet = fs->make<TH1F>("h_meanPtZVsNjet","meanPtZVsNjet",11, 0, 11);
+
+  if (usingMC==true){
+     h_MCenPFenVsEn   = fs->make<TH2F>("h_MCenPFenVsEn","MCenPFenVsEn",200,0,200,160,0.6,1.4);
+     h_MCenPFenVsEta  = fs->make<TH2F>("h_MCenPFenVsEta","MCenPFenVsEta",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenGSFenVsEn   = fs->make<TH2F>("h_MCenGSFenVsEn","MCenGSFenVsEn",200,0,200,160,0.6,1.4);
+     h_MCenGSFenVsEta  = fs->make<TH2F>("h_MCenGSFenVsEta","MCenGSFenVsEta",100,-2.5,2.5,160,0.6,1.4);
+  }
 }
 
 
