@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.19 2011/10/12 09:47:51 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.20 2011/10/12 10:08:12 dscaini Exp $
 //
 //
 
@@ -39,9 +39,12 @@ bool debug2 = false;
 void
 HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	//IMPORTANTE
-	clean_vectors();
-	nEvents_++;
+
+  // We need the output Muon association collection to fill 
+  std::auto_ptr<std::vector<float> > EventWeight( new std::vector<float>);
+  //IMPORTANTE
+  clean_vectors();
+  nEvents_++;
 
 
 	//Get The Run Parameters
@@ -205,14 +208,19 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		//Calculate the distributions (our data and MC)
 		for( int i=0; i<25; ++i) {
 			trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
-			simulated.push_back(probdistFlat10[i]); // Name of the vector included in Flat10.h !
+			simulated.push_back(reweightedprobdistFlat10[i]); // Name of the vector included in Flat10.h !
 		}
 
 		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
 		double MyWeight = LumiWeights_.weight( npv );
 		if (debug) cout<<"weight is "<<MyWeight<<endl;
 		Weight=MyWeight;
+		EventWeight->push_back(MyWeight); 
+	} 
+	else { 
+	  EventWeight->push_back(1); 
 	}
+	
 
 	///////////////////
 	/// Electrons Study
@@ -398,7 +406,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//--------------------------------//
 	//---------Fill del Tree----------//
 	treeVJ_->Fill();
-
+	iEvent.put( EventWeight,"EventWeight" );
 }
 
 
