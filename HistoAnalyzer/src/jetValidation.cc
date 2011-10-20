@@ -51,6 +51,10 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    ///// Z Analysis
    ///////////////////////
 
+   edm::Handle<reco::PFCandidateCollection> pfElec;
+   iEvent.getByLabel (pflowEleCollection_, pfElec);
+   int pfSize=0;
+
    edm::Handle<reco::GsfElectronCollection > goodEPair;
    iEvent.getByLabel (goodEPairTag, goodEPair);
 
@@ -60,8 +64,16 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double gsfScEta;
       double pfScEn;
       double pfScEta;
+      double deltaEta_ = 5.0/100.0;
+      double deltaPhi_ = 2.0*pi_/100;
+      int cluSize1 =0;
+      int cluSize2 =0;
+      double cluTotEnergy1=0.;
+      double cluTotEnergy2=0.;
+
       reco::GsfElectronCollection::const_iterator it=goodEPair->begin();
       TLorentzVector e1, e2, e_pair;
+      TLorentzVector pfe1, pfe2, pfe_pair;
       e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
 
       // ================================
@@ -74,8 +86,6 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 pfScEta= it->pflowSuperCluster()->eta();
 
 	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta,myweight[0]);
-	 double deltaEta_ = 5.0/100.0;
-	 double deltaPhi_ = 2.0*pi_/100;
 	 for (int j=0; j< 100; j++){
 	    if ( it->eta()> j*deltaEta_ && it->eta()<(j+1)*deltaEta_){
 	       for (int k=0; k<100; k++){
@@ -95,8 +105,28 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
 	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
 	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
+
+
+	    reco::CaloCluster_iterator itClu = it->superCluster()->clustersBegin();
+	    reco::CaloCluster_iterator itClu_end = it->superCluster()->clustersEnd();
+	    for (;itClu!=itClu_end; itClu++){
+	       cluSize1++;
+	       cluTotEnergy1 += (*itClu)->energy();
+	    }
+	    h_superClusterSize->Fill(cluSize1,myweight[0]);
+	    if (cluSize1==1){ h_gsfPfSCEnClu1->Fill(gsfScEn/pfScEn,myweight[0]);}
 	 }     
-      }     
+      }   
+      
+      for(reco::PFCandidateCollection::const_iterator itPf=pfElec->begin();itPf!=pfElec->end();itPf++){
+	 if (itPf->gsfTrackRef()==it->gsfTrack()) {
+	    pfSize++;
+	    h_ptPFptVsEta->Fill(it->eta(),it->energy()/itPf->energy(),myweight[0]);
+	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
+	    pfe1.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
+	    
+	 }
+      }
       // ================================
       it++;
       e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
@@ -113,6 +143,16 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta,myweight[0]);
 	 h_gsfPfSCEnVsEtaPhi->Fill(it->eta(),it->phi(),gsfScEn/pfScEn,myweight[0]);
 
+	 for (int j=0; j< 100; j++){
+	    if ( it->eta()> j*deltaEta_ && it->eta()<(j+1)*deltaEta_){
+	       for (int k=0; k<100; k++){
+		  if ( it->phi()> k*deltaPhi_ && it->phi()<(k+1)*deltaPhi_){
+		     h_gsfPfSCEnVsEtaPhi->Fill((j+0.5)*deltaEta_,(k+0.5)*deltaPhi_,gsfScEn/pfScEn,myweight[0]);
+		  }
+	       }
+	    }
+	 }
+
 	 if (fabs(gsfScEta)<edgeEB){
 	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
@@ -125,6 +165,17 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
 	 }     
       }      
+
+      for(reco::PFCandidateCollection::const_iterator itPf=pfElec->begin();itPf!=pfElec->end();itPf++){
+	 if (itPf->gsfTrackRef()==it->gsfTrack()) {
+	    pfSize++;
+	    h_ptPFptVsEta->Fill(it->eta(),it->energy()/itPf->energy(),myweight[0]);
+	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
+	    pfe2.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
+	 }
+      }
+      h_sizePf->Fill(pfSize,myweight[0]);
+      pfe_pair=pfe1 + pfe2;
       // ================================
     
       ///////////////////
@@ -175,11 +226,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    else if (totJetsCk==4) h_jetPtFourthCk_EB->Fill(jet->Pt(),myweight[0]);
 
 	    h_jetPtVsEta_EB->Fill(jet->Eta(),jet->Pt(),myweight[0]);
-	    if (numberOfVertices==1) h_jetPtVtx1_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==2) h_jetPtVtx2_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==3) h_jetPtVtx3_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==4) h_jetPtVtx4_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==5) h_jetPtVtx5_EB->Fill(jet->Pt(),myweight[0]);
+	    for (int v=0; v<11; v++){
+	       if (numberOfVertices==(v+1)) h_jetPtVtx_EB[v]->Fill(jet->Pt(),myweight[0]);
+	    }
 	 }
 	 // jet in the ENDCAP
 	 if (fabs(jet->Eta())>edgeEB && fabs(jet->Eta())<edgeEE){
@@ -195,11 +244,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    else if (totJetsCk==3) h_jetPtThirdCk_EE->Fill(jet->Pt(),myweight[0]);
 	    else if (totJetsCk==4) h_jetPtFourthCk_EE->Fill(jet->Pt(),myweight[0]);
 	    
-	    if (numberOfVertices==1) h_jetPtVtx1_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==2) h_jetPtVtx2_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==3) h_jetPtVtx3_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==4) h_jetPtVtx4_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (numberOfVertices==5) h_jetPtVtx5_EE->Fill(jet->Pt(),myweight[0]);
+	    for (int v=0; v<11; v++){
+	       if (numberOfVertices==(v+1)) h_jetPtVtx_EE[v]->Fill(jet->Pt(),myweight[0]);
+	    }
 	 }
 	 // jet in ECAL
 	 if (fabs(jet->Eta())<edgeEE){
@@ -209,17 +256,25 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       h_jetNum_EB->Fill(nJetsEB,myweight[0]);
       h_jetNum_EE->Fill(nJetsEE,myweight[0]);
+      for (int v=0; v<11; v++){
+	 if (numberOfVertices==(v+1)) h_nJetVtx_EB[v]->Fill(nJetsEB,myweight[0]);
+	 if (numberOfVertices==(v+1)) h_nJetVtx_EE[v]->Fill(nJetsEE,myweight[0]);
+      }
       
       totJets = nJetsEB + nJetsEE;
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
       h_invMass->Fill(zInvMass,myweight[0]);
+      h_invMassPF->Fill(pfe_pair.M(),myweight[0]);
       h_zEta->Fill(e_pair.Eta(),myweight[0]);
       h_zRapidity->Fill(e_pair.Rapidity(),myweight[0]);
       h_zYieldVsjets->Fill(totJets,myweight[0]);
       if (numberOfVertices==1) h_zYieldVsjetsVtx1->Fill(totJets,myweight[0]);
       if (numberOfVertices==5) h_zYieldVsjetsVtx5->Fill(totJets,myweight[0]);
       
+      if (totJets == 0){ 
+	 h_zEtaNjet0->Fill(e_pair.Eta());
+      }
       if (totJets == 1){ 
 	 h_zEtaNjet1->Fill(e_pair.Eta(),myweight[0]);
 	 h_zMassNjet1->Fill(zInvMass,myweight[0]);
@@ -315,16 +370,6 @@ jetValidation::endJob()
  h_jetPtVsEta_EB->GetXaxis()->SetTitle("#eta_{jets}");
  h_jetPtVsEta_EB->GetYaxis()->SetTitle("p_{T}^{jets}");
  h_jetPtVsEta_EB->GetZaxis()->SetTitle("N_{jets}");
- h_jetPtVtx1_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx1_EB->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx2_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx2_EB->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx3_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx3_EB->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx4_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx4_EB->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx5_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx5_EB->GetYaxis()->SetTitle("N_{jets}");
 
  h_jetPt_EE->GetXaxis()->SetTitle("p_{T}^{jets}");
  h_jetPt_EE->GetYaxis()->SetTitle("N_{jets}");
@@ -343,16 +388,6 @@ jetValidation::endJob()
  h_jetPtVsEta_EE->GetXaxis()->SetTitle("#eta_{jets}");
  h_jetPtVsEta_EE->GetYaxis()->SetTitle("p_{T}^{jets}");
  h_jetPtVsEta_EE->GetZaxis()->SetTitle("N_{jets}");
- h_jetPtVtx1_EE->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx1_EE->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx2_EE->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx2_EE->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx3_EE->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx3_EE->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx4_EE->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx4_EE->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtVtx5_EE->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_jetPtVtx5_EE->GetYaxis()->SetTitle("N_{jets}");
 
  h_invMass->GetXaxis()->SetTitle("Mass_{Z}");
  h_invMass->GetYaxis()->SetTitle("N_{Z}");

@@ -32,6 +32,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 // root includes
 #include "TH1F.h"
@@ -77,6 +79,7 @@ class jetValidation : public edm::EDAnalyzer {
 
       //Retrieved from the .py
       edm::InputTag electronCollection_;
+      edm::InputTag pflowEleCollection_;
       edm::InputTag VertexCollection_;
       edm::InputTag jetCollection_;
       edm::InputTag goodEPairTag;
@@ -96,11 +99,8 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_jetPtThirdCk_EB;
       TH1F * h_jetPtFourthCk_EB;
       TH2F * h_jetPtVsEta_EB;
-      TH1F * h_jetPtVtx1_EB;
-      TH1F * h_jetPtVtx2_EB;
-      TH1F * h_jetPtVtx3_EB;
-      TH1F * h_jetPtVtx4_EB;
-      TH1F * h_jetPtVtx5_EB;
+      TH1F * h_jetPtVtx_EB[11];
+      TH1F * h_nJetVtx_EB[11];
       TH1F * h_gsfPfSCEta_EB;
       TH1F * h_gsfPfSCEn_EB;
       TH2F * h_gsfPfSCEnVsEn_EB;
@@ -122,11 +122,9 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_jetPtThirdCk_EE;
       TH1F * h_jetPtFourthCk_EE;
       TH2F * h_jetPtVsEta_EE;
-      TH1F * h_jetPtVtx1_EE;
-      TH1F * h_jetPtVtx2_EE;
-      TH1F * h_jetPtVtx3_EE;
-      TH1F * h_jetPtVtx4_EE;
-      TH1F * h_jetPtVtx5_EE;
+      TH1F * h_jetPtVtx_EE[11];
+      TH1F * h_nJetVtx_EE[11];
+
       TH1F * h_gsfPfSCEta_EE;
       TH1F * h_gsfPfSCEn_EE;
       TH2F * h_gsfPfSCEnVsEn_EE;
@@ -138,6 +136,15 @@ class jetValidation : public edm::EDAnalyzer {
       //common
       TH2F * h_gsfPfSCEtaVsEta;
       TProfile2D * h_gsfPfSCEnVsEtaPhi;
+      TH2F * h_ptDefptVsEta;
+      TH2F * h_ptECALptVsEta;
+      TH2F * h_ptPFptVsEta;
+      TH2F * h_ptDefptVsEn;
+      TH2F * h_ptECALptVsEn;
+      TH2F * h_ptPFptVsEn;
+      TH1F * h_superClusterSize;
+      TH1F * h_gsfPfSCEnClu1;
+
       TH1F * h_nVtx;
       TH1F * h_ptZ_jetIncl[11];
       TH1F * h_ptZ_jet[11];
@@ -155,6 +162,7 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_jetPtNjet4Incl;
       TH1F * h_zEta;
       TH1F * h_zRapidity;
+      TH1F * h_zEtaNjet0;
       TH1F * h_zEtaNjet1;
       TH1F * h_zEtaNjet2;
       TH1F * h_zEtaNjet3;
@@ -164,12 +172,14 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_zEtaNjet3Incl;
       TH1F * h_zEtaNjet4Incl;
       TH1F * h_invMass;
+      TH1F * h_invMassPF;
       TH1F * h_zMassNjet1;
       TH1F * h_zMassNjet2;
       TH1F * h_zMassNjet3;
       TH1F * h_zMassNjet4;
       
-
+      TH1F * h_sizePf;
+      
 
       double edgeEB;
       double edgeEE;
@@ -190,6 +200,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //  weightCollection_ = conf.getParameter<std::string>("EventWeight");
   //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
+  pflowEleCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowEleCollection",edm::InputTag("particleFlow:electrons"));
   jetCollection_      = conf.getParameter<edm::InputTag>("jetCollection");
   VertexCollection_   = conf.getParameter<edm::InputTag>("VertexCollection");
   goodEPairTag        = conf.getParameter<edm::InputTag>("goodEPair");
@@ -212,11 +223,6 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_jetPtThirdCk_EB = fs->make<TH1F>("h_jetPtThirdCk_EB","jetPtThirdCk",500,0.,maxEnJet);
   h_jetPtFourthCk_EB = fs->make<TH1F>("h_jetPtFourthCk_EB","jetPtFourthCk",500,0.,maxEnJet);
   h_jetPtVsEta_EB = fs->make<TH2F>("h_jetPtVsEta_EB","jetPtVsEta",100,-2.5,2.5,500,0.,maxEnJet);
-  h_jetPtVtx1_EB = fs->make<TH1F>("h_jetPtVtx1_EB","jetPtVtx1",500,0,maxEnJet);
-  h_jetPtVtx2_EB = fs->make<TH1F>("h_jetPtVtx2_EB","jetPtVtx2",500,0,maxEnJet);
-  h_jetPtVtx3_EB = fs->make<TH1F>("h_jetPtVtx3_EB","jetPtVtx3",500,0,maxEnJet);
-  h_jetPtVtx4_EB = fs->make<TH1F>("h_jetPtVtx4_EB","jetPtVtx4",500,0,maxEnJet);
-  h_jetPtVtx5_EB = fs->make<TH1F>("h_jetPtVtx5_EB","jetPtVtx5",500,0,maxEnJet);
   h_gsfPfSCEta_EB = fs->make<TH1F>("h_gsfPfSCEta_EB","gsfPfSCEta",160,0.6,1.4);
   h_gsfPfSCEn_EB = fs->make<TH1F>("h_gsfPfSCEn_EB","gsfPfSCEn",160,0.6,1.4);
   h_gsfPfSCEnVsEn_EB = fs->make<TH2F>("h_gsfPfSCEnVsEn_EB","gsfPfSCEnVsEn",200,0,200,160,0.6,1.4);
@@ -238,11 +244,6 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_jetPtThirdCk_EE = fs->make<TH1F>("h_jetPtThirdCk_EE","jetPtThirdCk",500,0.,maxEnJet);
   h_jetPtFourthCk_EE = fs->make<TH1F>("h_jetPtFourthCk_EE","jetPtFourthCk",500,0.,maxEnJet);
   h_jetPtVsEta_EE = fs->make<TH2F>("h_jetPtVsEta_EE","jetPtVsEta",100,-2.5,2.5,500,0.,maxEnJet);
-  h_jetPtVtx1_EE = fs->make<TH1F>("h_jetPtVtx1_EE","jetPtVtx1",500,0,maxEnJet);
-  h_jetPtVtx2_EE = fs->make<TH1F>("h_jetPtVtx2_EE","jetPtVtx2",500,0,maxEnJet);
-  h_jetPtVtx3_EE = fs->make<TH1F>("h_jetPtVtx3_EE","jetPtVtx3",500,0,maxEnJet);
-  h_jetPtVtx4_EE = fs->make<TH1F>("h_jetPtVtx4_EE","jetPtVtx4",500,0,maxEnJet);
-  h_jetPtVtx5_EE = fs->make<TH1F>("h_jetPtVtx5_EE","jetPtVtx5",500,0,maxEnJet);
   h_gsfPfSCEta_EE = fs->make<TH1F>("h_gsfPfSCEta_EE","gsfPfSCEta",160,0.6,1.4);
   h_gsfPfSCEn_EE = fs->make<TH1F>("h_gsfPfSCEn_EE","gsfPfSCEn",160,0.6,1.4);
   h_gsfPfSCEnVsEn_EE = fs->make<TH2F>("h_gsfPfSCEnVsEn_EE","gsfPfSCEnVsEn",200,0,200,160,0.6,1.4);
@@ -254,6 +255,15 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //common
   h_gsfPfSCEtaVsEta = fs->make<TH2F>("h_gsfPfSCEnVsEta","gsfPfSCEnVsEta",100,-2.5,2.5,160,0.6,1.4);
   h_gsfPfSCEnVsEtaPhi = fs->make<TProfile2D>("h_gsfPfSCEnVsEtaPhi","gsfPfSCEnVsEtaPhi",100,-2.5,2.5,100,-pi_,pi_);
+  h_ptDefptVsEta = fs->make<TH2F>("h_ptDefptVsEta","ptDefptVsEta",100,-2.5,2.5,160,0.6,1.4);
+  h_ptPFptVsEta  = fs->make<TH2F>("h_ptPFptVsEta","ptPFptVsEta",100,-2.5,2.5,160,0.6,1.4);
+  h_ptECALptVsEta= fs->make<TH2F>("h_ptECALptVsEta","ptECALptVsEta",100,-2.5,2.5,160,0.6,1.4);
+  h_ptDefptVsEn  = fs->make<TH2F>("h_ptDefptVsEn","ptDefptVsEn",200,0,200,160,0.6,1.4);
+  h_ptPFptVsEn   = fs->make<TH2F>("h_ptPFptVsEn","ptPFptVsEn",200,0,200,160,0.6,1.4);
+  h_ptECALptVsEn = fs->make<TH2F>("h_ptECALptVsEn","ptECALptVsEn",200,0,200,160,0.6,1.4);
+  h_superClusterSize = fs->make<TH1F>("h_superClusterSize","superClusterSize",100,0,100);
+  h_gsfPfSCEnClu1 = fs->make<TH1F>("h_gsfPfSCEnClu1","gsfPfSCEnClu1",160,0.6,1.4);
+
   h_nVtx = fs->make<TH1F>("h_nVtx","h_nVtx",10,0,10);
   h_zYieldVsjets  = fs->make<TH1F>("h_zYieldVsjets","zYieldVsjets",10,0,10);
   h_zYieldVsjetsVtx1  = fs->make<TH1F>("h_zYieldVsjetsVtx1","zYieldVsjetsVtx1",10,0,10);
@@ -268,6 +278,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_jetPtNjet4Incl = fs->make<TH1F>("h_jetPtNjet4Incl","jetPtNjet4Incl",500,0.,maxEnJet);
   h_zEta      = fs->make<TH1F>("h_zEta","zEta",100,-2.5,2.5);
   h_zRapidity = fs->make<TH1F>("h_zRapidity","zRapidity",100,-2.5,2.5);
+  h_zEtaNjet0 = fs->make<TH1F>("h_zEtaNjet0","zEtaNjet0",100,-2.5,2.5);
   h_zEtaNjet1 = fs->make<TH1F>("h_zEtaNjet1","zEtaNjet1",100,-2.5,2.5);
   h_zEtaNjet2 = fs->make<TH1F>("h_zEtaNjet2","zEtaNjet2",100,-2.5,2.5);
   h_zEtaNjet3 = fs->make<TH1F>("h_zEtaNjet3","zEtaNjet3",100,-2.5,2.5);
@@ -277,10 +288,13 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_zEtaNjet3Incl = fs->make<TH1F>("h_zEtaNjet3Incl","zEtaNjet3Incl",100,-2.5,2.5);
   h_zEtaNjet4Incl = fs->make<TH1F>("h_zEtaNjet4Incl","zEtaNjet4Incl",100,-2.5,2.5);
   h_invMass    = fs->make<TH1F>("h_invMass","invMass",200,0,200);
+  h_invMassPF  = fs->make<TH1F>("h_invMassPF","invMassPF",200,0,200);
   h_zMassNjet1 = fs->make<TH1F>("h_zMassNjet1","zMassNjet1",200,0,200);
   h_zMassNjet2 = fs->make<TH1F>("h_zMassNjet2","zMassNjet2",200,0,200);
   h_zMassNjet3 = fs->make<TH1F>("h_zMassNjet3","zMassNjet3",200,0,200);
   h_zMassNjet4 = fs->make<TH1F>("h_zMassNjet4","zMassNjet4",200,0,200);
+
+  h_sizePf = fs->make<TH1F>("h_sizePf","sizePf",3,0,3);
   
   for (int i=0; i<11; i++){
     stringstream buffer_Bin;
@@ -295,6 +309,40 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     name +="Incl";
     label +="Incl";
     h_ptZ_jetIncl[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,maxEnJet);
+
+    int j= i+1;
+    buffer_Bin << j;
+    name ="h_jetPtVtx";
+    name += buffer_Bin.str();
+    name +="_EB";
+    label = "jetPtVtx";
+    label += buffer_Bin.str();
+    label +="_EB";
+    h_jetPtVtx_EB[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+
+    name ="h_jetPtVtx";
+    name += buffer_Bin.str();
+    name +="_EE";
+    label = "jetPtVtx";
+    label += buffer_Bin.str();
+    label +="_EE";
+    h_jetPtVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+    
+    name ="h_nJetVtx";
+    name += buffer_Bin.str();
+    name +="_EB";
+    label = "nJetVtx";
+    label += buffer_Bin.str();
+    label +="_EB";
+    h_nJetVtx_EB[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+    
+    name ="h_nJetVtx";
+    name += buffer_Bin.str();
+    name +="_EE";
+    label = "nJetVtx";
+    label += buffer_Bin.str();
+    label +="_EE";
+    h_nJetVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
   }
   h_meanPtZVsNjet = fs->make<TH1F>("h_meanPtZVsNjet","meanPtZVsNjet",11, 0, 11);
 }
