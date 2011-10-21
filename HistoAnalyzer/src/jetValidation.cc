@@ -60,7 +60,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    
    edm::Handle<reco::GenParticleCollection> genPart;
-   if (usingMC==true){
+   if (usingMC){
       iEvent.getByLabel (genParticleCollection_,genPart);
    }
 
@@ -77,7 +77,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double cluTotEnergy1=0.;
       double cluTotEnergy2=0.;
       double dist=0.;
-      double maxDist=0.1;
+      double distEta=0.;
+      double ratioEn=0.;
+      double ratioEn2=0.;
+      double maxDist=0.05;
+      double maxEta=0.2;
+      double maxEn=1.2;
 
       reco::GsfElectronCollection::const_iterator it=goodEPair->begin();
       TLorentzVector e1, e2, e_pair;
@@ -133,14 +138,20 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
 	    pfe1.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
 	    
-	    if (usingMC==true){
+	    if (usingMC){
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
 		  dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
-		  if (dist < maxDist){
+		  distEta = fabs(itgen->eta() - it->eta());
+		  ratioEn = itgen->energy()/it->energy();
+		  ratioEn2 = itgen->energy()/itPf->energy();
+		  if (dist < maxDist && distEta < maxEta && 
+		      ratioEn < maxEn && 1./ratioEn < maxEn && 
+		      ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
 		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
 		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
 		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
 		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+		     break;
 		  }
 	       }
 	    }
@@ -193,14 +204,20 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
 	    pfe2.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
 
-	    if (usingMC==true){
+	    if (usingMC){
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
 		  dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
-		  if (dist < maxDist){
+		  distEta = fabs(itgen->eta() - it->eta());
+		  ratioEn = itgen->energy()/it->energy();
+		  ratioEn2 = itgen->energy()/itPf->energy();
+		  if (dist < maxDist && distEta < maxEta && 
+		      ratioEn < maxEn && 1./ratioEn < maxEn && 
+		      ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
 		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
 		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
 		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+		     break;
 		  }
 	       }
 	    }
