@@ -151,6 +151,19 @@ class jetValidation : public edm::EDAnalyzer {
       TH2F * h_MCenPFenVsEta;
       TH2F * h_MCenGSFenVsEn;
       TH2F * h_MCenGSFenVsEta;
+      TH2F * h_MCenPFenVsEnWoEnCut;
+      TH2F * h_MCenPFenVsEtaWoEnCut;
+      TH2F * h_MCenGSFenVsEnWoEnCut;
+      TH2F * h_MCenGSFenVsEtaWoEnCut;
+      TH1F * h_failReason;
+      TH2F * h_MCenPFenVsEnTruth;
+      TH2F * h_MCenPFenVsEtaTruth;
+      TH2F * h_MCenGSFenVsEnTruth;
+      TH2F * h_MCenGSFenVsEtaTruth;
+      TH2F * h_MCenPFenVsEnENear;
+      TH2F * h_MCenPFenVsEtaENear;
+      TH2F * h_MCenGSFenVsEnENear;
+      TH2F * h_MCenGSFenVsEtaENear;
 
       TH1F * h_nVtx;
       TH1F * h_ptZ_jetIncl[11];
@@ -354,11 +367,24 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   }
   h_meanPtZVsNjet = fs->make<TH1F>("h_meanPtZVsNjet","meanPtZVsNjet",11, 0, 11);
 
-  if (usingMC==true){
-     h_MCenPFenVsEn   = fs->make<TH2F>("h_MCenPFenVsEn","MCenPFenVsEn",200,0,200,160,0.6,1.4);
-     h_MCenPFenVsEta  = fs->make<TH2F>("h_MCenPFenVsEta","MCenPFenVsEta",100,-2.5,2.5,160,0.6,1.4);
-     h_MCenGSFenVsEn   = fs->make<TH2F>("h_MCenGSFenVsEn","MCenGSFenVsEn",200,0,200,160,0.6,1.4);
-     h_MCenGSFenVsEta  = fs->make<TH2F>("h_MCenGSFenVsEta","MCenGSFenVsEta",100,-2.5,2.5,160,0.6,1.4);
+  if (usingMC){
+     h_MCenPFenVsEn  = fs->make<TH2F>("h_MCenPFenVsEn","MCenPFenVsEn",200,0,200,160,0.6,1.4);
+     h_MCenPFenVsEta = fs->make<TH2F>("h_MCenPFenVsEta","MCenPFenVsEta",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenGSFenVsEn = fs->make<TH2F>("h_MCenGSFenVsEn","MCenGSFenVsEn",200,0,200,160,0.6,1.4);
+     h_MCenGSFenVsEta= fs->make<TH2F>("h_MCenGSFenVsEta","MCenGSFenVsEta",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenPFenVsEnWoEnCut   = fs->make<TH2F>("h_MCenPFenVsEnWoEnCut","MCenPFenVsEnWoEnCut",200,0,200,160,0.6,1.4);
+     h_MCenPFenVsEtaWoEnCut  = fs->make<TH2F>("h_MCenPFenVsEtaWoEnCut","MCenPFenVsEtaWoEnCut",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenGSFenVsEnWoEnCut  = fs->make<TH2F>("h_MCenGSFenVsEnWoEnCut","MCenGSFenVsEnWoEnCut",200,0,200,160,0.6,1.4);
+     h_MCenGSFenVsEtaWoEnCut = fs->make<TH2F>("h_MCenGSFenVsEtaWoEnCut","MCenGSFenVsEtaWoEnCut",100,-2.5,2.5,160,0.6,1.4);
+     h_failReason = fs->make<TH1F>("h_failReason","failReason",5,0,5);
+     h_MCenPFenVsEnTruth  = fs->make<TH2F>("h_MCenPFenVsEnTruth","MCenPFenVsEnTruth",200,0,200,160,0.6,1.4);
+     h_MCenPFenVsEtaTruth = fs->make<TH2F>("h_MCenPFenVsEtaTruth","MCenPFenVsEtaTruth",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenGSFenVsEnTruth = fs->make<TH2F>("h_MCenGSFenVsEnTruth","MCenGSFenVsEnTruth",200,0,200,160,0.6,1.4);
+     h_MCenGSFenVsEtaTruth= fs->make<TH2F>("h_MCenGSFenVsEtaTruth","MCenGSFenVsEtaTruth",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenPFenVsEnENear  = fs->make<TH2F>("h_MCenPFenVsEnENear","MCenPFenVsEnENear",200,0,200,160,0.6,1.4);
+     h_MCenPFenVsEtaENear = fs->make<TH2F>("h_MCenPFenVsEtaENear","MCenPFenVsEtaENear",100,-2.5,2.5,160,0.6,1.4);
+     h_MCenGSFenVsEnENear = fs->make<TH2F>("h_MCenGSFenVsEnENear","MCenGSFenVsEnENear",200,0,200,160,0.6,1.4);
+     h_MCenGSFenVsEtaENear= fs->make<TH2F>("h_MCenGSFenVsEtaENear","MCenGSFenVsEtaENear",100,-2.5,2.5,160,0.6,1.4);
   }
 }
 

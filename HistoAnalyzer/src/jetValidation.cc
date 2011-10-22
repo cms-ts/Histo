@@ -83,6 +83,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double maxDist=0.05;
       double maxEta=0.2;
       double maxEn=1.2;
+      double nearerDist=9999.;
+      double enGen;
+
+      bool checkCut=false;
+      bool checkPairing=false;
+      bool checkTruth=false;
+      bool checkNear=false;
 
       reco::GsfElectronCollection::const_iterator it=goodEPair->begin();
       TLorentzVector e1, e2, e_pair;
@@ -144,24 +151,67 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  distEta = fabs(itgen->eta() - it->eta());
 		  ratioEn = itgen->energy()/it->energy();
 		  ratioEn2 = itgen->energy()/itPf->energy();
-		  if (dist < maxDist && distEta < maxEta && 
-		      ratioEn < maxEn && 1./ratioEn < maxEn && 
-		      ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
-		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
-		     break;
+		  if (dist < maxDist && distEta < maxEta ){	     
+		     if (!checkCut){
+			h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			checkCut = true;
+		     }
+		     if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
+			 ratioEn2 < maxEn && 1./ratioEn2 < maxEn ){
+			h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+			checkPairing=true;
+		     }
 		  }
+		  if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
+		     if (dist < 0.1 && !checkTruth){		     
+			h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			checkTruth=true;
+		     }
+		  }
+
+		  if ( fabs(itgen->pdgId())==11 && dist < maxDist && dist < nearerDist){
+		     nearerDist = dist;
+		     enGen=itgen->energy();
+		     checkNear=true;
+		  }
+
+	       } // end genParticle cycle
+	       
+	       if (!checkPairing){  // check what fail for the association to gen level
+		  if (dist > maxDist) h_failReason->Fill(1);
+		  if (distEta > maxEta) h_failReason->Fill(2);
+		  if (ratioEn > maxEn || 1./ratioEn > maxEn) h_failReason->Fill(3);
+		  if (ratioEn2 > maxEn || 1./ratioEn2 > maxEn) h_failReason->Fill(4);
 	       }
-	    }
-	    
-	 }
-      }
+	       
+	       if (checkNear){
+		  h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
+		  h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
+		  h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
+		  h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
+	       }
+
+	    } // end UsingMC	    
+	 }  // end association gsf-pf
+      } // end PFelectron cycle
       // ================================
       it++;
       e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
       e_pair = e1 + e2;
+      checkPairing=false;
+      checkCut=false;
+      checkTruth=false;
+      checkNear=false;
+      nearerDist=9999.;
       // ================================
       //  GSFelectrons VS PFelectrons 2
       // ================================
@@ -210,19 +260,59 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  distEta = fabs(itgen->eta() - it->eta());
 		  ratioEn = itgen->energy()/it->energy();
 		  ratioEn2 = itgen->energy()/itPf->energy();
-		  if (dist < maxDist && distEta < maxEta && 
-		      ratioEn < maxEn && 1./ratioEn < maxEn && 
-		      ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
-		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-		     break;
+		  if (dist < maxDist && distEta < maxEta ){	     
+		     if (!checkCut){
+			h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			checkCut = true;
+		     }
+		     if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
+			 ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
+			h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			checkPairing=true;
+			
+		     }
 		  }
+
+		  if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ // itgen->status()==1 && 
+		     if (dist < 0.1 && !checkTruth){		     
+			h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			checkTruth=true;
+		     }
+		  }
+		  if ( fabs(itgen->pdgId())==11 && dist < maxDist && dist < nearerDist){
+		     nearerDist = dist;
+		     enGen=itgen->energy();
+		     checkNear=true;
+		  }
+
+	       } // end genParticle cycle
+	       
+	       if (!checkPairing){  // check what fail for the association to gen level
+		  if (dist > maxDist) h_failReason->Fill(1);
+		  if (distEta > maxEta) h_failReason->Fill(2);
+		  if (ratioEn > maxEn || 1./ratioEn > maxEn) h_failReason->Fill(3);
+		  if (ratioEn2 > maxEn || 1./ratioEn2 > maxEn) h_failReason->Fill(4);
 	       }
-	    }
-	 }
-      }
+
+	       if (checkNear){
+		  h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
+		  h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
+		  h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
+		  h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
+	       }
+	       
+	    } // end UsingMC
+	 } 
+      } // end PFelectron cycle
       h_sizePf->Fill(pfSize,myweight[0]);
       pfe_pair=pfe1 + pfe2;
       // ================================
