@@ -166,8 +166,8 @@ class jetValidation : public edm::EDAnalyzer {
       TH2F * h_MCenGSFenVsEtaENear;
 
       TH1F * h_nVtx;
-      TH1F * h_ptZ_jetIncl[11];
-      TH1F * h_ptZ_jet[11];
+      TH1F * h_ptZ_jetIncl[9];
+      TH1F * h_ptZ_jet[9];
       TH1F * h_meanPtZVsNjet;
       TH1F * h_zYieldVsjets;
       TH1F * h_zYieldVsjetsVtx1;
@@ -234,7 +234,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //EB
   h_jetPt_EB = fs->make<TH1F>("h_jetPt_EB","jetPt",500,0.,maxEnJet);
   h_jetEta_EB = fs->make<TH1F>("h_jetEta_EB","jetEta",100,-2.5,2.5);
-  h_jetNum_EB = fs->make<TH1F>("h_jetNum_EB","jetNum",100,0.,100);
+  h_jetNum_EB = fs->make<TH1F>("h_jetNum_EB","jetNum",10,0.,10);
   h_jetPtFirst_EB = fs->make<TH1F>("h_jetPtFirst_EB","jetPtFirst",500,0.,maxEnJet);
   h_jetPtSecond_EB = fs->make<TH1F>("h_jetPtSecond_EB","jetPtSecond",500,0.,maxEnJet);
   h_jetPtThird_EB = fs->make<TH1F>("h_jetPtThird_EB","jetPtThird",500,0.,maxEnJet);
@@ -255,7 +255,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //EE
   h_jetPt_EE = fs->make<TH1F>("h_jetPt_EE","jetPt",500,0.,maxEnJet);
   h_jetEta_EE = fs->make<TH1F>("h_jetEta_EE","jetEta",100,-2.5,2.5);
-  h_jetNum_EE = fs->make<TH1F>("h_jetNum_EE","jetNum",100,0.,100);
+  h_jetNum_EE = fs->make<TH1F>("h_jetNum_EE","jetNum",10,0.,10);
   h_jetPtFirst_EE = fs->make<TH1F>("h_jetPtFirst_EE","jetPtFirst",500,0.,maxEnJet);
   h_jetPtSecond_EE = fs->make<TH1F>("h_jetPtSecond_EE","jetPtSecond",500,0.,maxEnJet);
   h_jetPtThird_EE = fs->make<TH1F>("h_jetPtThird_EE","jetPtThird",500,0.,maxEnJet);
@@ -265,10 +265,10 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_jetPtThirdCk_EE = fs->make<TH1F>("h_jetPtThirdCk_EE","jetPtThirdCk",500,0.,maxEnJet);
   h_jetPtFourthCk_EE = fs->make<TH1F>("h_jetPtFourthCk_EE","jetPtFourthCk",500,0.,maxEnJet);
   h_jetPtVsEta_EE = fs->make<TH2F>("h_jetPtVsEta_EE","jetPtVsEta",100,-2.5,2.5,500,0.,maxEnJet);
-  h_gsfPfSCEta_EE = fs->make<TH1F>("h_gsfPfSCEta_EE","gsfPfSCEta",160,0.6,1.4);
+  h_gsfPfSCEta_EE = fs->make<TH1F>("h_gsfPfSCEta_EE","gsfPfSCEta",40,0.9,1.1);
   h_gsfPfSCEn_EE = fs->make<TH1F>("h_gsfPfSCEn_EE","gsfPfSCEn",160,0.6,1.4);
   h_gsfPfSCEnVsEn_EE = fs->make<TH2F>("h_gsfPfSCEnVsEn_EE","gsfPfSCEnVsEn",200,0,200,160,0.6,1.4);
-  h_gsfPfSCEtaVsEn_EE = fs->make<TH2F>("h_gsfPfSCEtaVsEn_EE","gsfPfSCEtaVsEn",200,0,200,160,0.6,1.4);
+  h_gsfPfSCEtaVsEn_EE = fs->make<TH2F>("h_gsfPfSCEtaVsEn_EE","gsfPfSCEtaVsEn",200,0,200,40,0.9,1.1);
   h_jetPtNjet1_EE = fs->make<TH1F>("h_jetPtNjet1_EE","jetPtNjet1",500,0.,maxEnJet);
   h_jetPtNjet2_EE = fs->make<TH1F>("h_jetPtNjet2_EE","jetPtNjet2",500,0.,maxEnJet);
   h_jetPtNjet3_EE = fs->make<TH1F>("h_jetPtNjet3_EE","jetPtNjet3",500,0.,maxEnJet);
@@ -282,7 +282,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_ptDefptVsEn  = fs->make<TH2F>("h_ptDefptVsEn","ptDefptVsEn",200,0,200,160,0.6,1.4);
   h_ptPFptVsEn   = fs->make<TH2F>("h_ptPFptVsEn","ptPFptVsEn",200,0,200,160,0.6,1.4);
   h_ptECALptVsEn = fs->make<TH2F>("h_ptECALptVsEn","ptECALptVsEn",200,0,200,160,0.6,1.4);
-  h_superClusterSize = fs->make<TH1F>("h_superClusterSize","superClusterSize",100,0,100);
+  h_superClusterSize = fs->make<TH1F>("h_superClusterSize","superClusterSize",10,0,10);
   h_gsfPfSCEnClu1 = fs->make<TH1F>("h_gsfPfSCEnClu1","gsfPfSCEnClu1",160,0.6,1.4);
  
   h_nVtx = fs->make<TH1F>("h_nVtx","h_nVtx",10,0,10);
@@ -317,7 +317,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 
   h_sizePf = fs->make<TH1F>("h_sizePf","sizePf",3,0,3);
   
-  for (int i=0; i<11; i++){
+  for (int i=0; i<=8; i++){
     stringstream buffer_Bin;
 	         buffer_Bin << i;
     string name;
@@ -339,7 +339,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     label = "jetPtVtx";
     label += buffer_Bin.str();
     label +="_EB";
-    h_jetPtVtx_EB[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+    h_jetPtVtx_EB[i] = fs->make<TH1F>(name.c_str(),label.c_str(),300,0,300);
 
     name ="h_jetPtVtx";
     name += buffer_Bin.str();
@@ -347,7 +347,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     label = "jetPtVtx";
     label += buffer_Bin.str();
     label +="_EE";
-    h_jetPtVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+    h_jetPtVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),300,0,300);
     
     name ="h_nJetVtx";
     name += buffer_Bin.str();
@@ -365,6 +365,8 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     label +="_EE";
     h_nJetVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
   }
+
+
   h_meanPtZVsNjet = fs->make<TH1F>("h_meanPtZVsNjet","meanPtZVsNjet",11, 0, 11);
 
   if (usingMC){
