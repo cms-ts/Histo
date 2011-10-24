@@ -11,11 +11,15 @@
 #include "TLine.h"
 #include <iostream>
 
-
 #include "TH1.h"
 #include "TH2.h"
 
 #include <string.h>
+
+string plotpath="./"; //put here the path where you want the plots
+string datafile="rfio:/gpfs/cms/data/2011/davtmp/jetvalid_10may_2.root";
+string mcfile="rfio:/gpfs/cms/data/2011/jet/jetanalysis-DYtoLLmadgraph-zfilt-191pb.root";
+
 
 using namespace std;
 
@@ -38,7 +42,7 @@ void DrawComparisonJetMCData(void){
 
 	
 
-	TFile *mcf = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetanalysis-DYtoLLmadgraph-zfilt-191pb.root"); //MC file
+	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
 	mcf->cd("validationJEC/");
 	TDirectory *dir=gDirectory;
 	TList *mylist=(TList*)dir->GetListOfKeys();
@@ -46,15 +50,16 @@ void DrawComparisonJetMCData(void){
 	// Use TIter::Next() to get each TObject mom owns.
 	TObject* tobj = 0;
 
-	int i=0;
 	while ( tobj = iter.Next() ) {
 		string name=tobj->GetName();
+		TString temp = (TString)name;
+		//if(temp.Contains("h_gsfPfSCEn_EB")){
 		int num=tobj->GetUniqueID();
 		cout<<"num is "<<num<<endl;
 		comparisonJetMCData(name,1);
-		//if(i=14) break;
-		i++;
+		//}
 	}
+
 
 	return;
 }
@@ -64,10 +69,6 @@ void DrawComparisonJetMCData(void){
 
 void comparisonJetMCData(string plot,int rebin){
 
-
-	string plotpath="./"; //put here the path where you want the plots
-	string datafile="rfio:/gpfs/cms/data/2011/jet/jetanalysis-200pb-zfilt.root";
-	string mcfile="rfio:/gpfs/cms/data/2011/jet/sum.root";
 
 	string tmp;
 
@@ -93,7 +94,7 @@ void comparisonJetMCData(string plot,int rebin){
 		TString str=obj->GetTitle();
 		if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("h_meanPtZVsNjet")) rebin=5;
 		gPad->SetLogy(1);
-		Int_t entries = obj->Integral();
+		Double_t entries = obj->GetEntries();
 		//printf("Useful data:\ndata entries= %d \n",entries);
 		obj->SetLineColor(kBlack);
 		obj->GetXaxis()->SetRangeUser(0,250);
@@ -102,10 +103,11 @@ void comparisonJetMCData(string plot,int rebin){
 		mcf->cd("validationJEC");
 		TH1F* obj;
 		gDirectory->GetObject(plot.c_str(),obj);
-		Int_t entriesmc = obj->Integral();
+		Double_t entriesmc = obj->GetEntries();
 		//printf("Useful data:\ndata entries= %d \n",entries);
 		obj->SetLineColor(kRed);
-		obj->Scale((double) entries/(double)entriesmc);
+		obj->Scale((entries)/entriesmc);
+		cout << entries << " data " << entriesmc << " mc " << (double) entries/(double)entriesmc << " ratio\n";
 		obj->Rebin(rebin);
 		obj->Draw("SAMES");
 		tmp=plotpath+plot+".png";
