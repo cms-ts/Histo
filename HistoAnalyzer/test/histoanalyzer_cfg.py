@@ -63,13 +63,13 @@ process.Selection = cms.EDFilter('ZanalyzerFilter',
 		TriggerNames = alltriggers
 )
 
-process.demo = cms.EDAnalyzer('HistoAnalyzer',
+process.demo = cms.EDProducer('HistoProducer',
                               electronCollection = cms.InputTag('gsfElectrons'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = alltriggers,
                               removePU=  cms.bool(True),
-                              usingMC=  cms.bool(True),
+                              usingMC=  cms.bool(False),
                               doTheHLTAnalysis = cms.bool(False),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
