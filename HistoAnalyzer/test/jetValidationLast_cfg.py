@@ -50,7 +50,7 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-    #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/0234F556-657C-E011-9556-002618943948.root",
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/0234F556-657C-E011-9556-002618943948.root",
     #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-May10ReReco-v1/0000/FE8C3F99-D97B-E011-BEA4-0018F3D096EE.root",
     ])
 
@@ -61,9 +61,9 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                            #fileNames = readFiles,
+                            fileNames = readFiles,
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
-                            fileNames =cms.untracked.vstring('file:/tmp/FE8C3F99-D97B-E011-BEA4-0018F3D096EE.root'),
+                            #fileNames =cms.untracked.vstring('file:/tmp/FE8C3F99-D97B-E011-BEA4-0018F3D096EE.root'),
                             )
 
 trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v3","HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3","HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v3","HLT_Ele45_CaloIdVT_TrkIdT_v3","HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4")
@@ -73,6 +73,13 @@ trigger2010    = cms.vstring("HLT_Ele17_CaloIdl_Ele8_CaloIsoIdL_CaloIsoVL_v3","H
 alltriggers    = cms.vstring() # In this way, the HLT string is empty and it will trigger every event
 
 trigger2011v2 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8")
+
+# from dav HLT analysis
+triggersMay10Jul05 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6")
+
+triggersAug05 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v6")
+
+triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v7","HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_Ele17_v1")
 
 #Jet energy correction
 # kt6PFL1FastL2L3Residual = Service
@@ -87,10 +94,12 @@ trigger2011v2 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 
 process.Selection = cms.EDFilter('ZanalyzerFilter',
 		electronCollection = cms.InputTag("gsfElectrons"),
-		triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+		triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
 		UseCombinedPrescales = cms.bool(False),
 		doTheHLTAnalysis = cms.bool(True),
-		TriggerNames = trigger2011v2+trigger2010
+		TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03
+		#trigger2011v2+trigger2010
+		#triggersMay10Jul05+triggersAug05+triggersOct03
 )
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
@@ -119,10 +128,10 @@ process.demo = cms.EDProducer('HistoProducer',
                               electronCollection = cms.InputTag('gsfElectrons'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
-                              TriggerNames = alltriggers,
+                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03, 
                               removePU=  cms.bool(True),
-                              usingMC=  cms.bool(True),
-                              doTheHLTAnalysis = cms.bool(False),
+                              usingMC=  cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
 
@@ -145,8 +154,10 @@ process.JetValidation = cms.Path(
     process.Selection*
     process.demo*
     process.goodEPair*
-    process.kt6PFJets*process.validation*
-    process.kt6PFJetsL1FastL2L3Residual*process.validationJEC
+    process.kt6PFJets*
+    process.validation*
+    process.kt6PFJetsL1FastL2L3Residual
+    *process.validationJEC
      )
 
 #process.e= cms.EndPath(process.out)
