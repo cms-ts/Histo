@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.21 2011/10/20 16:10:11 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.22 2011/10/25 09:31:26 dscaini Exp $
 //
 //
 
@@ -207,8 +207,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		//Calculate the distributions (our data and MC)
 		for( int i=0; i<25; ++i) {
-			trueD.push_back(ZSkim_v1_191pb[i]); // Name of the vector calculated with estimatedPU.py!
-			simulated.push_back(reweightedprobdistFlat10[i]); // Name of the vector included in Flat10.h !
+			trueD.push_back(DataUntil178078[i]); // Name of the vector calculated with estimatedPU.py!
+			simulated.push_back(Summer11[i]); // Name of the vector included in Flat10.h !
 		}
 
 		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);

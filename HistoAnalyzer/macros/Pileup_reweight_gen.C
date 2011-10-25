@@ -198,7 +198,7 @@ void Pileup_reweight_gen() {
   // luminosity distribution from estimatePileup.py for May 10 JSON Muon file
   //scopo prendere i valori della TrueDist2011 da un file *.root
 
-  TFile *histof = TFile::Open("/gpfs/cms/data/2011/MCReweight/jul05.root"); //here is the histogram
+  TFile *histof = TFile::Open("/gpfs/cms/data/2011/MCReweight/totalPUdistro_160404-178078.root"); //here is the histogram
   histof->cd();
 
   Int_t entries = pileup->GetEntries();
@@ -215,8 +215,8 @@ void Pileup_reweight_gen() {
 
   //DS Scrivo su file la distribuzione ripesata, per successivo utilizzo
   ofstream myfile;
-  myfile.open ("ZSkim_2011_8jul_EPS.h");
-  myfile << "Double_t ZSkim_v1_191pb[25] = { \n";
+  myfile.open ("pudistrodati_160404-178078.h");
+  myfile << "Double_t DataUntil178078[25] = { \n";
 
   //DS calcolo l'integrale dei primi 25 bin
   for (int i=1;i<binn;i++) {
