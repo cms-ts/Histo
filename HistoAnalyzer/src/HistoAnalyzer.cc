@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.20 2011/10/12 10:08:12 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.21 2011/10/20 16:10:11 marone Exp $
 //
 //
 
@@ -467,6 +467,7 @@ vRun.clear();
 	treeVJ_->Branch("Dcot","Dcot",&vDcot);
 	treeVJ_->Branch("Dist","Dist",&vDist);
 	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
+	treeVJ_->Branch("Rho","Rho",&vRho);
 
 	//HLT and Prescale
 	treeHLT_->Branch("HLTPaths",&HLTPaths);
