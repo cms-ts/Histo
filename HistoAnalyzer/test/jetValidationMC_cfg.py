@@ -88,10 +88,10 @@ trigger2011v2 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 
 process.Selection = cms.EDFilter('ZanalyzerFilter',
 		electronCollection = cms.InputTag("gsfElectrons"),
-		triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+		triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
 		UseCombinedPrescales = cms.bool(False),
-		doTheHLTAnalysis = cms.bool(True),
-		TriggerNames = trigger2011v2+trigger2010
+		doTheHLTAnalysis = cms.bool(False),
+		TriggerNames = alltriggers
 )
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
