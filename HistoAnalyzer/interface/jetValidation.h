@@ -166,8 +166,8 @@ class jetValidation : public edm::EDAnalyzer {
       TH2F * h_MCenGSFenVsEtaENear;
 
       TH1F * h_nVtx;
-      TH1F * h_ptZ_jetIncl[9];
-      TH1F * h_ptZ_jet[9];
+      TH1F * h_ptZ_jetIncl[11];
+      TH1F * h_ptZ_jet[11];
       TH1F * h_meanPtZVsNjet;
       TH1F * h_zYieldVsjets;
       TH1F * h_zYieldVsjetsVtx1;
@@ -317,7 +317,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 
   h_sizePf = fs->make<TH1F>("h_sizePf","sizePf",3,0,3);
   
-  for (int i=0; i<=8; i++){
+  for (int i=0; i<=10; i++){
     stringstream buffer_Bin;
 	         buffer_Bin << i;
     string name;
