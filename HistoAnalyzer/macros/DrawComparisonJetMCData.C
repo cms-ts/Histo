@@ -42,12 +42,7 @@ void DrawComparisonJetMCData(void){
 
 	
 
-<<<<<<< DrawComparisonJetMCData.C
-	//TFile *mcf = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetanalysis-DYtoLLmadgraph-zfilt-191pb.root"); //MC file
-	TFile *mcf = TFile::Open("rfio:/afs/infn.it/ts/project/cms/users/montanin/TEST/CMSSW_4_2_3/work/test_CMSSW_4_2_3/tot_jetValidationMC_111021.root"); //MC file
-=======
 	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
->>>>>>> 1.3
 	mcf->cd("validationJEC/");
 	TDirectory *dir=gDirectory;
 	TList *mylist=(TList*)dir->GetListOfKeys();
@@ -75,15 +70,6 @@ void DrawComparisonJetMCData(void){
 void comparisonJetMCData(string plot,int rebin){
 
 
-<<<<<<< DrawComparisonJetMCData.C
-	string plotpath="testWrongMcReweighting/"; //put here the path where you want the plots
-	//string datafile="rfio:/gpfs/cms/data/2011/jet/jetanalysis-200pb-zfilt.root";
-	string datafile="rfio:/afs/infn.it/ts/project/cms/users/montanin/TEST/CMSSW_4_2_3/work/test_CMSSW_4_2_3/dataCrab/tot_jetValidationMay10.root";
-	//string mcfile="rfio:/gpfs/cms/data/2011/jet/sum.root";
-	string mcfile="rfio:/afs/infn.it/ts/project/cms/users/montanin/TEST/CMSSW_4_2_3/work/test_CMSSW_4_2_3/tot_jetValidationMC_111021.root";
-
-=======
->>>>>>> 1.3
 	string tmp;
 
 
@@ -151,4 +137,3 @@ void comparisonJetMCData(string plot,int rebin){
 
 	return;
 }
-
