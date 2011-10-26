@@ -164,6 +164,8 @@ class jetValidation : public edm::EDAnalyzer {
       TH2F * h_MCenPFenVsEtaENear;
       TH2F * h_MCenGSFenVsEnENear;
       TH2F * h_MCenGSFenVsEtaENear;
+      TH2F * h_gsfMcPfMcEnVsGsfEnENear;
+      TH2F * h_gsfMcPfMcEnVsGsfEtaENear;
 
       TH1F * h_nVtx;
       TH1F * h_ptZ_jetIncl[11];
@@ -193,6 +195,8 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_zEtaNjet4Incl;
       TH1F * h_invMass;
       TH1F * h_invMassPF;
+      TH1F * h_massMinusPdgGsf;
+      TH1F * h_massMinusPdgPf;
       TH1F * h_zMassNjet1;
       TH1F * h_zMassNjet2;
       TH1F * h_zMassNjet3;
@@ -208,6 +212,7 @@ class jetValidation : public edm::EDAnalyzer {
       int numberOfVertices;
       double deltaRCone;
       double pi_;
+      double zMassPdg;
      
 };
 
@@ -216,6 +221,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 {
 
   pi_ = acos(-1);
+  zMassPdg = 91.1876;
   tpMapName = conf.getParameter<std::string>("tpMapName");
   //  weightCollection_ = conf.getParameter<std::string>("EventWeight");
   //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
@@ -310,6 +316,8 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_zEtaNjet4Incl = fs->make<TH1F>("h_zEtaNjet4Incl","zEtaNjet4Incl",100,-2.5,2.5);
   h_invMass    = fs->make<TH1F>("h_invMass","invMass",200,0,200);
   h_invMassPF  = fs->make<TH1F>("h_invMassPF","invMassPF",200,0,200);
+  h_massMinusPdgGsf   = fs->make<TH1F>("h_massMinusPdgGsf","massMinusPdgGsf",00,-50,50);
+  h_massMinusPdgPf   = fs->make<TH1F>("h_massMinusPdgPf","massMinusPdgPf",00,-50,50);
   h_zMassNjet1 = fs->make<TH1F>("h_zMassNjet1","zMassNjet1",200,0,200);
   h_zMassNjet2 = fs->make<TH1F>("h_zMassNjet2","zMassNjet2",200,0,200);
   h_zMassNjet3 = fs->make<TH1F>("h_zMassNjet3","zMassNjet3",200,0,200);
@@ -387,6 +395,8 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
      h_MCenPFenVsEtaENear = fs->make<TH2F>("h_MCenPFenVsEtaENear","MCenPFenVsEtaENear",100,-2.5,2.5,160,0.6,1.4);
      h_MCenGSFenVsEnENear = fs->make<TH2F>("h_MCenGSFenVsEnENear","MCenGSFenVsEnENear",200,0,200,160,0.6,1.4);
      h_MCenGSFenVsEtaENear= fs->make<TH2F>("h_MCenGSFenVsEtaENear","MCenGSFenVsEtaENear",100,-2.5,2.5,160,0.6,1.4);
+     h_gsfMcPfMcEnVsGsfEnENear= fs->make<TH2F>("h_gsfMcPfMcEnVsGsfEnENear","gsfMcPfMcEnVsGsfEnENear",200,0,200,160,0.6,1.4);
+     h_gsfMcPfMcEnVsGsfEtaENear= fs->make<TH2F>("h_gsfMcPfMcEnVsGsfEtaENear","gsfMcPfMcEnVsGsfEtaENear",100,-2.5,2.5,160,0.6,1.4);
   }
 }
 

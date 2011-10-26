@@ -198,6 +198,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
 		  h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
 		  h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
+		  h_gsfMcPfMcEnVsGsfEnENear->Fill(it->energy(),(it->energy()/enGen)/(itPf->energy()/enGen), myweight[0]); 
+		  h_gsfMcPfMcEnVsGsfEtaENear->Fill(it->eta(),(it->energy()/enGen)/(itPf->energy()/enGen), myweight[0]);
 	       }
 
 	    } // end UsingMC	    
@@ -308,6 +310,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
 		  h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
 		  h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
+		  h_gsfMcPfMcEnVsGsfEnENear->Fill(it->energy(),(it->energy()/enGen)/(itPf->energy()/enGen), myweight[0]); 
+		  h_gsfMcPfMcEnVsGsfEtaENear->Fill(it->eta(),(it->energy()/enGen)/(itPf->energy()/enGen), myweight[0]);
 	       }
 	       
 	    } // end UsingMC
@@ -405,6 +409,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double zInvMass = e_pair.M();
       h_invMass->Fill(zInvMass,myweight[0]);
       h_invMassPF->Fill(pfe_pair.M(),myweight[0]);
+      h_massMinusPdgGsf->Fill(zInvMass-zMassPdg,myweight[0]);
+      h_massMinusPdgPf->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
+
       h_zEta->Fill(e_pair.Eta(),myweight[0]);
       h_zRapidity->Fill(e_pair.Rapidity(),myweight[0]);
       h_zYieldVsjets->Fill(totJets,myweight[0]);
