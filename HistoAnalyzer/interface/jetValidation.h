@@ -363,7 +363,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     label = "nJetVtx";
     label += buffer_Bin.str();
     label +="_EB";
-    h_nJetVtx_EB[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+    h_nJetVtx_EB[i] = fs->make<TH1F>(name.c_str(),label.c_str(),10,0,10);
     
     name ="h_nJetVtx";
     name += buffer_Bin.str();
@@ -371,7 +371,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     label = "nJetVtx";
     label += buffer_Bin.str();
     label +="_EE";
-    h_nJetVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),500,0,500);
+    h_nJetVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),10,0,10);
   }
 
 
