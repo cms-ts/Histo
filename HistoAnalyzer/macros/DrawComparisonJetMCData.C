@@ -18,7 +18,9 @@
 
 #include <string.h>
 
-bool lumiweights 	= 0;
+#include "lumi_scale_factors.h"
+
+bool lumiweights 	= 1;
 
 string plotpath		="./"; //put here the path where you want the plots
 string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A.root";
@@ -170,10 +172,9 @@ void comparisonJetMCData(string plot,int rebin){
 		Double_t mcint = mc->Integral();
 		mc->SetFillColor(kRed);
 		if(lumiweights==0) mc->Scale(dataint/mcint);
-		if(lumiweights==1) mc->Scale(1./10.899);
+		if(lumiweights==1) mc->Scale(zjetsScale);
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
-		hs->Add(mc);
 		hsum->Rebin(rebin);
 		hsum->Add(mc);
 		legend->AddEntry(mc,"Z+jets","f");
@@ -185,10 +186,9 @@ void comparisonJetMCData(string plot,int rebin){
 		gDirectory->GetObject(plot.c_str(),ttbar);
 
 		ttbar->SetFillColor(kBlue);
-		ttbar->Scale(1./21.484);
+		ttbar->Scale(ttbarScale);
 		ttbar->Rebin(rebin);
 		//ttbar->Draw("HISTO SAMES");
-		hs->Add(ttbar);
 		hsum->Add(ttbar);
 		legend->AddEntry(ttbar,"ttbar","f");
 
@@ -199,17 +199,22 @@ void comparisonJetMCData(string plot,int rebin){
 		gDirectory->GetObject(plot.c_str(),w);
 
 		w->SetFillColor(kViolet+2);
-		w->Scale(1./6.); //FIXME
+		w->Scale(wjetsScale); 
 		w->Rebin(rebin);
 		//w->Draw("HISTO SAMES");
-		hs->Add(w);
 		hsum->Add(w);
-		legend->AddEntry(w,"W","f");
+		legend->AddEntry(w,"W+jets","f");
 
 
 		//======================
 		// Add here other backgrounds
 
+
+		//======================
+		// Stacked Histogram
+		hs->Add(ttbar);
+		hs->Add(w);
+		hs->Add(mc); //Z+Jets
 		
 		// per avere le statistiche
 		if(lumiweights==1) hsum->Draw("HISTO SAMES");
@@ -230,8 +235,12 @@ void comparisonJetMCData(string plot,int rebin){
 		legend->Draw();
 		Canv->Update();
 
+	
 
-		// RATIO DATA MC
+
+		//===============//
+		// RATIO DATA MC //
+		//===============//
 		Canv->cd();
 		TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
 		pad2->Draw();
@@ -311,7 +320,7 @@ void comparisonJetMCData(string plot,int rebin){
 		tmp=plotpath+plot+"mc.png";
 		Canv->Print(tmp.c_str());
 	}
-	else { cout << "You're getting an exception! \n"; }
+	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
 
 	delete data;
 	delete data2;
