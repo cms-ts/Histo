@@ -75,6 +75,16 @@ alltriggers    = cms.vstring() # In this way, the HLT string is empty and it wil
 
 trigger2011v2 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8")
 
+# from dav HLT analysis
+triggersMay10Jul05 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6")
+
+triggersAug05 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v6")
+
+triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v7","HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_Ele17_v1")
+
+
+
+
 #Jet energy correction
 # kt6PFL1FastL2L3Residual = Service
 
@@ -90,8 +100,9 @@ process.Selection = cms.EDFilter('ZanalyzerFilter',
 		electronCollection = cms.InputTag("gsfElectrons"),
 		triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
 		UseCombinedPrescales = cms.bool(False),
-		doTheHLTAnalysis = cms.bool(False),
-		TriggerNames = alltriggers
+		doTheHLTAnalysis = cms.bool(True),
+		#TriggerNames = alltriggers
+		TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03
 )
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
@@ -123,10 +134,11 @@ process.demo = cms.EDProducer('HistoProducer',
                               electronCollection = cms.InputTag('gsfElectrons'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
-                              TriggerNames = alltriggers,
+                              #TriggerNames = alltriggers,
+			      TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03,
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(True),
-                              doTheHLTAnalysis = cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
 
