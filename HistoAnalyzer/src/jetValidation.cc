@@ -90,6 +90,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       bool checkPairing=false;
       bool checkTruth=false;
       bool checkNear=false;
+      bool checkPf1=false;
+      bool checkPf2=false;
 
       reco::GsfElectronCollection::const_iterator it=goodEPair->begin();
       TLorentzVector e1, e2, e_pair;
@@ -146,6 +148,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double ratioPt =  (it->pt()-itPf->pt())/it->pt();
 	    h_ptGsfPfGsfVsptGsf->Fill(it->pt(),ratioPt,myweight[0]);
 	    pfe1.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
+	    checkPf1=true;
 	    
 	    if (usingMC){
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
@@ -266,6 +269,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double ratioPt =  (it->pt()-itPf->pt())/it->pt();
 	    h_ptGsfPfGsfVsptGsf->Fill(it->pt(),ratioPt,myweight[0]);
 	    pfe2.SetPtEtaPhiM(itPf->pt(),itPf->eta(),itPf->phi(),itPf->mass());
+	    checkPf2=true;
 	    
 	    if (usingMC){
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
@@ -420,19 +424,20 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
       h_invMass->Fill(zInvMass,myweight[0]);
-      h_invMassPF->Fill(pfe_pair.M(),myweight[0]);
       h_massMinusPdgGsf->Fill(zInvMass-zMassPdg,myweight[0]);
-      h_massMinusPdgPf->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
-
       if (fabs(e1.Eta())<=edgeEB && fabs(e2.Eta())<=edgeEB) {h_massMinusPdgGsf_EB->Fill(zInvMass-zMassPdg,myweight[0]);}
       else if (fabs(e1.Eta())<=edgeEE && fabs(e2.Eta())<=edgeEE &&
 	       fabs(e1.Eta())>edgeEB && fabs(e2.Eta())>edgeEB) { h_massMinusPdgGsf_EE->Fill(zInvMass-zMassPdg,myweight[0]);}
       else if (fabs(e1.Eta())<edgeEE && fabs(e2.Eta())<edgeEE) {h_massMinusPdgGsf_EBEE->Fill(zInvMass-zMassPdg,myweight[0]);}
 
-      if (fabs(pfe1.Eta())<=edgeEB && fabs(pfe2.Eta())<=edgeEB) {h_massMinusPdgPf_EB->Fill(zInvMass-zMassPdg,myweight[0]);}
-      else if (fabs(pfe1.Eta())<=edgeEE && fabs(pfe2.Eta())<=edgeEE &&
-	       fabs(pfe1.Eta())>edgeEB && fabs(pfe2.Eta())>edgeEB) {h_massMinusPdgPf_EE->Fill(zInvMass-zMassPdg,myweight[0]);}
-      else if (fabs(pfe1.Eta())<edgeEE && fabs(pfe2.Eta())<edgeEE) {h_massMinusPdgPf_EBEE->Fill(zInvMass-zMassPdg,myweight[0]);}
+      if (checkPf1 && checkPf2){
+	 h_invMassPF->Fill(pfe_pair.M(),myweight[0]);
+	 h_massMinusPdgPf->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
+	 if (fabs(pfe1.Eta())<=edgeEB && fabs(pfe2.Eta())<=edgeEB) {h_massMinusPdgPf_EB->Fill(zInvMass-zMassPdg,myweight[0]);}
+	 else if (fabs(pfe1.Eta())<=edgeEE && fabs(pfe2.Eta())<=edgeEE &&
+		  fabs(pfe1.Eta())>edgeEB && fabs(pfe2.Eta())>edgeEB) {h_massMinusPdgPf_EE->Fill(zInvMass-zMassPdg,myweight[0]);}
+	 else if (fabs(pfe1.Eta())<edgeEE && fabs(pfe2.Eta())<edgeEE) {h_massMinusPdgPf_EBEE->Fill(zInvMass-zMassPdg,myweight[0]);}
+      }
 
       h_zEta->Fill(e_pair.Eta(),myweight[0]);
       h_zRapidity->Fill(e_pair.Rapidity(),myweight[0]);
@@ -447,22 +452,22 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 h_zEtaNjet1->Fill(e_pair.Eta(),myweight[0]);
 	 h_zMassNjet1->Fill(zInvMass,myweight[0]);
 	 h_zMassMinusPdgGsfNjet1->Fill(zInvMass-zMassPdg,myweight[0]);
-	 h_zMassMinusPdgPfNjet1->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
+	 if (checkPf1 && checkPf2) h_zMassMinusPdgPfNjet1->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
       } else if (totJets == 2){ 
 	 h_zEtaNjet2->Fill(e_pair.Eta(),myweight[0]);
 	 h_zMassNjet2->Fill(zInvMass,myweight[0]);
 	 h_zMassMinusPdgGsfNjet2->Fill(zInvMass-zMassPdg,myweight[0]);
-	 h_zMassMinusPdgPfNjet2->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
+	 if (checkPf1 && checkPf2) h_zMassMinusPdgPfNjet2->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
       } else if (totJets == 3){ 
 	 h_zEtaNjet3->Fill(e_pair.Eta(),myweight[0]);
 	 h_zMassNjet3->Fill(zInvMass,myweight[0]);
 	 h_zMassMinusPdgGsfNjet3->Fill(zInvMass-zMassPdg,myweight[0]);
-	 h_zMassMinusPdgPfNjet3->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
+	 if (checkPf1 && checkPf2) h_zMassMinusPdgPfNjet3->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
       } else if (totJets == 4){ 
 	 h_zEtaNjet4->Fill(e_pair.Eta(),myweight[0]);
 	 h_zMassNjet4->Fill(zInvMass,myweight[0]);
 	 h_zMassMinusPdgGsfNjet4->Fill(zInvMass-zMassPdg,myweight[0]);
-	 h_zMassMinusPdgPfNjet4->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
+	 if (checkPf1 && checkPf2) h_zMassMinusPdgPfNjet4->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
       } 
 
       if (totJets >= 1) h_zEtaNjet1Incl->Fill(e_pair.Eta(),myweight[0]);
