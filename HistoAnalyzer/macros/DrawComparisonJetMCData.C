@@ -26,7 +26,17 @@ string plotpath		="./"; //put here the path where you want the plots
 string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A.root";
 string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A.root";
 string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A.root";
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A.root";
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A.root";
+
+string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE.root";
+string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE.root";
+string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE.root";
+//string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched.root";
+string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched.root";
+string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched.root";
+
+
+
 
 
 
@@ -97,6 +107,16 @@ void comparisonJetMCData(string plot,int rebin){
 	TFile *ttbarf = TFile::Open(back_ttbar.c_str()); //MC background file
 	TFile *wf = TFile::Open(back_w.c_str());
 
+//	TFile *qcd23emf = TFile::Open(qcd23em.c_str());
+	TFile *qcd38emf = TFile::Open(qcd38em.c_str());
+	TFile *qcd817emf = TFile::Open(qcd817em.c_str());
+
+	TFile *qcd23bcf = TFile::Open(qcd23bc.c_str());
+	TFile *qcd38bcf = TFile::Open(qcd38bc.c_str());
+	TFile *qcd817bcf = TFile::Open(qcd817bc.c_str());
+
+
+
 	// Canvas
 	TCanvas * Canv = (TCanvas*)gDirectory->GetList()->FindObject("Canv");
 	if (Canv) delete Canv;
@@ -149,6 +169,7 @@ void comparisonJetMCData(string plot,int rebin){
 		data->SetLineColor(kBlack);
 		data->Rebin(rebin);
 		if(str.Contains("nJetVtx")) data->GetXaxis()->SetRangeUser(0,10);	
+		if(str.Contains("zMass")) data->GetXaxis()->SetRangeUser(60,120);	
 		data->Draw("E1");
 
 		TLegend* legend = new TLegend(0.60,0.9,0.85,0.75);
@@ -193,7 +214,7 @@ void comparisonJetMCData(string plot,int rebin){
 		legend->AddEntry(ttbar,"ttbar","f");
 
 		//======================
-		// w
+		// w+jets
 		wf->cd("validationJEC");
 		TH1F* w;
 		gDirectory->GetObject(plot.c_str(),w);
@@ -206,14 +227,93 @@ void comparisonJetMCData(string plot,int rebin){
 		legend->AddEntry(w,"W+jets","f");
 
 
+
+		//======================
+		// QCD EM enriched
+/*		qcd23emf->cd("validationJEC");
+		TH1F* qcd23em;
+		gDirectory->GetObject(plot.c_str(),qcd23em);
+*/
+		qcd38emf->cd("validationJEC");
+		TH1F* qcd38em;
+		gDirectory->GetObject(plot.c_str(),qcd38em);
+
+		TH1D * qcdTotEM =  (TH1D*) qcd38em->Clone(); //da spostare piÃ¹ in su appena funziona il 23
+		qcdTotEM->SetTitle("qcd em");
+		qcdTotEM->SetName("qcd em");
+		qcdTotEM->Reset();
+		qcdTotEM->Rebin(rebin);
+
+
+		qcd817emf->cd("validationJEC");
+		TH1F* qcd817em;
+		gDirectory->GetObject(plot.c_str(),qcd817em);
+
+//		qcd23em->Rebin(rebin);
+//		qcd23em->Scale(qcd23emScale); 
+		qcd38em->Rebin(rebin);
+		qcd38em->Scale(qcd38emScale); 
+		qcd817em->Rebin(rebin);
+		qcd817em->Scale(qcd817emScale); 
+
+		qcdTotEM->SetFillColor(kOrange+1);
+//		qcdTotEM->Add(qcd23em);
+		qcdTotEM->Add(qcd38em);
+		qcdTotEM->Add(qcd817em);
+
+		hsum->Add(qcdTotEM);
+
+		legend->AddEntry(qcdTotEM,"QCD em","f");
+
+		
+		
+		//======================
+		// QCD bc
+		qcd23bcf->cd("validationJEC");
+		TH1F* qcd23bc;
+		gDirectory->GetObject(plot.c_str(),qcd23bc);
+
+		TH1D * qcdTotBC =  (TH1D*) qcd23bc->Clone(); //da spostare piÃ¹ in su appena funziona il 23
+		qcdTotBC->SetTitle("qcd bc");
+		qcdTotBC->SetName("qcd bc");
+		qcdTotBC->Reset();
+		qcdTotBC->Rebin(rebin);
+
+		qcd38bcf->cd("validationJEC");
+		TH1F* qcd38bc;
+		gDirectory->GetObject(plot.c_str(),qcd38bc);
+
+		qcd817bcf->cd("validationJEC");
+		TH1F* qcd817bc;
+		gDirectory->GetObject(plot.c_str(),qcd817bc);
+
+		qcd23bc->Rebin(rebin);
+		qcd23bc->Scale(qcd23bcScale); 
+		qcd38bc->Rebin(rebin);
+		qcd38bc->Scale(qcd38bcScale); 
+		qcd817bc->Rebin(rebin);
+		qcd817bc->Scale(qcd817bcScale); 
+
+		qcdTotBC->SetFillColor(kGreen+2);
+		qcdTotBC->Add(qcd23bc);
+		qcdTotBC->Add(qcd38bc);
+		qcdTotBC->Add(qcd817bc);
+
+		hsum->Add(qcdTotBC);
+
+		legend->AddEntry(qcdTotBC,"QCD bc","f");
+
+
 		//======================
 		// Add here other backgrounds
 
 
 		//======================
 		// Stacked Histogram
-		hs->Add(ttbar);
+		hs->Add(qcdTotEM);
+		hs->Add(qcdTotBC);
 		hs->Add(w);
+		hs->Add(ttbar);
 		hs->Add(mc); //Z+Jets
 		
 		// per avere le statistiche
@@ -326,6 +426,21 @@ void comparisonJetMCData(string plot,int rebin){
 	delete data2;
 	delete hs;
 	delete Canv;
+
+
+
+	dataf->Close();
+	mcf->Close();
+	ttbarf->Close();
+	wf->Close();
+	//qcd23emf->Close();
+	qcd38emf->Close();
+	qcd817emf->Close();
+	qcd23bcf->Close();
+	qcd38bcf->Close();
+	qcd817bcf->Close();
+
+
 	return;
 }
 

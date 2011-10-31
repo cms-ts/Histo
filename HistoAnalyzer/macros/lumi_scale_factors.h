@@ -21,3 +21,12 @@ double qcdBC817Xsect = 898200.0 * 0.0105;double qcdBC817Nevts = 1082691; // /QCD
 double zjetsScale = dataLumi2011A / (zjetsNevts / zjetsXsect);
 double ttbarScale = dataLumi2011A / (ttbarNevts / ttbarXsect);
 double wjetsScale = dataLumi2011A / (wjetsNevts / wjetsXsect);
+
+double qcd23emScale = dataLumi2011A / (qcdEM23Nevts / qcdEM23Xsect);
+double qcd38emScale = dataLumi2011A / (qcdEM38Nevts / qcdEM38Xsect);
+double qcd817emScale = dataLumi2011A / (qcdEM817Nevts / qcdEM817Xsect);
+
+double qcd23bcScale = dataLumi2011A / (qcdBC23Nevts / qcdBC23Xsect);
+double qcd38bcScale = dataLumi2011A / (qcdBC38Nevts / qcdBC38Xsect);
+double qcd817bcScale = dataLumi2011A / (qcdBC817Nevts / qcdBC817Xsect);
+
