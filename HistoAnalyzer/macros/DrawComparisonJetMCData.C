@@ -31,7 +31,7 @@ string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A.root";
 string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE.root";
 string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE.root";
 string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE.root";
-//string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched.root";
+string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched.root";
 string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched.root";
 string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched.root";
 
@@ -107,7 +107,7 @@ void comparisonJetMCData(string plot,int rebin){
 	TFile *ttbarf = TFile::Open(back_ttbar.c_str()); //MC background file
 	TFile *wf = TFile::Open(back_w.c_str());
 
-//	TFile *qcd23emf = TFile::Open(qcd23em.c_str());
+	TFile *qcd23emf = TFile::Open(qcd23em.c_str());
 	TFile *qcd38emf = TFile::Open(qcd38em.c_str());
 	TFile *qcd817emf = TFile::Open(qcd817em.c_str());
 
@@ -230,27 +230,27 @@ void comparisonJetMCData(string plot,int rebin){
 
 		//======================
 		// QCD EM enriched
-/*		qcd23emf->cd("validationJEC");
+		qcd23emf->cd("validationJEC");
 		TH1F* qcd23em;
 		gDirectory->GetObject(plot.c_str(),qcd23em);
-*/
-		qcd38emf->cd("validationJEC");
-		TH1F* qcd38em;
-		gDirectory->GetObject(plot.c_str(),qcd38em);
 
-		TH1D * qcdTotEM =  (TH1D*) qcd38em->Clone(); //da spostare piÃ¹ in su appena funziona il 23
+TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena funziona il 23
 		qcdTotEM->SetTitle("qcd em");
 		qcdTotEM->SetName("qcd em");
 		qcdTotEM->Reset();
 		qcdTotEM->Rebin(rebin);
+
+		qcd38emf->cd("validationJEC");
+		TH1F* qcd38em;
+		gDirectory->GetObject(plot.c_str(),qcd38em);
 
 
 		qcd817emf->cd("validationJEC");
 		TH1F* qcd817em;
 		gDirectory->GetObject(plot.c_str(),qcd817em);
 
-//		qcd23em->Rebin(rebin);
-//		qcd23em->Scale(qcd23emScale); 
+		qcd23em->Rebin(rebin);
+		qcd23em->Scale(qcd23emScale); 
 		qcd38em->Rebin(rebin);
 		qcd38em->Scale(qcd38emScale); 
 		qcd817em->Rebin(rebin);
