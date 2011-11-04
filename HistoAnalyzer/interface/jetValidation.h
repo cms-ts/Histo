@@ -88,6 +88,9 @@ class jetValidation : public edm::EDAnalyzer {
       std::string weightCollection_;
       bool usingMC;
 
+      // Weight
+      TH1F * h_weights;
+
 //EB ==============================
       // jets
       TH1F * h_jetPt_EB;

@@ -99,6 +99,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
 
       // ================================
+      // FIll the Weights info
+      // ================================
+
+      h_weights->Fill(myweight[0]);
+
+      // ================================
       //  GSFelectrons VS PFelectrons 1
       // ================================
       if (it->superCluster().isNonnull() && it->pflowSuperCluster().isNonnull()){
@@ -534,6 +540,7 @@ jetValidation::endJob()
 {
     
  //Histograms
+  h_weights->GetXaxis()->SetTitle("Weight");
  h_jetPt_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
  h_jetPt_EB->GetYaxis()->SetTitle("N_{jets}");
  h_jetEta_EB->GetXaxis()->SetTitle("#eta_{jets}");
