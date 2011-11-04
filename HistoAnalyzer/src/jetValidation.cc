@@ -101,8 +101,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // ================================
       // FIll the Weights info
       // ================================
-
-      h_weights->Fill(myweight[0]);
+      double wei=myweight[0];
+      h_weights->Fill(wei);
 
       // ================================
       //  GSFelectrons VS PFelectrons 1

@@ -260,6 +260,9 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 
 
+  //Weights
+  h_weights = fs->make<TH1F>("h_weights","Event Weights",500,0.,5);
+
   double maxEnJet=200;
 //EB ========================================================================
   h_jetPt_EB = fs->make<TH1F>("h_jetPt_EB","jetPt_EB",500,0.,maxEnJet);
