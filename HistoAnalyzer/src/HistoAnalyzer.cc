@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.22 2011/10/25 09:31:26 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.23 2011/10/25 10:17:33 dscaini Exp $
 //
 //
 
@@ -29,8 +29,6 @@
 #include "Histo/HistoAnalyzer/interface/ZSkim_v1.h"
 
 
-int hltcounter=0; //ci serve per il rapporto sull'isogramma
-bool debug2 = false;
 //
 // member functions
 //
@@ -112,8 +110,6 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("FinalPath") )){
 						//Se il path e' Ele* o Photon* allora riempiamo l'istogramma
 						h_HLTbits->Fill(stringa.c_str(),1); //questo fa il plottino... 
-						//pero' non mi va bene perchÃ© non lo scrivo per run.. FIXME
-						if(stringa=="HLTriggerFinalPath") { hltcounter++; }
 
 												
 						if( !(find(HLTPaths.begin(), HLTPaths.end(), stringa)!=HLTPaths.end()) ){  
@@ -142,9 +138,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 						}//chiusura if find ...
 
 						//Qui si riempie il vettore che mi servira'  per calcolare il ratio
-						if (debug2) cout << HLTValue.size() << " dimensione HLTValue \n";
 						if(HLTValue.size()==0){ HLTValue.push_back(1); HLTNames.push_back(stringa);
-							if (debug2) cout << HLTNames[0] << " THE FIRST!!! " << stringa << "\n";
 						}
 						else{
 						bool already = 0;
@@ -152,18 +146,10 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 								if(HLTNames[dd]==stringa){HLTValue[dd] = HLTValue[dd] + 1;
 								already=1;
-									if (debug2) cout << HLTNames[dd] << " is eq!!! " << stringa << " nuova dim vett " << HLTValue.size() << "\n";
-									if (debug2) cout << HLTValue[dd] << " this should be >= 2 \n";
-									
-									;
 								}
 							
-							} //chiusura for per vedere se c'Ã¨ il path
-
+							} //chiusura for per vedere se c'e' il path
 							if(!already){ HLTValue.push_back(1); HLTNames.push_back(stringa);
-							int daeliminare = HLTValue.size();
-							if (debug2) cout << HLTNames[daeliminare-1] << " is eq? " << stringa << "\n"; 
-							if (debug2) cout << HLTValue[daeliminare-1] << " this should be 1 \n";
 							}
 						}
 					} // Chiusura filtro du HLTPaths
@@ -207,8 +193,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		//Calculate the distributions (our data and MC)
 		for( int i=0; i<25; ++i) {
-			trueD.push_back(DataUntil178078[i]); // Name of the vector calculated with estimatedPU.py!
-			simulated.push_back(Summer11[i]); // Name of the vector included in Flat10.h !
+			trueD.push_back(Data2011A_real[i]); // Name of the vector calculated with estimatedPU.py!
+			simulated.push_back(MikeDoubleSmeared[i]); // Name of the vector included in Flat10.h !
 		}
 
 		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
@@ -503,9 +489,7 @@ HistoProducer::endJob()
 HistoProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
-hltcounter=0; //ci serve per il rapporto sull'isogramma
-if (debug2) cout << Run << " this is run number \n";
-//HLT names
+	//HLT names
 	std::vector<std::string>  hlNames;
 	bool changed (true);
 	if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
@@ -531,7 +515,7 @@ if (debug2) cout << Run << " this is run number \n";
 		// text (debug) output
 		int i=0;
 		for(std::vector<std::string>::const_iterator it = triggerNames_.begin(); it<triggerNames_.end();++it) {
-			if (debug2) cout << (i++) << " = " << (*it) << std::endl;
+			if (debug) cout << (i++) << " = " << (*it) << std::endl;
 		} 
 	}
 
@@ -541,36 +525,7 @@ if (debug2) cout << Run << " this is run number \n";
 	void 
 HistoProducer::endRun(edm::Run&,const edm::EventSetup&)
 {
-
-/*	std::string name;
-
-	int HTFPmax;
-	double ratio=0;
-	for(unsigned int y=0;y<HLTNames.size();y++){
-		if(HLTNames[y]=="HLTriggerFinalPath"){HTFPmax = HLTValue[y]; break; }
-	}
-
-	for(unsigned int y=0;y<HLTValue.size();y++){
-		ratio = (double)HLTValue[y] / (double)HTFPmax;
-		if (debug2) cout << HLTValue[y] << " max " << HTFPmax << " ratio " << ratio << " item " << y <<" path " << HLTNames[y] << "\n";
-		HLTRatio.push_back(ratio);
-	}
-
-	if (debug2) cout << "BEWARE " << HLTNames.size() << " must be equal to "<<HLTRatio.size()<<"\n";*/
-
-	//IMPORTANT!// Fill BEFORE clear()
 	treeHLT_->Fill();
-
-/*
-	//clear dei vettori :)
-	HLTPaths.clear();
-	HLTPrescales.clear();
-	HLTNames.clear();
-	HLTValue.clear();
-	//HLTRatio.clear();
-	vRun.clear();
-*/
-
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
