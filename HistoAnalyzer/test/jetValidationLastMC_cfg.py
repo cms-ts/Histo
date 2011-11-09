@@ -33,21 +33,6 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-###########
-# HLT Summary
-#########
-
-#process.MessageLogger.destinations = ['HLTreport_Mu_All.txt']
-#from HLTrigger.HLTanalyzers.hlTrigReport_cfi import hlTrigReport
-#process.hltReport = hlTrigReport.clone(
-#    HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
-#    )
-
-#process.endpath = cms.EndPath(process.hltReport) 
-#process.MessageLogger.categories.append("HLTrigReport")
-
-
-
 readFiles = cms.untracked.vstring()
 readFiles.extend([
 "file:/gpfs/cms/data/2011/r9test/pythiaZ2tunesroot/FEF7EE7B-8780-E011-837F-E41F131816A8.root",
@@ -82,39 +67,16 @@ triggersAug05 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 
 triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v7","HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_Ele17_v1")
 
-#Jet energy correction
-# kt6PFL1FastL2L3Residual = Service
-
-# Producer
-#process.kt6PFJetsL1FastL2L3Residual = cms.EDProducer(
-#    'PFJetCorrectionProducer',
-#    src        = cms.InputTag('kt6PFJets'),
-#    correctors = cms.vstring('kt6PFL1FastL2L3Residual')
-#    )
-
-
 process.Selection = cms.EDFilter('ZanalyzerFilter',
                                  electronCollection = cms.InputTag("gsfElectrons"),
                                  triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(True),
                                  removePU=  cms.bool(True),
-                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03
+                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
                                  #trigger2011v2+trigger2010
-		#triggersMay10Jul05+triggersAug05+triggersOct03
-)
-
-process.TAP = cms.EDFilter('EfficiencyFilter',
-                           electronCollection = cms.InputTag("gsfElectrons"),
-                           triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
-                           filename=cms.untracked.string("ZAnalysisFilter.root"),
-                           UseCombinedPrescales = cms.bool(True),
-                           TriggerNames = alltriggers,
-                           removePU=  cms.bool(True),
-                           electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
-                           candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("kt6PFJets"),
-                           )
+                                 #triggersMay10Jul05+triggersAug05+triggersOct03
+                                 )
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
 		electronCollection = cms.InputTag("gsfElectrons")
@@ -145,7 +107,7 @@ process.demo = cms.EDProducer('HistoProducer',
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03, 
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(True),
-                              doTheHLTAnalysis = cms.bool(True),
+                              doTheHLTAnalysis = cms.bool(False),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
 
@@ -172,7 +134,6 @@ process.JetValidation = cms.Path(
     process.validation*
     process.kt6PFJetsL1FastL2L3Residual
     *process.validationJEC
-    *process.TAP
      )
 
 #process.e= cms.EndPath(process.out)
