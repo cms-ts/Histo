@@ -95,7 +95,7 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 
 process.Selection = cms.EDFilter('ZanalyzerFilter',
                                  electronCollection = cms.InputTag("gsfElectrons"),
-                                 triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                                 triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(True),
                                  removePU=  cms.bool(True),
@@ -144,8 +144,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03, 
                               removePU=  cms.bool(True),
-                              usingMC=  cms.bool(True),
-                              doTheHLTAnalysis = cms.bool(True),
+                              usingMC=  cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(False),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
 

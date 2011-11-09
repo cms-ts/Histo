@@ -69,9 +69,9 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 
 process.Selection = cms.EDFilter('ZanalyzerFilter',
                                  electronCollection = cms.InputTag("gsfElectrons"),
-                                 triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                                 triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
                                  UseCombinedPrescales = cms.bool(False),
-                                 doTheHLTAnalysis = cms.bool(True),
+                                 doTheHLTAnalysis = cms.bool(False),
                                  removePU=  cms.bool(True),
                                  TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
                                  #trigger2011v2+trigger2010
