@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.23 2011/10/25 10:17:33 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.24 2011/11/07 09:35:41 dscaini Exp $
 //
 //
 
@@ -28,6 +28,9 @@
 #include "Histo/HistoAnalyzer/interface/Flat10.h"
 #include "Histo/HistoAnalyzer/interface/ZSkim_v1.h"
 
+
+
+bool hltispresent=1;
 
 //
 // member functions
@@ -79,14 +82,39 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//EODefinitions
 
 
+
 	//Match The HLT Trigger
 	using edm::TriggerResults;
 	Handle<TriggerResults> HLTResults;
 	iEvent.getByLabel(triggerCollection_, HLTResults);
 	const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
 
-	if (HLTResults.isValid() && doTheHLTAnalysis_) {
+
+
+if (HLTResults.isValid() && doTheHLTAnalysis_) {
 		/// Storing the Prescale information: loop over the triggers and record prescale
+
+// Matching the HLT information event per event if no hlt info is present in iRun
+		if(hltispresent==false){
+			std::vector<std::string>  hlNames;
+			hlNames.clear();
+			hlNames=triggerNames.triggerNames();
+			triggerIndices_.clear();
+			unsigned int myflag=0;
+
+			for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+				if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end()){
+					triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
+				}
+				else{
+					triggerIndices_.push_back(2048);
+					myflag++;
+				}
+			}
+			if(myflag==triggerNames_.size()) hltispresent=false;
+			else hltispresent=true; //cosi' prendo una sola volta l'hlt path tanto nie miei studi mi serve l'hlt path per run...
+		}
+
 
 		unsigned int minimalPrescale(10000);
 		unsigned int prescale(0);
@@ -99,6 +127,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				// check trigger response
 				bit = HLTResults->accept(triggerIndices_[itrig]);
 				triggerSubset.push_back(bit);
+
 
 				if(bit) {
 
@@ -161,6 +190,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			else {
 				// that trigger is presently not in the menu
 				triggerSubset.push_back(false);
+
 			}
 		} //chiusura for
 	} //chiusura HLT studies
@@ -489,8 +519,10 @@ HistoProducer::endJob()
 HistoProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
+hltispresent=true;
 	//HLT names
 	std::vector<std::string>  hlNames;
+	hlNames.clear();
 	bool changed (true);
 	if (hltConfig_.init(iRun,iSetup,triggerCollection_.process(),changed)) {
 		if (changed) {
@@ -499,11 +531,19 @@ HistoProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 	} else {
 		edm::LogError("MyAnalyzer") << " HLT config extraction failure with process name " << triggerCollection_.process();
 	}
+
+
+//debug dav
+	if(hlNames.size()==0) { 
+		hltispresent=false;
+	}
+
 	if (debug) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
 	if(useAllTriggers_) triggerNames_ = hlNames;
-	//triggerNames_ = hlNames;
+	
 	//HLT indices
 	triggerIndices_.clear();
+	
 	for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
 		if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end())
 			triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
