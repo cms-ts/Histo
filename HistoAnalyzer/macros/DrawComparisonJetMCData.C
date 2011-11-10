@@ -11,6 +11,7 @@
 #include "TLine.h"
 #include "TObject.h"
 #include <iostream>
+#include <sstream>
 
 #include "TH1.h"
 #include "TH2.h"
@@ -20,12 +21,14 @@
 
 #include "lumi_scale_factors.h"
 
-bool lumiweights 	= 1;
+bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
 
 string plotpath		="./"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A.root";
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A.root";
+//string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A.root";
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_3.root";
+//string mcfile		="accazz3.root"; 
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_3b.root"; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v2.root"; 
 string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A.root";
 
 string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE.root";
@@ -69,6 +72,7 @@ void DrawComparisonJetMCData(void){
 	TIter iter(mylist);	
 	// Use TIter::Next() to get each TObject mom owns.
 	TObject* tobj = 0;
+	string tmpname;
 
 int i=0;
 	while ( tobj = iter.Next() ) {
@@ -80,11 +84,58 @@ int i=0;
 
 		string name=tobj->GetName();
 		TString temp = (TString)name;
-		//if(temp.Contains("gsfPfSCEnVsEn")){
+		
 		int num=tobj->GetUniqueID();
 		cout<<"num is "<<num<<endl;
-		comparisonJetMCData(name,1);
-		//}
+		if(temp.Contains("weight")){
+		
+		TFile *mcf = TFile::Open(mcfile.c_str()); 
+		TFile *ttbarf = TFile::Open(back_ttbar.c_str()); 
+		TFile *wf = TFile::Open(back_w.c_str());
+
+		TCanvas * Canv = (TCanvas*)gDirectory->GetList()->FindObject("Canv");
+		if (Canv) delete Canv;
+		Canv = new TCanvas("Canv","Canv",0,0,800,600);
+
+		gPad->SetLogy(1);
+		
+		mcf->cd("validationJEC");
+		TH1F* mc;
+		gDirectory->GetObject(name.c_str(),mc);
+		if(mc){
+		mc->SetFillColor(kRed);
+		mc->GetXaxis()->SetRangeUser(0.,2.);
+		mc->Draw();
+		tmpname=plotpath+name+".png";
+		Canv->Print(tmpname.c_str());
+		}
+
+		ttbarf->cd("validationJEC");
+		TH1F* ttbar;
+		gDirectory->GetObject(name.c_str(),ttbar);
+	
+		if(ttbar){
+		ttbar->SetFillColor(kBlue);
+		ttbar->GetXaxis()->SetRangeUser(0.,2.);
+		ttbar->Draw();
+		Canv->Print(tmpname.c_str());
+		}
+
+		wf->cd("validationJEC");
+		TH1F* w;
+		gDirectory->GetObject(name.c_str(),w);
+		if(w){
+		w->SetFillColor(kViolet+2);
+		w->GetXaxis()->SetRangeUser(0.,2.);
+		w->Draw();
+		Canv->Print(tmpname.c_str());
+		}
+	
+
+		}
+		else comparisonJetMCData(name,1);
+	
+	
 	i++;
 	//if(i==1)break;
 	}
@@ -163,6 +214,7 @@ void comparisonJetMCData(string plot,int rebin){
 		TString str=data->GetTitle();
 		if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("meanPtZVsNjet")) rebin=5;
 
+
 		//======================
 		// DATA
 		Double_t dataint = data->Integral();
@@ -170,6 +222,7 @@ void comparisonJetMCData(string plot,int rebin){
 		data->Rebin(rebin);
 		if(str.Contains("nJetVtx")) data->GetXaxis()->SetRangeUser(0,10);	
 		if(str.Contains("zMass")) data->GetXaxis()->SetRangeUser(60,120);	
+		data->Sumw2();
 		data->Draw("E1");
 
 		TLegend* legend = new TLegend(0.60,0.9,0.85,0.75);
@@ -184,49 +237,60 @@ void comparisonJetMCData(string plot,int rebin){
 		mcf->cd("validationJEC");
 		TH1F* mc;
 		gDirectory->GetObject(plot.c_str(),mc);
-
-		TH1D * hsum =  (TH1D*) mc->Clone();
+		TH1D * hsum;
+		
+		if(mc){
+		hsum =  (TH1D*) mc->Clone();
 		hsum->SetTitle("hsum");
 		hsum->SetName("hsum");
 		hsum->Reset();
 
 		Double_t mcint = mc->Integral();
 		mc->SetFillColor(kRed);
+		mc->Sumw2();
 		if(lumiweights==0) mc->Scale(dataint/mcint);
 		if(lumiweights==1) mc->Scale(zjetsScale);
+		if(lumiweights==1) mc->Scale(189./172.);
+		if(lumiweights==1) mc->Scale(1.-0.925+1.);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
 		hsum->Rebin(rebin);
 		hsum->Add(mc);
 		legend->AddEntry(mc,"Z+jets","f");
+		}
 
 		//======================
 		// ttbar
 		ttbarf->cd("validationJEC");
 		TH1F* ttbar;
 		gDirectory->GetObject(plot.c_str(),ttbar);
-
+	
+		if(ttbar){
 		ttbar->SetFillColor(kBlue);
+		ttbar->Sumw2();
 		ttbar->Scale(ttbarScale);
+		ttbar->Scale(1.-0.9249+1.);  // perche' i Weights non fanno 1...
 		ttbar->Rebin(rebin);
 		//ttbar->Draw("HISTO SAMES");
 		hsum->Add(ttbar);
-		legend->AddEntry(ttbar,"ttbar","f");
+		if(lumiweights==1)legend->AddEntry(ttbar,"ttbar","f");
+		}
 
 		//======================
 		// w+jets
 		wf->cd("validationJEC");
 		TH1F* w;
 		gDirectory->GetObject(plot.c_str(),w);
+		if(w){
 
 		w->SetFillColor(kViolet+2);
+		w->Sumw2();
 		w->Scale(wjetsScale); 
 		w->Rebin(rebin);
 		//w->Draw("HISTO SAMES");
 		hsum->Add(w);
-		legend->AddEntry(w,"W+jets","f");
-
-
+		if(lumiweights==1)legend->AddEntry(w,"W+jets","f");
+		}
 
 		//======================
 		// QCD EM enriched
@@ -234,7 +298,8 @@ void comparisonJetMCData(string plot,int rebin){
 		TH1F* qcd23em;
 		gDirectory->GetObject(plot.c_str(),qcd23em);
 
-TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena funziona il 23
+		if(qcd23em){
+		TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); 
 		qcdTotEM->SetTitle("qcd em");
 		qcdTotEM->SetName("qcd em");
 		qcdTotEM->Reset();
@@ -250,22 +315,24 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 		gDirectory->GetObject(plot.c_str(),qcd817em);
 
 		qcd23em->Rebin(rebin);
+		qcd23em->Sumw2();
 		qcd23em->Scale(qcd23emScale); 
 		qcd38em->Rebin(rebin);
+		qcd38em->Sumw2();
 		qcd38em->Scale(qcd38emScale); 
 		qcd817em->Rebin(rebin);
+		qcd817em->Sumw2();
 		qcd817em->Scale(qcd817emScale); 
 
 		qcdTotEM->SetFillColor(kOrange+1);
-//		qcdTotEM->Add(qcd23em);
+		qcdTotEM->Add(qcd23em);
 		qcdTotEM->Add(qcd38em);
 		qcdTotEM->Add(qcd817em);
 
 		hsum->Add(qcdTotEM);
 
-		legend->AddEntry(qcdTotEM,"QCD em","f");
-
-		
+		if(lumiweights==1)legend->AddEntry(qcdTotEM,"QCD em","f");
+		}
 		
 		//======================
 		// QCD bc
@@ -273,6 +340,7 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 		TH1F* qcd23bc;
 		gDirectory->GetObject(plot.c_str(),qcd23bc);
 
+		if(qcd23bc){
 		TH1D * qcdTotBC =  (TH1D*) qcd23bc->Clone(); //da spostare piÃ¹ in su appena funziona il 23
 		qcdTotBC->SetTitle("qcd bc");
 		qcdTotBC->SetName("qcd bc");
@@ -288,10 +356,13 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 		gDirectory->GetObject(plot.c_str(),qcd817bc);
 
 		qcd23bc->Rebin(rebin);
+		qcd23bc->Sumw2();
 		qcd23bc->Scale(qcd23bcScale); 
 		qcd38bc->Rebin(rebin);
+		qcd38bc->Sumw2();
 		qcd38bc->Scale(qcd38bcScale); 
 		qcd817bc->Rebin(rebin);
+		qcd817bc->Sumw2();
 		qcd817bc->Scale(qcd817bcScale); 
 
 		qcdTotBC->SetFillColor(kGreen+2);
@@ -301,8 +372,8 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 
 		hsum->Add(qcdTotBC);
 
-		legend->AddEntry(qcdTotBC,"QCD bc","f");
-
+		if(lumiweights==1)legend->AddEntry(qcdTotBC,"QCD bc","f");
+		}
 
 		//======================
 		// Add here other backgrounds
@@ -310,15 +381,16 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 
 		//======================
 		// Stacked Histogram
-		hs->Add(qcdTotEM);
-		hs->Add(qcdTotBC);
-		hs->Add(w);
-		hs->Add(ttbar);
-		hs->Add(mc); //Z+Jets
+		//if(qcd23em) 	hs->Add(qcdTotEM);
+		//if(qcd23bc) 	hs->Add(qcdTotBC);
+		if(w)  		hs->Add(w);
+		if(ttbar)	hs->Add(ttbar);
+		if(mc)		hs->Add(mc); //Z+Jets
 		
 		// per avere le statistiche
 		if(lumiweights==1) hsum->Draw("HISTO SAMES");
-		
+
+
 		//======================
 		// Setting the stats
 		pad1->Update(); // altrimenti non becchi la stat
@@ -328,10 +400,11 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 		r2->SetY1NDC(0.875);
 		r2->SetY2NDC(0.75); 
 		r2->SetTextColor(kRed);
-		r2->Draw();
 		
-		if(lumiweights==1) hs->Draw("SAME");
+		if(lumiweights==1) hs->Draw("HISTO SAME");
+		gPad->RedrawAxis();
 		data->Draw("E1 SAMES");
+		r2->Draw();
 		legend->Draw();
 		Canv->Update();
 
@@ -358,6 +431,7 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 		ratio->SetMarkerColor(kBlack);
 		ratio->SetMarkerSize(.5);
 		ratio->SetMarkerStyle(3);
+		gStyle->SetOptStat("m");
 		ratio->Divide(data,mc,1.,1.);
 		ratio->GetYaxis()->SetRangeUser(0,2);	
 		pad2->SetTopMargin(1);
@@ -367,12 +441,39 @@ TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); //da spostare piÃ¹ in su appena f
 		OLine->SetLineColor(kBlack);
 		OLine->SetLineStyle(2);
 		OLine->Draw();
-
+ 
+		TLegend* label = new TLegend(0.60,0.9,0.85,0.75);
+		label->SetFillColor(0);
+		label->SetFillStyle(0);
+		label->SetBorderSize(0);
+		//horrible mess
+		double binContent = 0;
+		double binSum = 0;
+		double weightSum = 0;
+		double binError = 1;
+		double totalbins = ratio->GetSize() -2;
+		for(unsigned int bin=1;bin<=totalbins;bin++){
+			binContent = ratio->GetBinContent(bin);
+			binError = ratio->GetBinError(bin);
+			if(binError!=0){
+				binSum += binContent/binError;
+				weightSum += 1./binError;
+			}
+		}
+		double ymean = binSum / weightSum;
+		//double ymean = ratio->GetMean(2);
+		stringstream sYmean;
+		sYmean << ymean;
+		string labeltext=sYmean.str()+" mean Y";
+		label->AddEntry((TObject*)0,labeltext.c_str(),"");
+		label->Draw();
+		
 		TPaveStats *r3 = (TPaveStats*)ratio->FindObject("stats");
 		r3->SetX1NDC(0.01);
 		r3->SetX2NDC(0.10); 
 		r3->SetY1NDC(0.20);
 		r3->SetY2NDC(0.50); 
+		gStyle->SetOptStat("mr");
 		r3->SetTextColor(kWhite);
 		r3->SetLineColor(kWhite);
 		r3->Draw();
