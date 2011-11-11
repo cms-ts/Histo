@@ -142,6 +142,13 @@ process.demo = cms.EDProducer('HistoProducer',
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
 )
 
+
+process.genpAna = cms.EDAnalyzer('GENPAnalyzer',
+                                 goodEPair = cms.InputTag("goodEPair"),
+                                 usingMC   = cms.untracked.bool(True),
+                                 )
+
+
 process.load("JetCollections_cfi")
 
 process.out = cms.OutputModule("PoolOutputModule",
@@ -161,6 +168,7 @@ process.JetValidation = cms.Path(
     process.Selection*
     process.demo*
     process.goodEPair*
+    #process.genpAna*
     process.kt6PFJets*process.validation*
     process.kt6PFJetsL1FastL2L3Residual*process.validationJEC
      )
