@@ -1,4 +1,31 @@
 // Flat10+Tail distribution taken directly from MixingModule input:  (Can be used for Spring11 and Summer11 if you don't worry about small shifts in the mean)
+Double_t MikeSmeared_v2[25] = {
+  0.0880692,
+  0.0882582,
+  0.0877778,
+  0.0867697,
+  0.0848102,
+  0.0817685,
+  0.0772526,
+  0.0713571,
+  0.0642633,
+  0.0563285,
+  0.0480345,
+  0.0399182,
+  0.0322025,
+  0.0253576,
+  0.0194791,
+  0.0146162,
+  0.0107368,
+  0.00771069,
+  0.00542478,
+  0.0037645,
+  0.00255772,
+  0.00170361,
+  0.00111672,
+  0.000721971,
+  0
+};
 
 Double_t probdistFlat10[25] = {
 	0.0698146584,
