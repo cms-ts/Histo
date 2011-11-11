@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.24 2011/11/07 09:35:41 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.25 2011/11/10 13:18:42 dscaini Exp $
 //
 //
 
@@ -208,28 +208,34 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 		std::vector<PileupSummaryInfo>::const_iterator PVI;
 		int npv = -1;
 
+		///////////////////
+		//// New way
+		/////////
+		
+		float sum_nvtx = 0;
+		
 		for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-			int BX = PVI->getBunchCrossing();
-			if(BX == 0) { 
-				npv = PVI->getPU_NumInteractions();
-				continue;
-			}      
-			if (debug) cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
-		}   
+		  npv = PVI->getPU_NumInteractions();
+		  sum_nvtx += float(npv);
+		}
 
 		std::vector<float> simulated;
 		std::vector<float> trueD;
 		edm::LumiReWeighting LumiWeights_;
-
+		
 		//Calculate the distributions (our data and MC)
 		for( int i=0; i<25; ++i) {
-			trueD.push_back(Data2011A_real[i]); // Name of the vector calculated with estimatedPU.py!
-			simulated.push_back(MikeDoubleSmeared[i]); // Name of the vector included in Flat10.h !
+		  trueD.push_back(Data2011A_real[i]); // Name of the vector calculated with estimatedPU.py!
+		  simulated.push_back(MikeSmeared_v2[i]); // Name of the vector included in Flat10.h !
 		}
-
+		
 		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
-		double MyWeight = LumiWeights_.weight( npv );
-		if (debug) cout<<"weight is "<<MyWeight<<endl;
+		float ave_nvtx = sum_nvtx/3.;
+		double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
+		
+		//////End of new version
+
+		////// Storing info
 		Weight=MyWeight;
 		EventWeight->push_back(MyWeight); 
 	} 
@@ -237,7 +243,7 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 	  EventWeight->push_back(1); 
 	}
 	
-
+	
 	///////////////////
 	/// Electrons Study
 	///////////////////
