@@ -414,6 +414,9 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
     label += buffer_Bin.str();
     label +="_EE";
     h_nJetVtx_EE[i] = fs->make<TH1F>(name.c_str(),label.c_str(),10,0,10);
+  
+  name.clear();
+  label.clear();
   }
 
 
