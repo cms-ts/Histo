@@ -324,7 +324,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_gsfPfSCEnClu1 = fs->make<TH1F>("h_gsfPfSCEnClu1","gsfPfSCEnClu1",160,0.6,1.4);
   h_ptGsfPfGsfVsptGsf = fs->make<TH2F>("h_ptGsfPfGsfVsptGsf","(ptGsf - ptPf) / ptGsf Vs ptGsf",200,0,200,200,-1.,1.);
  
-  h_nVtx = fs->make<TH1F>("h_nVtx","h_nVtx",10,0,10);
+  h_nVtx = fs->make<TH1F>("h_nVtx","h_nVtx",25,0,25);
   h_zYieldVsjets  = fs->make<TH1F>("h_zYieldVsjets","zYieldVsjets",10,0,10);
   h_zYieldVsjetsVtx1  = fs->make<TH1F>("h_zYieldVsjetsVtx1","zYieldVsjetsVtx1",10,0,10);
   h_zYieldVsjetsVtx5  = fs->make<TH1F>("h_zYieldVsjetsVtx5","zYieldVsjetsVtx5",10,0,10);
