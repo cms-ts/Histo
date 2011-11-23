@@ -25,20 +25,21 @@ bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla l
 
 string plotpath		="./"; //put here the path where you want the plots
 //string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A.root";
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_3.root";
-//string mcfile		="accazz3.root"; 
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_3b.root"; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v2.root"; 
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A.root";
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_4.root";
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_4.root"; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_4.root"; 
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_4.root";
 
-string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE.root";
-string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE.root";
-string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE.root";
-string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched.root";
-string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched.root";
-string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched.root";
+string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root";
+string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root";
+string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root";
+string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_4.root";
+string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_4.root";
+string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched_v1_4.root";
 
-
+double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
+double wwemean=130.;
+double ttwemean=140.;
 
 
 
@@ -106,7 +107,8 @@ int i=0;
 		mc->SetFillColor(kRed);
 		mc->GetXaxis()->SetRangeUser(0.,2.);
 		mc->Draw();
-		tmpname=plotpath+name+".png";
+		zwemean = mc->GetMean();
+		tmpname=plotpath+name+"-zjets.png";
 		Canv->Print(tmpname.c_str());
 		}
 
@@ -118,6 +120,8 @@ int i=0;
 		ttbar->SetFillColor(kBlue);
 		ttbar->GetXaxis()->SetRangeUser(0.,2.);
 		ttbar->Draw();
+		ttwemean = ttbar->GetMean();
+		tmpname=plotpath+name+"-ttbar.png";
 		Canv->Print(tmpname.c_str());
 		}
 
@@ -128,6 +132,8 @@ int i=0;
 		w->SetFillColor(kViolet+2);
 		w->GetXaxis()->SetRangeUser(0.,2.);
 		w->Draw();
+		wwemean = w->GetMean();
+		tmpname=plotpath+name+"-wjets.png";
 		Canv->Print(tmpname.c_str());
 		}
 	
@@ -137,7 +143,7 @@ int i=0;
 	
 	
 	i++;
-	//if(i==1)break;
+	//if(i==2)break;
 	}
 
 
@@ -212,7 +218,7 @@ void comparisonJetMCData(string plot,int rebin){
 		pad1->cd();
 		pad1->SetLogy(1);
 		TString str=data->GetTitle();
-		if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("meanPtZVsNjet")) rebin=5;
+		if (str.Contains("jet") && !str.Contains("zMass") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("meanPtZVsNjet")) rebin=5;
 
 
 		//======================
@@ -222,10 +228,11 @@ void comparisonJetMCData(string plot,int rebin){
 		data->Rebin(rebin);
 		if(str.Contains("nJetVtx")) data->GetXaxis()->SetRangeUser(0,10);	
 		if(str.Contains("zMass")) data->GetXaxis()->SetRangeUser(60,120);	
+		data->SetMinimum(1.);
 		data->Sumw2();
 		data->Draw("E1");
 
-		TLegend* legend = new TLegend(0.60,0.9,0.85,0.75);
+		TLegend* legend = new TLegend(0.825,0.57,0.95,0.72);
 		legend->SetFillColor(0);
 		legend->SetFillStyle(0);
 		legend->SetBorderSize(0);
@@ -250,8 +257,8 @@ void comparisonJetMCData(string plot,int rebin){
 		mc->Sumw2();
 		if(lumiweights==0) mc->Scale(dataint/mcint);
 		if(lumiweights==1) mc->Scale(zjetsScale);
-		if(lumiweights==1) mc->Scale(189./172.);
-		if(lumiweights==1) mc->Scale(1.-0.925+1.);  // perche' i Weights non fanno 1...
+		if(lumiweights==1) mc->Scale(915./904.); // perche' il mc non e' completo...
+		if(lumiweights==1) mc->Scale(1.-zwemean+1.);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
 		hsum->Rebin(rebin);
@@ -269,7 +276,8 @@ void comparisonJetMCData(string plot,int rebin){
 		ttbar->SetFillColor(kBlue);
 		ttbar->Sumw2();
 		ttbar->Scale(ttbarScale);
-		ttbar->Scale(1.-0.9249+1.);  // perche' i Weights non fanno 1...
+		//ttbar->Scale(24./23.);  // il mc non Ã¨ completo...
+		ttbar->Scale(1.-ttwemean+1.);  // perche' i Weights non fanno 1...
 		ttbar->Rebin(rebin);
 		//ttbar->Draw("HISTO SAMES");
 		hsum->Add(ttbar);
@@ -286,6 +294,8 @@ void comparisonJetMCData(string plot,int rebin){
 		w->SetFillColor(kViolet+2);
 		w->Sumw2();
 		w->Scale(wjetsScale); 
+		w->Scale(1.-wwemean+1.);  // perche' i Weights non fanno 1...
+		w->Scale(438./330.); // il mc non Ã¨ completo... 
 		w->Rebin(rebin);
 		//w->Draw("HISTO SAMES");
 		hsum->Add(w);
@@ -406,6 +416,12 @@ void comparisonJetMCData(string plot,int rebin){
 		data->Draw("E1 SAMES");
 		r2->Draw();
 		legend->Draw();
+		TLegend* lumi = new TLegend(0.60,0.9,0.85,0.75);
+		lumi->SetFillColor(0);
+		lumi->SetFillStyle(0);
+		lumi->SetBorderSize(0);
+		lumi->AddEntry((TObject*)0,"L=2.050 1/fb",""); // mean on Y
+		lumi->Draw();
 		Canv->Update();
 
 	
@@ -429,8 +445,6 @@ void comparisonJetMCData(string plot,int rebin){
 		ratio->SetMarkerSize(.5);
 		ratio->SetLineColor(kBlack);
 		ratio->SetMarkerColor(kBlack);
-		ratio->SetMarkerSize(.5);
-		ratio->SetMarkerStyle(3);
 		gStyle->SetOptStat("m");
 		ratio->Divide(data,mc,1.,1.);
 		ratio->GetYaxis()->SetRangeUser(0,2);	
@@ -465,8 +479,8 @@ void comparisonJetMCData(string plot,int rebin){
 		stringstream sYmean;
 		sYmean << ymean;
 		string labeltext=sYmean.str()+" mean Y";
-		label->AddEntry((TObject*)0,labeltext.c_str(),"");
-		label->Draw();
+		//label->AddEntry((TObject*)0,labeltext.c_str(),""); // mean on Y
+		//label->Draw();
 		
 		TPaveStats *r3 = (TPaveStats*)ratio->FindObject("stats");
 		r3->SetX1NDC(0.01);
