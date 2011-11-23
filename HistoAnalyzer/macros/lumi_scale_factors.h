@@ -1,10 +1,10 @@
 // Montecarlo scale factors for 2011A Run
 // search here https://cmsweb.cern.ch/das/
 // integrated cross sections expressed in pb
-double dataLumi2011A = 2.090e03;
-double zjetsXsect = 2475.0;	double zjetsNevts = 36277961; // /DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
-double ttbarXsect = 94.76;	double ttbarNevts = 3701947; // /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
-double wjetsXsect = 27770.0;	double wjetsNevts = 81352581; // /WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
+double dataLumi2011A = 2046.769;
+double zjetsXsect = 3048.0;	double zjetsNevts = 36277961; // /DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
+double wjetsXsect = 31314.0;	double wjetsNevts = 81352581; // /WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
+double ttbarXsect = 157.0;	double ttbarNevts = 3701947; // /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
 double qcdEM23Xsect = 2.361e8 * 0.0106;	double qcdEM23Nevts = 35729669; // /QCD_Pt-20to30_EMEnriched_TuneZ2_7TeV-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM
 double qcdEM38Xsect = 5.944e7 * 0.061;	double qcdEM38Nevts = 70392060; // /QCD_Pt-30to80_EMEnriched_TuneZ2_7TeV-pythia/Summer11-PU_S4_START42_V11-v1/AODSIM
 double qcdEM817Xsect = 898200.0 * 0.159;double qcdEM817Nevts = 8150672; // /QCD_Pt-80to170_EMEnriched_TuneZ2_7TeV-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM
