@@ -43,6 +43,7 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
+#include "TTree.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -53,6 +54,7 @@ using namespace std;
 
 bool debugJet=false; //If true it will activate the cout verbosity
 
+class TTree;
 
 /////
 // class declaration
@@ -87,6 +89,12 @@ class jetValidation : public edm::EDAnalyzer {
       edm::InputTag goodEPairTag;
       std::string weightCollection_;
       bool usingMC;
+
+      //Unfolding Rootple and members
+      TTree* treeUN_;
+      double Z_pt;
+      double Z_y;
+      double Jet_multiplicity;
 
       // Weight
       TH1F * h_weights;

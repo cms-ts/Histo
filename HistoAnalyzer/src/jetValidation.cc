@@ -73,9 +73,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double deltaEta_ = 5.0/100.0;
       double deltaPhi_ = 2.0*pi_/100;
       int cluSize1 =0;
-      int cluSize2 =0;
+      //int cluSize2 =0;
       double cluTotEnergy1=0.;
-      double cluTotEnergy2=0.;
+      //double cluTotEnergy2=0.;
       double dist=0.;
       double distEta=0.;
       double ratioEn=0.;
@@ -429,6 +429,14 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       totJets = nJetsEB + nJetsEE;
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
+
+      //Filling the Unfolding rootuple!
+      Jet_multiplicity=totJets;
+      Z_y=e_pair.Rapidity();
+      Z_pt=zPt;
+
+      //DONE
+
       h_invMass->Fill(zInvMass,myweight[0]);
       h_massMinusPdgGsf->Fill(zInvMass-zMassPdg,myweight[0]);
       if (fabs(e1.Eta())<=edgeEB && fabs(e2.Eta())<=edgeEB) {h_massMinusPdgGsf_EB->Fill(zInvMass-zMassPdg,myweight[0]);}
@@ -520,6 +528,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    } else {std::cout << "WARNING: More than two electron selected"<< std::endl;}  
 
+   treeUN_->Fill();
 }
 
 
@@ -527,6 +536,14 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 jetValidation::beginJob()
 {
+  //TFile and TTree initialization
+  treeUN_= new TTree("treeUN_","treeUN_");
+  
+  //EB PileUp REMOVED
+  treeUN_->Branch("Z_pt",&Z_pt);
+  treeUN_->Branch("Z_y",&Z_y);
+  treeUN_->Branch("Jet_multiplicity",&Jet_multiplicity);
+
    edgeEB     = 1.479;
    edgeEE     = 3.0;
    edgeTrk    = 2.4;
