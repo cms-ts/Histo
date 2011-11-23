@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.25 2011/11/10 13:18:42 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.26 2011/11/11 14:54:13 marone Exp $
 //
 //
 
@@ -23,6 +23,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
+
 
 //PU reweight
 #include "Histo/HistoAnalyzer/interface/Flat10.h"
@@ -206,12 +208,13 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 		iEvent.getByLabel(PileupSrc_, PupInfo);
 
 		std::vector<PileupSummaryInfo>::const_iterator PVI;
-		int npv = -1;
 
+		/*
 		///////////////////
 		//// New way
 		/////////
 		
+		int npv = -1;
 		float sum_nvtx = 0;
 		
 		for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
@@ -223,6 +226,7 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 		std::vector<float> trueD;
 		edm::LumiReWeighting LumiWeights_;
 		
+		
 		//Calculate the distributions (our data and MC)
 		for( int i=0; i<25; ++i) {
 		  trueD.push_back(Data2011A_real[i]); // Name of the vector calculated with estimatedPU.py!
@@ -232,17 +236,45 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
 		float ave_nvtx = sum_nvtx/3.;
 		double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
-		
 		//////End of new version
+		*/
+
+		/////////
+		// 3D reweighting
+		edm::Lumi3DReWeighting LumiWeights_;
+		LumiWeights_ = edm::Lumi3DReWeighting("../bin/Summer11_Generated_Flat10Tail.root", "../bin/Data2011A_160404-173692.root", "pileup", "pileup");
+		float ScaleFactor = 1.0; // you can change it to evaluate systematic effects
+		LumiWeights_.weight3D_init( ScaleFactor );
+	
+	
+		int nm1 = -1; int n0 = -1; int np1 = -1;
+		for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+			int BX = PVI->getBunchCrossing();
+
+			if(BX == -1) { 
+				nm1 = PVI->getPU_NumInteractions();
+			}
+			if(BX == 0) { 
+				n0 = PVI->getPU_NumInteractions();
+			}
+			if(BX == 1) { 
+				np1 = PVI->getPU_NumInteractions();
+			}
+
+		}
+		double MyWeight3D = LumiWeights_.weight3D( nm1,n0,np1);
+		// end 3D
+		/////////
 
 		////// Storing info
-		Weight=MyWeight;
-		EventWeight->push_back(MyWeight); 
+		Weight=MyWeight3D;
+		EventWeight->push_back(MyWeight3D); 
 	} 
 	else { 
-	  EventWeight->push_back(1); 
+		EventWeight->push_back(1); 
 	}
-	
+
 	
 	///////////////////
 	/// Electrons Study
