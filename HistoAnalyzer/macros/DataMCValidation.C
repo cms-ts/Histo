@@ -24,7 +24,7 @@ void DataMCValidation(){
 	tdrStyle();
 	TFile *dataf = TFile::Open(datafile.c_str()); //data fil
 
-	TDirectory *dir=(TDirectory*)dataf->Get("demo");
+	TDirectory *dir=(TDirectory*)dataf->Get(dirname.c_str());
 	TTree *treeVJ_ = (TTree*)dir->Get("treeVJ_");
 
 	//DEFINITIONS (please outside the loop!)
@@ -1213,7 +1213,7 @@ void DataMCValidation(){
 		CompMC1dataPUR->Print(eps.c_str());
 
 
-
+/*
 //DATA vtx==1 vs. MC vtx==N
 		TCanvas* Data1McN = (TCanvas*)gDirectory->GetList()->FindObject("Data1McN");
 		if (Data1McN) delete Data1McN;
@@ -1417,7 +1417,8 @@ void DataMCValidation(){
 		eps="Trk-Ecal-Hcal-Isolation-data1mcN"+oss.str()+".eps";
 		Data1McN->Print(picname.c_str());
 		Data1McN->Print(eps.c_str());
-		oss.clear();
+*/
+	oss.clear();
 		oss.str("");
 
 

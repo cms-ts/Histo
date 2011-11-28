@@ -19,8 +19,6 @@
 #include <stdio.h>
 #include "TObjArray.h"
 
-
-
 //TODO find a better way to have global parameters
 //Plots Parameters
 /*const int tEB = 20; const float tEBmin = 0.; const float tEBmax = 0.20;
@@ -39,14 +37,25 @@ const int tEE = 16; const float tEEmin = 0.; const float tEEmax = 0.04;
 const int eEE = 20; const float eEEmin = 0.; const float eEEmax = 0.05;
 const int hEE = 10; const float hEEmin = 0.; const float hEEmax = 0.025;
 
+const int iHEEB = 16; const float HEEBmin = 0.; const float HEEBmax = 0.04;
+const int dPhiEB = 24; const float dPhiEBmin = 0.; const float dPhiEBmax = 0.06;
+const int dEtaEB = 16; const float dEtaEBmin = 0.; const float dEtaEBmax = 0.004;
+const int sigmaEB = 40; const float sigmaEBmin = 0.; const float sigmaEBmax = 0.01;
+
+const int iHEEE = 30; const float HEEEmin = 0.; const float HEEEmax = 0.15;
+const int dPhiEE = 18; const float dPhiEEmin = 0.; const float dPhiEEmax = 0.03;
+const int dEtaEE = 28; const float dEtaEEmin = 0.; const float dEtaEEmax = 0.007;
+const int sigmaEE = 36; const float sigmaEEmin = 0.; const float sigmaEEmax = 0.03;
+
+
+
 //TODO find a better way to have global parameters
 //FILE NAMES
-const std::string mcfile   = "/gpfs/cms/data/2011/v6/powheg-v6_1.root";
-const std::string datafile = "/gpfs/cms/data/2011/v6/singlele-v6_1.root";
+const std::string mcfile   = "/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_4.root";
+const std::string datafile = "/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_4.root";
+const std::string dirname = "validationJEC";
 
 
-
-const Int_t kMaxHLTAndPrescale = 1;
 
 
 
@@ -81,8 +90,6 @@ public :
    std::vector<float>   *Dcot;
    std::vector<float>   *Dist;
    std::vector<int>     *NumberOfExpectedInnerHits;
-   Int_t           HLTAndPrescale_;
-   Int_t           HLTAndPrescale_second[kMaxHLTAndPrescale];   //[HLTAndPrescale_]
    Int_t           Run;
    Int_t           LS;
    Int_t           Event;
@@ -114,9 +121,6 @@ public :
    TBranch        *b_Dcot;   //!
    TBranch        *b_Dist;   //!
    TBranch        *b_NumberOfExpectedInnerHits;   //!
-   TBranch        *b_HLTAndPrescale_;   //!
-   TBranch        *b_HLTAndPrescale_first;   //!
-   TBranch        *b_HLTAndPrescale_second;   //!
    TBranch        *b_Run;   //!
    TBranch        *b_LS;   //!
    TBranch        *b_Event;   //!
@@ -147,7 +151,7 @@ PlotsFeeder::PlotsFeeder(TTree *tree)
       if (!f) {
          f = new TFile(mcfile.c_str());
 	 std::string fake = mcfile;
-	 fake = fake + ":/demo";
+	 fake = fake + ":/" + dirname;
          f->cd(fake.c_str());
       }
       tree = (TTree*)gDirectory->Get("treeVJ_");
@@ -251,8 +255,6 @@ void PlotsFeeder::Init(TTree *tree)
    fChain->SetBranchAddress("Dcot", &Dcot, &b_Dcot);
    fChain->SetBranchAddress("Dist", &Dist, &b_Dist);
    fChain->SetBranchAddress("NumberOfExpectedInnerHits", &NumberOfExpectedInnerHits, &b_NumberOfExpectedInnerHits);
-   fChain->SetBranchAddress("HLTAndPrescale", &HLTAndPrescale_, &b_HLTAndPrescale_);
-   fChain->SetBranchAddress("HLTAndPrescale.second", &HLTAndPrescale_second, &b_HLTAndPrescale_second);
    fChain->SetBranchAddress("Run", &Run, &b_Run);
    fChain->SetBranchAddress("LS", &LS, &b_LS);
    fChain->SetBranchAddress("Event", &Event, &b_Event);

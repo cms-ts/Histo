@@ -43,38 +43,86 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	TH1D * h_IsoTrk_EBR; 
 	TH1D * h_IsoEcal_EBR;
 	TH1D * h_IsoHcal_EBR;
+
+	TH1D * h_HE_EB;
+	TH1D * h_dPhi_EB;
+	TH1D * h_dEta_EB;
+	TH1D * h_sigma_EB;
+
 	//EB Reweight
 	h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",tEB,tEBmin,tEBmax);
 	h_IsoEcal_EBR = new TH1D("h_IsoEcal_EBR","IsoEcal",eEB,eEBmin,eEBmax);
 	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",hEB,hEBmin,hEBmax);
+	
+	h_HE_EB = new TH1D("h_HE_EB","H/E",iHEEB,HEEBmin,HEEBmax);
+	h_dPhi_EB = new TH1D("h_dPhiTkClu_EB","DeltaPhiTkClu",dPhiEB,dPhiEBmin,dPhiEBmax);
+	h_dEta_EB = new TH1D("h_dEtaTkClu_EB","DeltaEtaTkClu",dEtaEB,dEtaEBmin,dEtaEBmax);
+	h_sigma_EB = new TH1D("h_sigmaIeIe_EB","SigmaIeIe",sigmaEB,sigmaEBmin,sigmaEBmax);
 
+
+	//=====================
 	//EE Reweight
 	TH1D * h_IsoTrk_EER; 
 	TH1D * h_IsoEcal_EER;
 	TH1D * h_IsoHcal_EER;
+	
+	TH1D * h_HE_EE;
+	TH1D * h_dPhi_EE;
+	TH1D * h_dEta_EE;
+	TH1D * h_sigma_EE;
+	
 	//EE Reweight
 	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",tEB,tEBmin,tEBmax);
 	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",eEB,eEBmin,eEBmax);
 	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",hEB,hEBmin,hEBmax);
+
+	h_HE_EE = new TH1D("h_HE_EE","H/E",iHEEE,HEEEmin,HEEEmax);
+	h_dPhi_EE = new TH1D("h_dPhiTkClu_EE","DeltaPhiTkClu",dPhiEE,dPhiEEmin,dPhiEEmax);
+	h_dEta_EE = new TH1D("h_dEtaTkClu_EE","DeltaEtaTkClu",dEtaEE,dEtaEEmin,dEtaEEmax);
+	h_sigma_EE = new TH1D("h_sigmaIeIe_EE","SigmaIeIe",sigmaEE,sigmaEEmin,sigmaEEmax);
+
 
 	//==================//
 	//EB Reweight PUR
 	TH1D * h_IsoTrk_EBR_PUR; 
 	TH1D * h_IsoEcal_EBR_PUR;
 	TH1D * h_IsoHcal_EBR_PUR;
+	
+	TH1D * h_HE_EB_PUR;
+	TH1D * h_dPhi_EB_PUR;
+	TH1D * h_dEta_EB_PUR;
+	TH1D * h_sigma_EB_PUR;
+
 	//EB Reweight PUR
 	h_IsoTrk_EBR_PUR = new TH1D("h_IsoTrk_EBR_PUR","IsoTrk",tEB,tEBmin,tEBmax);
 	h_IsoEcal_EBR_PUR = new TH1D("h_IsoEcal_EBR_PUR","IsoEcal",eEB,eEBmin,eEBmax);
 	h_IsoHcal_EBR_PUR = new TH1D("h_IsoHcal_EBR_PUR","IsoHcal",hEB,hEBmin,hEBmax);
 
+	h_HE_EB_PUR = new TH1D("h_HE_EB_PUR","H/E",iHEEB,HEEBmin,HEEBmax);
+	h_dPhi_EB_PUR = new TH1D("h_dPhiTkClu_EB_PUR","DeltaPhiTkClu",dPhiEB,dPhiEBmin,dPhiEBmax);
+	h_dEta_EB_PUR = new TH1D("h_dEtaTkClu_EB_PUR","DeltaEtaTkClu",dEtaEB,dEtaEBmin,dEtaEBmax);
+	h_sigma_EB_PUR = new TH1D("h_sigmaIeIe_EB_PUR","SigmaIeIe",sigmaEB,sigmaEBmin,sigmaEBmax);
+
+
 	//EE Reweight PUR
 	TH1D * h_IsoTrk_EER_PUR; 
 	TH1D * h_IsoEcal_EER_PUR;
 	TH1D * h_IsoHcal_EER_PUR;
+	
+	TH1D * h_HE_EE_PUR;
+	TH1D * h_dPhi_EE_PUR;
+	TH1D * h_dEta_EE_PUR;
+	TH1D * h_sigma_EE_PUR;
+
 	//EE Reweight PUR
 	h_IsoTrk_EER_PUR = new TH1D("h_IsoTrk_EER_PUR","IsoTrk",tEB,tEBmin,tEBmax);
 	h_IsoEcal_EER_PUR = new TH1D("h_IsoEcal_EER_PUR","IsoEcal",eEB,eEBmin,eEBmax);
 	h_IsoHcal_EER_PUR = new TH1D("h_IsoHcal_EER_PUR","IsoHcal",hEB,hEBmin,hEBmax);
+
+	h_HE_EE_PUR = new TH1D("h_HE_EE_PUR","H/E",iHEEE,HEEEmin,HEEEmax);
+	h_dPhi_EE_PUR = new TH1D("h_dPhiTkClu_EE_PUR","DeltaPhiTkClu",dPhiEE,dPhiEEmin,dPhiEEmax);
+	h_dEta_EE_PUR = new TH1D("h_dEtaTkClu_EE_PUR","DeltaEtaTkClu",dEtaEE,dEtaEEmin,dEtaEEmax);
+	h_sigma_EE_PUR = new TH1D("h_sigmaIeIe_EE_PUR","SigmaIeIe",sigmaEE,sigmaEEmin,sigmaEEmax);
 
 
 	//==================//
@@ -110,7 +158,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 					float var=IsoHcalEB_PUR->at(i);
 					h_IsoHcal_EBR_PUR->Fill(var,Weight);
 				}
-}
+			}
 			if (IsoTrkEB->size()>0) {
 				for (unsigned int i=0; i<IsoTrkEB->size();i++){
 					float var=IsoTrkEB->at(i);
@@ -171,6 +219,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 			}
 	}
 }
+
 	histarray->Add(h_IsoTrk_EBR_PUR); 
 	histarray->Add(h_IsoEcal_EBR_PUR);
 	histarray->Add(h_IsoHcal_EBR_PUR);
@@ -185,6 +234,26 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	histarray->Add(h_IsoEcal_EER);
 	histarray->Add(h_IsoHcal_EER);
 	
+	histarray->Add(h_HE_EB);
+	histarray->Add(h_dPhi_EB);
+	histarray->Add(h_dEta_EB);
+	histarray->Add(h_sigma_EB);
+
+	histarray->Add(h_HE_EE);
+	histarray->Add(h_dPhi_EE);
+	histarray->Add(h_dEta_EE);
+	histarray->Add(h_sigma_EE);
+	
+	histarray->Add(h_HE_EB_PUR);
+	histarray->Add(h_dPhi_EB_PUR);
+	histarray->Add(h_dEta_EB_PUR);
+	histarray->Add(h_sigma_EB_PUR);
+
+	histarray->Add(h_HE_EE_PUR);
+	histarray->Add(h_dPhi_EE_PUR);
+	histarray->Add(h_dEta_EE_PUR);
+	histarray->Add(h_sigma_EE_PUR);
+
 
 
 return  histarray;
