@@ -88,13 +88,18 @@ class jetValidation : public edm::EDAnalyzer {
       edm::InputTag jetCollection_;
       edm::InputTag goodEPairTag;
       std::string weightCollection_;
+      edm::InputTag genJetsCollection;
       bool usingMC;
 
       //Unfolding Rootple and members
       TTree* treeUN_;
       double Z_pt;
       double Z_y;
-      double Jet_multiplicity;
+      int Jet_multiplicity;
+      double Z_pt_gen;
+      double Z_y_gen;
+      int Jet_multiplicity_gen;
+
 
       // Weight
       TH1F * h_weights;
@@ -264,6 +269,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   VertexCollection_   = conf.getParameter<edm::InputTag>("VertexCollection");
   goodEPairTag        = conf.getParameter<edm::InputTag>("goodEPair");
   usingMC             = conf.getUntrackedParameter<bool>("usingMC",false);
+  genJetsCollection   = conf.getParameter<edm::InputTag>("genJets");
 
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 

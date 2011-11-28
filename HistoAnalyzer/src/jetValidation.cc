@@ -2,8 +2,8 @@
 //
 
 #include "Histo/HistoAnalyzer/interface/jetValidation.h"
-
-
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/Common/interface/RefVector.h"
 //
 // member functions
 //
@@ -19,6 +19,8 @@ public:
 void
 jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  bool Debug=false;
 
   ////////
   //  Get The Weights
@@ -84,7 +86,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double maxEta=0.2;
       double maxEn=1.2;
       double nearerDist=9999.;
-      double enGen;
+      double enGen=0;
 
       bool checkCut=false;
       bool checkPairing=false;
@@ -98,6 +100,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TLorentzVector pfe1, pfe2, pfe_pair;
       e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
 
+      //TLorentz vector of the two Z boson electrons, at GEN level
+      TLorentzVector e1_gen,e2_gen;
+      
       // ================================
       // FIll the Weights info
       // ================================
@@ -158,38 +163,38 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	    if (usingMC){
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
-		  dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
-		  distEta = fabs(itgen->eta() - it->eta());
-		  ratioEn = itgen->energy()/it->energy();
-		  ratioEn2 = itgen->energy()/itPf->energy();
-		  if (dist < maxDist && distEta < maxEta ){	     
-		     if (!checkCut){
-			h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-			h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-			checkCut = true;
-		     }
-		     if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
-			 ratioEn2 < maxEn && 1./ratioEn2 < maxEn ){
-			h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-			h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
-			checkPairing=true;
-		     }
-		  }
-		  if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
-		     if (dist < 0.1 && !checkTruth){		     
-			h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-			h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-			checkTruth=true;
-		     }
-		  }
-
-		  if ( fabs(itgen->pdgId())==11 && dist < maxDist && dist < nearerDist){
+		 dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
+		 distEta = fabs(itgen->eta() - it->eta());
+		 ratioEn = itgen->energy()/it->energy();
+		 ratioEn2 = itgen->energy()/itPf->energy();
+		 if (dist < maxDist && distEta < maxEta ){	     
+		   if (!checkCut){
+		     h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+		     checkCut = true;
+		   }
+		   if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
+		       ratioEn2 < maxEn && 1./ratioEn2 < maxEn ){
+		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+		     checkPairing=true;
+		   }
+		 }
+		 if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
+		   if (dist < 0.1 && !checkTruth){		     
+		     h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+		     checkTruth=true;
+		   }
+		 }
+		 
+		 if ( fabs(itgen->pdgId())==11 && dist < maxDist && dist < nearerDist){
 		     nearerDist = dist;
 		     enGen=itgen->energy();
 		     checkNear=true;
@@ -371,7 +376,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          std::stable_sort(JetContainer.begin(),JetContainer.end(),GreaterPt()); 
       }
       else{cout<<"No valid Jets Collection"<<endl;}
-            
+
       for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); 
 	   jet != JetContainer.end (); jet++) {
 	 
@@ -430,11 +435,60 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
 
+      //////////////////
       //Filling the Unfolding rootuple!
+      //////////////////
       Jet_multiplicity=totJets;
       Z_y=e_pair.Rapidity();
       Z_pt=zPt;
 
+      Jet_multiplicity_gen=-9999;
+      Z_y_gen=-9999;
+      Z_pt_gen=-9999;
+      //bUILDING THE Z GEN BOSON
+      if (usingMC){
+	TLorentzVector Z_gen,ele_gen;
+	std::vector <TLorentzVector> ele_gen_vec ;
+	for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
+	  if (itgen->pdgId()==23 && itgen->status()==2){ // itgen->status()==1 &&   
+	    if (Debug) cout<<"(GEN) Z boson"<<endl;
+	    Z_gen.SetPxPyPzE(itgen->px(),itgen->py(),itgen->pz(),itgen->energy()); 
+	  }
+	  if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
+	    ele_gen.SetPxPyPzE(itgen->px(),itgen->py(),itgen->pz(),itgen->energy()); 
+	    ele_gen_vec.push_back(ele_gen);
+	  }
+	}
+	if (Z_gen.Pt()<7000) Z_pt_gen=Z_gen.Pt();
+	if (Z_gen.Rapidity()<7000) Z_y_gen=Z_gen.Rapidity();
+	if (Debug) cout<<"Z pt (GEN) is "<<Z_pt_gen<<" and y is "<<Z_y_gen<<endl;
+	
+	int numbOfJets=0;      
+	//Number of GenJet
+	edm::Handle<reco::GenJetCollection> genJets;
+	iEvent.getByLabel(genJetsCollection, genJets );
+	
+	for (reco::GenJetCollection::const_iterator iter=genJets->begin();iter!=genJets->end();++iter){
+	  if (ele_gen_vec.size()==2){  // Only jets reaching the detector are allowed...
+	    // check if the jet is equal to one of the isolated electrons
+	    //spacchetto
+	    std::vector<edm::Ptr<reco::Candidate> > particles = iter->getJetConstituents();
+	    for (UInt_t j=0; j<particles.size(); j++){
+	      if (Debug) cout<<"jet constituent status is ->"<<particles[j]->status()<<" and pt is->"<<particles[j]->pt()<<endl; }
+	    double ptgen = (*iter).pt();
+	    double etagen = (*iter).eta();
+	    double phigen = (*iter).phi();
+	    double deltaR1= sqrt( pow(etagen-ele_gen_vec[0].Eta(),2)+pow(phigen-ele_gen_vec[0].Phi(),2) );
+	    double deltaR2= sqrt( pow(etagen-ele_gen_vec[1].Eta(),2)+pow(phigen-ele_gen_vec[1].Phi(),2) );
+	    if (Debug) cout<<"ptgen "<<ptgen<<" etagen "<<etagen<<" deltaR1 "<<deltaR1<<" deltaR2 "<<deltaR2<<" phigen "<<phigen<<endl;
+	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone && ptgen>30){ 
+	      numbOfJets++;
+	    }
+	  }
+	}
+	if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
+	if (numbOfJets<100) Jet_multiplicity_gen=numbOfJets;
+      }
       //DONE
 
       h_invMass->Fill(zInvMass,myweight[0]);
@@ -528,6 +582,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    } else {std::cout << "WARNING: More than two electron selected"<< std::endl;}  
 
+   //Fill Unfolding rootuple!
    treeUN_->Fill();
 }
 
@@ -543,6 +598,10 @@ jetValidation::beginJob()
   treeUN_->Branch("Z_pt",&Z_pt);
   treeUN_->Branch("Z_y",&Z_y);
   treeUN_->Branch("Jet_multiplicity",&Jet_multiplicity);
+  treeUN_->Branch("Z_pt_gen",&Z_pt_gen);
+  treeUN_->Branch("Z_y_gen",&Z_y_gen);
+  treeUN_->Branch("Jet_multiplicity_gen",&Jet_multiplicity_gen);
+
 
    edgeEB     = 1.479;
    edgeEE     = 3.0;
