@@ -13,6 +13,7 @@ using namespace reco;
 void
 ZanalyzerProducer::produce(edm::Event & iEvent, edm::EventSetup const & iSetup)
 {
+
    // get gfs Electron 
    auto_ptr< reco::GsfElectronCollection > 
       pOutput( new reco::GsfElectronCollection ); 
