@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.27 2011/11/23 13:14:01 dscaini Exp $
+// $Id: HistoAnalyzer.cc,v 1.28 2011/11/29 14:25:11 montanin Exp $
 //
 //
 
@@ -242,7 +242,8 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 		/////////
 		// 3D reweighting
 		edm::Lumi3DReWeighting LumiWeights_;
-		LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
+		//LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
+		LumiWeights_ = edm::Lumi3DReWeighting("../bin/Summer11_Generated_Flat10Tail.root", "../bin/Data2011A_160404-173692.root", "pileup", "pileup");
 		float ScaleFactor = 1.0; // you can change it to evaluate systematic effects
 		LumiWeights_.weight3D_init( ScaleFactor );
 	
