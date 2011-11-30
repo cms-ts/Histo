@@ -58,6 +58,42 @@ ZanalyzerProducer::produce(edm::Event & iEvent, edm::EventSetup const & iSetup)
     float Dist = recoElectron->convDist ();
     int NumberOfExpectedInnerHits = recoElectron->gsfTrack ()->trackerExpectedHitsInner ().numberOfHits ();
 
+    if (removePU_){
+       double lepIsoRho;
+		  
+       /////// Pileup density "rho" for lepton isolation subtraction /////
+       edm::Handle<double> rhoLepIso;
+       const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
+       iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
+       if( *rhoLepIso == *rhoLepIso) { 
+	  lepIsoRho = *rhoLepIso;
+       }
+       else { 
+	  lepIsoRho =  999999.9;
+       }
+		  
+       //EB
+       if (fabs (recoElectron->eta()) <= 1.4442) {      
+	  //
+	  IsoTrk = (recoElectron->dr03TkSumPt () - lepIsoRho*0) / recoElectron->et ();
+	  IsoEcal = (recoElectron->dr03EcalRecHitSumEt () - lepIsoRho*0.096) / recoElectron->et ();
+	  IsoHcal = (recoElectron->dr03HcalTowerSumEt ()  - lepIsoRho*0.020) / recoElectron->et ();
+	  if(IsoEcal<=0.) IsoEcal=0.;
+	  if(IsoHcal<=0.) IsoHcal=0.;
+       }
+       //EE
+       if (fabs (recoElectron->eta()) >= 1.5660
+	   && fabs (recoElectron->eta()) <= 2.5000) {
+	  //
+	  IsoTrk = (recoElectron->dr03TkSumPt () - lepIsoRho*0) / recoElectron->et ();
+	  IsoEcal = (recoElectron->dr03EcalRecHitSumEt () - lepIsoRho*0.044) / recoElectron->et ();
+	  IsoHcal = (recoElectron->dr03HcalTowerSumEt ()  - lepIsoRho*0.041) / recoElectron->et ();
+	  if(IsoEcal<=0.) IsoEcal=0.;
+	  if(IsoHcal<=0.) IsoHcal=0.;
+       }
+    }
+		
+
     //quality flags
 
     isBarrelElectrons = false;

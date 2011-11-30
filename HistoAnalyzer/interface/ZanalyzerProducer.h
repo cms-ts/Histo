@@ -41,7 +41,7 @@ class ZanalyzerProducer : public edm::EDProducer {
 		// ----------member data ---------------------------
 
 		edm::InputTag theElectronCollectionLabel;
-
+		bool removePU_;
 		bool debug; //Activate with true if you wonna have verbosity for debug
  
 };
@@ -55,7 +55,9 @@ ZanalyzerProducer::ZanalyzerProducer (const edm::ParameterSet & parameters)
 {
    debug = false;
    theElectronCollectionLabel = parameters.getParameter <edm::InputTag> ("electronCollection");
+   removePU_ = parameters.getParameter<bool>("removePU");
    produces<reco::GsfElectronCollection>();
+   
 
 }
 
