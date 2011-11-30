@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.28 2011/11/29 14:25:11 montanin Exp $
+// $Id: HistoAnalyzer.cc,v 1.29 2011/11/29 14:36:44 montanin Exp $
 //
 //
 
@@ -22,14 +22,12 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
-#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
-#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 
 //PU reweight
 #include "Histo/HistoAnalyzer/interface/Flat10.h"
 #include "Histo/HistoAnalyzer/interface/ZSkim_v1.h"
-
+#include "DataFormats/Common/interface/MergeableCounter.h"
 
 
 bool hltispresent=1;
@@ -48,235 +46,231 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //IMPORTANTE
   clean_vectors();
   nEvents_++;
-
-
+  
+  
 	//Get The Run Parameters
-	Timestamp = iEvent.time().value(); //lo fa ogni vento, ma se vuoi farlo ogni run, basta che ci metti prima if(nEvents_==1)
-	edm::LuminosityBlockNumber_t 	ls = iEvent.id().luminosityBlock();
-	edm::EventNumber_t 		events = iEvent.id().event();
-	edm::RunNumber_t 		run = iEvent.id().run();
-	Run=run;
-	Event=events;
-	LS=ls;
-
-	//Isolation Variables for Removed PU
-	double IsoTrk_PUR;
-	double IsoEcal_PUR;
-	double IsoHcal_PUR;
-
-	//Define Isolation Variables (Non-Removed PU)
-	double IsoTrk;
-	double IsoEcal;
-	double IsoHcal;
-	double HE;
-	double fbrem;
-	double etaSC;
-
-	//Define ID variables
-	float DeltaPhiTkClu;
-	float DeltaEtaTkClu;
-	float sigmaIeIe;
-
-	//Define Conversion Rejection Variables
-	float Dcot;
-	float Dist;
-	int NumberOfExpectedInnerHits;
-	//EODefinitions
-
-
-
-	//Match The HLT Trigger
-	using edm::TriggerResults;
-	Handle<TriggerResults> HLTResults;
-	iEvent.getByLabel(triggerCollection_, HLTResults);
-	const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
-
-
-
-if (HLTResults.isValid() && doTheHLTAnalysis_) {
-		/// Storing the Prescale information: loop over the triggers and record prescale
-
-// Matching the HLT information event per event if no hlt info is present in iRun
-		if(hltispresent==false){
-			std::vector<std::string>  hlNames;
-			hlNames.clear();
-			hlNames=triggerNames.triggerNames();
-			triggerIndices_.clear();
-			unsigned int myflag=0;
-
-			for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
-				if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end()){
-					triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
-				}
-				else{
-					triggerIndices_.push_back(2048);
-					myflag++;
-				}
-			}
-			if(myflag==triggerNames_.size()) hltispresent=false;
-			else hltispresent=true; //cosi' prendo una sola volta l'hlt path tanto nie miei studi mi serve l'hlt path per run...
-		}
-
-
-		unsigned int minimalPrescale(10000);
-		unsigned int prescale(0);
-		bool bit(true);
-		std::pair<int,int> prescalepair;
-		std::vector<int>  triggerSubset;
-		for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
-			if(triggerIndices_[itrig]!=2048) {
-				path.push_back(triggerNames_[itrig]);
-				// check trigger response
-				bit = HLTResults->accept(triggerIndices_[itrig]);
-				triggerSubset.push_back(bit);
-
-
-				if(bit) {
-
-					//WORKING HERE
-					//Se il path non esiste gia' nella lista dei paths, lo aggiungo
-					TString tstringa=(TString)triggerNames_[itrig]; //ci serve per l'IF
-					std::string stringa=(string)triggerNames_[itrig];
-
-					if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("FinalPath") )){
-						//Se il path e' Ele* o Photon* allora riempiamo l'istogramma
-						h_HLTbits->Fill(stringa.c_str(),1); //questo fa il plottino... 
-
-												
-						if( !(find(HLTPaths.begin(), HLTPaths.end(), stringa)!=HLTPaths.end()) ){  
-						//If path is accepted, then together with its prescale it is stored in a map.
-						int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
-						if(prescaleset!=-1) {
-							prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
-							if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
-							//getting prescale info
-							prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
-							if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
-								edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
-								prescale = -999;
-							}
-
-							if(prescalepair.first<0 || prescalepair.second<0) { prescale = -999; }
-						}
-
-						minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
-						if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
-
-
-						HLTPaths.push_back(stringa);
-						HLTPrescales.push_back(prescale);
-						vRun.push_back(Run);
-						}//chiusura if find ...
-
-						//Qui si riempie il vettore che mi servira'  per calcolare il ratio
-						if(HLTValue.size()==0){ HLTValue.push_back(1); HLTNames.push_back(stringa);
-						}
-						else{
-						bool already = 0;
-							for(unsigned int dd=0;dd<HLTValue.size();dd++){
-
-								if(HLTNames[dd]==stringa){HLTValue[dd] = HLTValue[dd] + 1;
-								already=1;
-								}
-							
-							} //chiusura for per vedere se c'e' il path
-							if(!already){ HLTValue.push_back(1); HLTNames.push_back(stringa);
-							}
-						}
-					} // Chiusura filtro du HLTPaths
-				} //Chiusura del if(bit)
-				else {
-					//edm::LogError("HistoProducer") << " Unable to get prescale set from event. Check that L1 data products are present.";
-				}
-			}
-			else {
-				// that trigger is presently not in the menu
-				triggerSubset.push_back(false);
-
-			}
-		} //chiusura for
-	} //chiusura HLT studies
-
-
-	//////////////////
-	////// Pile UP studies
-	/////////////////
-
-	if (usingMC_){
-		edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
-		Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-		iEvent.getByLabel(PileupSrc_, PupInfo);
-
-		std::vector<PileupSummaryInfo>::const_iterator PVI;
-
-		/*
-		///////////////////
-		//// New way
-		/////////
-		
-		int npv = -1;
-		float sum_nvtx = 0;
-		
-		for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-		  npv = PVI->getPU_NumInteractions();
-		  sum_nvtx += float(npv);
-		}
-
-		std::vector<float> simulated;
-		std::vector<float> trueD;
-		edm::LumiReWeighting LumiWeights_;
-		
-		
-		//Calculate the distributions (our data and MC)
-		for( int i=0; i<25; ++i) {
-		  trueD.push_back(Data2011A_real[i]); // Name of the vector calculated with estimatedPU.py!
-		  simulated.push_back(MikeSmeared_v2[i]); // Name of the vector included in Flat10.h !
-		}
-		
-		LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
-		float ave_nvtx = sum_nvtx/3.;
-		double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
-		//////End of new version
-		*/
-
-		/////////
-		// 3D reweighting
-		edm::Lumi3DReWeighting LumiWeights_;
-		//LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
-		LumiWeights_ = edm::Lumi3DReWeighting("../bin/Summer11_Generated_Flat10Tail.root", "../bin/Data2011A_160404-173692.root", "pileup", "pileup");
-		float ScaleFactor = 1.0; // you can change it to evaluate systematic effects
-		LumiWeights_.weight3D_init( ScaleFactor );
-	
-	
-		int nm1 = -1; int n0 = -1; int np1 = -1;
-		for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-
-			int BX = PVI->getBunchCrossing();
-
-			if(BX == -1) { 
-				nm1 = PVI->getPU_NumInteractions();
-			}
-			if(BX == 0) { 
-				n0 = PVI->getPU_NumInteractions();
-			}
-			if(BX == 1) { 
-				np1 = PVI->getPU_NumInteractions();
-			}
-
-		}
-		double MyWeight3D = LumiWeights_.weight3D( nm1,n0,np1);
-		// end 3D
-		/////////
-
-		////// Storing info
-		Weight=MyWeight3D;
-		EventWeight->push_back(MyWeight3D); 
-	} 
-	else { 
-		EventWeight->push_back(1); 
+  Timestamp = iEvent.time().value(); //lo fa ogni vento, ma se vuoi farlo ogni run, basta che ci metti prima if(nEvents_==1)
+  edm::LuminosityBlockNumber_t 	ls = iEvent.id().luminosityBlock();
+  edm::EventNumber_t 		events = iEvent.id().event();
+  edm::RunNumber_t 		run = iEvent.id().run();
+  Run=run;
+  Event=events;
+  LS=ls;
+  
+  //Add event counters
+  lumi  = iEvent.luminosityBlock();
+  //Isolation Variables for Removed PU
+  double IsoTrk_PUR;
+  double IsoEcal_PUR;
+  double IsoHcal_PUR;
+  
+  //Define Isolation Variables (Non-Removed PU)
+  double IsoTrk;
+  double IsoEcal;
+  double IsoHcal;
+  double HE;
+  double fbrem;
+  double etaSC;
+  
+  //Define ID variables
+  float DeltaPhiTkClu;
+  float DeltaEtaTkClu;
+  float sigmaIeIe;
+  
+  //Define Conversion Rejection Variables
+  float Dcot;
+  float Dist;
+  int NumberOfExpectedInnerHits;
+  //EODefinitions
+  
+  
+  
+  //Match The HLT Trigger
+  using edm::TriggerResults;
+  Handle<TriggerResults> HLTResults;
+  iEvent.getByLabel(triggerCollection_, HLTResults);
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
+  
+  
+  
+  if (HLTResults.isValid() && doTheHLTAnalysis_) {
+    /// Storing the Prescale information: loop over the triggers and record prescale
+    
+    // Matching the HLT information event per event if no hlt info is present in iRun
+    if(hltispresent==false){
+      std::vector<std::string>  hlNames;
+      hlNames.clear();
+      hlNames=triggerNames.triggerNames();
+      triggerIndices_.clear();
+      unsigned int myflag=0;
+      
+      for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+	if(find(hlNames.begin(),hlNames.end(),triggerNames_[itrig])!=hlNames.end()){
+	  triggerIndices_.push_back(hltConfig_.triggerIndex(triggerNames_[itrig]));
 	}
-
+	else{
+	  triggerIndices_.push_back(2048);
+	  myflag++;
+	}
+      }
+      if(myflag==triggerNames_.size()) hltispresent=false;
+      else hltispresent=true; //cosi' prendo una sola volta l'hlt path tanto nie miei studi mi serve l'hlt path per run...
+    }
+    
+    
+    unsigned int minimalPrescale(10000);
+    unsigned int prescale(0);
+    bool bit(true);
+    std::pair<int,int> prescalepair;
+    std::vector<int>  triggerSubset;
+    for(unsigned int itrig = 0; itrig < triggerNames_.size(); ++itrig) {
+      if(triggerIndices_[itrig]!=2048) {
+	path.push_back(triggerNames_[itrig]);
+	// check trigger response
+	bit = HLTResults->accept(triggerIndices_[itrig]);
+	triggerSubset.push_back(bit);
 	
+	
+	if(bit) {
+	  
+	  //WORKING HERE
+	  //Se il path non esiste gia' nella lista dei paths, lo aggiungo
+	  TString tstringa=(TString)triggerNames_[itrig]; //ci serve per l'IF
+	  std::string stringa=(string)triggerNames_[itrig];
+	  
+	  if ((tstringa.Contains("Ele") || tstringa.Contains("Photon") || tstringa.Contains("FinalPath") )){
+	    //Se il path e' Ele* o Photon* allora riempiamo l'istogramma
+	    h_HLTbits->Fill(stringa.c_str(),1); //questo fa il plottino... 
+	    
+	    
+	    if( !(find(HLTPaths.begin(), HLTPaths.end(), stringa)!=HLTPaths.end()) ){  
+	      //If path is accepted, then together with its prescale it is stored in a map.
+	      int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
+	      if(prescaleset!=-1) {
+		prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
+		if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
+		//getting prescale info
+		prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
+		if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
+		  edm::LogWarning("MyAnalyzer") << " Unable to get prescale from event for trigger " << triggerNames.triggerName(itrig) << " :" << prescalepair.first << ", " << prescalepair.second;
+		  prescale = -999;
+		}
+		
+		if(prescalepair.first<0 || prescalepair.second<0) { prescale = -999; }
+	      }
+	      
+	      minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
+	      if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
+	      
+	      
+	      HLTPaths.push_back(stringa);
+	      HLTPrescales.push_back(prescale);
+	      vRun.push_back(Run);
+	    }//chiusura if find ...
+	    
+	    //Qui si riempie il vettore che mi servira'  per calcolare il ratio
+	    if(HLTValue.size()==0){ HLTValue.push_back(1); HLTNames.push_back(stringa);
+	    }
+	    else{
+	      bool already = 0;
+	      for(unsigned int dd=0;dd<HLTValue.size();dd++){
+		
+		if(HLTNames[dd]==stringa){HLTValue[dd] = HLTValue[dd] + 1;
+		  already=1;
+		}
+		
+	      } //chiusura for per vedere se c'e' il path
+	      if(!already){ HLTValue.push_back(1); HLTNames.push_back(stringa);
+	      }
+	    }
+	  } // Chiusura filtro du HLTPaths
+	} //Chiusura del if(bit)
+	else {
+	  //edm::LogError("HistoProducer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+	}
+      }
+      else {
+	// that trigger is presently not in the menu
+	triggerSubset.push_back(false);
+      }
+    } //chiusura for
+ } //chiusura HLT studies
+  
+  
+  //////////////////
+  ////// Pile UP studies
+  /////////////////
+  
+  if (usingMC_){
+    edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
+    Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+    iEvent.getByLabel(PileupSrc_, PupInfo);
+    
+    std::vector<PileupSummaryInfo>::const_iterator PVI;
+    
+    /*
+///////////////////
+//// New way
+/////////
+
+int npv = -1;
+float sum_nvtx = 0;
+
+for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+npv = PVI->getPU_NumInteractions();
+sum_nvtx += float(npv);
+}
+
+std::vector<float> simulated;
+std::vector<float> trueD;
+edm::LumiReWeighting LumiWeights_;
+
+
+//Calculate the distributions (our data and MC)
+for( int i=0; i<25; ++i) {
+trueD.push_back(Data2011A_real[i]); // Name of the vector calculated with estimatedPU.py!
+simulated.push_back(MikeSmeared_v2[i]); // Name of the vector included in Flat10.h !
+}
+
+LumiWeights_ = edm::LumiReWeighting(simulated, trueD);
+float ave_nvtx = sum_nvtx/3.;
+double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
+//////End of new version
+*/
+    
+    /////////
+    // 3D reweighting
+    LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
+    
+    
+    int nm1 = -1; int n0 = -1; int np1 = -1;
+    for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+      
+      int BX = PVI->getBunchCrossing();
+      
+      if(BX == -1) { 
+	nm1 = PVI->getPU_NumInteractions();
+      }
+      if(BX == 0) { 
+	n0 = PVI->getPU_NumInteractions();
+      }
+      if(BX == 1) { 
+	np1 = PVI->getPU_NumInteractions();
+      }
+    }
+    double MyWeight3D = LumiWeights_.weight3D( nm1,n0,np1);
+    // end 3D
+    /////////
+    
+    //////// Storing info
+    Weight=MyWeight3D;
+    EventWeight->push_back(MyWeight3D); 
+  } 
+  else { 
+    EventWeight->push_back(1); 
+  }
+  
+  
 	///////////////////
 	/// Electrons Study
 	///////////////////
@@ -448,6 +442,7 @@ if (HLTResults.isValid() && doTheHLTAnalysis_) {
 	h_Dcot->GetYaxis()-> SetTitle("Events");
 	h_Dist->GetYaxis()-> SetTitle("Events");
 	h_NumberOfExpectedInnerHits->GetYaxis()-> SetTitle("Events");
+	nEventsPerStep_->GetYaxis()->SetTitle("Events");
 
 	///////////////////////
 	///// Vertex Analysis
@@ -478,8 +473,11 @@ HLTValue.clear();
 HLTRatio.clear();
 vRun.clear();
 
-
-
+//Initialize reweighting..
+ if (usingMC_) {
+   ScaleFactor=1.0;
+   //LumiWeights_.weight3D_init( ScaleFactor ); UNESSENTIAL AT FIRST SIGHT! CHECK IF REWEWIGHT IS SCREWED UP!!!
+ }
 	//TFile and TTree initialization
 	treeVJ_= new TTree("treeVJ_","treeVJ_");
 	treeHLT_= new TTree("treeHLT_","treeHLT_");
@@ -551,6 +549,7 @@ vRun.clear();
 	void 
 HistoProducer::endJob() 
 {
+  //nEventsPerStep_->Write();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -597,7 +596,6 @@ hltispresent=true;
 			if (debug) cout << (i++) << " = " << (*it) << std::endl;
 		} 
 	}
-
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -609,14 +607,22 @@ HistoProducer::endRun(edm::Run&,const edm::EventSetup&)
 
 // ------------ method called when starting to processes a luminosity block  ------------
 	void 
-HistoProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+HistoProducer::beginLuminosityBlock(edm::LuminosityBlock & lumi, const edm::EventSetup & iEvent)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 	void 
-HistoProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+	HistoProducer::endLuminosityBlock(edm::LuminosityBlock & lumi, const edm::EventSetup & iEvent)
 {
+  for (size_t i = 0; i < numEventsNames_.size(); i++)
+    {
+      edm::Handle<edm::MergeableCounter> numEventsCounter;
+      lumi.getByLabel(numEventsNames_.at(i), numEventsCounter);
+      if (numEventsCounter.isValid()){
+	nEventsPerStep_->AddBinContent(i + 1, numEventsCounter->value);
+      }
+    }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

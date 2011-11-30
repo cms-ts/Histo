@@ -23,6 +23,8 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 // root includes
 #include "TH1.h"
@@ -32,6 +34,7 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 
 using namespace edm;
 using namespace reco;
@@ -58,10 +61,8 @@ class HistoProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endRun(edm::Run&, const edm::EventSetup&);
       virtual void endJob() ;
-
-
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock (edm::LuminosityBlock &, const edm::EventSetup &);
+      virtual void endLuminosityBlock (edm::LuminosityBlock &, const edm::EventSetup &);
 
       // ----------member data ---------------------------
 
@@ -69,6 +70,7 @@ class HistoProducer : public edm::EDProducer {
       edm::InputTag electronCollection_;
       edm::InputTag triggerCollection_;
       edm::InputTag VertexCollectionTag_;
+      std::vector<std::string>  numEventsNames_;
  
       bool useCombinedPrescales_; // switch between HLT only and L1*HLT prescales
       bool useAllTriggers_; // if no trigger names are provided, use all triggers to find event weight
@@ -80,6 +82,10 @@ class HistoProducer : public edm::EDProducer {
       bool doTheHLTAnalysis_;
       TimeValue_t  Timestamp;
 
+      //Event Counter
+      int lumi;
+      TH1F * nEventsPerStep_;
+
       //Various
       TTree* treeVJ_;
       TTree* treeHLT_;
@@ -89,6 +95,9 @@ class HistoProducer : public edm::EDProducer {
       //MC
       double Weight;
       int npv;
+      //MC reweight
+      edm::Lumi3DReWeighting LumiWeights_;
+      float ScaleFactor; // you can change it to evaluate systematic effects
 
       //EB
       TH1D * h_IsoTrk_EB;
@@ -219,9 +228,10 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   triggerNames_         = conf.getParameter< std::vector<std::string> > ("TriggerNames");
   useAllTriggers_       = (triggerNames_.size()==0);
   removePU_             = conf.getParameter<bool>("removePU");
-  usingMC_             = conf.getParameter<bool>("usingMC");
+  usingMC_              = conf.getParameter<bool>("usingMC");
   doTheHLTAnalysis_     = conf.getParameter<bool>("doTheHLTAnalysis");
-  VertexCollectionTag_      = conf.getParameter<edm::InputTag>("VertexCollectionTag");
+  VertexCollectionTag_  = conf.getParameter<edm::InputTag>("VertexCollectionTag");
+   numEventsNames_       = conf.getParameter< std::vector<std::string> > ("TotalNEventTag");
 
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 
@@ -250,8 +260,10 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   h_Dcot = fs->make<TH1F>("h_Dcot","Dcot",40,-0.2,0.2);
   h_Dist = fs->make<TH1F>("h_Dist","Dist",40,-0.2,0.2);
   h_NumberOfExpectedInnerHits = fs->make<TH1I>("h_NumberOfExpectedInnerHits","make title :)",20,0.,0.1);
-
   h_HLTbits = fs->make<TH1I>("h_HLTbits","fired",20,0.,0.1);
+
+  const unsigned int nNames = numEventsNames_.size();
+  nEventsPerStep_ = fs->make<TH1F>("numEventsPerStep", "", nNames, 0, nNames);
 }
 
 
