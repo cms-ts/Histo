@@ -24,9 +24,9 @@
 bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
 
 string plotpath		="./"; //put here the path where you want the plots
-//string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A.root";
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_4.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_4.root"; 
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_7.root";
+string mcfile		="jetValidation_64_1_VXD.root"; 
+//string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_3d.root"; 
 string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_4.root"; 
 string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_4.root";
 
@@ -41,12 +41,15 @@ double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non ve
 double wwemean=130.;
 double ttwemean=140.;
 
-
-
+double zNumEvents=-999; //lo definisco globale anche se non Ã¨ la cosa piÃ¹ bella da fare
+double ttNumEvents=-999; //questo lavoro andrebbe fatto anche per i qcd... 
+double wNumEvents=-999; //al momento non l'ho fatto perchÃ© passano 0 eventi e e' gran smeno
 
 using namespace std;
 
 void comparisonJetMCData(string plot,int rebin);
+double numEventsPerStep(string filename, string dir);
+
 
 
 void DrawComparisonJetMCData(void){
@@ -64,6 +67,11 @@ void DrawComparisonJetMCData(void){
 	gROOT->LoadMacro("tdrStyle.C++");
 	tdrStyle();
 
+	// Recupero l'informazione sul numero di eventi processati per singolo MC
+	zNumEvents = numEventsPerStep(mcfile, "demo"); 
+	ttNumEvents = numEventsPerStep(back_ttbar, "demo"); 
+	wNumEvents = numEventsPerStep(back_w, "demo"); 
+	// ---------------------------------------------------
 
 
 	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
@@ -75,7 +83,7 @@ void DrawComparisonJetMCData(void){
 	TObject* tobj = 0;
 	string tmpname;
 
-int i=0;
+	int i=0; // solo di servizio quando debuggo...
 	while ( tobj = iter.Next() ) {
 
 	gROOT->Reset();
@@ -99,7 +107,8 @@ int i=0;
 		Canv = new TCanvas("Canv","Canv",0,0,800,600);
 
 		gPad->SetLogy(1);
-		
+	
+		//---- weights
 		mcf->cd("validationJEC");
 		TH1F* mc;
 		gDirectory->GetObject(name.c_str(),mc);
@@ -112,6 +121,7 @@ int i=0;
 		Canv->Print(tmpname.c_str());
 		}
 
+		//---- weights
 		ttbarf->cd("validationJEC");
 		TH1F* ttbar;
 		gDirectory->GetObject(name.c_str(),ttbar);
@@ -125,6 +135,7 @@ int i=0;
 		Canv->Print(tmpname.c_str());
 		}
 
+		//---- weights
 		wf->cd("validationJEC");
 		TH1F* w;
 		gDirectory->GetObject(name.c_str(),w);
@@ -143,15 +154,28 @@ int i=0;
 	
 	
 	i++;
-	//if(i==2)break;
+	//if(i==4)break;
 	}
 
 
+	// AVVISI AI NAVIGANTI
+	if(zNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DELLO Z+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di Z+jets " << zNumEvents << "\n";
+	
+	if(ttNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL TTBAR+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di ttbar+jets " << ttNumEvents << "\n";
+	
+	
+	if(wNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di W+jets " << wNumEvents << "\n";
+	
 	return;
 }
 
 
-
+//==================================
+//	      Funzioni
+//==================================
 
 void comparisonJetMCData(string plot,int rebin){
 
@@ -256,8 +280,15 @@ void comparisonJetMCData(string plot,int rebin){
 		mc->SetFillColor(kRed);
 		mc->Sumw2();
 		if(lumiweights==0) mc->Scale(dataint/mcint);
-		if(lumiweights==1) mc->Scale(zjetsScale);
-		if(lumiweights==1) mc->Scale(915./904.); // perche' il mc non e' completo...
+		
+		// Blocco da propagare negli altri MC
+		if(zNumEvents>0.){
+			if(lumiweights==1) mc->Scale( dataLumi2011A / (zNumEvents / zjetsXsect));
+		} else {
+			if(lumiweights==1) mc->Scale(zjetsScale);
+		}
+		// fin qui
+
 		if(lumiweights==1) mc->Scale(1.-zwemean+1.);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
@@ -275,8 +306,13 @@ void comparisonJetMCData(string plot,int rebin){
 		if(ttbar){
 		ttbar->SetFillColor(kBlue);
 		ttbar->Sumw2();
-		ttbar->Scale(ttbarScale);
-		//ttbar->Scale(24./23.);  // il mc non Ã¨ completo...
+		
+		if(ttNumEvents>0.){
+			if(lumiweights==1) ttbar->Scale( dataLumi2011A / (ttNumEvents / ttbarXsect));
+		} else {
+			if(lumiweights==1) ttbar->Scale(ttbarScale);
+		}
+		
 		ttbar->Scale(1.-ttwemean+1.);  // perche' i Weights non fanno 1...
 		ttbar->Rebin(rebin);
 		//ttbar->Draw("HISTO SAMES");
@@ -293,9 +329,16 @@ void comparisonJetMCData(string plot,int rebin){
 
 		w->SetFillColor(kViolet+2);
 		w->Sumw2();
+		
+		if(wNumEvents>0.){
+			if(lumiweights==1) w->Scale( dataLumi2011A / (wNumEvents / wjetsXsect));
+		} else {
+			if(lumiweights==1) w->Scale(wjetsScale);
+		}
+		
 		w->Scale(wjetsScale); 
+		if(wNumEvents>0.) w->Scale(wjetsNevts/wNumEvents); // perche' il mc non e' completo...
 		w->Scale(1.-wwemean+1.);  // perche' i Weights non fanno 1...
-		w->Scale(438./330.); // il mc non Ã¨ completo... 
 		w->Rebin(rebin);
 		//w->Draw("HISTO SAMES");
 		hsum->Add(w);
@@ -351,7 +394,7 @@ void comparisonJetMCData(string plot,int rebin){
 		gDirectory->GetObject(plot.c_str(),qcd23bc);
 
 		if(qcd23bc){
-		TH1D * qcdTotBC =  (TH1D*) qcd23bc->Clone(); //da spostare piÃ¹ in su appena funziona il 23
+		TH1D * qcdTotBC =  (TH1D*) qcd23bc->Clone(); 
 		qcdTotBC->SetTitle("qcd bc");
 		qcdTotBC->SetName("qcd bc");
 		qcdTotBC->Reset();
@@ -548,7 +591,7 @@ void comparisonJetMCData(string plot,int rebin){
 	mcf->Close();
 	ttbarf->Close();
 	wf->Close();
-	//qcd23emf->Close();
+	qcd23emf->Close();
 	qcd38emf->Close();
 	qcd817emf->Close();
 	qcd23bcf->Close();
@@ -557,5 +600,27 @@ void comparisonJetMCData(string plot,int rebin){
 
 
 	return;
+}
+
+
+
+
+
+double numEventsPerStep(string filename, string dir){
+
+	double entries=-999;
+
+	TFile *tmp = TFile::Open(filename.c_str()); //MC file
+	tmp->cd(dir.c_str());
+
+	TObject * obj;
+	gDirectory->GetObject("numEventsPerStep",obj);
+
+	if(obj) entries = ((TH1F*)obj)->GetBinContent(1);
+
+	tmp->Close();
+
+	return entries;
+
 }
 
