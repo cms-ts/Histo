@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.29 2011/11/29 14:36:44 montanin Exp $
+// $Id: HistoAnalyzer.cc,v 1.30 2011/11/30 15:47:26 marone Exp $
 //
 //
 
@@ -240,8 +240,13 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
     
     /////////
     // 3D reweighting
-    LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
-    
+
+    if (cold){
+      LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
+      LumiWeights_.weight3D_init( ScaleFactor );
+      cout<<"Initializing weight3D at Factor Scale ->"<<ScaleFactor<<endl;
+      cold=false;
+    }
     
     int nm1 = -1; int n0 = -1; int np1 = -1;
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
@@ -264,8 +269,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
     
     //////// Storing info
     Weight=MyWeight3D;
-    EventWeight->push_back(MyWeight3D); 
-  } 
+    EventWeight->push_back(MyWeight3D);
+    if (MyWeight3D<0.01) cout<<"You are over-correcting in the MC reweight, HistoAnalyzer.cc!!!"<<endl;
+  }
   else { 
     EventWeight->push_back(1); 
   }

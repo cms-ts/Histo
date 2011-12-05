@@ -42,6 +42,7 @@ using namespace std;
 
 bool debug=false; //If true it will activate the cout verbosity
 
+bool cold=true; //It is used to process few lines only once per job...
 class TTree;
 
 /////
