@@ -67,13 +67,13 @@ Unfolding::Loop ()
 
   //if (fChain == 0) return;
 
-  TFile *fA = new TFile (" jetValidation_zjets_magd_2011A_v1_8.root");
-  fA->cd ("jetValidation_zjets_magd_2011A_v1_8.root:/validationJEC");
+  TFile *fA = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_9.root");
+  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_9.root:/validationJEC");
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
 
-  TFile *fB = new TFile ("jetValidation_DATA_2011A_v1_8.root");
+  TFile *fB = new TFile ("provaVieri_v1_9.root");
 
-  fB->cd ("jetValidation_DATA_2011A_v1_8.root:/validationJEC");
+  fB->cd ("provaVieri_v1_9.root:/validationJEC");
 
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
   /*costruisco la matrice di unfolding */
@@ -160,16 +160,16 @@ Unfolding::Loop ()
   
   /*choose your favourite unfolding method */
 
-  //RooUnfoldBayes unfold_N (&response_N, NData, 2);
-  RooUnfoldSvd unfold_N (&response_N, NData, 3);	// OR
+  //RooUnfoldBayes unfold_N (&response_N, NData, 3);
+  RooUnfoldSvd unfold_N (&response_N, NData, 5);	// OR
   //RooUnfoldBinByBin unfold_N (&response_N, NMeas);
 
-  //RooUnfoldBayes unfold_pT (&response_pT, PData, 2);
+  //RooUnfoldBayes unfold_pT (&response_pT, PData, 3);
   RooUnfoldSvd unfold_pT (&response_pT, PData, 10);	// OR
   //RooUnfoldBinByBin unfold_pT (&response_pT, PMeas);
 
-  //RooUnfoldBayes unfold_y (&response_pT, PData, 2);
-  RooUnfoldSvd unfold_y (&response_y, yData, 25);	// OR
+  RooUnfoldBayes unfold_y (&response_y, yData, 3);
+  //RooUnfoldSvd unfold_y (&response_y, yData, 25);	// OR
   //RooUnfoldBinByBin unfold_y (&response_pT, PMeas);
 
 
