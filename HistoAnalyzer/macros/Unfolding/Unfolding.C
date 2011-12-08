@@ -157,25 +157,65 @@ Unfolding::Loop ()
       yData->Fill (Z_y);
       yData2->Fill (Z_y);
     }
-  
+
   /*choose your favourite unfolding method */
+  TH1D *NReco;
+  TH1D *PReco;
+  TH1D *yReco;
 
-  //RooUnfoldBayes unfold_N (&response_N, NData, 3);
-  RooUnfoldSvd unfold_N (&response_N, NData, 5);	// OR
-  //RooUnfoldBinByBin unfold_N (&response_N, NMeas);
+  cout<<"#####################"<<endl;
+  cout<<"    Enter few param "<<endl;
+  cout<<"#####################"<<endl;
+  cout<<endl;
+  cout<<"Which method you wonna set to unfold???"<<endl;
+  cout<<"Please choose among:"<<endl;
+  cout<<"BbB-> Bin By Bin"<<endl;
+  cout<<"Ba -> Bayesian"<<endl;
+  cout<<"Svd-> Single Value"<<endl;
+  string method="";
+  getline(cin, method);
+  cout<<endl;
+  cout<<"Draw the matrixes as plots at the end? [y/N] "<<endl;
+  string drawm="";
+  getline(cin, drawm);
+  
+  ////////////
+  //// Set Parameters
+  ///////////
 
-  //RooUnfoldBayes unfold_pT (&response_pT, PData, 3);
-  RooUnfoldSvd unfold_pT (&response_pT, PData, 10);	// OR
-  //RooUnfoldBinByBin unfold_pT (&response_pT, PMeas);
+  int myNumber=3;
 
-  RooUnfoldBayes unfold_y (&response_y, yData, 3);
-  //RooUnfoldSvd unfold_y (&response_y, yData, 25);	// OR
-  //RooUnfoldBinByBin unfold_y (&response_pT, PMeas);
-
-
-  TH1D *NReco = (TH1D *) unfold_N.Hreco ();
-  TH1D *PReco = (TH1D *) unfold_pT.Hreco ();
-  TH1D *yReco = (TH1D *) unfold_y.Hreco ();
+  if (method=="Ba") {
+    RooUnfoldBayes unfold_N (&response_N, NData, myNumber);
+    RooUnfoldBayes unfold_pT (&response_pT, PData, myNumber);
+    RooUnfoldBayes unfold_y (&response_y, yData, myNumber);
+    NReco = (TH1D *) unfold_N.Hreco ();
+    PReco = (TH1D *) unfold_pT.Hreco ();
+    yReco = (TH1D *) unfold_y.Hreco ();
+  }
+  if (method=="Svd"){
+    RooUnfoldSvd unfold_N (&response_N, NData, 5);	// OR
+    RooUnfoldSvd unfold_pT (&response_pT, PData, 10);
+    RooUnfoldSvd unfold_y (&response_y, yData, 25);
+    NReco = (TH1D *) unfold_N.Hreco ();
+    PReco = (TH1D *) unfold_pT.Hreco ();
+    yReco = (TH1D *) unfold_y.Hreco ();
+  }
+  if (method=="BbB"){
+    //RooUnfoldBinByBin unfold_N (&response_N, NMeas);
+    //RooUnfoldBinByBin unfold_pT (&response_pT, PMeas);
+    //RooUnfoldBinByBin unfold_y (&response_pT, PMeas);
+    cout<<"Bin By Bin method not already implemented..exit"<<endl;
+    return;
+  }
+  if (method !="BbB" && method !="Svd" && method !="Ba"){
+    cout<<"Not Valid Unfolding method chosen... exit"<<endl;
+    cout<<"Please choose among:"<<endl;
+    cout<<"BbB-> Bin By Bin"<<endl;
+    cout<<"Ba -> Bayesian"<<endl;
+    cout<<"Svd-> Single Value"<<endl;
+    return;
+  }
 
   //unfold.PrintTable (cout, NTrue); // print statistics of the unfolding i.e. chi2/dof
 
@@ -258,6 +298,7 @@ Unfolding::Loop ()
   j->Draw ("same");
 
   c->cd ();
+  c->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/jetMultiplicity.png");
 
   TCanvas *d = new TCanvas ("d", "d", 1000, 700);
   d->cd ();
@@ -340,6 +381,7 @@ Unfolding::Loop ()
   k->Draw ("same");
 
   d->cd ();
+  d->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Zpt.png");
 
   TCanvas *e = new TCanvas ("e", "e", 1000, 700);
   e->cd ();
@@ -421,10 +463,10 @@ Unfolding::Loop ()
   l->SetLineStyle (2);
   l->Draw ("same");
 
-  d->cd ();
+  e->cd ();
+  e->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Zy.png");
 
-
-
+  if (drawm=="y" || drawm=="Y"){
 
 	  /************ Unfolding Matrix *************************/
 
@@ -433,37 +475,41 @@ Unfolding::Loop ()
   N->cd ();
 
   gStyle->SetPalette (1);
-  gStyle->SetPaintTextFormat ("10.0f");
+  gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
   NMatx->SetMarkerColor (kBlack);
-  // NMatx->Scale(1.0/NMatx->GetEntries());
+  double entries=1.000/(double)NMatx->GetEntries();
+  NMatx->Scale(entries);
   NMatx->Draw ("COLZ,text");
-
+  N->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/jetMultiplicityMatrix.png");
 
   TCanvas *P = new TCanvas ("Pt response matrix", "Pt response", 1000, 700);
   P->cd ();
 
   gStyle->SetPalette (1.);
-  gStyle->SetPaintTextFormat ("10.0f");
+  gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
-  // PMatx->Scale(1.0/PMatx->GetEntries());
+  entries=1.000/(double)PMatx->GetEntries();
+  PMatx->Scale(entries);
   PMatx->SetMarkerColor (kBlack);
   PMatx->Draw ("COLZ,text");
+  P->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/ZptMatrix.png");
 
   TCanvas *Y =
     new TCanvas ("rapidity response matrix", "rapidity response", 1000, 700);
   Y->cd ();
 
   gStyle->SetPalette (1.);
-  gStyle->SetPaintTextFormat ("10.0f");
+  gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
-  // yMatx->Scale(1.0/PMatx->GetEntries());
+  entries=1.000/(double)yMatx->GetEntries();
+  yMatx->Scale(entries);
   yMatx->SetMarkerColor (kBlack);
   yMatx->Draw ("COLZ,text");
+  Y->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/ZyMatrix.png");
 
-
+  }
 }
-
 
 #ifndef __CINT__
 
