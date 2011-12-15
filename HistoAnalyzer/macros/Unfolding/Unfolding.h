@@ -46,6 +46,9 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
+   virtual void     LoopJetMultiplicity();
+   virtual void     LoopZpt();
+   virtual void     LoopZy();
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -145,6 +148,6 @@ Int_t Unfolding::Cut(Long64_t entry)
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
-   return 1;
+ return 1;
 }
 #endif // #ifdef Unfolding_cxx
