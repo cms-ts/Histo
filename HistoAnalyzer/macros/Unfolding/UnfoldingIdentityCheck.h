@@ -50,8 +50,14 @@ public :
    virtual void     LoopZpt();
    virtual void     LoopZy();
    virtual void     Loop();
+   virtual void     LoopJetMultiplicityWithOtherMC();
+   virtual void     LoopZptWithOtherMC();
+   virtual void     LoopZyWithOtherMC();
+   virtual void     LoopJetMultiplicityAandB();
+   virtual void     LoopJetMultiplicityBackground();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+   virtual double   numEventsPerStep(string filename, string dir);
 };
 
 #endif
