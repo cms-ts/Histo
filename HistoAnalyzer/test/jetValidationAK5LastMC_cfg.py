@@ -99,8 +99,8 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 ###################
 
 
-process.Selection = cms.EDFilter('ZanalyzerFilter',
-                                 electronCollection = cms.InputTag("gsfElectrons"),
+process.Selection = cms.EDFilter('ZpatFilter',
+                                 electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                  triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(False),
@@ -311,3 +311,12 @@ process.JetValidation = cms.Path(
     process.validationJEC
     )
 
+#####################
+#                   #
+#    Outpath        #
+#                   #
+#####################
+
+process.outpath = cms.EndPath(
+        #process.out
+        )
