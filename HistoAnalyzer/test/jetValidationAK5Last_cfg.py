@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 import os
 process = cms.Process("JetValidation")
@@ -55,13 +56,14 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      )
 
 process.GlobalTag.globaltag = 'GR_R_41_V0::All'
+
 ####################
 #### Files
 ###################
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-05Jul2011ReReco-ECAL-v1/0000/E291407B-5AA7-E011-80C8-003048678FDE.root"
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-03Oct2011-v1/0000/FEAF4709-07EF-E011-A071-002618FDA208.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -78,6 +80,8 @@ process.source = cms.Source("PoolSource",
 ####################
 #### Trigger
 ###################
+
+trigger2011RunB= cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10")
 
 trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v3","HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3","HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v3","HLT_Ele45_CaloIdVT_TrkIdT_v3","HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4")
 
@@ -104,7 +108,7 @@ process.Selection = cms.EDFilter('ZpatFilter',
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(True),
                                  removePU=  cms.bool(True),
-                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03
+                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
 )
 
 ####################
@@ -120,7 +124,7 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03
+                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            )
 
 ####################
@@ -170,7 +174,7 @@ process.demo = cms.EDProducer('HistoProducer',
                               electronCollection = cms.InputTag('gsfElectrons'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
-                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03, 
+                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(False),
                               doTheHLTAnalysis = cms.bool(False),
@@ -261,8 +265,8 @@ process.JetValidation = cms.Path(
     process.goodEPair*
     process.ak5PFJets*
     #process.validation*
-    #process.ak5PFJetsL2L3Residual*
-    #process.validationL2L3Residual*
+    process.ak5PFJetsL2L3Residual*
+    process.validationL2L3Residual*
     process.ak5PFJetsL1FastL2L3Residual
     *process.validationJEC
      )
