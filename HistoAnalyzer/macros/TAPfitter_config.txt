@@ -1,0 +1,2 @@
+DATAFILENAME:	/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10.root
+MCFILENAME:	/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_10.root
