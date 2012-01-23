@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.30 2011/11/30 15:47:26 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.31 2011/12/05 14:36:27 marone Exp $
 //
 //
 
@@ -414,7 +414,7 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		vfbrem.push_back(fbrem);
 		vetaSC.push_back(etaSC);
 		vDcot.push_back(Dcot);
-		vDist.push_back(Dcot);
+		vDist.push_back(Dist);
 		vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
 
 	}//End for
