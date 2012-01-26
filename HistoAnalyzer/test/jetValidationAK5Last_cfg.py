@@ -132,7 +132,8 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
 ###################
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
-                                   electronCollection = cms.InputTag("gsfElectrons"),
+                                   electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                                   #electronCollection = cms.InputTag("gsfElectrons"),
                                    removePU=  cms.bool(True),
                                    )
                                    

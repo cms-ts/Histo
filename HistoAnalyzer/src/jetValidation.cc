@@ -153,13 +153,19 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (cluSize1==1){ h_gsfPfSCEnClu1->Fill(gsfScEn/pfScEn,myweight[0]);}
 	 }     
       }   
-      h_totalGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
-      h_totalGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
+      if (doEfficiencies){
+	 h_totalGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
+	 h_totalGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
+      }
+
       for(reco::PFCandidateCollection::const_iterator itPf=pfElec->begin();itPf!=pfElec->end();itPf++){
 	 if (itPf->gsfTrackRef()==it->gsfTrack()) {
 	    pfSize++;
-	    h_PairedPfElectronsVsEn->Fill(it->energy(),myweight[0]);
-	    h_PairedPfElectronsVsEta->Fill(it->eta(),myweight[0]);
+
+	    if (doEfficiencies){
+	       h_PairedPfElectronsVsEn->Fill(it->energy(),myweight[0]);
+	       h_PairedPfElectronsVsEta->Fill(it->eta(),myweight[0]);
+	    }
 
 	    h_ptPFptVsEta->Fill(it->eta(),it->energy()/itPf->energy(),myweight[0]);
 	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
@@ -169,43 +175,48 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    checkPf1=true;
 	    
 	    if (usingMC){
-	       h_totalGsfxMcElectronsVsEn->Fill(it->energy(),myweight[0]);
-	       h_totalGsfxMcElectronsVsEta->Fill(it->eta(),myweight[0]);
-	       h_totalPfxMcElectronsVsEn->Fill(itPf->energy(),myweight[0]);
-	       h_totalPfxMcElectronsVsEta->Fill(itPf->eta(),myweight[0]);
-	       
+	       if (doEfficiencies){
+		  h_totalGsfxMcElectronsVsEn->Fill(it->energy(),myweight[0]);
+		  h_totalGsfxMcElectronsVsEta->Fill(it->eta(),myweight[0]);
+		  h_totalPfxMcElectronsVsEn->Fill(itPf->energy(),myweight[0]);
+		  h_totalPfxMcElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+	       }
+
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
 		 dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
 		 distEta = fabs(itgen->eta() - it->eta());
 		 ratioEn = itgen->energy()/it->energy();
 		 ratioEn2 = itgen->energy()/itPf->energy();
-		 if (dist < maxDist && distEta < maxEta ){	     
-		   if (!checkCut){
-		     h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-		     checkCut = true;
-		   }
-		   if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
-		       ratioEn2 < maxEn && 1./ratioEn2 < maxEn ){
-		     h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
-		     checkPairing=true;
-		   }
-		 }
-		 if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
-		   if (dist < 0.1 && !checkTruth){		     
-		     h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-		     checkTruth=true;
-		   }
-		 }
-		 
+
+		 if (doElectronsComparisonMC){
+		    if (dist < maxDist && distEta < maxEta ){	     
+		       if (!checkCut){
+			  h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			  h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			  h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			  h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			  checkCut = true;
+		       }
+		       if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
+			   ratioEn2 < maxEn && 1./ratioEn2 < maxEn ){
+			  h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			  h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			  h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			  h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]); 
+			  checkPairing=true;
+		       }
+		    }
+		    if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
+		       if (dist < 0.1 && !checkTruth){		     
+			  h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			  h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			  h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			  h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			  checkTruth=true;
+		       }
+		    }
+		 }// end doElectronsComparisonMC
+
 		 if ( fabs(itgen->pdgId())==11 && dist < maxDist && dist < nearerDist){
 		     nearerDist = dist;
 		     enGen=itgen->energy();
@@ -217,75 +228,81 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	       } // end genParticle cycle
 	       
-	       if (!checkPairing){  // check what fail for the association to gen level
-		  if (dist > maxDist) h_failReason->Fill(1);
-		  if (distEta > maxEta) h_failReason->Fill(2);
-		  if (ratioEn > maxEn || 1./ratioEn > maxEn) h_failReason->Fill(3);
-		  if (ratioEn2 > maxEn || 1./ratioEn2 > maxEn) h_failReason->Fill(4);
-	       }
-	       
+	       if (doElectronsComparisonMC){
+		  if (!checkPairing){  // check what fail for the association to gen level
+		     if (dist > maxDist) h_failReason->Fill(1);
+		     if (distEta > maxEta) h_failReason->Fill(2);
+		     if (ratioEn > maxEn || 1./ratioEn > maxEn) h_failReason->Fill(3);
+		     if (ratioEn2 > maxEn || 1./ratioEn2 > maxEn) h_failReason->Fill(4);
+		  }
+	       } // end doElectronsComparisonMC
+
 	       if (checkNear){
-		  h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
-		  h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
-		  h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
-		  h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
 
-		  h_PFenMCenVsEnENear->Fill(itPf->energy(),itPf->energy()/enGen, myweight[0]);
-		  h_PFenMCenVsEtaENear->Fill(itPf->eta(),itPf->energy()/enGen, myweight[0]);
-		  h_GSFenMCenVsEnENear->Fill(it->energy(),it->energy()/enGen, myweight[0]);  
-		  h_GSFenMCenVsEtaENear->Fill(it->eta(),it->energy()/enGen, myweight[0]);
+		  if (doEfficiencies){
+		     h_PairedMcGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
+		     h_PairedMcPfElectronsVsEn->Fill(itPf->energy(),myweight[0]);
+		     h_PairedMcGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
+		     h_PairedMcPfElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+		  }
 
-		  h_PFenMCenVsMcEnENear->Fill(enGen,itPf->energy()/enGen, myweight[0]);
-		  h_PFenMCenVsMcEtaENear->Fill(etaGen,itPf->energy()/enGen, myweight[0]);
-		  h_GSFenMCenVsMcEnENear->Fill(enGen,it->energy()/enGen, myweight[0]);  
-		  h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]); 
+		  if (doElectronsComparisonMC){
+		     h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
 
-		  h_PairedMcGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
-		  h_PairedMcPfElectronsVsEn->Fill(itPf->energy(),myweight[0]);
-		  h_PairedMcGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
-		  h_PairedMcPfElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+		     h_PFenMCenVsEnENear->Fill(itPf->energy(),itPf->energy()/enGen, myweight[0]);
+		     h_PFenMCenVsEtaENear->Fill(itPf->eta(),itPf->energy()/enGen, myweight[0]);
+		     h_GSFenMCenVsEnENear->Fill(it->energy(),it->energy()/enGen, myweight[0]);  
+		     h_GSFenMCenVsEtaENear->Fill(it->eta(),it->energy()/enGen, myweight[0]);
 
-		  h_gsfMcPt->Fill(it->pt()/ptGen,myweight[0]);
-		  h_gsfMcEta->Fill(it->eta()/etaGen,myweight[0]);
-		  h_gsfMcPhi->Fill(it->phi()/phiGen,myweight[0]);
-		  h_pfMcPt->Fill(itPf->pt()/ptGen,myweight[0]);
-		  h_pfMcEta->Fill(itPf->eta()/etaGen,myweight[0]);
-		  h_pfMcPhi->Fill(itPf->phi()/phiGen,myweight[0]);
+		     h_PFenMCenVsMcEnENear->Fill(enGen,itPf->energy()/enGen, myweight[0]);
+		     h_PFenMCenVsMcEtaENear->Fill(etaGen,itPf->energy()/enGen, myweight[0]);
+		     h_GSFenMCenVsMcEnENear->Fill(enGen,it->energy()/enGen, myweight[0]);  
+		     h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]); 
 
-		  h_gsfMcGsfPt->Fill((it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_pfMcPfPt->Fill((itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_gsfMcPt->Fill(it->pt()/ptGen,myweight[0]);
+		     //h_gsfMcEta->Fill(it->eta()/etaGen,myweight[0]);
+		     //h_gsfMcPhi->Fill(it->phi()/phiGen,myweight[0]);
+		     //h_pfMcPt->Fill(itPf->pt()/ptGen,myweight[0]);
+		     //h_pfMcEta->Fill(itPf->eta()/etaGen,myweight[0]);
+		     //h_pfMcPhi->Fill(itPf->phi()/phiGen,myweight[0]);
 
-		  h_gsfMcPtVsPt->Fill(it->pt(),it->pt()/ptGen,myweight[0]);
-		  h_gsfMcEtaVsEta->Fill(it->eta(),it->eta()/etaGen,myweight[0]);
-		  h_gsfMcPhiVsPhi->Fill(it->phi(),it->phi()/phiGen,myweight[0]);
-		  h_pfMcPtVsPt->Fill(itPf->pt(),itPf->pt()/ptGen,myweight[0]);
-		  h_pfMcEtaVsEta->Fill(itPf->eta(),itPf->eta()/etaGen,myweight[0]);
-		  h_pfMcPhiVsPhi->Fill(itPf->phi(),itPf->phi()/phiGen,myweight[0]);
+		     h_gsfMcGsfPt->Fill((it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_pfMcPfPt->Fill((itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
 
-		  h_gsfMcGsfPtVsPt->Fill(it->pt(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_pfMcPfPtVsPt->Fill(itPf->pt(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_gsfMcPtVsPt->Fill(it->pt(),it->pt()/ptGen,myweight[0]);
+		     //h_gsfMcEtaVsEta->Fill(it->eta(),it->eta()/etaGen,myweight[0]);
+		     //h_gsfMcPhiVsPhi->Fill(it->phi(),it->phi()/phiGen,myweight[0]);
+		     //h_pfMcPtVsPt->Fill(itPf->pt(),itPf->pt()/ptGen,myweight[0]);
+		     //h_pfMcEtaVsEta->Fill(itPf->eta(),itPf->eta()/etaGen,myweight[0]);
+		     //h_pfMcPhiVsPhi->Fill(itPf->phi(),itPf->phi()/phiGen,myweight[0]);
 
-		  h_gsfMcGsfPtVsEta->Fill(it->eta(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfPtVsPhi->Fill(it->phi(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_pfMcPfPtVsEta->Fill(itPf->eta(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfPtVsPhi->Fill(itPf->phi(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-		  h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-		  
+		     h_gsfMcGsfPtVsPt->Fill(it->pt(),(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_pfMcPfPtVsPt->Fill(itPf->pt(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+
+		     h_gsfMcGsfPtVsEta->Fill(it->eta(),(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfPtVsPhi->Fill(it->phi(),(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_pfMcPfPtVsEta->Fill(itPf->eta(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfPtVsPhi->Fill(itPf->phi(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		  }// end doElectronsComparison		  
 		  
 	       }
 
@@ -336,13 +353,18 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }     
       }      
 
-      h_totalGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
-      h_totalGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
+      if (doEfficiencies){
+	 h_totalGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
+	 h_totalGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
+      }
+
       for(reco::PFCandidateCollection::const_iterator itPf=pfElec->begin();itPf!=pfElec->end();itPf++){
 	 if (itPf->gsfTrackRef()==it->gsfTrack()) {
 	    pfSize++;
-	    h_PairedPfElectronsVsEn->Fill(it->energy(),myweight[0]);
-	    h_PairedPfElectronsVsEta->Fill(it->eta(),myweight[0]);
+	    if (doEfficiencies){
+	       h_PairedPfElectronsVsEn->Fill(it->energy(),myweight[0]);
+	       h_PairedPfElectronsVsEta->Fill(it->eta(),myweight[0]);
+	    }
 
 	    h_ptPFptVsEta->Fill(it->eta(),it->energy()/itPf->energy(),myweight[0]);
 	    h_ptPFptVsEn->Fill(it->energy(),it->energy()/itPf->energy(),myweight[0]);
@@ -352,44 +374,50 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    checkPf2=true;
 	    
 	    if (usingMC){
-	       h_totalGsfxMcElectronsVsEn->Fill(it->energy(),myweight[0]);
-	       h_totalGsfxMcElectronsVsEta->Fill(it->eta(),myweight[0]);
-	       h_totalPfxMcElectronsVsEn->Fill(itPf->energy(),myweight[0]);
-	       h_totalPfxMcElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+	       if (doEfficiencies){
+		  h_totalGsfxMcElectronsVsEn->Fill(it->energy(),myweight[0]);
+		  h_totalGsfxMcElectronsVsEta->Fill(it->eta(),myweight[0]);
+		  h_totalPfxMcElectronsVsEn->Fill(itPf->energy(),myweight[0]);
+		  h_totalPfxMcElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+	       }
 
 	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
 		  dist= sqrt( pow(itgen->eta()-it->eta(),2)+pow(itgen->phi()-it->phi(),2) );
 		  distEta = fabs(itgen->eta() - it->eta());
 		  ratioEn = itgen->energy()/it->energy();
 		  ratioEn2 = itgen->energy()/itPf->energy();
-		  if (dist < maxDist && distEta < maxEta ){	     
-		     if (!checkCut){
-			h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-			h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-			checkCut = true;
-		     }
-		     if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
-			 ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
-			h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-			h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-			checkPairing=true;
-			
-		     }
-		  }
 
-		  if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ // itgen->status()==1 && 
-		     if (dist < 0.1 && !checkTruth){		     
-			h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
-			h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
-			h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
-			checkTruth=true;
+		  if (doElectronsComparisonMC){
+		     if (dist < maxDist && distEta < maxEta ){	     
+			if (!checkCut){
+			   h_MCenPFenVsEnWoEnCut->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			   h_MCenPFenVsEtaWoEnCut->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			   h_MCenGSFenVsEnWoEnCut->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			   h_MCenGSFenVsEtaWoEnCut->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			   checkCut = true;
+			}
+			if (!checkPairing && ratioEn < maxEn && 1./ratioEn < maxEn && 
+			    ratioEn2 < maxEn && 1./ratioEn2 < maxEn){
+			   h_MCenPFenVsEn->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			   h_MCenPFenVsEta->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			   h_MCenGSFenVsEn->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			   h_MCenGSFenVsEta->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			   checkPairing=true;
+			
+			}
 		     }
-		  }
+
+		     if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ // itgen->status()==1 && 
+			if (dist < 0.1 && !checkTruth){		     
+			   h_MCenPFenVsEnTruth->Fill(itPf->energy(),itgen->energy()/itPf->energy(), myweight[0]);
+			   h_MCenPFenVsEtaTruth->Fill(itPf->eta(),itgen->energy()/itPf->energy(), myweight[0]);
+			   h_MCenGSFenVsEnTruth->Fill(it->energy(),itgen->energy()/it->energy(), myweight[0]);  
+			   h_MCenGSFenVsEtaTruth->Fill(it->eta(),itgen->energy()/it->energy(), myweight[0]);
+			   checkTruth=true;
+			}
+		     }
+		  } //end doElectronsComparison
+
 		  if ( fabs(itgen->pdgId())==11 && dist < maxDist && dist < nearerDist){
 		     nearerDist = dist;
 		     enGen=itgen->energy();
@@ -401,74 +429,81 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	       } // end genParticle cycle
 	       
-	       if (!checkPairing){  // check what fail for the association to gen level
-		  if (dist > maxDist) h_failReason->Fill(1);
-		  if (distEta > maxEta) h_failReason->Fill(2);
-		  if (ratioEn > maxEn || 1./ratioEn > maxEn) h_failReason->Fill(3);
-		  if (ratioEn2 > maxEn || 1./ratioEn2 > maxEn) h_failReason->Fill(4);
-	       }
+	       if (doElectronsComparisonMC){
+		  if (!checkPairing){  // check what fail for the association to gen level
+		     if (dist > maxDist) h_failReason->Fill(1);
+		     if (distEta > maxEta) h_failReason->Fill(2);
+		     if (ratioEn > maxEn || 1./ratioEn > maxEn) h_failReason->Fill(3);
+		     if (ratioEn2 > maxEn || 1./ratioEn2 > maxEn) h_failReason->Fill(4);
+		  }
+	       } // end doElectronsComparison
 
 	       if (checkNear){
-		  h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
-		  h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
-		  h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
-		  h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]); 
 
-		  h_PFenMCenVsEnENear->Fill(itPf->energy(),itPf->energy()/enGen, myweight[0]);
-		  h_PFenMCenVsEtaENear->Fill(itPf->eta(),itPf->energy()/enGen, myweight[0]);
-		  h_GSFenMCenVsEnENear->Fill(it->energy(),it->energy()/enGen, myweight[0]);  
-		  h_GSFenMCenVsEtaENear->Fill(it->eta(),it->energy()/enGen, myweight[0]);
+		  if (doEfficiencies){
+		     h_PairedMcGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
+		     h_PairedMcPfElectronsVsEn->Fill(itPf->energy(),myweight[0]);
+		     h_PairedMcGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
+		     h_PairedMcPfElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+		  }
 
-		  h_PFenMCenVsMcEnENear->Fill(enGen,itPf->energy()/enGen, myweight[0]);
-		  h_PFenMCenVsMcEtaENear->Fill(etaGen,itPf->energy()/enGen, myweight[0]);
-		  h_GSFenMCenVsMcEnENear->Fill(enGen,it->energy()/enGen, myweight[0]);  
-		  h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]); 
+		  if (doElectronsComparisonMC){
+		     h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]); 
 
-		  h_PairedMcGsfElectronsVsEn->Fill(it->energy(),myweight[0]);
-		  h_PairedMcPfElectronsVsEn->Fill(itPf->energy(),myweight[0]);
-		  h_PairedMcGsfElectronsVsEta->Fill(it->eta(),myweight[0]);
-		  h_PairedMcPfElectronsVsEta->Fill(itPf->eta(),myweight[0]);
+		     h_PFenMCenVsEnENear->Fill(itPf->energy(),itPf->energy()/enGen, myweight[0]);
+		     h_PFenMCenVsEtaENear->Fill(itPf->eta(),itPf->energy()/enGen, myweight[0]);
+		     h_GSFenMCenVsEnENear->Fill(it->energy(),it->energy()/enGen, myweight[0]);  
+		     h_GSFenMCenVsEtaENear->Fill(it->eta(),it->energy()/enGen, myweight[0]);
 
-		  h_gsfMcPt->Fill(it->pt()/ptGen,myweight[0]);
-		  h_gsfMcEta->Fill(it->eta()/etaGen,myweight[0]);
-		  h_gsfMcPhi->Fill(it->phi()/phiGen,myweight[0]);
-		  h_pfMcPt->Fill(itPf->pt()/ptGen,myweight[0]);
-		  h_pfMcEta->Fill(itPf->eta()/etaGen,myweight[0]);
-		  h_pfMcPhi->Fill(itPf->phi()/phiGen,myweight[0]);
+		     h_PFenMCenVsMcEnENear->Fill(enGen,itPf->energy()/enGen, myweight[0]);
+		     h_PFenMCenVsMcEtaENear->Fill(etaGen,itPf->energy()/enGen, myweight[0]);
+		     h_GSFenMCenVsMcEnENear->Fill(enGen,it->energy()/enGen, myweight[0]);  
+		     h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]); 
 
-		  h_gsfMcGsfPt->Fill((it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_pfMcPfPt->Fill((itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_gsfMcPt->Fill(it->pt()/ptGen,myweight[0]);
+		     //h_gsfMcEta->Fill(it->eta()/etaGen,myweight[0]);
+		     //h_gsfMcPhi->Fill(it->phi()/phiGen,myweight[0]);
+		     //h_pfMcPt->Fill(itPf->pt()/ptGen,myweight[0]);
+		     //h_pfMcEta->Fill(itPf->eta()/etaGen,myweight[0]);
+		     //h_pfMcPhi->Fill(itPf->phi()/phiGen,myweight[0]);
 
-		  h_gsfMcPtVsPt->Fill(it->pt(),it->pt()/ptGen,myweight[0]);
-		  h_gsfMcEtaVsEta->Fill(it->eta(),it->eta()/etaGen,myweight[0]);
-		  h_gsfMcPhiVsPhi->Fill(it->phi(),it->phi()/phiGen,myweight[0]);
-		  h_pfMcPtVsPt->Fill(itPf->pt(),itPf->pt()/ptGen,myweight[0]);
-		  h_pfMcEtaVsEta->Fill(itPf->eta(),itPf->eta()/etaGen,myweight[0]);
-		  h_pfMcPhiVsPhi->Fill(itPf->phi(),itPf->phi()/phiGen,myweight[0]);
+		     h_gsfMcGsfPt->Fill((it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_pfMcPfPt->Fill((itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
 
-		  h_gsfMcGsfPtVsPt->Fill(it->pt(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_pfMcPfPtVsPt->Fill(itPf->pt(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_gsfMcPtVsPt->Fill(it->pt(),it->pt()/ptGen,myweight[0]);
+		     //h_gsfMcEtaVsEta->Fill(it->eta(),it->eta()/etaGen,myweight[0]);
+		     //h_gsfMcPhiVsPhi->Fill(it->phi(),it->phi()/phiGen,myweight[0]);
+		     //h_pfMcPtVsPt->Fill(itPf->pt(),itPf->pt()/ptGen,myweight[0]);
+		     //h_pfMcEtaVsEta->Fill(itPf->eta(),itPf->eta()/etaGen,myweight[0]);
+		     //h_pfMcPhiVsPhi->Fill(itPf->phi(),itPf->phi()/phiGen,myweight[0]);
 
-		  h_gsfMcGsfPtVsEta->Fill(it->eta(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfPtVsPhi->Fill(it->phi(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		  h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		  h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		  h_pfMcPfPtVsEta->Fill(itPf->eta(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfPtVsPhi->Fill(itPf->phi(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		  h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		  h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-		  h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_gsfMcGsfPtVsPt->Fill(it->pt(),(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_pfMcPfPtVsPt->Fill(itPf->pt(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+
+		     h_gsfMcGsfPtVsEta->Fill(it->eta(),(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfPtVsPhi->Fill(it->phi(),(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_pfMcPfPtVsEta->Fill(itPf->eta(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfPtVsPhi->Fill(itPf->phi(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		  }// end doElectronsComparison
 	       }
 	       
 	    } // end UsingMC
@@ -524,206 +559,210 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
       if (usingMC){
-	 for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
-	     itgen!=genPart->end();itgen++)
-	 {
-	    double deltaR1= sqrt( pow(itgen->eta()-e1.Eta(),2)+pow(itgen->phi()-e1.Phi(),2) );
-	    double deltaR2= sqrt( pow(itgen->eta()-e2.Eta(),2)+pow(itgen->phi()-e2.Phi(),2) );	   
-	    
-	    if (deltaR1 > deltaConeGen && deltaR2 > deltaConeGen ){
-	       if (itgen->status() ==1) h_idPdgAroundE->Fill(fabs(itgen->pdgId()),myweight[0]);
+	 
+	 if (doElectronsComparisonMC){
+	    for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
+		itgen!=genPart->end();itgen++)
+	    {
+	       double deltaR1= sqrt( pow(itgen->eta()-e1.Eta(),2)+pow(itgen->phi()-e1.Phi(),2) );
+	       double deltaR2= sqrt( pow(itgen->eta()-e2.Eta(),2)+pow(itgen->phi()-e2.Phi(),2) );	   
+	       
+	       if (deltaR1 > deltaConeGen && deltaR2 > deltaConeGen ){
+		  if (itgen->status() ==1) h_idPdgAroundE->Fill(fabs(itgen->pdgId()),myweight[0]);
+	       }
 	    }
-	    
 	 }
       }
 
 //------------------------------------------------------------------------------------------------- 
 // study on  R E J E C T E D  jets ****************************************************************
 //------------------------------------------------------------------------------------------------- 
-      double jetEn,jetEta;
-      int sizeRJ=0;
-      bool ckElInJet = true;
-      for (reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
-	   jet != pfJets->end(); jet++) {
+      if (doPlotsJetComposition){
+	 double jetEn,jetEta;
+	 int sizeRJ=0;
+	 bool ckElInJet = true;
+	 for (reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
+	      jet != pfJets->end(); jet++) {
 	 
-	 double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
-	 double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
-	 double totEnergy=0.;
-	 //double totPt=0.;
-	 if (useCkElInJet ){
-	    ckElInJet = false;
-	    if (jet->electronMultiplicity()>=1){
-	       if (!ckElInJet && 
-		   ( fabs(jet->electronEnergy()-pfe1.Energy())<0.01 
-		     || fabs(jet->electronEnergy() -pfe2.Energy())<0.01) ) {
+	    double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
+	    double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
+	    double totEnergy=0.;
+	    //double totPt=0.;
+	    if (useCkElInJet ){
+	       ckElInJet = false;
+	       if (jet->electronMultiplicity()>=1){
+		  if (!ckElInJet && 
+		      ( fabs(jet->electronEnergy()-pfe1.Energy())<0.01 
+			|| fabs(jet->electronEnergy() -pfe2.Energy())<0.01) ) {
 		     ckElInJet = true;
-	       }
-	       std::vector<reco::PFCandidatePtr> particles = jet->getPFConstituents();
-	       for ( UInt_t j=0;j<particles.size(); j++){		  
-		  totEnergy = totEnergy + particles[j]->p4().energy();
+		  }
+		  std::vector<reco::PFCandidatePtr> particles = jet->getPFConstituents();
+		  for ( UInt_t j=0;j<particles.size(); j++){		  
+		     totEnergy = totEnergy + particles[j]->p4().energy();
+		  }
 	       }
 	    }
+	    if ((deltaR1 < deltaRCone || deltaR2 < deltaRCone)&& jet->pt()>30 && ckElInJet
+	       ){	    
+	       h_totEnergy->Fill(totEnergy/jet->energy(),myweight[0]);
+	       //h_totPt->Fill(totPt/jet->pt(),myweight[0]);
+
+	       sizeRJ++;
+	       h_nConstituents->Fill(jet->nConstituents(),myweight[0]);
+	       h_rJetPt->Fill(jet->pt(),myweight[0]);
+	       h_rJetEta->Fill(jet->eta(),myweight[0]);
+	    
+	       double chHE = jet->chargedHadronEnergy();
+	       double nHE  = jet->neutralHadronEnergy();
+	       double phE  = jet->photonEnergy();
+	       double elE  = jet->electronEnergy();
+	       double muE  = jet->muonEnergy();
+	       double hfHE = jet->HFHadronEnergy();
+	       double hfEmE= jet->HFEMEnergy();
+	       double totCkE= chHE + nHE + phE + elE + muE + hfHE + hfEmE;
+	    
+	       h_energyFraction->Fill(0.5, totCkE/jet->energy(),myweight[0]);
+	       h_energyFraction->Fill(1.5, jet->chargedHadronEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(2.5, jet->neutralHadronEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(3.5, jet->photonEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(4.5, jet->electronEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(5.5, jet->muonEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(6.5, jet->HFHadronEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(7.5, jet->HFEMEnergyFraction(),myweight[0]);
+	    
+	       double chHM = jet->chargedHadronMultiplicity();
+	       double nHM  = jet->neutralHadronMultiplicity();
+	       double phM  = jet->photonMultiplicity();
+	       double elM  = jet->electronMultiplicity();
+	       double muM  = jet->muonMultiplicity();
+	       double hfHM = jet->HFHadronMultiplicity();
+	       double hfEmM= jet->HFEMMultiplicity();
+	       h_jetConstMult->Fill(0.5, jet->nConstituents(),myweight[0]);
+	       h_jetConstMult->Fill(1.5, chHM,myweight[0]);
+	       h_jetConstMult->Fill(2.5, nHM,myweight[0]);
+	       h_jetConstMult->Fill(3.5, phM,myweight[0]);
+	       h_jetConstMult->Fill(4.5, elM,myweight[0]);
+	       h_jetConstMult->Fill(5.5, muM,myweight[0]);
+	       h_jetConstMult->Fill(6.5, hfHM,myweight[0]);
+	       h_jetConstMult->Fill(7.5, hfEmM,myweight[0]);
+
+	       double totCk= chHM + nHM + phM + elM + muM + hfHM + hfEmM;	
+	       //cout << "chMul = "<< chHM <<" ; nMul = "<<nHM<<
+	       //   " ; phMul = "<< phM<< " ; elMul = "<< elM<<
+	       //   " ; muMul = "<< muM<<" ; HFHM = "<<hfHM<<" ; HFEmM = "<<hfEmM<< endl;
+	       h_multFraction->Fill(0.5, totCk/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(1.5, chHM/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(2.5, nHM/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(3.5, phM/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(4.5, elM/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(5.5, muM/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(6.5, hfHM/jet->nConstituents(),myweight[0]);
+	       h_multFraction->Fill(7.5, hfEmM/jet->nConstituents(),myweight[0]);
+
+	       h_chMultiplicity->Fill(chHM, myweight[0]);
+	       h_nMultiplicity->Fill(nHM, myweight[0]);
+	       h_phMultiplicity->Fill(phM, myweight[0]);
+	       h_elMultiplicity->Fill(elM, myweight[0]);
+	       h_muMultiplicity->Fill(muM, myweight[0]);
+	       h_hfHMultiplicity->Fill(hfHM, myweight[0]);
+	       h_hfEmMultiplicity->Fill(hfEmM, myweight[0]);
+	       h_chMultFraction->Fill(chHM/jet->nConstituents(), myweight[0]);
+	       h_nMultFraction->Fill(nHM/jet->nConstituents(), myweight[0]);
+	       h_phMultFraction->Fill(phM/jet->nConstituents(), myweight[0]);
+	       h_elMultFraction->Fill(elM/jet->nConstituents(), myweight[0]);
+	       h_muMultFraction->Fill(muM/jet->nConstituents(), myweight[0]);
+	       h_hfHMultFraction->Fill(hfHM/jet->nConstituents(), myweight[0]);
+	       h_hfEmMultFraction->Fill(hfEmM/jet->nConstituents(), myweight[0]);
+	       h_chEnerFraction->Fill(jet->chargedHadronEnergyFraction(), myweight[0]);
+	       h_nEnerFraction->Fill(jet->neutralHadronEnergyFraction(), myweight[0]);
+	       h_phEnerFraction->Fill(jet->photonEnergyFraction(), myweight[0]);
+	       h_elEnerFraction->Fill(jet->electronEnergyFraction(), myweight[0]);
+	       h_muEnerFraction->Fill(jet->muonEnergyFraction(), myweight[0]);
+	       h_hfHEnerFraction->Fill(jet->HFHadronEnergyFraction(), myweight[0]);
+	       h_hfEmEnerFraction->Fill(jet->HFEMEnergyFraction(), myweight[0]);
+	    
+	       double etaStep = 0.05, ptStep = 2.0;
+	    
+	       for (int k=0; k< 100; k++){
+
+		  if (jet->pt()> k*ptStep && jet->pt()<= (k+1)*ptStep){
+		     double meanPt = (k+0.5)*ptStep;
+		     h_chMultiplicityVsPt->Fill(meanPt,chHM, myweight[0]);
+		     h_nMultiplicityVsPt->Fill(meanPt,nHM, myweight[0]);
+		     h_phMultiplicityVsPt->Fill(meanPt,phM, myweight[0]);
+		     h_elMultiplicityVsPt->Fill(meanPt,elM, myweight[0]);
+		     h_muMultiplicityVsPt->Fill(meanPt,muM, myweight[0]);
+		     h_hfHMultiplicityVsPt->Fill(meanPt,hfHM, myweight[0]);
+		     h_hfEmMultiplicityVsPt->Fill(meanPt,hfEmM, myweight[0]);
+		     h_chMultFractionVsPt->Fill(meanPt,chHM/jet->nConstituents(), myweight[0]);
+		     h_nMultFractionVsPt->Fill(meanPt,nHM/jet->nConstituents(), myweight[0]);
+		     h_phMultFractionVsPt->Fill(meanPt,phM/jet->nConstituents(), myweight[0]);
+		     h_elMultFractionVsPt->Fill(meanPt,elM/jet->nConstituents(), myweight[0]);
+		     h_muMultFractionVsPt->Fill(meanPt,muM/jet->nConstituents(), myweight[0]);
+		     h_hfHMultFractionVsPt->Fill(meanPt,hfHM/jet->nConstituents(), myweight[0]);
+		     h_hfEmMultFractionVsPt->Fill(meanPt,hfEmM/jet->nConstituents(), myweight[0]);
+		     h_chEnerFractionVsPt->Fill(meanPt,jet->chargedHadronEnergyFraction(), myweight[0]);
+		     h_nEnerFractionVsPt->Fill(meanPt,jet->neutralHadronEnergyFraction(), myweight[0]);
+		     h_phEnerFractionVsPt->Fill(meanPt,jet->photonEnergyFraction(), myweight[0]);
+		     h_elEnerFractionVsPt->Fill(meanPt,jet->electronEnergyFraction(), myweight[0]);
+		     h_muEnerFractionVsPt->Fill(meanPt,jet->muonEnergyFraction(), myweight[0]);
+		     h_hfHEnerFractionVsPt->Fill(meanPt,jet->HFHadronEnergyFraction(), myweight[0]);
+		     h_hfEmEnerFractionVsPt->Fill(meanPt,jet->HFEMEnergyFraction(), myweight[0]);
+		  }
+		  if ((jet->eta()+2.5)> k*etaStep && (jet->eta()+2.5)<= (k+1)*etaStep){
+		     double meanEta = (k+0.5)*etaStep -2.5;
+		     h_chMultiplicityVsEta->Fill(meanEta,chHM, myweight[0]);
+		     h_nMultiplicityVsEta->Fill(meanEta,nHM, myweight[0]);
+		     h_phMultiplicityVsEta->Fill(meanEta,phM, myweight[0]);
+		     h_elMultiplicityVsEta->Fill(meanEta,elM, myweight[0]);
+		     h_muMultiplicityVsEta->Fill(meanEta,muM, myweight[0]);
+		     h_hfHMultiplicityVsEta->Fill(meanEta,hfHM, myweight[0]);
+		     h_hfEmMultiplicityVsEta->Fill(meanEta,hfEmM, myweight[0]);
+		     h_chMultFractionVsEta->Fill(meanEta,chHM/jet->nConstituents(), myweight[0]);
+		     h_nMultFractionVsEta->Fill(meanEta,nHM/jet->nConstituents(), myweight[0]);
+		     h_phMultFractionVsEta->Fill(meanEta,phM/jet->nConstituents(), myweight[0]);
+		     h_elMultFractionVsEta->Fill(meanEta,elM/jet->nConstituents(), myweight[0]);
+		     h_muMultFractionVsEta->Fill(meanEta,muM/jet->nConstituents(), myweight[0]);
+		     h_hfHMultFractionVsEta->Fill(meanEta,hfHM/jet->nConstituents(), myweight[0]);
+		     h_hfEmMultFractionVsEta->Fill(meanEta,hfEmM/jet->nConstituents(), myweight[0]);
+		     h_chEnerFractionVsEta->Fill(meanEta,jet->chargedHadronEnergyFraction(), myweight[0]);
+		     h_nEnerFractionVsEta->Fill(meanEta,jet->neutralHadronEnergyFraction(), myweight[0]);
+		     h_phEnerFractionVsEta->Fill(meanEta,jet->photonEnergyFraction(), myweight[0]);
+		     h_elEnerFractionVsEta->Fill(meanEta,jet->electronEnergyFraction(), myweight[0]);
+		     h_muEnerFractionVsEta->Fill(meanEta,jet->muonEnergyFraction(), myweight[0]);
+		     h_hfHEnerFractionVsEta->Fill(meanEta,jet->HFHadronEnergyFraction(), myweight[0]);
+		     h_hfEmEnerFractionVsEta->Fill(meanEta,jet->HFEMEnergyFraction(), myweight[0]);
+		  }
+
+	       }
+	    
+	       if (usingMC){
+		  nearerDist= 999;
+		  checkNear=false;
+		  int pdgValue=0;
+		  for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
+		      itgen!=genPart->end();itgen++)
+		  {
+		     dist= sqrt( pow(itgen->eta()-jet->eta(),2)+pow(itgen->phi()-jet->phi(),2) );
+		     if (dist < maxDist && dist < nearerDist){
+			nearerDist = dist;
+			pdgValue= itgen->pdgId();
+			jetEn=itgen->pt();
+			jetEta=itgen->eta();
+			checkNear=true;
+		     }	       
+		  } // end genParticle
+		  if (checkNear)
+		  {
+		     h_idPdgJet->Fill(fabs(pdgValue),myweight[0]);
+		  }
+	       } // end UsingMC
+	    } // end if rejected jets
 	 }
-	 if ((deltaR1 < deltaRCone || deltaR2 < deltaRCone)&& jet->pt()>30 && ckElInJet
-	    ){	    
-	    h_totEnergy->Fill(totEnergy/jet->energy(),myweight[0]);
-	    //h_totPt->Fill(totPt/jet->pt(),myweight[0]);
-
-	    sizeRJ++;
-	    h_nConstituents->Fill(jet->nConstituents(),myweight[0]);
-	    h_rJetPt->Fill(jet->pt(),myweight[0]);
-	    h_rJetEta->Fill(jet->eta(),myweight[0]);
-	    
-	    double chHE = jet->chargedHadronEnergy();
-	    double nHE  = jet->neutralHadronEnergy();
-	    double phE  = jet->photonEnergy();
-	    double elE  = jet->electronEnergy();
-	    double muE  = jet->muonEnergy();
-	    double hfHE = jet->HFHadronEnergy();
-	    double hfEmE= jet->HFEMEnergy();
-	    double totCkE= chHE + nHE + phE + elE + muE + hfHE + hfEmE;
-	    
-	    h_energyFraction->Fill(0.5, totCkE/jet->energy(),myweight[0]);
-	    h_energyFraction->Fill(1.5, jet->chargedHadronEnergyFraction(),myweight[0]);
-	    h_energyFraction->Fill(2.5, jet->neutralHadronEnergyFraction(),myweight[0]);
-	    h_energyFraction->Fill(3.5, jet->photonEnergyFraction(),myweight[0]);
-	    h_energyFraction->Fill(4.5, jet->electronEnergyFraction(),myweight[0]);
-	    h_energyFraction->Fill(5.5, jet->muonEnergyFraction(),myweight[0]);
-	    h_energyFraction->Fill(6.5, jet->HFHadronEnergyFraction(),myweight[0]);
-	    h_energyFraction->Fill(7.5, jet->HFEMEnergyFraction(),myweight[0]);
-	    
-	    double chHM = jet->chargedHadronMultiplicity();
-	    double nHM  = jet->neutralHadronMultiplicity();
-	    double phM  = jet->photonMultiplicity();
-	    double elM  = jet->electronMultiplicity();
-	    double muM  = jet->muonMultiplicity();
-	    double hfHM = jet->HFHadronMultiplicity();
-	    double hfEmM= jet->HFEMMultiplicity();
-	    h_jetConstMult->Fill(0.5, jet->nConstituents(),myweight[0]);
-	    h_jetConstMult->Fill(1.5, chHM,myweight[0]);
-	    h_jetConstMult->Fill(2.5, nHM,myweight[0]);
-	    h_jetConstMult->Fill(3.5, phM,myweight[0]);
-	    h_jetConstMult->Fill(4.5, elM,myweight[0]);
-	    h_jetConstMult->Fill(5.5, muM,myweight[0]);
-	    h_jetConstMult->Fill(6.5, hfHM,myweight[0]);
-	    h_jetConstMult->Fill(7.5, hfEmM,myweight[0]);
-
-	    double totCk= chHM + nHM + phM + elM + muM + hfHM + hfEmM;	
-	    //cout << "chMul = "<< chHM <<" ; nMul = "<<nHM<<
-	    //   " ; phMul = "<< phM<< " ; elMul = "<< elM<<
-	    //   " ; muMul = "<< muM<<" ; HFHM = "<<hfHM<<" ; HFEmM = "<<hfEmM<< endl;
-	    h_multFraction->Fill(0.5, totCk/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(1.5, chHM/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(2.5, nHM/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(3.5, phM/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(4.5, elM/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(5.5, muM/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(6.5, hfHM/jet->nConstituents(),myweight[0]);
-	    h_multFraction->Fill(7.5, hfEmM/jet->nConstituents(),myweight[0]);
-
-	    h_chMultiplicity->Fill(chHM, myweight[0]);
-	    h_nMultiplicity->Fill(nHM, myweight[0]);
-	    h_phMultiplicity->Fill(phM, myweight[0]);
-	    h_elMultiplicity->Fill(elM, myweight[0]);
-	    h_muMultiplicity->Fill(muM, myweight[0]);
-	    h_hfHMultiplicity->Fill(hfHM, myweight[0]);
-	    h_hfEmMultiplicity->Fill(hfEmM, myweight[0]);
-	    h_chMultFraction->Fill(chHM/jet->nConstituents(), myweight[0]);
-	    h_nMultFraction->Fill(nHM/jet->nConstituents(), myweight[0]);
-	    h_phMultFraction->Fill(phM/jet->nConstituents(), myweight[0]);
-	    h_elMultFraction->Fill(elM/jet->nConstituents(), myweight[0]);
-	    h_muMultFraction->Fill(muM/jet->nConstituents(), myweight[0]);
-	    h_hfHMultFraction->Fill(hfHM/jet->nConstituents(), myweight[0]);
-	    h_hfEmMultFraction->Fill(hfEmM/jet->nConstituents(), myweight[0]);
-	    h_chEnerFraction->Fill(jet->chargedHadronEnergyFraction(), myweight[0]);
-	    h_nEnerFraction->Fill(jet->neutralHadronEnergyFraction(), myweight[0]);
-	    h_phEnerFraction->Fill(jet->photonEnergyFraction(), myweight[0]);
-	    h_elEnerFraction->Fill(jet->electronEnergyFraction(), myweight[0]);
-	    h_muEnerFraction->Fill(jet->muonEnergyFraction(), myweight[0]);
-	    h_hfHEnerFraction->Fill(jet->HFHadronEnergyFraction(), myweight[0]);
-	    h_hfEmEnerFraction->Fill(jet->HFEMEnergyFraction(), myweight[0]);
-	    
-	    double etaStep = 0.05, ptStep = 2.0;
-	    
-	    for (int k=0; k< 100; k++){
-
-	       if (jet->pt()> k*ptStep && jet->pt()<= (k+1)*ptStep){
-		  double meanPt = (k+0.5)*ptStep;
-		  h_chMultiplicityVsPt->Fill(meanPt,chHM, myweight[0]);
-		  h_nMultiplicityVsPt->Fill(meanPt,nHM, myweight[0]);
-		  h_phMultiplicityVsPt->Fill(meanPt,phM, myweight[0]);
-		  h_elMultiplicityVsPt->Fill(meanPt,elM, myweight[0]);
-		  h_muMultiplicityVsPt->Fill(meanPt,muM, myweight[0]);
-		  h_hfHMultiplicityVsPt->Fill(meanPt,hfHM, myweight[0]);
-		  h_hfEmMultiplicityVsPt->Fill(meanPt,hfEmM, myweight[0]);
-		  h_chMultFractionVsPt->Fill(meanPt,chHM/jet->nConstituents(), myweight[0]);
-		  h_nMultFractionVsPt->Fill(meanPt,nHM/jet->nConstituents(), myweight[0]);
-		  h_phMultFractionVsPt->Fill(meanPt,phM/jet->nConstituents(), myweight[0]);
-		  h_elMultFractionVsPt->Fill(meanPt,elM/jet->nConstituents(), myweight[0]);
-		  h_muMultFractionVsPt->Fill(meanPt,muM/jet->nConstituents(), myweight[0]);
-		  h_hfHMultFractionVsPt->Fill(meanPt,hfHM/jet->nConstituents(), myweight[0]);
-		  h_hfEmMultFractionVsPt->Fill(meanPt,hfEmM/jet->nConstituents(), myweight[0]);
-		  h_chEnerFractionVsPt->Fill(meanPt,jet->chargedHadronEnergyFraction(), myweight[0]);
-		  h_nEnerFractionVsPt->Fill(meanPt,jet->neutralHadronEnergyFraction(), myweight[0]);
-		  h_phEnerFractionVsPt->Fill(meanPt,jet->photonEnergyFraction(), myweight[0]);
-		  h_elEnerFractionVsPt->Fill(meanPt,jet->electronEnergyFraction(), myweight[0]);
-		  h_muEnerFractionVsPt->Fill(meanPt,jet->muonEnergyFraction(), myweight[0]);
-		  h_hfHEnerFractionVsPt->Fill(meanPt,jet->HFHadronEnergyFraction(), myweight[0]);
-		  h_hfEmEnerFractionVsPt->Fill(meanPt,jet->HFEMEnergyFraction(), myweight[0]);
-	       }
-	       if ((jet->eta()+2.5)> k*etaStep && (jet->eta()+2.5)<= (k+1)*etaStep){
-		  double meanEta = (k+0.5)*etaStep -2.5;
-		  h_chMultiplicityVsEta->Fill(meanEta,chHM, myweight[0]);
-		  h_nMultiplicityVsEta->Fill(meanEta,nHM, myweight[0]);
-		  h_phMultiplicityVsEta->Fill(meanEta,phM, myweight[0]);
-		  h_elMultiplicityVsEta->Fill(meanEta,elM, myweight[0]);
-		  h_muMultiplicityVsEta->Fill(meanEta,muM, myweight[0]);
-		  h_hfHMultiplicityVsEta->Fill(meanEta,hfHM, myweight[0]);
-		  h_hfEmMultiplicityVsEta->Fill(meanEta,hfEmM, myweight[0]);
-		  h_chMultFractionVsEta->Fill(meanEta,chHM/jet->nConstituents(), myweight[0]);
-		  h_nMultFractionVsEta->Fill(meanEta,nHM/jet->nConstituents(), myweight[0]);
-		  h_phMultFractionVsEta->Fill(meanEta,phM/jet->nConstituents(), myweight[0]);
-		  h_elMultFractionVsEta->Fill(meanEta,elM/jet->nConstituents(), myweight[0]);
-		  h_muMultFractionVsEta->Fill(meanEta,muM/jet->nConstituents(), myweight[0]);
-		  h_hfHMultFractionVsEta->Fill(meanEta,hfHM/jet->nConstituents(), myweight[0]);
-		  h_hfEmMultFractionVsEta->Fill(meanEta,hfEmM/jet->nConstituents(), myweight[0]);
-		  h_chEnerFractionVsEta->Fill(meanEta,jet->chargedHadronEnergyFraction(), myweight[0]);
-		  h_nEnerFractionVsEta->Fill(meanEta,jet->neutralHadronEnergyFraction(), myweight[0]);
-		  h_phEnerFractionVsEta->Fill(meanEta,jet->photonEnergyFraction(), myweight[0]);
-		  h_elEnerFractionVsEta->Fill(meanEta,jet->electronEnergyFraction(), myweight[0]);
-		  h_muEnerFractionVsEta->Fill(meanEta,jet->muonEnergyFraction(), myweight[0]);
-		  h_hfHEnerFractionVsEta->Fill(meanEta,jet->HFHadronEnergyFraction(), myweight[0]);
-		  h_hfEmEnerFractionVsEta->Fill(meanEta,jet->HFEMEnergyFraction(), myweight[0]);
-	       }
-
-	    }
-	    
-	    if (usingMC){
-	       nearerDist= 999;
-	       checkNear=false;
-	       int pdgValue=0;
-	       for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
-		   itgen!=genPart->end();itgen++)
-	       {
-		  dist= sqrt( pow(itgen->eta()-jet->eta(),2)+pow(itgen->phi()-jet->phi(),2) );
-		  if (dist < maxDist && dist < nearerDist){
-		     nearerDist = dist;
-		     pdgValue= itgen->pdgId();
-		     jetEn=itgen->pt();
-		     jetEta=itgen->eta();
-		     checkNear=true;
-		  }	       
-	       } // end genParticle
-	       if (checkNear)
-	       {
-		  h_idPdgJet->Fill(fabs(pdgValue),myweight[0]);
-	       }
-	    } // end UsingMC
-	 } // end if rejected jets
-      }
 
       
-      h_sizeJetRejected->Fill(sizeRJ,myweight[0]);
+	 h_sizeJetRejected->Fill(sizeRJ,myweight[0]);
+      }
 //------------------------------------------------------------------------------------------------- 
 // study on  P A S S I N G  jets *************************************************************************
 //-------------------------------------------------------------------------------------------------
@@ -1085,151 +1124,153 @@ jetValidation::endJob()
  h_PairedPfElectronsVsEta->GetXaxis()->SetTitle("PFelectron eta");
  h_PairedPfElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
 
- h_sizeJetRejected->GetXaxis()->SetTitle("N_{jets}"); 
- h_sizeJetRejected->GetYaxis()->SetTitle("N_{events}");
- h_nConstituents->GetXaxis()->SetTitle("N_{constituents}");
- h_nConstituents->GetYaxis()->SetTitle("N_{events}");
- h_rJetPt->GetXaxis()->SetTitle("p_T^{jets}");
- h_rJetPt->GetYaxis()->SetTitle("N_{jets}");
- h_rJetEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_rJetEta->GetYaxis()->SetTitle("N_{jets}");
- h_totEnergy->GetXaxis()->SetTitle("E_{constituents}/E_{jets}");
- h_totEnergy->GetYaxis()->SetTitle("N_{jets}");
- h_energyFraction->GetXaxis()->SetTitle("constituent type");
- h_energyFraction->GetYaxis()->SetTitle("Fraction");
- h_jetConstMult->GetXaxis()->SetTitle("constituent type");
- h_jetConstMult->GetYaxis()->SetTitle("N_{jets}");
- h_multFraction->GetXaxis()->SetTitle("constituent type");
- h_multFraction->GetYaxis()->SetTitle("Fraction");
- h_chMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_chMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_nMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_nMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_phMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_phMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_elMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_elMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_muMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_muMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_hfHMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_hfHMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_hfEmMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
- h_hfEmMultiplicity->GetYaxis()->SetTitle("N_{jets}");
- h_chMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_chMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_nMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_nMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_phMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_phMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_elMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_elMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_muMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_muMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_hfHMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_hfHMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_hfEmMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
- h_hfEmMultFraction->GetYaxis()->SetTitle("N_{jets}");
- h_chEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_chEnerFraction->GetYaxis()->SetTitle("N_{jets}");
- h_nEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_nEnerFraction->GetYaxis()->SetTitle("N_{jets}");
- h_phEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_phEnerFraction->GetYaxis()->SetTitle("N_{jets}");
- h_elEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_elEnerFraction->GetYaxis()->SetTitle("N_{jets}");
- h_muEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_muEnerFraction->GetYaxis()->SetTitle("N_{jets}");
- h_hfHEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_hfHEnerFraction->GetYaxis()->SetTitle("N_{jets}");
- h_hfEmEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
- h_hfEmEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+ if (doPlotsJetComposition){
+    h_sizeJetRejected->GetXaxis()->SetTitle("N_{jets}"); 
+    h_sizeJetRejected->GetYaxis()->SetTitle("N_{events}");
+    h_nConstituents->GetXaxis()->SetTitle("N_{constituents}");
+    h_nConstituents->GetYaxis()->SetTitle("N_{events}");
+    h_rJetPt->GetXaxis()->SetTitle("p_T^{jets}");
+    h_rJetPt->GetYaxis()->SetTitle("N_{jets}");
+    h_rJetEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_rJetEta->GetYaxis()->SetTitle("N_{jets}");
+    h_totEnergy->GetXaxis()->SetTitle("E_{constituents}/E_{jets}");
+    h_totEnergy->GetYaxis()->SetTitle("N_{jets}");
+    h_energyFraction->GetXaxis()->SetTitle("constituent type");
+    h_energyFraction->GetYaxis()->SetTitle("Fraction");
+    h_jetConstMult->GetXaxis()->SetTitle("constituent type");
+    h_jetConstMult->GetYaxis()->SetTitle("N_{jets}");
+    h_multFraction->GetXaxis()->SetTitle("constituent type");
+    h_multFraction->GetYaxis()->SetTitle("Fraction");
+    h_chMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_chMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_nMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_nMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_phMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_phMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_elMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_elMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_muMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_muMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_hfHMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_hfHMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_hfEmMultiplicity->GetXaxis()->SetTitle("N_{constituents}");
+    h_hfEmMultiplicity->GetYaxis()->SetTitle("N_{jets}");
+    h_chMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_chMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_nMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_nMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_phMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_phMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_elMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_elMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_muMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_muMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_hfHMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_hfHMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_hfEmMultFraction->GetXaxis()->SetTitle("multiplicity Fraction");
+    h_hfEmMultFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_chEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_chEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_nEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_nEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_phEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_phEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_elEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_elEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_muEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_muEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_hfHEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_hfHEnerFraction->GetYaxis()->SetTitle("N_{jets}");
+    h_hfEmEnerFraction->GetXaxis()->SetTitle("Energy Fraction");
+    h_hfEmEnerFraction->GetYaxis()->SetTitle("N_{jets}");
 
- h_chMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_chMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_nMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_nMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_phMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_phMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_elMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_elMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_muMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_muMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_hfHMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_hfHMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_hfEmMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_hfEmMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
- h_chMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_chMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_nMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_nMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_phMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_phMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_elMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_elMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_muMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_muMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_hfHMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_hfHMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_hfEmMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_hfEmMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
- h_chEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_chEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
- h_nEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_nEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
- h_phEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_phEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
- h_elEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_elEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
- h_muEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_muEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
- h_hfHEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_hfHEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
- h_hfEmEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
- h_hfEmEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_chMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_chMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_nMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_nMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_phMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_phMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_elMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_elMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_muMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_muMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_hfHMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_hfHMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_hfEmMultiplicityVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_hfEmMultiplicityVsPt->GetYaxis()->SetTitle("N_{constituents}");
+    h_chMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_chMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_nMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_nMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_phMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_phMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_elMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_elMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_muMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_muMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_hfHMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_hfHMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_hfEmMultFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_hfEmMultFractionVsPt->GetYaxis()->SetTitle("multiplicity Fraction");
+    h_chEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_chEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_nEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_nEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_phEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_phEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_elEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_elEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_muEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_muEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_hfHEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_hfHEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
+    h_hfEmEnerFractionVsPt->GetXaxis()->SetTitle("p_{T}^{jets}");
+    h_hfEmEnerFractionVsPt->GetYaxis()->SetTitle("Energy Fraction");
 
- h_chMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_chMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_nMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_nMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_phMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_phMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_elMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_elMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_muMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_muMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_hfHMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_hfHMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_hfEmMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_hfEmMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
- h_chMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_chMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_nMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_nMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_phMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_phMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_elMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_elMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_muMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_muMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_hfHMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_hfHMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_hfEmMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_hfEmMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
- h_chEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_chEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
- h_nEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_nEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
- h_phEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_phEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
- h_elEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_elEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
- h_muEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_muEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
- h_hfHEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_hfHEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
- h_hfEmEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
- h_hfEmEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");     
- 
+    h_chMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_chMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_nMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_nMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_phMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_phMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_elMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_elMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_muMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_muMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_hfHMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_hfHMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_hfEmMultiplicityVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_hfEmMultiplicityVsEta->GetYaxis()->SetTitle("N_{constituents}");
+    h_chMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_chMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_nMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_nMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_phMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_phMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_elMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_elMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_muMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_muMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_hfHMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_hfHMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_hfEmMultFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_hfEmMultFractionVsEta->GetYaxis()->SetTitle("Fraction");
+    h_chEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_chEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
+    h_nEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_nEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
+    h_phEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_phEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
+    h_elEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_elEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
+    h_muEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_muEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
+    h_hfHEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_hfHEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");
+    h_hfEmEnerFractionVsEta->GetXaxis()->SetTitle("#eta_{jets}");
+    h_hfEmEnerFractionVsEta->GetYaxis()->SetTitle("Energy Fraction");     
+ }
+
  h_pfIdPdgAroundE->GetYaxis()->SetTitle("N_{particles}");
  h_pfIdPdgAroundE->GetXaxis()->SetTitle("particle type");
 
@@ -1329,153 +1370,161 @@ jetValidation::endJob()
     h_nJetVtx_EE[i]->GetXaxis()->SetTitle("N_{jets}");
  }
 
- if (usingMC){
-    h_MCenPFenVsEn->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEn->GetXaxis()->SetTitle("energy_{PF}");
-    h_MCenPFenVsEta->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEta->GetXaxis()->SetTitle("#eta_{PF}");
-    h_MCenGSFenVsEn->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEn->GetXaxis()->SetTitle("energy_{GSF}");
-    h_MCenGSFenVsEta->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEta->GetXaxis()->SetTitle("#eta_{GSF}");
-    h_MCenPFenVsEnWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEnWoEnCut->GetXaxis()->SetTitle("energy_{PF}");
-    h_MCenPFenVsEtaWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEtaWoEnCut->GetXaxis()->SetTitle("#eta_{PF}");
-    h_MCenGSFenVsEnWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEnWoEnCut->GetXaxis()->SetTitle("energy_{GSF}");
-    h_MCenGSFenVsEtaWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEtaWoEnCut->GetXaxis()->SetTitle("#eta_{GSF}");
-    h_MCenPFenVsEnTruth->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEnTruth->GetXaxis()->SetTitle("energy_{PF}");
-    h_MCenPFenVsEtaTruth->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEtaTruth->GetXaxis()->SetTitle("#eta_{PF}");
-    h_MCenGSFenVsEnTruth->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEnTruth->GetXaxis()->SetTitle("energy_{GSF}");
-    h_MCenGSFenVsEtaTruth->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEtaTruth->GetXaxis()->SetTitle("#eta_{GSF}");
-    h_MCenPFenVsEnENear->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEnENear->GetXaxis()->SetTitle("energy_{PF}");
-    h_MCenPFenVsEtaENear->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
-    h_MCenPFenVsEtaENear->GetXaxis()->SetTitle("#eta_{PF}");
-    h_MCenGSFenVsEnENear->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEnENear->GetXaxis()->SetTitle("energy_{GSF}");
-    h_MCenGSFenVsEtaENear->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
-    h_MCenGSFenVsEtaENear->GetXaxis()->SetTitle("#eta_{GSF}");
-    h_PFenMCenVsEnENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
-    h_PFenMCenVsEnENear->GetXaxis()->SetTitle("energy_{PF}");
-    h_PFenMCenVsEtaENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
-    h_PFenMCenVsEtaENear->GetXaxis()->SetTitle("#eta_{PF}");
-    h_GSFenMCenVsEnENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
-    h_GSFenMCenVsEnENear->GetXaxis()->SetTitle("energy_{GSF}");
-    h_GSFenMCenVsEtaENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
-    h_GSFenMCenVsEtaENear->GetXaxis()->SetTitle("#eta_{GSF}");
-    h_PFenMCenVsMcEnENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
-    h_PFenMCenVsMcEnENear->GetXaxis()->SetTitle("energy_{MC}");
-    h_PFenMCenVsMcEtaENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
-    h_PFenMCenVsMcEtaENear->GetXaxis()->SetTitle("#eta_{MC}");
-    h_GSFenMCenVsMcEnENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
-    h_GSFenMCenVsMcEnENear->GetXaxis()->SetTitle("energy_{MC}");
-    h_GSFenMCenVsMcEtaENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
-    h_GSFenMCenVsMcEtaENear->GetXaxis()->SetTitle("#eta_{MC}");
-    h_totalGsfxMcElectronsVsEn->GetXaxis()->SetTitle("GSFelectron energy");
-    h_totalGsfxMcElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
-    h_totalPfxMcElectronsVsEn->GetXaxis()->SetTitle("PFelectron energy");
-    h_totalPfxMcElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
-    h_totalGsfxMcElectronsVsEta->GetXaxis()->SetTitle("GSFelectron eta");
-    h_totalGsfxMcElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_totalPfxMcElectronsVsEta->GetXaxis()->SetTitle("PFelectron eta");
-    h_totalPfxMcElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_PairedMcGsfElectronsVsEn->GetXaxis()->SetTitle("GSFelectron energy");
-    h_PairedMcGsfElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
-    h_PairedMcPfElectronsVsEn->GetXaxis()->SetTitle("PFelectron energy");
-    h_PairedMcPfElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
-    h_PairedMcGsfElectronsVsEta->GetXaxis()->SetTitle("GSFelectron eta");
-    h_PairedMcGsfElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_PairedMcPfElectronsVsEta->GetXaxis()->SetTitle("PFelectron eta");
-    h_PairedMcPfElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
-    
-    h_gsfMcPt->GetXaxis()->SetTitle("GSF/MC p_{T}");
-    h_gsfMcPt->GetYaxis()->SetTitle("N_{electrons}");
-    h_gsfMcEta->GetXaxis()->SetTitle("GSF/MC #eta");
-    h_gsfMcEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_gsfMcPhi->GetXaxis()->SetTitle("GSF/MC #phi");
-    h_gsfMcPhi->GetYaxis()->SetTitle("N_{electrons}");
-    h_pfMcPt->GetXaxis()->SetTitle("PF/MC p_{T}");
-    h_pfMcPt->GetYaxis()->SetTitle("N_{electrons}");
-    h_pfMcEta->GetXaxis()->SetTitle("PF/MC #eta");
-    h_pfMcEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_pfMcPhi->GetXaxis()->SetTitle("PF/MC #phi");
-    h_pfMcPhi->GetYaxis()->SetTitle("N_{electrons}");
+ if (usingMC){ 
 
-    h_gsfMcGsfPt->GetXaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
-    h_gsfMcGsfPt->GetYaxis()->SetTitle("N_{electrons}");
-    h_gsfMcGsfEta->GetXaxis()->SetTitle("(GSF-MC)/GSF #eta");
-    h_gsfMcGsfEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_gsfMcGsfPhi->GetXaxis()->SetTitle("(GSF-MC)/GSF #phi");
-    h_gsfMcGsfPhi->GetYaxis()->SetTitle("N_{electrons}");
-    h_pfMcPfPt->GetXaxis()->SetTitle("(PF-MC)/PF p_{T}");
-    h_pfMcPfPt->GetYaxis()->SetTitle("N_{electrons}");
-    h_pfMcPfEta->GetXaxis()->SetTitle("(PF-MC)/PF #eta");
-    h_pfMcPfEta->GetYaxis()->SetTitle("N_{electrons}");
-    h_pfMcPfPhi->GetXaxis()->SetTitle("(PF-MC)/PF #phi");
-    h_pfMcPfPhi->GetYaxis()->SetTitle("N_{electrons}");
+    if (doEfficiencies){
+       h_totalGsfxMcElectronsVsEn->GetXaxis()->SetTitle("GSFelectron energy");
+       h_totalGsfxMcElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
+       h_totalPfxMcElectronsVsEn->GetXaxis()->SetTitle("PFelectron energy");
+       h_totalPfxMcElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
+       h_totalGsfxMcElectronsVsEta->GetXaxis()->SetTitle("GSFelectron eta");
+       h_totalGsfxMcElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
+       h_totalPfxMcElectronsVsEta->GetXaxis()->SetTitle("PFelectron eta");
+       h_totalPfxMcElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
+       h_PairedMcGsfElectronsVsEn->GetXaxis()->SetTitle("GSFelectron energy");
+       h_PairedMcGsfElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
+       h_PairedMcPfElectronsVsEn->GetXaxis()->SetTitle("PFelectron energy");
+       h_PairedMcPfElectronsVsEn->GetYaxis()->SetTitle("N_{electrons}");
+       h_PairedMcGsfElectronsVsEta->GetXaxis()->SetTitle("GSFelectron eta");
+       h_PairedMcGsfElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
+       h_PairedMcPfElectronsVsEta->GetXaxis()->SetTitle("PFelectron eta");
+       h_PairedMcPfElectronsVsEta->GetYaxis()->SetTitle("N_{electrons}");
+    }
 
-    h_gsfMcPtVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
-    h_gsfMcPtVsPt->GetYaxis()->SetTitle("GSF/MC p_{T}");
-    h_gsfMcEtaVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
-    h_gsfMcEtaVsEta->GetYaxis()->SetTitle("GSF/MC #eta");
-    h_gsfMcPhiVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
-    h_gsfMcPhiVsPhi->GetYaxis()->SetTitle("GSF/MC #phi");
-    h_pfMcPtVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
-    h_pfMcPtVsPt->GetYaxis()->SetTitle("PF/MC p_{T}");
-    h_pfMcEtaVsEta->GetXaxis()->SetTitle("PFelectron #eta");
-    h_pfMcEtaVsEta->GetYaxis()->SetTitle("PF/MC #eta");
-    h_pfMcPhiVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
-    h_pfMcPhiVsPhi->GetYaxis()->SetTitle("PF/MC #phi");
+    if (doElectronsComparisonMC){
+       h_MCenPFenVsEn->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEn->GetXaxis()->SetTitle("energy_{PF}");
+       h_MCenPFenVsEta->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEta->GetXaxis()->SetTitle("#eta_{PF}");
+       h_MCenGSFenVsEn->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEn->GetXaxis()->SetTitle("energy_{GSF}");
+       h_MCenGSFenVsEta->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEta->GetXaxis()->SetTitle("#eta_{GSF}");
+       h_MCenPFenVsEnWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEnWoEnCut->GetXaxis()->SetTitle("energy_{PF}");
+       h_MCenPFenVsEtaWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEtaWoEnCut->GetXaxis()->SetTitle("#eta_{PF}");
+       h_MCenGSFenVsEnWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEnWoEnCut->GetXaxis()->SetTitle("energy_{GSF}");
+       h_MCenGSFenVsEtaWoEnCut->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEtaWoEnCut->GetXaxis()->SetTitle("#eta_{GSF}");
+       h_MCenPFenVsEnTruth->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEnTruth->GetXaxis()->SetTitle("energy_{PF}");
+       h_MCenPFenVsEtaTruth->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEtaTruth->GetXaxis()->SetTitle("#eta_{PF}");
+       h_MCenGSFenVsEnTruth->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEnTruth->GetXaxis()->SetTitle("energy_{GSF}");
+       h_MCenGSFenVsEtaTruth->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEtaTruth->GetXaxis()->SetTitle("#eta_{GSF}");
+       h_MCenPFenVsEnENear->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEnENear->GetXaxis()->SetTitle("energy_{PF}");
+       h_MCenPFenVsEtaENear->GetYaxis()->SetTitle("En_{MC} / En_{PF} ^{electrons}");
+       h_MCenPFenVsEtaENear->GetXaxis()->SetTitle("#eta_{PF}");
+       h_MCenGSFenVsEnENear->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEnENear->GetXaxis()->SetTitle("energy_{GSF}");
+       h_MCenGSFenVsEtaENear->GetYaxis()->SetTitle("En_{MC} / En_{GSF} ^{electrons}");
+       h_MCenGSFenVsEtaENear->GetXaxis()->SetTitle("#eta_{GSF}");
+       h_PFenMCenVsEnENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
+       h_PFenMCenVsEnENear->GetXaxis()->SetTitle("energy_{PF}");
+       h_PFenMCenVsEtaENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
+       h_PFenMCenVsEtaENear->GetXaxis()->SetTitle("#eta_{PF}");
+       h_GSFenMCenVsEnENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
+       h_GSFenMCenVsEnENear->GetXaxis()->SetTitle("energy_{GSF}");
+       h_GSFenMCenVsEtaENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
+       h_GSFenMCenVsEtaENear->GetXaxis()->SetTitle("#eta_{GSF}");
+       h_PFenMCenVsMcEnENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
+       h_PFenMCenVsMcEnENear->GetXaxis()->SetTitle("energy_{MC}");
+       h_PFenMCenVsMcEtaENear->GetYaxis()->SetTitle("En_{PF} / En_{MC} ^{electrons}");
+       h_PFenMCenVsMcEtaENear->GetXaxis()->SetTitle("#eta_{MC}");
+       h_GSFenMCenVsMcEnENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
+       h_GSFenMCenVsMcEnENear->GetXaxis()->SetTitle("energy_{MC}");
+       h_GSFenMCenVsMcEtaENear->GetYaxis()->SetTitle("En_{GSF} / En_{MC} ^{electrons}");
+       h_GSFenMCenVsMcEtaENear->GetXaxis()->SetTitle("#eta_{MC}");
 
-    h_gsfMcGsfPtVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
-    h_gsfMcGsfPtVsPt->GetYaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
-    h_gsfMcGsfEtaVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
-    h_gsfMcGsfEtaVsEta->GetYaxis()->SetTitle("(GSF-MC)/GSF #eta");
-    h_gsfMcGsfPhiVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
-    h_gsfMcGsfPhiVsPhi->GetYaxis()->SetTitle("(GSF-MC)/GSF #phi");
-    h_pfMcPfPtVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
-    h_pfMcPfPtVsPt->GetYaxis()->SetTitle("(PF-MC)/PF p_{T}");
-    h_pfMcPfEtaVsEta->GetXaxis()->SetTitle("PFelectron #eta");
-    h_pfMcPfEtaVsEta->GetYaxis()->SetTitle("(PF-MC)/PF #eta");
-    h_pfMcPfPhiVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
-    h_pfMcPfPhiVsPhi->GetYaxis()->SetTitle("(PF-MC)/PF #phi");
+       // h_gsfMcPt->GetXaxis()->SetTitle("GSF/MC p_{T}");
+//        h_gsfMcPt->GetYaxis()->SetTitle("N_{electrons}");
+//        h_gsfMcEta->GetXaxis()->SetTitle("GSF/MC #eta");
+//        h_gsfMcEta->GetYaxis()->SetTitle("N_{electrons}");
+//        h_gsfMcPhi->GetXaxis()->SetTitle("GSF/MC #phi");
+//        h_gsfMcPhi->GetYaxis()->SetTitle("N_{electrons}");
+//        h_pfMcPt->GetXaxis()->SetTitle("PF/MC p_{T}");
+//        h_pfMcPt->GetYaxis()->SetTitle("N_{electrons}");
+//        h_pfMcEta->GetXaxis()->SetTitle("PF/MC #eta");
+//        h_pfMcEta->GetYaxis()->SetTitle("N_{electrons}");
+//        h_pfMcPhi->GetXaxis()->SetTitle("PF/MC #phi");
+//        h_pfMcPhi->GetYaxis()->SetTitle("N_{electrons}");
 
-    h_gsfMcGsfPtVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
-    h_gsfMcGsfPtVsEta->GetYaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
-    h_gsfMcGsfPtVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
-    h_gsfMcGsfPtVsPhi->GetYaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
-    h_gsfMcGsfEtaVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
-    h_gsfMcGsfEtaVsPt->GetYaxis()->SetTitle("(GSF-MC)/GSF #eta");
-    h_gsfMcGsfEtaVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
-    h_gsfMcGsfEtaVsPhi->GetYaxis()->SetTitle("(GSF-MC)/GSF #eta");
-    h_gsfMcGsfPhiVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
-    h_gsfMcGsfPhiVsEta->GetYaxis()->SetTitle("(GSF-MC)/GSF #phi");
-    h_gsfMcGsfPhiVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
-    h_gsfMcGsfPhiVsPt->GetYaxis()->SetTitle("(GSF-MC)/GSF #phi");
-    h_pfMcPfPtVsEta->GetXaxis()->SetTitle("PFelectron #eta");
-    h_pfMcPfPtVsEta->GetYaxis()->SetTitle("(PF-MC)/PF p_{T}");
-    h_pfMcPfPtVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
-    h_pfMcPfPtVsPhi->GetYaxis()->SetTitle("(PF-MC)/PF p_{T}");
-    h_pfMcPfEtaVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
-    h_pfMcPfEtaVsPt->GetYaxis()->SetTitle("(PF-MC)/PF #eta");
-    h_pfMcPfEtaVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
-    h_pfMcPfEtaVsPhi->GetYaxis()->SetTitle("(PF-MC)/PF #eta");
-    h_pfMcPfPhiVsEta->GetXaxis()->SetTitle("PFelectron #eta");
-    h_pfMcPfPhiVsEta->GetYaxis()->SetTitle("(PF-MC)/PF #phi");
-    h_pfMcPfPhiVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
-    h_pfMcPfPhiVsPt->GetYaxis()->SetTitle("(PF-MC)/PF #phi");
-  
-    h_idPdgJet->GetXaxis()->SetTitle("particle type");
-    h_idPdgJet->GetYaxis()->SetTitle("N_{jets}");
-    h_idPdgAroundE->GetXaxis()->SetTitle("particle type"); 
-    h_idPdgAroundE->GetYaxis()->SetTitle("N_{particles}");
+       h_gsfMcGsfPt->GetXaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
+       h_gsfMcGsfPt->GetYaxis()->SetTitle("N_{electrons}");
+       h_gsfMcGsfEta->GetXaxis()->SetTitle("(GSF-MC)/GSF #eta");
+       h_gsfMcGsfEta->GetYaxis()->SetTitle("N_{electrons}");
+       h_gsfMcGsfPhi->GetXaxis()->SetTitle("(GSF-MC)/GSF #phi");
+       h_gsfMcGsfPhi->GetYaxis()->SetTitle("N_{electrons}");
+       h_pfMcPfPt->GetXaxis()->SetTitle("(PF-MC)/PF p_{T}");
+       h_pfMcPfPt->GetYaxis()->SetTitle("N_{electrons}");
+       h_pfMcPfEta->GetXaxis()->SetTitle("(PF-MC)/PF #eta");
+       h_pfMcPfEta->GetYaxis()->SetTitle("N_{electrons}");
+       h_pfMcPfPhi->GetXaxis()->SetTitle("(PF-MC)/PF #phi");
+       h_pfMcPfPhi->GetYaxis()->SetTitle("N_{electrons}");
+
+       // h_gsfMcPtVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
+//        h_gsfMcPtVsPt->GetYaxis()->SetTitle("GSF/MC p_{T}");
+//        h_gsfMcEtaVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
+//        h_gsfMcEtaVsEta->GetYaxis()->SetTitle("GSF/MC #eta");
+//        h_gsfMcPhiVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
+//        h_gsfMcPhiVsPhi->GetYaxis()->SetTitle("GSF/MC #phi");
+//        h_pfMcPtVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
+//        h_pfMcPtVsPt->GetYaxis()->SetTitle("PF/MC p_{T}");
+//        h_pfMcEtaVsEta->GetXaxis()->SetTitle("PFelectron #eta");
+//        h_pfMcEtaVsEta->GetYaxis()->SetTitle("PF/MC #eta");
+//        h_pfMcPhiVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
+//        h_pfMcPhiVsPhi->GetYaxis()->SetTitle("PF/MC #phi");
+
+       h_gsfMcGsfPtVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
+       h_gsfMcGsfPtVsPt->GetYaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
+       h_gsfMcGsfEtaVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
+       h_gsfMcGsfEtaVsEta->GetYaxis()->SetTitle("(GSF-MC)/GSF #eta");
+       h_gsfMcGsfPhiVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
+       h_gsfMcGsfPhiVsPhi->GetYaxis()->SetTitle("(GSF-MC)/GSF #phi");
+       h_pfMcPfPtVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
+       h_pfMcPfPtVsPt->GetYaxis()->SetTitle("(PF-MC)/PF p_{T}");
+       h_pfMcPfEtaVsEta->GetXaxis()->SetTitle("PFelectron #eta");
+       h_pfMcPfEtaVsEta->GetYaxis()->SetTitle("(PF-MC)/PF #eta");
+       h_pfMcPfPhiVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
+       h_pfMcPfPhiVsPhi->GetYaxis()->SetTitle("(PF-MC)/PF #phi");
+
+       h_gsfMcGsfPtVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
+       h_gsfMcGsfPtVsEta->GetYaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
+       h_gsfMcGsfPtVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
+       h_gsfMcGsfPtVsPhi->GetYaxis()->SetTitle("(GSF-MC)/GSF p_{T}");
+       h_gsfMcGsfEtaVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
+       h_gsfMcGsfEtaVsPt->GetYaxis()->SetTitle("(GSF-MC)/GSF #eta");
+       h_gsfMcGsfEtaVsPhi->GetXaxis()->SetTitle("GSFelectron #phi");
+       h_gsfMcGsfEtaVsPhi->GetYaxis()->SetTitle("(GSF-MC)/GSF #eta");
+       h_gsfMcGsfPhiVsEta->GetXaxis()->SetTitle("GSFelectron #eta");
+       h_gsfMcGsfPhiVsEta->GetYaxis()->SetTitle("(GSF-MC)/GSF #phi");
+       h_gsfMcGsfPhiVsPt->GetXaxis()->SetTitle("GSFelectron p_{T}");
+       h_gsfMcGsfPhiVsPt->GetYaxis()->SetTitle("(GSF-MC)/GSF #phi");
+       h_pfMcPfPtVsEta->GetXaxis()->SetTitle("PFelectron #eta");
+       h_pfMcPfPtVsEta->GetYaxis()->SetTitle("(PF-MC)/PF p_{T}");
+       h_pfMcPfPtVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
+       h_pfMcPfPtVsPhi->GetYaxis()->SetTitle("(PF-MC)/PF p_{T}");
+       h_pfMcPfEtaVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
+       h_pfMcPfEtaVsPt->GetYaxis()->SetTitle("(PF-MC)/PF #eta");
+       h_pfMcPfEtaVsPhi->GetXaxis()->SetTitle("PFelectron #phi");
+       h_pfMcPfEtaVsPhi->GetYaxis()->SetTitle("(PF-MC)/PF #eta");
+       h_pfMcPfPhiVsEta->GetXaxis()->SetTitle("PFelectron #eta");
+       h_pfMcPfPhiVsEta->GetYaxis()->SetTitle("(PF-MC)/PF #phi");
+       h_pfMcPfPhiVsPt->GetXaxis()->SetTitle("PFelectron p_{T}");
+       h_pfMcPfPhiVsPt->GetYaxis()->SetTitle("(PF-MC)/PF #phi");
+
+
+       h_idPdgAroundE->GetXaxis()->SetTitle("particle type"); 
+       h_idPdgAroundE->GetYaxis()->SetTitle("N_{particles}");
+    }
+
+    if (doPlotsJetComposition){h_idPdgJet->GetXaxis()->SetTitle("particle type");
+       h_idPdgJet->GetYaxis()->SetTitle("N_{jets}");}
  }  
 
 }

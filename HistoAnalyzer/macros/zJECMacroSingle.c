@@ -43,7 +43,7 @@ void zJECMacroSingle() {
 //_______aprire un file root_________________________________
 	
 	//char namefile[50]="totcrab_jetValidation1003singleCorrections.root";
-	char namefile[100]="2fbAnalysis/totcrab_jetValidation2fb1011SingleCorrectionsAK5Vtx.root";
+	char namefile[100]="/gpfs/cms/users/montanin/basta_CMSSW_4_2_4/tot_jetValidation1201SingleCorrections.root";
 	TFile *fdata = TFile::Open(namefile);
 	
 
