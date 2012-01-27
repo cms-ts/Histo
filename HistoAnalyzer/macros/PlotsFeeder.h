@@ -51,8 +51,7 @@ const int sigmaEE = 36; const float sigmaEEmin = 0.; const float sigmaEEmax = 0.
 
 //TODO find a better way to have global parameters
 //FILE NAMES
-const std::string mcfile   = "/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_4.root";
-const std::string datafile = "/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_4.root";
+const std::string mctmpfile   = "/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_11.root";
 const std::string dirname = "validationJEC";
 
 
@@ -127,7 +126,9 @@ public :
    TBranch        *b_numberOfVertices;   //!
    TBranch        *b_Weight;   //!
 
-   PlotsFeeder(TTree *tree=0);
+
+   const std::string mcfile;//   = "/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_11.root";
+   PlotsFeeder(std::string mcfile="dummy", TTree *tree=0);
    virtual ~PlotsFeeder();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -142,10 +143,12 @@ public :
 #endif
 
 #ifdef PlotsFeeder_cxx
-PlotsFeeder::PlotsFeeder(TTree *tree)
+PlotsFeeder::PlotsFeeder(std::string mcfile, TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
+   if(mcfile=="dummy") mcfile = mctmpfile;
+
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(mcfile.c_str());
       if (!f) {
