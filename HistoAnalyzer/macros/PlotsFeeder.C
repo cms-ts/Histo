@@ -35,8 +35,10 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
 
-	TObjArray* histarray = new TObjArray();
 
+
+	TObjArray* histarray = new TObjArray();
+	histarray->Expand(20);
 	
 	//==================//
 	//EB Reweight
@@ -72,9 +74,9 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	TH1D * h_sigma_EE;
 	
 	//EE Reweight
-	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",tEB,tEBmin,tEBmax);
-	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",eEB,eEBmin,eEBmax);
-	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",hEB,hEBmin,hEBmax);
+	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",tEE,tEEmin,tEEmax);
+	h_IsoEcal_EER = new TH1D("h_IsoEcal_EER","IsoEcal",eEE,eEEmin,eEEmax);
+	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",hEE,hEEmin,hEEmax);
 
 	h_HE_EE = new TH1D("h_HE_EE","H/E",iHEEE,HEEEmin,HEEEmax);
 	h_dPhi_EE = new TH1D("h_dPhiTkClu_EE","DeltaPhiTkClu",dPhiEE,dPhiEEmin,dPhiEEmax);
@@ -144,37 +146,51 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 			if (IsoTrkEB_PUR->size()>0) {
 				for (unsigned int i=0; i<IsoTrkEB_PUR->size();i++){
 					float var=IsoTrkEB_PUR->at(i);
+					h_IsoTrk_EBR_PUR->SetLineColor(kBlack);
 					h_IsoTrk_EBR_PUR->Fill(var,Weight);
 				}
 			} 
 			if (IsoEcalEB_PUR->size()>0) {
 				for (unsigned int i=0; i<IsoEcalEB_PUR->size();i++){
 					float var=IsoEcalEB_PUR->at(i);
+					h_IsoEcal_EBR_PUR->SetLineColor(kBlack);
 					h_IsoEcal_EBR_PUR->Fill(var,Weight);
 				}
 			}
 			if (IsoHcalEB_PUR->size()>0) {
 				for (unsigned int i=0; i<IsoEcalEB_PUR->size();i++){
 					float var=IsoHcalEB_PUR->at(i);
+					h_IsoHcal_EBR_PUR->SetLineColor(kBlack);
 					h_IsoHcal_EBR_PUR->Fill(var,Weight);
 				}
 			}
 			if (IsoTrkEB->size()>0) {
 				for (unsigned int i=0; i<IsoTrkEB->size();i++){
 					float var=IsoTrkEB->at(i);
+					h_IsoTrk_EBR->SetLineColor(kBlack);
 					h_IsoTrk_EBR->Fill(var,Weight);
 				}
 			}
 			if (IsoEcalEB->size()>0) {
 				for (unsigned int i=0; i<IsoEcalEB->size();i++){
 					float var=IsoEcalEB->at(i);
+					h_IsoEcal_EBR->SetLineColor(kBlack);
 					h_IsoEcal_EBR->Fill(var,Weight);
 				}
 			}
 			if (IsoHcalEB->size()>0) {
 				for (unsigned int i=0; i<IsoEcalEB->size();i++){
 					float var=IsoHcalEB->at(i);
+					h_IsoHcal_EBR->SetLineColor(kBlack);
 					h_IsoHcal_EBR->Fill(var,Weight);
+				}
+			}
+
+			if (sigmaIeIeEB->size()>0) {
+				for (unsigned int i=0; i<sigmaIeIeEB->size();i++){
+					float var=sigmaIeIeEB->at(i);
+					h_sigma_EB->SetLineColor(kBlack);
+					h_sigma_EB->Fill(var,Weight);
 				}
 			}
 
@@ -183,18 +199,21 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 			if (IsoTrkEE_PUR->size()>0) {
 				for (unsigned int i=0; i<IsoTrkEE_PUR->size();i++){
 					float var=IsoTrkEE_PUR->at(i);
+					h_IsoTrk_EER_PUR->SetLineColor(kBlack);
 					h_IsoTrk_EER_PUR->Fill(var,Weight);
 				}
 			}
 			if (IsoEcalEE_PUR->size()>0) {
 				for (unsigned int i=0; i<IsoEcalEE_PUR->size();i++){
 					float var=IsoEcalEE_PUR->at(i);
+					h_IsoEcal_EER_PUR->SetLineColor(kBlack);
 					h_IsoEcal_EER_PUR->Fill(var,Weight);
 				}
 			}
 			if (IsoHcalEE_PUR->size()>0) {
 				for (unsigned int i=0; i<IsoHcalEE_PUR->size();i++){
 					float var=IsoHcalEE_PUR->at(i);
+					h_IsoHcal_EER_PUR->SetLineColor(kBlack);
 					h_IsoHcal_EER_PUR->Fill(var,Weight);
 				}
 			}
@@ -202,23 +221,29 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 			if (IsoTrkEE->size()>0) {
 				for (unsigned int i=0; i<IsoTrkEE->size();i++){
 					float var=IsoTrkEE->at(i);
+					h_IsoTrk_EER->SetLineColor(kBlack);
 					h_IsoTrk_EER->Fill(var,Weight);
 				}
 			}
 			if (IsoEcalEE->size()>0) {
 				for (unsigned int i=0; i<IsoEcalEE->size();i++){
 					float var=IsoEcalEE->at(i);
+					h_IsoEcal_EER->SetLineColor(kBlack);
 					h_IsoEcal_EER->Fill(var,Weight);
 				}
 			}
 			if (IsoHcalEE->size()>0) {
 				for (unsigned int i=0; i<IsoHcalEE->size();i++){
 					float var=IsoHcalEE->at(i);
+					h_IsoHcal_EER->SetLineColor(kBlack);
 					h_IsoHcal_EER->Fill(var,Weight);
 				}
 			}
+		}
 	}
-}
+
+	
+
 
 	histarray->Add(h_IsoTrk_EBR_PUR); 
 	histarray->Add(h_IsoEcal_EBR_PUR);
@@ -255,7 +280,9 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	histarray->Add(h_sigma_EE_PUR);
 
 
-
 return  histarray;
+
+
+
 
 }
