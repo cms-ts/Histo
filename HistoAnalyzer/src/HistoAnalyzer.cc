@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.31 2011/12/05 14:36:27 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.32 2012/01/23 15:43:42 vieri Exp $
 //
 //
 
@@ -269,8 +269,11 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
     
     //////// Storing info
     Weight=MyWeight3D;
-    EventWeight->push_back(MyWeight3D);
-    if (MyWeight3D<0.01) cout<<"You are over-correcting in the MC reweight, HistoAnalyzer.cc!!!"<<endl;
+    if (MyWeight3D>10) {
+      cout<<"You are over-correcting in the MC reweight, HistoAnalyzer.cc!!! Event re corrected by factor 1.0"<<endl;
+      MyWeight3D=1.0;
+    }
+    EventWeight->push_back(MyWeight3D); 
   }
   else { 
     EventWeight->push_back(1); 
