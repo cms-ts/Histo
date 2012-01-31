@@ -11,6 +11,9 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+const std::string datafile   = "/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10.root";
+const std::string dirname = "validationJEC";
+
 
 class Zlumi {
 public :
@@ -104,12 +107,15 @@ Zlumi::Zlumi(TTree *tree)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10.root");
-      if (!f) {
-         f = new TFile("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10.root");
-         f->cd("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10.root:/validationJEC");
-      }
-      tree = (TTree*)gDirectory->Get("treeVJ_");
+
+	   TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(datafile.c_str());
+	   if (!f) {
+		   f = new TFile(datafile.c_str());
+		   std::string fake = datafile;
+		   fake = fake + ":/" + dirname;
+		   f->cd(fake.c_str());
+	   }
+	   tree = (TTree*)gDirectory->Get("treeVJ_");
 
    }
    Init(tree);
