@@ -1,5 +1,5 @@
 /**********************************
- * Unfolding Z+jet distributions  *
+* Unfolding Z+jet distributions  *
  *                                *
  **********************************
  *********************************/
@@ -271,7 +271,7 @@ UnfoldingIdentityCheck::LoopJetMultiplicityBackground()
       jj->SetLineWidth (1);
       jj->SetLineStyle (2);
       jj->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DataBkgMixing/jetMultiplicityWithOtherMC_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DataBkgMixing/jetMultiplicityWithOtherMC_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");
@@ -445,7 +445,7 @@ UnfoldingIdentityCheck::LoopJetMultiplicityWithOtherMC()
       jj->SetLineWidth (1);
       jj->SetLineStyle (2);
       jj->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/PythiaZ2Check/jetMultiplicityWithOtherMC_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/PythiaZ2Check/jetMultiplicityWithOtherMC_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");
@@ -597,7 +597,7 @@ UnfoldingIdentityCheck::LoopJetMultiplicityAandB()
       jj->SetLineWidth (1);
       jj->SetLineStyle (2);
       jj->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/SplitCheck/jetMultiplicitysplit_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/SplitCheck/jetMultiplicitysplit_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");
@@ -762,7 +762,7 @@ UnfoldingIdentityCheck::LoopJetMultiplicity ()
       jj->SetLineWidth (1);
       jj->SetLineStyle (2);
       jj->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/IdentityCheck/jetMultiplicityIdentityCheck_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/IdentityCheck/jetMultiplicityIdentityCheck_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");
@@ -935,7 +935,7 @@ UnfoldingIdentityCheck::LoopZptWithOtherMC()
       jj->SetLineWidth (1);
       jj->SetLineStyle (2);
       jj->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/PythiaZ2Check/ZptWithOtherMC_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/PythiaZ2Check/ZptWithOtherMC_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");
@@ -1101,7 +1101,7 @@ UnfoldingIdentityCheck::LoopZpt ()
       kk->Draw ("same");
 
       d->cd ();
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding//IdentityCheck/ZptIdentityCheck_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding//IdentityCheck/ZptIdentityCheck_"+method+"_"+num.str()+".pdf";
       d->Print(title3.c_str());
       num.str("");
     }
@@ -1265,7 +1265,7 @@ UnfoldingIdentityCheck::LoopZy ()
       l->Draw ("same");
 
       e->cd ();
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/IdentityCheck/ZyIdentityCheck_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/IdentityCheck/ZyIdentityCheck_"+method+"_"+num.str()+".pdf";
       e->Print(title3.c_str());
       num.str("");
     }
@@ -1437,7 +1437,7 @@ UnfoldingIdentityCheck::LoopZyWithOtherMC()
       jj->SetLineWidth (1);
       jj->SetLineStyle (2);
       jj->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/PythiaZ2Check/ZyWithOtherMC_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/PythiaZ2Check/ZyWithOtherMC_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");

@@ -284,7 +284,7 @@ Unfolding::LoopJetMultiplicity ()
       NReco->Fit(jj);
       jj->Draw ("same");
       l->Draw ("same");
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/jetMultiplicity_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/jetMultiplicity_"+method+"_"+num.str()+".pdf";
       c->cd ();
       c->Print(title3.c_str());
       num.str("");
@@ -302,7 +302,7 @@ Unfolding::LoopJetMultiplicity ()
   double entries=1.000/(double)NMatx->GetEntries();
   NMatx->Scale(entries);
   NMatx->Draw ("COLZ,text");
-  N->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/MatrixjetMultiplicity.png");
+  N->Print("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/MatrixjetMultiplicity.pdf");
 }
 
 void
@@ -494,7 +494,7 @@ Unfolding::LoopZpt ()
       jj->Draw ("same");
       l->Draw ("same");
       d->cd ();
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/Zpt_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/Zpt_"+method+"_"+num.str()+".pdf";
       d->Print(title3.c_str());
       num.str("");
     }
@@ -508,8 +508,9 @@ Unfolding::LoopZpt ()
   double entries=1.000/(double)PMatx->GetEntries();
   PMatx->Scale(entries);
   PMatx->SetMarkerColor (kBlack);
+  gPad->SetLogz(1);
   PMatx->Draw ("COLZ,text");
-  string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/MatrixZpt.png";
+  string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/MatrixZpt.pdf";
   P->Print(title3.c_str());
 }
 
@@ -700,7 +701,7 @@ Unfolding::LoopZy ()
       l->Draw ("same");
       
       e->cd ();
-      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/Zy_"+method+"_"+num.str()+".png";
+      string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/Zy_"+method+"_"+num.str()+".pdf";
       e->Print(title3.c_str());
       num.str("");
     }
@@ -714,8 +715,9 @@ Unfolding::LoopZy ()
   double entries=1.000/(double)yMatx->GetEntries();
   yMatx->Scale(entries);
   yMatx->SetMarkerColor (kBlack);
+  gPad->SetLogz(1);
   yMatx->Draw ("COLZ,text");
-  string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/MatrixZy.png";
+  string title3="/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/Data/MatrixZy.pdf";
   Y->Print(title3.c_str());
 }
 
