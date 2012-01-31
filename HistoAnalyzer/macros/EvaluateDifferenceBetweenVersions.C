@@ -23,10 +23,12 @@ TH1D* h_itEB_data42;
 // Just Select your version that you wonna compare!! And the path in which you'll store it!!!!
 //
 
-TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_10b.root"); 
-TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10b.root"); 
-std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/CMSSW44_42_Comparison/"; //put here the path where you want the plots
+TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11.root"); 
+TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11noNewJEC.root"); 
+std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/NewJEC/"; //put here the path where you want the plots
 std::string whichdirectory="validationJEC";
+string name1="Old JEC"; // Name on the Plot's Label
+string name2="New JEC"; // Name on the Plot's Label
 
 using namespace std;
 
@@ -140,8 +142,8 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   leg->SetBorderSize(0);
   leg->SetTextSize(.03);
   leg->SetFillColor(0);
-  leg->AddEntry(obj44,"CMSSW_4_2_4","l");
-  leg->AddEntry(obj42,"CMSSW_4_4_2","l");
+  leg->AddEntry(obj44,name1.c_str(),"l");
+  leg->AddEntry(obj42,name2.c_str(),"l");
   leg->Draw();
 
   a.cd();
@@ -171,6 +173,7 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   OLine->Draw();
   string tmp=plotpath+"/"+directory+"/"+name+".pdf";
   a.Print(tmp.c_str());
+  cout<<"Printing ->"<<tmp<<endl;
   }
   return;  
 }
