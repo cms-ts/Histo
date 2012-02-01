@@ -147,6 +147,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoTrkEB_PUR->size();i++){
 					float var=IsoTrkEB_PUR->at(i);
 					h_IsoTrk_EBR_PUR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoTrk_EBR_PUR->Fill(var,Weight);
 				}
 			} 
@@ -154,6 +155,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoEcalEB_PUR->size();i++){
 					float var=IsoEcalEB_PUR->at(i);
 					h_IsoEcal_EBR_PUR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoEcal_EBR_PUR->Fill(var,Weight);
 				}
 			}
@@ -161,6 +163,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoEcalEB_PUR->size();i++){
 					float var=IsoHcalEB_PUR->at(i);
 					h_IsoHcal_EBR_PUR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoHcal_EBR_PUR->Fill(var,Weight);
 				}
 			}
@@ -168,6 +171,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoTrkEB->size();i++){
 					float var=IsoTrkEB->at(i);
 					h_IsoTrk_EBR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoTrk_EBR->Fill(var,Weight);
 				}
 			}
@@ -175,6 +179,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoEcalEB->size();i++){
 					float var=IsoEcalEB->at(i);
 					h_IsoEcal_EBR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoEcal_EBR->Fill(var,Weight);
 				}
 			}
@@ -190,6 +195,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<sigmaIeIeEB->size();i++){
 					float var=sigmaIeIeEB->at(i);
 					h_sigma_EB->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_sigma_EB->Fill(var,Weight);
 				}
 			}
@@ -200,6 +206,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoTrkEE_PUR->size();i++){
 					float var=IsoTrkEE_PUR->at(i);
 					h_IsoTrk_EER_PUR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoTrk_EER_PUR->Fill(var,Weight);
 				}
 			}
@@ -207,6 +214,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoEcalEE_PUR->size();i++){
 					float var=IsoEcalEE_PUR->at(i);
 					h_IsoEcal_EER_PUR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoEcal_EER_PUR->Fill(var,Weight);
 				}
 			}
@@ -214,6 +222,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoHcalEE_PUR->size();i++){
 					float var=IsoHcalEE_PUR->at(i);
 					h_IsoHcal_EER_PUR->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoHcal_EER_PUR->Fill(var,Weight);
 				}
 			}
@@ -222,6 +231,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoTrkEE->size();i++){
 					float var=IsoTrkEE->at(i);
 					h_IsoTrk_EER->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoTrk_EER->Fill(var,Weight);
 				}
 			}
@@ -229,6 +239,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoEcalEE->size();i++){
 					float var=IsoEcalEE->at(i);
 					h_IsoEcal_EER->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoEcal_EER->Fill(var,Weight);
 				}
 			}
@@ -236,6 +247,7 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 				for (unsigned int i=0; i<IsoHcalEE->size();i++){
 					float var=IsoHcalEE->at(i);
 					h_IsoHcal_EER->SetLineColor(kBlack);
+					if(!Weight) Weight=1;
 					h_IsoHcal_EER->Fill(var,Weight);
 				}
 			}
