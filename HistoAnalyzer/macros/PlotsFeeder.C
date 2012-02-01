@@ -38,7 +38,6 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 
 
 	TObjArray* histarray = new TObjArray();
-	histarray->Expand(20);
 	
 	//==================//
 	//EB Reweight
@@ -47,13 +46,15 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	TH1D * h_IsoHcal_EBR;
 
 	TH1D * h_HE_EB;
-	TH1D * h_dPhi_EB;
-	TH1D * h_dEta_EB;
-	TH1D * h_sigma_EB;
+	TH1F * h_dPhi_EB;
+	TH1F * h_dEta_EB;
+	TH1F * h_sigma_EB;
+	
 	TH1D * h_fbrem;
 	TH1D * h_etaSC;
-	TH1D * h_Dcot;
-	TH1D * h_Dist;
+	TH1F * h_Dcot;
+	TH1F * h_Dist;
+
 
 	//EB Reweight
 	h_IsoTrk_EBR = new TH1D("h_IsoTrk_EBR","IsoTrk",tEB,tEBmin,tEBmax);
@@ -61,14 +62,14 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	h_IsoHcal_EBR = new TH1D("h_IsoHcal_EBR","IsoHcal",hEB,hEBmin,hEBmax);
 	
 	h_HE_EB = new TH1D("h_HE_EB","H/E",iHEEB,HEEBmin,HEEBmax);
-	h_dPhi_EB = new TH1D("h_dPhiTkClu_EB","DeltaPhiTkClu",dPhiEB,dPhiEBmin,dPhiEBmax);
-	h_dEta_EB = new TH1D("h_dEtaTkClu_EB","DeltaEtaTkClu",dEtaEB,dEtaEBmin,dEtaEBmax);
-	h_sigma_EB = new TH1D("h_sigmaIeIe_EB","SigmaIeIe",sigmaEB,sigmaEBmin,sigmaEBmax);
+	h_dPhi_EB = new TH1F("h_dPhiTkClu_EB","DeltaPhiTkClu",dPhiEB,dPhiEBmin,dPhiEBmax);
+	h_dEta_EB = new TH1F("h_dEtaTkClu_EB","DeltaEtaTkClu",dEtaEB,dEtaEBmin,dEtaEBmax);
+	h_sigma_EB = new TH1F("h_sigmaIeIe_EB","SigmaIeIe",sigmaEB,sigmaEBmin,sigmaEBmax);
 
 	h_fbrem = new TH1D("h_fbrem","Brem fraction",100,0.,1.);
 	h_etaSC = new TH1D("h_etaSC","etaSC",56,-2.4,2.4);
-	h_Dcot = new TH1D("h_Dcot","Dcot",40,-0.2,0.2);
-	h_Dist = new TH1D("h_Dist","Dist",40,-0.2,0.2);
+	h_Dcot = new TH1F("h_Dcot","Dcot",40,-0.2,0.2);
+	h_Dist = new TH1F("h_Dist","Dist",40,-0.2,0.2);
 
 
 	//=====================
@@ -78,9 +79,9 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	TH1D * h_IsoHcal_EER;
 	
 	TH1D * h_HE_EE;
-	TH1D * h_dPhi_EE;
-	TH1D * h_dEta_EE;
-	TH1D * h_sigma_EE;
+	TH1F * h_dPhi_EE;
+	TH1F * h_dEta_EE;
+	TH1F * h_sigma_EE;
 	
 	//EE Reweight
 	h_IsoTrk_EER = new TH1D("h_IsoTrk_EER","IsoTrk",tEE,tEEmin,tEEmax);
@@ -88,9 +89,9 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	h_IsoHcal_EER = new TH1D("h_IsoHcal_EER","IsoHcal",hEE,hEEmin,hEEmax);
 
 	h_HE_EE = new TH1D("h_HE_EE","H/E",iHEEE,HEEEmin,HEEEmax);
-	h_dPhi_EE = new TH1D("h_dPhiTkClu_EE","DeltaPhiTkClu",dPhiEE,dPhiEEmin,dPhiEEmax);
-	h_dEta_EE = new TH1D("h_dEtaTkClu_EE","DeltaEtaTkClu",dEtaEE,dEtaEEmin,dEtaEEmax);
-	h_sigma_EE = new TH1D("h_sigmaIeIe_EE","SigmaIeIe",sigmaEE,sigmaEEmin,sigmaEEmax);
+	h_dPhi_EE = new TH1F("h_dPhiTkClu_EE","DeltaPhiTkClu",dPhiEE,dPhiEEmin,dPhiEEmax);
+	h_dEta_EE = new TH1F("h_dEtaTkClu_EE","DeltaEtaTkClu",dEtaEE,dEtaEEmin,dEtaEEmax);
+	h_sigma_EE = new TH1F("h_sigmaIeIe_EE","SigmaIeIe",sigmaEE,sigmaEEmin,sigmaEEmax);
 
 
 	//==================//
@@ -218,22 +219,22 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 
 			if (fbrem->size()>0) {
 				for (unsigned int i=0; i<fbrem->size();i++){
-					float var=fbrem->at(i);
+					double var=fbrem->at(i);
 					h_fbrem->SetLineColor(kBlack);
 					if(!Weight) Weight=1;
 					h_fbrem->Fill(var,Weight);
 				}
 			}
 
-			if (etaSC->size()>0) {
+/*			if (etaSC->size()>0) { // non funziona perche' c'e' un duplicato nel tree con lo stesso nome in Histoanalyzer #FIXME THERE!!!
 				for (unsigned int i=0; i<etaSC->size();i++){
-					float var=etaSC->at(i);
+					double var=etaSC->at(i);
 					h_etaSC->SetLineColor(kBlack);
 					if(!Weight) Weight=1;
 					h_etaSC->Fill(var,Weight);
 				}
 			}
-
+*/
 			if (Dcot->size()>0) {
 				for (unsigned int i=0; i<Dcot->size();i++){
 					float var=Dcot->at(i);
