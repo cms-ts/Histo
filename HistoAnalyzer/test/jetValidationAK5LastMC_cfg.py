@@ -51,8 +51,8 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-process.GlobalTag.globaltag = 'GR_R_41_V0::All'
-
+#process.GlobalTag.globaltag = 'GR_R_41_V0::All'
+process.GlobalTag.globaltag = 'MC_42_V17::All'
 ####################
 #### Files
 ###################
@@ -117,7 +117,7 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
                            triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                            filename=cms.untracked.string("ZAnalysisFilter.root"),
                            UseCombinedPrescales = cms.bool(True),
-                           removePU=  cms.bool(False),
+                           removePU=  cms.bool(True),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
@@ -130,7 +130,6 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
-                                   #electronCollection = cms.InputTag("gsfElectrons"),
                                    removePU=  cms.bool(True),
                                    )
                                    
@@ -179,6 +178,7 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(False),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
+                              WhichRun = cms.string("Run2011B"), ##Select which datasets you wonna use to reweight
 )
 
 
@@ -296,20 +296,23 @@ process.TAPAnalysis = cms.Path(
     )
 
 process.JetValidation = cms.Path(
-    process.TotalEventCounter*
     process.kt6PFJetsForIsolation*
     #process.kt6PFJets*
+#    #process.kt6PFJets*
+    #process.ak5PFJets*
+    process.patTrigger*
+    process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*     
     process.Selection*
     process.demo*
     process.goodEPair*
     process.ak5PFJets*
-    process.genParticlesForJets*
-    process.ak5GenJets*
-    #process.ak5PFJetsL2L3Residual*
-    #process.validationL2L3Residual*
     #process.validation*
-    process.ak5PFJetsL1FastL2L3Residual*
-    process.validationJEC
+    process.ak5PFJetsL2L3Residual*
+    process.validationL2L3Residual*
+    process.ak5PFJetsL1FastL2L3Residual
+    *process.validationJEC
     )
 
 #####################
