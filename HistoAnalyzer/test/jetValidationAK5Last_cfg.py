@@ -264,6 +264,12 @@ process.TAPAnalysis = cms.Path(
 process.JetValidation = cms.Path(
     process.kt6PFJetsForIsolation*
     #process.kt6PFJets*
+#    #process.kt6PFJets*
+    #process.ak5PFJets*
+    process.patTrigger*
+    process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*     
     process.Selection*
     process.demo*
     process.goodEPair*
@@ -274,25 +280,6 @@ process.JetValidation = cms.Path(
     process.ak5PFJetsL1FastL2L3Residual
     *process.validationJEC
     )
-
-#process.JetValidation = cms.Path(
-#    process.kt6PFJetsForIsolation*
-#    #process.kt6PFJets*
-#    #process.ak5PFJets*     
-#    #process.patTrigger*
-#    #process.patDefaultSequence*
-#    #process.eleTriggerMatchHLT*
-#    #process.patElectronsWithTrigger*  
-#    process.Selection*
-#    process.demo*
-#    process.goodEPair*
-#    process.ak5PFJets*
-#    #process.validation*
-#    process.ak5PFJetsL2L3Residual*
-#    process.validationL2L3Residual*
-#    process.ak5PFJetsL1FastL2L3Residual
-#    *process.validationJEC
-#     )
 
 #####################
 #                   #
