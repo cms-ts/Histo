@@ -55,7 +55,8 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-process.GlobalTag.globaltag = 'GR_R_41_V0::All'
+#process.GlobalTag.globaltag = 'GR_R_41_V0::All'
+process.GlobalTag.globaltag = 'GR_R_42_V23::All' # new JEC for 42
 
 ####################
 #### Files
@@ -64,6 +65,7 @@ process.GlobalTag.globaltag = 'GR_R_41_V0::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
     "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-03Oct2011-v1/0000/FEAF4709-07EF-E011-A071-002618FDA208.root"
+    #"file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/B05CFB4E-7AF1-E011-B4BF-0015178C1574.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -119,7 +121,7 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
                            electronCollection = cms.InputTag("patElectronsWithTrigger"),
                            triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                            filename=cms.untracked.string("ZAnalysisFilter.root"),
-                           UseCombinedPrescales = cms.bool(True),
+                           UseCombinedPrescales = cms.bool(False),
                            removePU=  cms.bool(True),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
@@ -178,9 +180,10 @@ process.demo = cms.EDProducer('HistoProducer',
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(False),
-                              doTheHLTAnalysis = cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
+                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight.. 
 )
 
 
@@ -270,7 +273,26 @@ process.JetValidation = cms.Path(
     process.validationL2L3Residual*
     process.ak5PFJetsL1FastL2L3Residual
     *process.validationJEC
-     )
+    )
+
+#process.JetValidation = cms.Path(
+#    process.kt6PFJetsForIsolation*
+#    #process.kt6PFJets*
+#    #process.ak5PFJets*     
+#    #process.patTrigger*
+#    #process.patDefaultSequence*
+#    #process.eleTriggerMatchHLT*
+#    #process.patElectronsWithTrigger*  
+#    process.Selection*
+#    process.demo*
+#    process.goodEPair*
+#    process.ak5PFJets*
+#    #process.validation*
+#    process.ak5PFJetsL2L3Residual*
+#    process.validationL2L3Residual*
+#    process.ak5PFJetsL1FastL2L3Residual
+#    *process.validationJEC
+#     )
 
 #####################
 #                   #
