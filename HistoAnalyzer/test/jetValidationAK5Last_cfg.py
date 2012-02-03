@@ -174,7 +174,7 @@ process.validation = cms.EDAnalyzer('jetValidation',
 ###################
 
 process.demo = cms.EDProducer('HistoProducer',
-                              electronCollection = cms.InputTag('gsfElectrons'),
+                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
@@ -195,7 +195,7 @@ process.demo = cms.EDProducer('HistoProducer',
 
 
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
-                                             src     = cms.InputTag( "patElectrons" ),
+                                             src     = cms.InputTag( "patElectrons" ),# This one shold become a PFpat
                                              matched = cms.InputTag( "patTrigger"),##patTriggerObjectStandAlones_patTrigger__PAT
                                              matchedCuts = cms.string('(path("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*",0,0) && filter("hltEle17CaloIdIsoEle8CaloIdIsoPixelMatchDoubleFilter")) || (path("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",0,0) && filter("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsolDoubleFilter"))'),
                                              maxDPtRel = cms.double( 5 ),
@@ -206,7 +206,7 @@ process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
 
 ### patElectronsWithTrigger ###########################################
 process.patElectronsWithTrigger = cms.EDProducer("PATTriggerMatchElectronEmbedder",
-                                                    src     = cms.InputTag("patElectrons"),
+                                                    src     = cms.InputTag("patElectrons"),# This one shold become a PFpat 
                                                     matches = cms.VInputTag(cms.InputTag('eleTriggerMatchHLT'))
                                                  )
 
@@ -274,7 +274,6 @@ process.JetValidation = cms.Path(
     process.demo*
     process.goodEPair*
     process.ak5PFJets*
-    #process.validation*
     process.ak5PFJetsL2L3Residual*
     process.validationL2L3Residual*
     process.ak5PFJetsL1FastL2L3Residual
