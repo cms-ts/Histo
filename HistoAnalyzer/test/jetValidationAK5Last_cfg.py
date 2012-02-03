@@ -250,7 +250,6 @@ process.TotalEventCounter = cms.EDProducer("EventCountProducer")
 #####################
 
 process.TAPAnalysis = cms.Path(
-    process.TotalEventCounter*
     process.kt6PFJetsForIsolation*
     process.kt6PFJets*
     process.ak5PFJets*
@@ -262,6 +261,7 @@ process.TAPAnalysis = cms.Path(
     )
 
 process.JetValidation = cms.Path(
+    process.TotalEventCounter*
     process.kt6PFJetsForIsolation*
     #process.kt6PFJets*
 #    #process.kt6PFJets*

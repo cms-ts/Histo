@@ -296,6 +296,7 @@ process.TAPAnalysis = cms.Path(
     )
 
 process.JetValidation = cms.Path(
+    process.TotalEventCounter* 
     process.kt6PFJetsForIsolation*
     #process.kt6PFJets*
 #    #process.kt6PFJets*
