@@ -21,26 +21,26 @@
 
 #include "lumi_scale_factors.h"
 
-bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
+bool lumiweights 	= 0;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
 
 string plotpath		="./"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_7.root";
-string mcfile		="jetValidation_64_1_VXD.root"; 
-//string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_3d.root"; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_4.root"; 
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_4.root";
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_dataAug05_v1_11.root";
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011B_v1_11.root"; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_10.root"; 
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_10.root";
 
 string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root";
 string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root";
 string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root";
-string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_4.root";
-string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_4.root";
-string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched_v1_4.root";
+string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root";
+string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root";
+string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root";
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
 double ttwemean=140.;
 
+double dataNumEvents=-999;
 double zNumEvents=-999; //lo definisco globale anche se non Ã¨ la cosa piÃ¹ bella da fare
 double ttNumEvents=-999; //questo lavoro andrebbe fatto anche per i qcd... 
 double wNumEvents=-999; //al momento non l'ho fatto perchÃ© passano 0 eventi e e' gran smeno
@@ -68,6 +68,7 @@ void DrawComparisonJetMCData(void){
 	tdrStyle();
 
 	// Recupero l'informazione sul numero di eventi processati per singolo MC
+	dataNumEvents = numEventsPerStep(datafile, "demo"); 
 	zNumEvents = numEventsPerStep(mcfile, "demo"); 
 	ttNumEvents = numEventsPerStep(back_ttbar, "demo"); 
 	wNumEvents = numEventsPerStep(back_w, "demo"); 
@@ -95,7 +96,7 @@ void DrawComparisonJetMCData(void){
 		TString temp = (TString)name;
 		
 		int num=tobj->GetUniqueID();
-		cout<<"num is "<<num<<endl;
+		//cout<<"num is "<<num<<endl;
 		if(temp.Contains("weight")){
 		
 		TFile *mcf = TFile::Open(mcfile.c_str()); 
@@ -114,7 +115,8 @@ void DrawComparisonJetMCData(void){
 		gDirectory->GetObject(name.c_str(),mc);
 		if(mc){
 		mc->SetFillColor(kRed);
-		mc->GetXaxis()->SetRangeUser(0.,2.);
+		mc->GetXaxis()->SetRangeUser(0.,12.);
+		mc->SetMinimum(1.);
 		mc->Draw();
 		zwemean = mc->GetMean();
 		tmpname=plotpath+name+"-zjets.png";
@@ -154,11 +156,14 @@ void DrawComparisonJetMCData(void){
 	
 	
 	i++;
-	//if(i==4)break;
+	//if(i==1)break;
 	}
 
 
 	// AVVISI AI NAVIGANTI
+	//if(dataNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEI DATI, quindi ho normalizzato sugli eventi totali del campione\n";
+	//else cout << "Il numero di eventi (dati) " << dataNumEvents << "\n";
+	
 	if(zNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DELLO Z+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
 	else cout << "Il numero di eventi di Z+jets " << zNumEvents << "\n";
 	
@@ -262,6 +267,34 @@ void comparisonJetMCData(string plot,int rebin){
 		legend->SetBorderSize(0);
 		legend->AddEntry(data,"data","p");
 
+		// hack to calculate some yields in restricted regions...
+		int num1=0, num2=0, num3=0, num4=0, num5=0;
+		if(str.Contains("invMass") && !str.Contains("PF")){
+			for(int j=1;j<=data->GetNbinsX();j++){
+			num1 += data->GetBinContent(j); 		//conto quante Z ci sono tra 60 e 120 GeV
+			if(j>10&&j<=50) num2 += data->GetBinContent(j); // ... tra 70 e 110
+			if(j>15&&j<=45) num3 += data->GetBinContent(j); // ... tra 75 e 105
+			}
+			cout << "\n";
+			cout << data->GetNbinsX() <<" Number of bins of the invmass histo\n";
+			printf("Number of Z in 60-120 %i --- 70-110 %i --- 75-105 %i \n",num1,num2,num3);
+			cout << "\n";
+		}
+		if(str.Contains("zYieldVsjets") && !str.Contains("Vtx")){
+			for(int j=1;j<=data->GetNbinsX();j++){
+				num1 += data->GetBinContent(j); 		//conto quante Z
+				if(j>1) num2 += data->GetBinContent(j); // ... +1,2,3,4... jets
+				if(j>2) num3 += data->GetBinContent(j); // ... +2,3,4... jets
+				if(j>3) num4 += data->GetBinContent(j); // ... +3,4... jets
+				if(j>4) num5 += data->GetBinContent(j); // ... +4... jets
+			}
+			cout << "\n";
+			cout << data->GetNbinsX() <<" Number of bins of the zYieldVsjets histo\n";
+			printf("Number of Z+n jet %i --- >1 %i --- >2 %i --- >3 %i --- >4 %i \n",num1,num2,num3,num4,num5);
+			cout << "\n";
+		}
+		//
+
 
 		//======================
 		// Z + jets signal
@@ -289,7 +322,7 @@ void comparisonJetMCData(string plot,int rebin){
 		}
 		// fin qui
 
-		if(lumiweights==1) mc->Scale(1.-zwemean+1.);  // perche' i Weights non fanno 1...
+		if(lumiweights==1) mc->Scale(1./zwemean);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
 		hsum->Rebin(rebin);
@@ -313,7 +346,7 @@ void comparisonJetMCData(string plot,int rebin){
 			if(lumiweights==1) ttbar->Scale(ttbarScale);
 		}
 		
-		ttbar->Scale(1.-ttwemean+1.);  // perche' i Weights non fanno 1...
+		ttbar->Scale(1./ttwemean);  // perche' i Weights non fanno 1...
 		ttbar->Rebin(rebin);
 		//ttbar->Draw("HISTO SAMES");
 		hsum->Add(ttbar);
@@ -338,7 +371,7 @@ void comparisonJetMCData(string plot,int rebin){
 		
 		w->Scale(wjetsScale); 
 		if(wNumEvents>0.) w->Scale(wjetsNevts/wNumEvents); // perche' il mc non e' completo...
-		w->Scale(1.-wwemean+1.);  // perche' i Weights non fanno 1...
+		w->Scale(1./wwemean);  // perche' i Weights non fanno 1...
 		w->Rebin(rebin);
 		//w->Draw("HISTO SAMES");
 		hsum->Add(w);
@@ -537,7 +570,7 @@ void comparisonJetMCData(string plot,int rebin){
 		Canv->Update();
 
 		tmp=plotpath+plot+".png";
-		Canv->Print(tmp.c_str());
+//		Canv->Print(tmp.c_str());
 
 	}
 	else if (flag==2){
@@ -576,9 +609,9 @@ void comparisonJetMCData(string plot,int rebin){
 		Canv->Update();
 
 		tmp=plotpath+plot+"mc.png";
-		Canv->Print(tmp.c_str());
+//		Canv->Print(tmp.c_str());
 	}
-	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
+//	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
 
 	delete data;
 	delete data2;
