@@ -118,6 +118,9 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
                            filename=cms.untracked.string("ZAnalysisFilter.root"),
                            UseCombinedPrescales = cms.bool(True),
                            removePU=  cms.bool(True),
+                           WP80_efficiency  =  cms.bool(True),
+                           HLTele17_efficiency  =  cms.bool(False),
+                           HLTele8NOTele17_efficiency  =  cms.bool(False),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
@@ -135,7 +138,7 @@ process.goodEPair = cms.EDProducer('ZanalyzerProducer',
                                    
 process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        electronCollection = cms.InputTag("gsfElectrons"),
-                                       jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3Residual"),
+                                       jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        tpMapName = cms.string('EventWeight'),
@@ -143,9 +146,9 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        usingMC = cms.untracked.bool(True),
                                        )
                                    
-process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
+process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        electronCollection = cms.InputTag("gsfElectrons"),
-                                       jetCollection = cms.InputTag("ak5PFJetsL2L3Residual"),
+                                       jetCollection = cms.InputTag("ak5PFJetsL2L3"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        tpMapName = cms.string('EventWeight'),
@@ -310,9 +313,9 @@ process.JetValidation = cms.Path(
     process.goodEPair*
     process.ak5PFJets*
     #process.validation*
-    process.ak5PFJetsL2L3Residual*
-    process.validationL2L3Residual*
-    process.ak5PFJetsL1FastL2L3Residual
+    process.ak5PFJetsL2L3*
+    process.validationL2L3*
+    process.ak5PFJetsL1FastL2L3
     *process.validationJEC
     )
 
