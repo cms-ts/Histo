@@ -73,8 +73,10 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    {   
       double gsfScEn;
       double gsfScEta;
+      double gsfScPhi;
       double pfScEn;
       double pfScEta;
+      double pfScPhi;
       double deltaEta_ = 5.0/100.0;
       double deltaPhi_ = 2.0*pi_/100;
       int cluSize1 =0;
@@ -118,10 +120,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (it->superCluster().isNonnull() && it->pflowSuperCluster().isNonnull()){
 	 gsfScEn = it->superCluster()->energy();
 	 gsfScEta= it->superCluster()->eta();
+	 gsfScPhi= it->superCluster()->phi();
 	 pfScEn  = it->pflowSuperCluster()->energy();
 	 pfScEta= it->pflowSuperCluster()->eta();
+	 pfScPhi= it->pflowSuperCluster()->phi();
 
-	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta,myweight[0]);
+	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta-pfScEta,myweight[0]);
 	 for (int j=0; j< 100; j++){
 	    if ( it->eta()> j*deltaEta_ && it->eta()<(j+1)*deltaEta_){
 	       for (int k=0; k<100; k++){
@@ -132,15 +136,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	 }
 	 if (fabs(gsfScEta)<edgeEB){
-	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEta_EB->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
 	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
 	 } else if (fabs(gsfScEta)<edgeEE){
-	    h_gsfPfSCEta_EE->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEta_EE->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
 	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
 
 
 	    reco::CaloCluster_iterator itClu = it->superCluster()->clustersBegin();
@@ -247,10 +251,42 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 
 		  if (doElectronsComparisonMC){
-		     h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]);
+
+		     if (it->superCluster().isNonnull() && it->pflowSuperCluster().isNonnull()){
+			
+			h_gsfMcGsfPhiVsVtxSc->Fill(numberOfVertices,(gsfScPhi-phiGen),myweight[0]);
+			h_gsfMcGsfEtaVsVtxSc->Fill(numberOfVertices,(gsfScEta-etaGen),myweight[0]);
+			h_gsfMcGsfEnVsVtxSc->Fill(numberOfVertices,(gsfScEn-enGen)/gsfScEn,myweight[0]);
+			h_pfMcPfPhiVsVtxSc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
+			h_pfMcPfEtaVsVtxSc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
+			h_pfMcPfEnVsVtxSc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+
+			h_gsfMcGsfEtaVsEtaSc->Fill(gsfScEta,(gsfScEta-etaGen), myweight[0]);
+			h_gsfMcGsfEtaVsPhiSc->Fill(gsfScPhi,(gsfScEta-etaGen), myweight[0]);
+			h_gsfMcGsfEtaVsEnSc->Fill(gsfScEn,(gsfScEta-etaGen), myweight[0]);
+			h_pfMcPfEtaVsEtaSc->Fill(pfScEta,(pfScEta-etaGen), myweight[0]);
+			h_pfMcPfEtaVsPhiSc->Fill(pfScPhi,(pfScEta-etaGen), myweight[0]);
+			h_pfMcPfEtaVsEnSc->Fill(pfScEn,(pfScEta-etaGen), myweight[0]);
+
+			h_gsfMcGsfPhiVsPhiSc->Fill(gsfScPhi,(gsfScPhi-phiGen), myweight[0]);
+			h_gsfMcGsfPhiVsEtaSc->Fill(gsfScEta,(gsfScPhi-phiGen), myweight[0]);
+			h_gsfMcGsfPhiVsEnSc->Fill(gsfScEn,(gsfScPhi-phiGen), myweight[0]);
+			h_pfMcPfPhiVsPhiSc->Fill(pfScPhi,(pfScPhi-phiGen), myweight[0]);
+			h_pfMcPfPhiVsEtaSc->Fill(pfScEta,(pfScPhi-phiGen), myweight[0]);
+			h_pfMcPfPhiVsEnSc->Fill(pfScEn,(pfScPhi-phiGen), myweight[0]);
+
+			h_gsfMcGsfEnVsEnSc->Fill(gsfScEn,(gsfScEn-enGen)/gsfScEn, myweight[0]);
+			h_gsfMcGsfEnVsEtaSc->Fill(gsfScEta,(gsfScEn-enGen)/gsfScEn, myweight[0]);
+			h_gsfMcGsfEnVsPhiSc->Fill(gsfScPhi,(gsfScEn-enGen)/gsfScEn, myweight[0]);
+			h_pfMcPfEnVsEnSc->Fill(pfScEn,(pfScEn-enGen)/pfScEn, myweight[0]);
+			h_pfMcPfEnVsEtaSc->Fill(pfScEta,(pfScEn-enGen)/pfScEn, myweight[0]);
+			h_pfMcPfEnVsPhiSc->Fill(pfScPhi,(pfScEn-enGen)/pfScEn, myweight[0]);
+		     }
+
+		     h_MCenPFenVsEnENear->Fill(itPf->energy(),(itPf->energy()-enGen)/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEtaENear->Fill(itPf->eta(),(itPf->energy()-enGen)/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEnENear->Fill(it->energy(),(it->energy()-enGen)/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEtaENear->Fill(it->eta(),(it->energy()-enGen)/it->energy(), myweight[0]);
 
 		     h_PFenMCenVsEnENear->Fill(itPf->energy(),itPf->energy()/enGen, myweight[0]);
 		     h_PFenMCenVsEtaENear->Fill(itPf->eta(),itPf->energy()/enGen, myweight[0]);
@@ -262,46 +298,57 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     h_GSFenMCenVsMcEnENear->Fill(enGen,it->energy()/enGen, myweight[0]);  
 		     h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]); 
 
-		     //h_gsfMcPt->Fill(it->pt()/ptGen,myweight[0]);
-		     //h_gsfMcEta->Fill(it->eta()/etaGen,myweight[0]);
-		     //h_gsfMcPhi->Fill(it->phi()/phiGen,myweight[0]);
-		     //h_pfMcPt->Fill(itPf->pt()/ptGen,myweight[0]);
-		     //h_pfMcEta->Fill(itPf->eta()/etaGen,myweight[0]);
-		     //h_pfMcPhi->Fill(itPf->phi()/phiGen,myweight[0]);
+		     h_gsfMcGsfPtVsVtx->Fill(numberOfVertices,(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfPhiVsVtx->Fill(numberOfVertices,(it->phi()-phiGen),myweight[0]);
+		     h_gsfMcGsfEtaVsVtx->Fill(numberOfVertices,(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfEnVsVtx->Fill(numberOfVertices,(it->energy()-enGen)/it->energy(),myweight[0]);
+		     h_pfMcPfPtVsVtx->Fill(numberOfVertices,(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfPhiVsVtx->Fill(numberOfVertices,(itPf->phi()-phiGen),myweight[0]);
+		     h_pfMcPfEtaVsVtx->Fill(numberOfVertices,(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfEnVsVtx->Fill(numberOfVertices,(itPf->energy()-enGen)/itPf->energy(),myweight[0]);
 
 		     h_gsfMcGsfPt->Fill((it->pt()-ptGen)/it->pt(),myweight[0]);
-		     h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfEta->Fill((it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfPhi->Fill((it->phi()-phiGen),myweight[0]);
 		     h_pfMcPfPt->Fill((itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		     h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-
-		     //h_gsfMcPtVsPt->Fill(it->pt(),it->pt()/ptGen,myweight[0]);
-		     //h_gsfMcEtaVsEta->Fill(it->eta(),it->eta()/etaGen,myweight[0]);
-		     //h_gsfMcPhiVsPhi->Fill(it->phi(),it->phi()/phiGen,myweight[0]);
-		     //h_pfMcPtVsPt->Fill(itPf->pt(),itPf->pt()/ptGen,myweight[0]);
-		     //h_pfMcEtaVsEta->Fill(itPf->eta(),itPf->eta()/etaGen,myweight[0]);
-		     //h_pfMcPhiVsPhi->Fill(itPf->phi(),itPf->phi()/phiGen,myweight[0]);
+		     //h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfEta->Fill((itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfPhi->Fill((itPf->phi()-phiGen),myweight[0]);
 
 		     h_gsfMcGsfPtVsPt->Fill(it->pt(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		     h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen),myweight[0]);
 		     h_pfMcPfPtVsPt->Fill(itPf->pt(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		     h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen),myweight[0]);
 
 		     h_gsfMcGsfPtVsEta->Fill(it->eta(),(it->pt()-ptGen)/it->pt(),myweight[0]);
 		     h_gsfMcGsfPtVsPhi->Fill(it->phi(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		     h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		     h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen),myweight[0]);
+		     h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen),myweight[0]);
 		     h_pfMcPfPtVsEta->Fill(itPf->eta(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
 		     h_pfMcPfPtVsPhi->Fill(itPf->phi(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		     h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-		     h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen),myweight[0]);
+		     h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen),myweight[0]);
 		  }// end doElectronsComparison		  
 		  
 	       }
@@ -324,10 +371,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (it->superCluster().isNonnull() && it->pflowSuperCluster().isNonnull()){
 	 gsfScEn = it->superCluster()->energy();
 	 gsfScEta= it->superCluster()->eta();
+	 gsfScPhi= it->superCluster()->phi();
 	 pfScEn  = it->pflowSuperCluster()->energy();
 	 pfScEta= it->pflowSuperCluster()->eta();
+	 pfScPhi= it->pflowSuperCluster()->phi();
 
-	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta/pfScEta,myweight[0]);
+	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta-pfScEta,myweight[0]);
 	 h_gsfPfSCEnVsEtaPhi->Fill(it->eta(),it->phi(),gsfScEn/pfScEn,myweight[0]);
 
 	 for (int j=0; j< 100; j++){
@@ -341,15 +390,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
 
 	 if (fabs(gsfScEta)<edgeEB){
-	    h_gsfPfSCEta_EB->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEta_EB->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
 	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
 	 } else if (fabs(gsfScEta)<edgeEE){
-	    h_gsfPfSCEta_EE->Fill(gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEta_EE->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
 	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta/pfScEta,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
 	 }     
       }      
 
@@ -448,10 +497,42 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 
 		  if (doElectronsComparisonMC){
-		     h_MCenPFenVsEnENear->Fill(itPf->energy(),enGen/itPf->energy(), myweight[0]);
-		     h_MCenPFenVsEtaENear->Fill(itPf->eta(),enGen/itPf->energy(), myweight[0]);
-		     h_MCenGSFenVsEnENear->Fill(it->energy(),enGen/it->energy(), myweight[0]);  
-		     h_MCenGSFenVsEtaENear->Fill(it->eta(),enGen/it->energy(), myweight[0]); 
+
+		      if (it->superCluster().isNonnull() && it->pflowSuperCluster().isNonnull()){
+			
+			h_gsfMcGsfPhiVsVtxSc->Fill(numberOfVertices,(gsfScPhi-phiGen),myweight[0]);
+			h_gsfMcGsfEtaVsVtxSc->Fill(numberOfVertices,(gsfScEta-etaGen),myweight[0]);
+			h_gsfMcGsfEnVsVtxSc->Fill(numberOfVertices,(gsfScEn-enGen)/gsfScEn,myweight[0]);
+			h_pfMcPfPhiVsVtxSc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
+			h_pfMcPfEtaVsVtxSc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
+			h_pfMcPfEnVsVtxSc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+
+			h_gsfMcGsfEtaVsEtaSc->Fill(gsfScEta,(gsfScEta-etaGen), myweight[0]);
+			h_gsfMcGsfEtaVsPhiSc->Fill(gsfScPhi,(gsfScEta-etaGen), myweight[0]);
+			h_gsfMcGsfEtaVsEnSc->Fill(gsfScEn,(gsfScEta-etaGen), myweight[0]);
+			h_pfMcPfEtaVsEtaSc->Fill(pfScEta,(pfScEta-etaGen), myweight[0]);
+			h_pfMcPfEtaVsPhiSc->Fill(pfScPhi,(pfScEta-etaGen), myweight[0]);
+			h_pfMcPfEtaVsEnSc->Fill(pfScEn,(pfScEta-etaGen), myweight[0]);
+
+			h_gsfMcGsfPhiVsPhiSc->Fill(gsfScPhi,(gsfScPhi-phiGen), myweight[0]);
+			h_gsfMcGsfPhiVsEtaSc->Fill(gsfScEta,(gsfScPhi-phiGen), myweight[0]);
+			h_gsfMcGsfPhiVsEnSc->Fill(gsfScEn,(gsfScPhi-phiGen), myweight[0]);
+			h_pfMcPfPhiVsPhiSc->Fill(pfScPhi,(pfScPhi-phiGen), myweight[0]);
+			h_pfMcPfPhiVsEtaSc->Fill(pfScEta,(pfScPhi-phiGen), myweight[0]);
+			h_pfMcPfPhiVsEnSc->Fill(pfScEn,(pfScPhi-phiGen), myweight[0]);
+
+			h_gsfMcGsfEnVsEnSc->Fill(gsfScEn,(gsfScEn-enGen)/gsfScEn, myweight[0]);
+			h_gsfMcGsfEnVsEtaSc->Fill(gsfScEta,(gsfScEn-enGen)/gsfScEn, myweight[0]);
+			h_gsfMcGsfEnVsPhiSc->Fill(gsfScPhi,(gsfScEn-enGen)/gsfScEn, myweight[0]);
+			h_pfMcPfEnVsEnSc->Fill(pfScEn,(pfScEn-enGen)/pfScEn, myweight[0]);
+			h_pfMcPfEnVsEtaSc->Fill(pfScEta,(pfScEn-enGen)/pfScEn, myweight[0]);
+			h_pfMcPfEnVsPhiSc->Fill(pfScPhi,(pfScEn-enGen)/pfScEn, myweight[0]);
+		     }
+
+		     h_MCenPFenVsEnENear->Fill(itPf->energy(),(itPf->energy()-enGen)/itPf->energy(), myweight[0]);
+		     h_MCenPFenVsEtaENear->Fill(itPf->eta(),(itPf->energy()-enGen)/itPf->energy(), myweight[0]);
+		     h_MCenGSFenVsEnENear->Fill(it->energy(),(it->energy()-enGen)/it->energy(), myweight[0]);  
+		     h_MCenGSFenVsEtaENear->Fill(it->eta(),(it->energy()-enGen)/it->energy(), myweight[0]); 
 
 		     h_PFenMCenVsEnENear->Fill(itPf->energy(),itPf->energy()/enGen, myweight[0]);
 		     h_PFenMCenVsEtaENear->Fill(itPf->eta(),itPf->energy()/enGen, myweight[0]);
@@ -461,48 +542,59 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     h_PFenMCenVsMcEnENear->Fill(enGen,itPf->energy()/enGen, myweight[0]);
 		     h_PFenMCenVsMcEtaENear->Fill(etaGen,itPf->energy()/enGen, myweight[0]);
 		     h_GSFenMCenVsMcEnENear->Fill(enGen,it->energy()/enGen, myweight[0]);  
-		     h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]); 
-
-		     //h_gsfMcPt->Fill(it->pt()/ptGen,myweight[0]);
-		     //h_gsfMcEta->Fill(it->eta()/etaGen,myweight[0]);
-		     //h_gsfMcPhi->Fill(it->phi()/phiGen,myweight[0]);
-		     //h_pfMcPt->Fill(itPf->pt()/ptGen,myweight[0]);
-		     //h_pfMcEta->Fill(itPf->eta()/etaGen,myweight[0]);
-		     //h_pfMcPhi->Fill(itPf->phi()/phiGen,myweight[0]);
+		     h_GSFenMCenVsMcEtaENear->Fill(etaGen,it->energy()/enGen, myweight[0]);
+		     
+		     h_gsfMcGsfPtVsVtx->Fill(numberOfVertices,(it->pt()-ptGen)/it->pt(),myweight[0]);
+		     h_gsfMcGsfPhiVsVtx->Fill(numberOfVertices,(it->phi()-phiGen),myweight[0]);
+		     h_gsfMcGsfEtaVsVtx->Fill(numberOfVertices,(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfEnVsVtx->Fill(numberOfVertices,(it->energy()-enGen)/it->energy(),myweight[0]);
+		     h_pfMcPfPtVsVtx->Fill(numberOfVertices,(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
+		     h_pfMcPfPhiVsVtx->Fill(numberOfVertices,(itPf->phi()-phiGen),myweight[0]);
+		     h_pfMcPfEtaVsVtx->Fill(numberOfVertices,(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfEnVsVtx->Fill(numberOfVertices,(itPf->energy()-enGen)/itPf->energy(),myweight[0]);
 
 		     h_gsfMcGsfPt->Fill((it->pt()-ptGen)/it->pt(),myweight[0]);
-		     h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfEta->Fill((it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfPhi->Fill((it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfEta->Fill((it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfPhi->Fill((it->phi()-phiGen),myweight[0]);
 		     h_pfMcPfPt->Fill((itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		     h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-
-		     //h_gsfMcPtVsPt->Fill(it->pt(),it->pt()/ptGen,myweight[0]);
-		     //h_gsfMcEtaVsEta->Fill(it->eta(),it->eta()/etaGen,myweight[0]);
-		     //h_gsfMcPhiVsPhi->Fill(it->phi(),it->phi()/phiGen,myweight[0]);
-		     //h_pfMcPtVsPt->Fill(itPf->pt(),itPf->pt()/ptGen,myweight[0]);
-		     //h_pfMcEtaVsEta->Fill(itPf->eta(),itPf->eta()/etaGen,myweight[0]);
-		     //h_pfMcPhiVsPhi->Fill(itPf->phi(),itPf->phi()/phiGen,myweight[0]);
+		     //h_pfMcPfEta->Fill((itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfPhi->Fill((itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfEta->Fill((itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfPhi->Fill((itPf->phi()-phiGen),myweight[0]);
 
 		     h_gsfMcGsfPtVsPt->Fill(it->pt(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		     h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfEtaVsEta->Fill(it->eta(),(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfPhiVsPhi->Fill(it->phi(),(it->phi()-phiGen),myweight[0]);
 		     h_pfMcPfPtVsPt->Fill(itPf->pt(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		     h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfEtaVsEta->Fill(itPf->eta(),(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfPhiVsPhi->Fill(itPf->phi(),(itPf->phi()-phiGen),myweight[0]);
 
 		     h_gsfMcGsfPtVsEta->Fill(it->eta(),(it->pt()-ptGen)/it->pt(),myweight[0]);
 		     h_gsfMcGsfPtVsPhi->Fill(it->phi(),(it->pt()-ptGen)/it->pt(),myweight[0]);
-		     h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
-		     h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
-		     h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen)/it->eta(),myweight[0]);
+		     //h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     //h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen)/it->phi(),myweight[0]);
+		     h_gsfMcGsfEtaVsPt->Fill(it->pt(),(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfEtaVsPhi->Fill(it->phi(),(it->eta()-etaGen),myweight[0]);
+		     h_gsfMcGsfPhiVsEta->Fill(it->eta(),(it->phi()-phiGen),myweight[0]);
+		     h_gsfMcGsfPhiVsPt->Fill(it->pt(),(it->phi()-phiGen),myweight[0]);
 		     h_pfMcPfPtVsEta->Fill(itPf->eta(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
 		     h_pfMcPfPtVsPhi->Fill(itPf->phi(),(itPf->pt()-ptGen)/itPf->pt(),myweight[0]);
-		     h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
-		     h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
-		     h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen)/itPf->eta(),myweight[0]);
+		     //h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     //h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen)/itPf->phi(),myweight[0]);
+		     h_pfMcPfEtaVsPt->Fill(itPf->pt(),(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfEtaVsPhi->Fill(itPf->phi(),(itPf->eta()-etaGen),myweight[0]);
+		     h_pfMcPfPhiVsEta->Fill(itPf->eta(),(itPf->phi()-phiGen),myweight[0]);
+		     h_pfMcPfPhiVsPt->Fill(itPf->pt(),(itPf->phi()-phiGen),myweight[0]);
 		  }// end doElectronsComparison
 	       }
 	       
