@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 #include "TMath.h"
+#include "tdrStyle.C"
+
 using namespace std;
 
 void Zlumi::Loop()
@@ -36,7 +38,11 @@ void Zlumi::Loop()
 // METHOD2: replace line
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
-   if (fChain == 0) return;
+ 
+ gROOT->ForceStyle();
+        tdrStyle();
+
+  if (fChain == 0) return;
 
 int minRun=0;
 int maxRun=0;
@@ -95,7 +101,8 @@ TH1D *XsecDistro = new TH1D("XsecDistro","X sec distribution", 60, 0., 0.6);
    int npt = 0;
    // read data file
    ifstream file;
-   file.open("./2011-run-lumi.txt");
+   //file.open("./2011-run-lumi.txt");
+   file.open("./LumiAeB-dav.txt");
    while (1) {
 
 	   file >> fileRun[npt] >> Lumi[npt];
@@ -116,10 +123,12 @@ for(int i=0; i<npt;i++){
 	for(int j=0;j<maxRun;j++){
 		if(fileRun[i]==(minRun+j)){
 	//cout << fileRun[i]-minRun+1 <<" "<< ((float)Runs->GetBinContent(j+1))/Lumi[i] <<" "<< Lumi[i] << " matched run \n";
+		if(Lumi[i]>0.&&Runs->GetBinContent(j+2)>0.){
 			LumiRuns->SetBinContent(fileRun[i]-minRun+2,(((double)Runs->GetBinContent(j+2))/Lumi[i])*1000);
 			LumiRuns->SetBinError(fileRun[i]-minRun+2,((TMath::Sqrt((double)Runs->GetBinContent(j+2)))/Lumi[i])*1000);
 			XsecDistro->Fill((((double)Runs->GetBinContent(j+2))/Lumi[i])*1000);
 		flaggg=false;
+		}
 		}
 		else if(fileRun[i]==(minRun+j) && (Runs->GetBinContent(j+2+1)>0. || Runs->GetBinContent(j+2-1)>0.)) cout << "Son cazzi " << fileRun[i]<<"\n";
 	}
@@ -138,6 +147,7 @@ Canv = new TCanvas("Canv","Canv",0,0,800,600);
 Canv->cd();
 LumiRuns->SetXTitle("Run");
 LumiRuns->SetYTitle("#sigma (nb)");
+LumiRuns->SetLineColor(kBlack);
 LumiRuns->Draw("E1");
 Runs->SetLineColor(kRed);
 //Runs->Draw("SAMES");
@@ -151,10 +161,11 @@ if (Another) delete Another;
 Another = new TCanvas("Another","Another",0,0,800,600);
 Another->cd();
 XsecDistro->SetXTitle("#sigma (nb)");
+XsecDistro->SetLineColor(kBlack);
 XsecDistro->Draw();
 Canv->Print("distrib_zsigma.eps");
 
-
+/*
   //-------------
   // per il momento tengo le due sezioni separate... solo per debuggare meglio...
   //-------------
@@ -176,5 +187,5 @@ Canv->Print("distrib_zsigma.eps");
 
    in.close();
    printf("found %d LS\n", npt);
-
+*/
 }
