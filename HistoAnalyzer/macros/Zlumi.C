@@ -163,7 +163,7 @@ Another->cd();
 XsecDistro->SetXTitle("#sigma (nb)");
 XsecDistro->SetLineColor(kBlack);
 XsecDistro->Draw();
-Canv->Print("distrib_zsigma.eps");
+Another->Print("distrib_zsigma.eps");
 
 /*
   //-------------
