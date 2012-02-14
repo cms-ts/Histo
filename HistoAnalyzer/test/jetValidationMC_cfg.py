@@ -22,6 +22,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR_R_41_V0::All'
 
+process.load("Configuration.StandardSequences.Geometry_cff")          # --- Needed by GENPAna
+process.load("Configuration.StandardSequences.Reconstruction_cff")    # --- Needed by GENPAna
 process.load("MagneticField.Engine.uniformMagneticField_cfi") 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -139,8 +141,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(True),
                               doTheHLTAnalysis = cms.bool(True),
-                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
-)
+                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices')
+                              )
 
 
 process.genpAna = cms.EDAnalyzer('GENPAnalyzer',
