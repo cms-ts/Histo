@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-process.GlobalTag.globaltag = 'FT_R_44_V9::All'
+process.GlobalTag.globaltag = 'GR_R_42_V23::All'
 
 ####################
 #### Files
