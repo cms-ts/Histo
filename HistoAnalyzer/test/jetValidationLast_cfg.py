@@ -51,14 +51,14 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-process.GlobalTag.globaltag = 'GR_R_41_V0::All'
+process.GlobalTag.globaltag = 'FT_R_44_V9::All'
 ####################
 #### Files
 ###################
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-05Jul2011ReReco-ECAL-v1/0000/E291407B-5AA7-E011-80C8-003048678FDE.root"
+"file:"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(

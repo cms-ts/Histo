@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.33 2012/01/30 13:20:08 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.34 2012/02/02 10:13:50 marone Exp $
 //
 //
 
@@ -243,11 +243,11 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 
     if (cold){
       if (WhichRun_=="Run2011B") {
-	LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011B_175832-180252.root", "pileup", "pileup");
+	LumiWeights_ = edm::Lumi3DReWeighting("Summer11_Generated_Flat10Tail.root", "Data2011B_175832-180252.root", "pileup", "pileup");
 	cout<<"Reweighting using the DATA RUN2011B distribution"<<endl;
       }
       if (WhichRun_=="Run2011A") {
-	LumiWeights_ = edm::Lumi3DReWeighting("/gpfs/cms/data/2011/tools/Summer11_Generated_Flat10Tail.root", "/gpfs/cms/data/2011/tools/Data2011A_160404-173692.root", "pileup", "pileup");
+	LumiWeights_ = edm::Lumi3DReWeighting("Summer11_Generated_Flat10Tail.root", "Data2011A_160404-173692.root", "pileup", "pileup");
 	cout<<"Reweighting using the DATA RUN2011A distribution"<<endl;
       }
       LumiWeights_.weight3D_init( ScaleFactor );

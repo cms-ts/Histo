@@ -55,8 +55,7 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-#process.GlobalTag.globaltag = 'GR_R_41_V0::All'
-process.GlobalTag.globaltag = 'GR_R_42_V23::All' # new JEC for 42
+process.GlobalTag.globaltag = 'FT_R_44_V9::All'
 
 ####################
 #### Files
@@ -64,8 +63,8 @@ process.GlobalTag.globaltag = 'GR_R_42_V23::All' # new JEC for 42
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-03Oct2011-v1/0000/FEAF4709-07EF-E011-A071-002618FDA208.root"
-    #"file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/B05CFB4E-7AF1-E011-B4BF-0015178C1574.root"
+#"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
+   "file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/B05CFB4E-7AF1-E011-B4BF-0015178C1574.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
