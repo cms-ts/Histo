@@ -23,12 +23,12 @@ TH1D* h_itEB_data42;
 // Just Select your version that you wonna compare!! And the path in which you'll store it!!!!
 //
 
-TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11.root"); 
-TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11noNewJEC.root"); 
-std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/NewJEC/"; //put here the path where you want the plots
+TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_11sameJSON.root"); 
+TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11.root"); 
+std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/RunA_44Vs42"; //put here the path where you want the plots
 std::string whichdirectory="validationJEC";
-string name1="Old JEC"; // Name on the Plot's Label
-string name2="New JEC"; // Name on the Plot's Label
+string name1="Run2011A 44X (same JSON)"; // Name on the Plot's Label
+string name2="Run2011A 42X"; // Name on the Plot's Label
 
 using namespace std;
 
@@ -42,9 +42,10 @@ void DrawDifferences(void){
     }
   };
 
-  for (unsigned int j=0; j<2; j++){
+  for (unsigned int j=0; j<3; j++){
     
     if (j==1) whichdirectory="demo";
+    if (j==2) whichdirectory="Selection";
     
     CMSSW44->cd(whichdirectory.c_str());
     TDirectory *dir=gDirectory;
@@ -97,6 +98,11 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   obj42=(TH1F*)o42;
   
   if (probe = dynamic_cast<TH1F *>(obj44) ){
+    if ( !(obj42) || !(obj44) ){
+      cout<<"One of the two histograms were not available:"<<plot<<endl;
+      return;
+    }
+
   TString str=obj44->GetTitle();
   string name=obj44->GetTitle();
 
@@ -123,6 +129,7 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
   pad1->Draw();
   pad1->cd();
+  gStyle->SetOptStat("emruo");
   pad1->SetLogy(1);
   obj44->Draw("E1");
   if (entries42==0) return;
@@ -132,8 +139,8 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
 
   pad1->Update();
   TPaveStats *r2 = (TPaveStats*) obj42->FindObject("stats"); 
-  r2->SetY1NDC(0.878); 
-  r2->SetY2NDC(0.75); 
+  r2->SetY1NDC(0.82); 
+  r2->SetY2NDC(0.65); 
   r2->SetTextColor(kRed);
   r2->Draw();
   pad1->Update();
@@ -147,33 +154,36 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   leg->Draw();
 
   a.cd();
-  TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
-  pad2->Draw();
-  pad2->cd();
-  TH1D *ratio = (TH1D*) obj44->Clone();
-  ratio->SetTitle("ratio");
-  ratio->SetName("ratio");
-  ratio->Reset();
+
+    TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
+    pad2->Draw();
+    pad2->cd();
+    gStyle->SetOptStat("n");
+    TH1D *ratio = (TH1D*) obj44->Clone();
+    ratio->SetTitle("ratio");
+    ratio->SetName("ratio");
+    ratio->Reset();
   
-  ratio->Sumw2();
-  obj44->Sumw2();
-  obj42->Sumw2(); 
-  ratio->SetMarkerSize(.5);
-  ratio->SetLineColor(kBlack);
-  ratio->SetMarkerColor(kBlack);
-  ratio->SetMarkerStyle(3);
-  ratio->Divide( obj44, obj42,1.,1.);
-  ratio->GetYaxis()->SetRangeUser(0,2);   
-  pad2->SetTopMargin(1);
-  ratio->Draw("E1");
+    ratio->Sumw2();
+    obj44->Sumw2();
+    obj42->Sumw2(); 
+    ratio->SetMarkerSize(.5);
+    ratio->SetLineColor(kBlack);
+    ratio->SetMarkerColor(kBlack);
+    ratio->SetMarkerStyle(3);
+    ratio->Divide( obj44, obj42,1.,1.);
+    ratio->GetYaxis()->SetRangeUser(0,2);   
+    pad2->SetTopMargin(1);
+    ratio->Draw("E1");
+    
+    TLine *OLine = new TLine(ratio->GetXaxis()->GetXmin(),1.,ratio->GetXaxis()->GetXmax(),1.);
+    OLine->SetLineColor(kBlack);
+    OLine->SetLineStyle(2);
+    OLine->Draw();
+    string tmp=plotpath+"/"+directory+"/"+name+".pdf";
+    a.Print(tmp.c_str());
+    cout<<"Printing ->"<<tmp<<endl;
   
-  TLine *OLine = new TLine(ratio->GetXaxis()->GetXmin(),1.,ratio->GetXaxis()->GetXmax(),1.);
-  OLine->SetLineColor(kBlack);
-  OLine->SetLineStyle(2);
-  OLine->Draw();
-  string tmp=plotpath+"/"+directory+"/"+name+".pdf";
-  a.Print(tmp.c_str());
-  cout<<"Printing ->"<<tmp<<endl;
   }
   return;  
 }

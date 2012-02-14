@@ -185,10 +185,23 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight.. 
+                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              RootuplaName = cms.string("treeVJ_"), 
 )
 
-
+process.demobefore = cms.EDProducer('HistoProducer',
+                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
+                              triggerCollection = cms.InputTag("TriggerResults","","HLT"),
+                              UseCombinedPrescales = cms.bool(False),
+                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
+                              removePU=  cms.bool(True),
+                              usingMC=  cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(True),
+                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                              TotalNEventTag = cms.vstring('TotalEventCounter'),
+                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              RootuplaName = cms.string("treeVJBefore_"),     
+)
 ######################
 #                    #
 #  TRG MATCHING -ON- #
@@ -225,7 +238,7 @@ switchOnTriggerMatching( process, ['eleTriggerMatchHLT' ],sequence ='patDefaultS
 
 process.out.fileName = cms.untracked.string('test-filtering.root')
 process.out.outputCommands =  cms.untracked.vstring(
-    'drop *',
+    'keep *_*_*_PAT',
     )
 process.out.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('JetValidation'))
 
@@ -272,6 +285,7 @@ process.JetValidation = cms.Path(
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*     
+    process.demobefore*
     process.Selection*
     process.demo*
     process.goodEPair*

@@ -21,7 +21,7 @@ void DataMCValidation(){
 	int numbofvertices=15;
 
 	gROOT->ForceStyle();
-	tdrStyle();
+	//tdrStyle();
 	TFile *dataf = TFile::Open(datafile.c_str()); //data fil
 
 	TDirectory *dir=(TDirectory*)dataf->Get(dirname.c_str());

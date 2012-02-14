@@ -2,6 +2,7 @@
 
 // tdrGrid: Turns the grid lines on (true) or off (false)
 
+  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
 void tdrGrid(bool gridOn) {
   tdrStyle->SetPadGridX(gridOn);
@@ -15,7 +16,6 @@ void fixOverlay() {
 }
 
 void setTDRStyle() {
-  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
 // For the canvas:
   tdrStyle->SetCanvasBorderMode(0);

@@ -1,4 +1,4 @@
-#include "tdrStyle.C"
+//#include "tdrstyle.C"
 
 #include <TROOT.h>
 #include "TStyle.h"
@@ -21,20 +21,20 @@
 
 #include "lumi_scale_factors.h"
 
-bool lumiweights 	= 0;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
+bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
 
-string plotpath		="./"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_dataAug05_v1_11.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011B_v1_11.root"; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_10.root"; 
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_10.root";
+string plotpath		="/tmp/marone"; //put here the path where you want the plots
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_11.root";
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v2_11.root"; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v2_11.root"; 
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v2_11.root";
 
-string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root";
-string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root";
-string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root";
+string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v2_11.root";
+string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v2_11.root";
+string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v2_11.root";
 string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root";
-string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root";
-string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root";
+string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_EMEnriched_v2_11.root";
+string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched_v2_11.root";
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
@@ -64,8 +64,8 @@ void DrawComparisonJetMCData(void){
 
 	gROOT->Reset();
 	gROOT->ForceStyle();
-	gROOT->LoadMacro("tdrStyle.C++");
-	tdrStyle();
+	//gROOT->LoadMacro("tdrstyle.C++");
+	//	tdrstyle();
 
 	// Recupero l'informazione sul numero di eventi processati per singolo MC
 	dataNumEvents = numEventsPerStep(datafile, "demo"); 
@@ -89,7 +89,7 @@ void DrawComparisonJetMCData(void){
 
 	gROOT->Reset();
 	gROOT->ForceStyle();
-	tdrStyle();
+	//tdrStyle();
 		gStyle->SetPadRightMargin(0.15);
 
 		string name=tobj->GetName();

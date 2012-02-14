@@ -1,10 +1,10 @@
 #include "TStyle.h"
 
+TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
-void tdrStyle() {
+
+void setTDRStyle() {
   
-  TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
-
 // For the canvas:
   tdrStyle->SetCanvasBorderMode(0);
   tdrStyle->SetCanvasColor(kWhite);

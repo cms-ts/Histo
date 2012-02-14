@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.34 2012/02/02 10:13:50 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.35 2012/02/14 11:02:57 marone Exp $
 //
 //
 
@@ -495,7 +495,7 @@ vRun.clear();
    //LumiWeights_.weight3D_init( ScaleFactor ); UNESSENTIAL AT FIRST SIGHT! CHECK IF REWEWIGHT IS SCREWED UP!!!
  }
 	//TFile and TTree initialization
-	treeVJ_= new TTree("treeVJ_","treeVJ_");
+ treeVJ_= new TTree(rootuplaname.c_str(),rootuplaname.c_str());
 	treeHLT_= new TTree("treeHLT_","treeHLT_");
 
 	//////////////////
