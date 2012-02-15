@@ -16,8 +16,8 @@ TFile *Analysis = new TFile("IsoPlots.root", "RECREATE", "IsoPlots");
 
 
 	gROOT->LoadMacro("PlotsFeeder.C++");
-	PlotsFeeder datajet("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11.root");
-	PlotsFeeder zjet("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_11.root");
+	PlotsFeeder datajet("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011B_v2_11.root");
+	PlotsFeeder zjet("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011B_v1_11.root");
 	PlotsFeeder wjet("/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_10.root");
 	PlotsFeeder ttbar("/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_10.root");
 
