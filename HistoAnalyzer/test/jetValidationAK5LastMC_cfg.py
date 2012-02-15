@@ -78,6 +78,8 @@ process.source = cms.Source("PoolSource",
 #### Trigger...
 ###################
 
+trigger2011RunB= cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10")
+
 trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v3","HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3","HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v3","HLT_Ele45_CaloIdVT_TrkIdT_v3","HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4")
 
 trigger2010    = cms.vstring("HLT_Ele17_CaloIdl_Ele8_CaloIsoIdL_CaloIsoVL_v3","HLT_Ele15_SW_L1R","HLT_Ele15_SW_CaloEleId_L1R","HLT_Ele17_SW_CaloEleId_L1R","HLT_Ele17_SW_TightEleId_L1R","HLT_Ele17_SW_TightEleId_L1R_v2","HLT_Ele17_SW_TightEleId_L1R_v3","HLT_Photon10_L1R","HLT_Photon15_L1R","HTL_Photon15_Cleaned_L1R")
@@ -105,7 +107,7 @@ process.Selection = cms.EDFilter('ZpatFilter',
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(False),
                                  removePU=  cms.bool(True),
-                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
+                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010+trigger2011RunB,
                                  )
 
 ####################
@@ -124,7 +126,7 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03
+                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            )
 
 ####################
@@ -172,17 +174,32 @@ process.validation = cms.EDAnalyzer('jetValidation',
 ###################
 
 process.demo = cms.EDProducer('HistoProducer',
-                              electronCollection = cms.InputTag('gsfElectrons'),
+                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
-                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03, 
+                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
                               removePU=  cms.bool(True),
-                              usingMC=  cms.bool(True),
-                              doTheHLTAnalysis = cms.bool(False),
-                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
+                              usingMC=  cms.bool(False),
+                              doTheHLTAnalysis = cms.bool(True),
+                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##Select which datasets you wonna use to reweight
-)
+                              WhichRun = cms.string("Run2011A"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              RootuplaName = cms.string("treeVJ_"),
+                              )
+
+process.demobefore = cms.EDProducer('HistoProducer',
+                                    electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
+                                    triggerCollection = cms.InputTag("TriggerResults","","HLT"),
+                                    UseCombinedPrescales = cms.bool(False),
+                                    TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
+                                    removePU=  cms.bool(True),
+                                    usingMC=  cms.bool(False),
+                                    doTheHLTAnalysis = cms.bool(True),
+                                    VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                                    TotalNEventTag = cms.vstring('TotalEventCounter'),
+                                    WhichRun = cms.string("Run2011A"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                                    RootuplaName = cms.string("treeVJBefore_"),
+                                    )
 
 
 ######################
@@ -308,13 +325,14 @@ process.JetValidation = cms.Path(
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*     
+    process.demobefore*
     process.Selection*
     process.demo*
     process.goodEPair*
     process.ak5PFJets*
-    #process.validation*
+    process.validation*
     process.ak5PFJetsL2L3*
-    process.validationL2L3*
+    #process.validationL2L3*
     process.ak5PFJetsL1FastL2L3
     *process.validationJEC
     )
