@@ -59,7 +59,8 @@ process.GlobalTag.globaltag = 'MC_44_V5D::All'
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-"file:/gpfs/cms/data/2011/r9test/pythiaZ2tunesroot/FEF7EE7B-8780-E011-837F-E41F131816A8.root",
+#"file:/gpfs/cms/data/2011/r9test/pythiaZ2tunesroot/FEF7EE7B-8780-E011-837F-E41F131816A8.root",
+"file:/gpfs/cms/data/2011/SynchTest/DYJetsToLL_TuneZ2_PU_S6_START44.root",
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -106,6 +107,11 @@ process.Selection = cms.EDFilter('ZpatFilter',
                                  doTheHLTAnalysis = cms.bool(False),
                                  removePU=  cms.bool(True),
                                  TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
+                                 secondEleEnThrhold   = cms.double(20.0),
+                                 firstEleEnThrhold    = cms.double(20.0),
+                                 lowZmassLimit        = cms.double(71.0),
+                                 highZmassLimit       = cms.double(111.0),
+                                 maxEtaForElectron    = cms.double(2.4),
                                  )
 
 ####################
@@ -144,6 +150,15 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(True),
+                                       deltaRCone           = cms.double(0.3),
+                                       deltaRConeGen         = cms.double(0.1),
+                                       maxEtaJets           = cms.double(2.4),
+                                       minPtJets            = cms.double(30.0),
+                                       chargedEmEnergyFraction = cms.double(0.99),
+                                       neutralHadronEnergyFraction= cms.double(0.99),
+                                       neutralEmEnergyFraction= cms.double(0.99),
+                                       chargedHadronEnergyFraction= cms.double(0.0),
+                                       chargedMultiplicity= cms.int32(0),                                       
                                        )
                                    
 process.validationL2L3 = cms.EDAnalyzer('jetValidation',
@@ -154,6 +169,15 @@ process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(True),
+                                       deltaRCone           = cms.double(0.3),
+                                       deltaRConeGen         = cms.double(0.1),
+                                       maxEtaJets           = cms.double(2.4),
+                                       minPtJets            = cms.double(30.0),
+                                       chargedEmEnergyFraction = cms.double(0.99),
+                                       neutralHadronEnergyFraction= cms.double(0.99),
+                                       neutralEmEnergyFraction= cms.double(0.99),
+                                       chargedHadronEnergyFraction= cms.double(0.0),
+                                       chargedMultiplicity= cms.int32(0),                                        
                                        )
 
 process.validation = cms.EDAnalyzer('jetValidation',
@@ -164,6 +188,15 @@ process.validation = cms.EDAnalyzer('jetValidation',
                                     tpMapName = cms.string('EventWeight'),
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(True),
+                                    deltaRCone           = cms.double(0.3),
+                                    deltaRConeGen         = cms.double(0.1),
+                                    maxEtaJets           = cms.double(2.4),
+                                    minPtJets            = cms.double(30.0),
+                                    chargedEmEnergyFraction = cms.double(0.99),
+                                    neutralHadronEnergyFraction= cms.double(0.99),
+                                    neutralEmEnergyFraction= cms.double(0.99),
+                                    chargedHadronEnergyFraction= cms.double(0.0),
+                                    chargedMultiplicity= cms.int32(0),                                    
                                     )
 
 
