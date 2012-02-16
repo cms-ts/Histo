@@ -448,8 +448,8 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   //  weightCollection_ = conf.getParameter<std::string>("EventWeight");
   //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
-  pflowEleCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowEleCollection",edm::InputTag("particleFlow"));
-  pflowCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowCollection",edm::InputTag("particleFlow"));
+  pflowEleCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowEleCollection",edm::InputTag("particleFlow:electrons"));
+  pflowCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowCollection",edm::InputTag("particleFlow:electrons"));
   genParticleCollection_ = conf.getUntrackedParameter<edm::InputTag>("genParticleCollection",edm::InputTag("genParticles"));
   jetCollection_      = conf.getParameter<edm::InputTag>("jetCollection");
   VertexCollection_   = conf.getParameter<edm::InputTag>("VertexCollection");
