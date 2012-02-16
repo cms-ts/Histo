@@ -625,13 +625,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
 	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
 		// cut on the jet pt 
-		&& jet->pt()>30
-		&& fabs(jet->eta())<2.4
-		&& jet->chargedEmEnergyFraction()<0.99
-		&& jet->neutralHadronEnergyFraction()<0.99
-		&& jet->neutralEmEnergyFraction()<0.99
-		&& jet->chargedHadronEnergyFraction()>0
-		&& jet->chargedMultiplicity()>0
+		&& jet->pt()> minPtJets
+		&& fabs(jet->eta())<maxEtaJets
+		&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
+		&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
+		&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
+		&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
+		&& jet->chargedMultiplicity()>chargedMultiplicity
 	       ){ 
 	       JetContainer.push_back(jet->p4()); 
 	    }
@@ -700,7 +700,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 	       }
 	    }
-	    if ((deltaR1 < deltaRCone || deltaR2 < deltaRCone)&& jet->pt()>30 && ckElInJet
+	    if ((deltaR1 < deltaRCone || deltaR2 < deltaRCone)&& jet->pt()>minPtJets && ckElInJet
 	       ){	    
 	       h_totEnergy->Fill(totEnergy/jet->energy(),myweight[0]);
 	       //h_totPt->Fill(totPt/jet->pt(),myweight[0]);
@@ -970,7 +970,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double deltaR1= sqrt( pow(etagen-ele_gen_vec[0].Eta(),2)+pow(phigen-ele_gen_vec[0].Phi(),2) );
 	    double deltaR2= sqrt( pow(etagen-ele_gen_vec[1].Eta(),2)+pow(phigen-ele_gen_vec[1].Phi(),2) );
 	    if (Debug) cout<<"ptgen "<<ptgen<<" etagen "<<etagen<<" deltaR1 "<<deltaR1<<" deltaR2 "<<deltaR2<<" phigen "<<phigen<<endl;
-	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone && ptgen>30
+	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone && ptgen>minPtJets
 		//aggiungi
 		){ 
 	      numbOfJets++;
@@ -1095,6 +1095,20 @@ jetValidation::beginJob()
   treeUN_->Branch("Z_pt_gen",&Z_pt_gen);
   treeUN_->Branch("Z_y_gen",&Z_y_gen);
   treeUN_->Branch("Jet_multiplicity_gen",&Jet_multiplicity_gen);
+
+  cout<<endl;
+  cout<<"##############################"<<endl;
+  cout<<"#   Jet Studies Parameters   #"<<endl;
+  cout<<"##############################"<<endl;
+  cout<<endl; 
+  cout<<"Jet Min Pt="<<minPtJets<<", within |eta|<"<<maxEtaJets<<endl;
+  cout<<"DR isolation cone="<<deltaRCone<<", at gen Level="<<deltaConeGen<<endl;
+  cout<<"chargedEmEnergyFraction<"<<chargedEmEnergyFraction<<endl;
+  cout<<"neutralHadronEnergyFraction<"<<neutralHadronEnergyFraction<<endl;
+  cout<<"neutralEmEnergyFraction<"<<neutralEmEnergyFraction<<endl;
+  cout<<"chargedHadronEnergyFraction>"<<chargedHadronEnergyFraction<<endl;
+  cout<<"chargedMultiplicity>"<<chargedMultiplicity<<endl;
+  cout<<endl;
 
 
 }

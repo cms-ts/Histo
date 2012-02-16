@@ -419,6 +419,13 @@ class jetValidation : public edm::EDAnalyzer {
       double pi_;
       double zMassPdg;
       double deltaConeGen;
+      double maxEtaJets;
+      double minPtJets;
+      double chargedEmEnergyFraction;
+      double neutralHadronEnergyFraction;
+      double neutralEmEnergyFraction;
+      double chargedHadronEnergyFraction;
+      int chargedMultiplicity;
      
       //vertices
       int numberOfVertices;
@@ -432,8 +439,8 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
    edgeEE     = 3.0;
    edgeTrk    = 2.4;
    edgeEE     = edgeTrk;
-   deltaRCone = 0.3;
-   deltaConeGen = 0.1;
+   //deltaRCone = 0.3;
+   //deltaConeGen = 0.1;
    pi_ = acos(-1);
    zMassPdg = 91.1876;
 
@@ -461,6 +468,17 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 
   //Weights
   h_weights = fs->make<TH1F>("h_weights","Event Weights",500,0.,5);
+
+  //Jets Properties
+  deltaRCone           = conf.getParameter<double>("deltaRCone");
+  deltaConeGen        = conf.getParameter<double>("deltaRConeGen");
+  maxEtaJets           = conf.getParameter<double>("maxEtaJets");
+  minPtJets            = conf.getParameter<double>("minPtJets");
+  chargedEmEnergyFraction = conf.getParameter<double>("chargedEmEnergyFraction");
+  neutralHadronEnergyFraction= conf.getParameter<double>("neutralHadronEnergyFraction");
+  neutralEmEnergyFraction= conf.getParameter<double>("neutralEmEnergyFraction");
+  chargedHadronEnergyFraction= conf.getParameter<double>("chargedHadronEnergyFraction");
+  chargedMultiplicity= conf.getParameter<int>("chargedMultiplicity");
 
   double maxEnJet=200;
 //EB ========================================================================
