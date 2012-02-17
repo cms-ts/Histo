@@ -260,6 +260,22 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			h_pfMcPfPhiVsVtxSc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
 			h_pfMcPfEtaVsVtxSc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
 			h_pfMcPfEnVsVtxSc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+			
+			if (fabs(gsfScEta)<edgeEB){			   
+			   h_gsfMcGsfPhiVsVtxEBSc->Fill(numberOfVertices,(gsfScPhi-phiGen),myweight[0]);
+			   h_gsfMcGsfEtaVsVtxEBSc->Fill(numberOfVertices,(gsfScEta-etaGen),myweight[0]);
+			   h_gsfMcGsfEnVsVtxEBSc->Fill(numberOfVertices,(gsfScEn-enGen)/gsfScEn,myweight[0]);
+			   h_pfMcPfPhiVsVtxEBSc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
+			   h_pfMcPfEtaVsVtxEBSc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
+			   h_pfMcPfEnVsVtxEBSc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+			}else if (fabs(gsfScEta)<edgeEE){
+			   h_gsfMcGsfPhiVsVtxEESc->Fill(numberOfVertices,(gsfScPhi-phiGen),myweight[0]);
+			   h_gsfMcGsfEtaVsVtxEESc->Fill(numberOfVertices,(gsfScEta-etaGen),myweight[0]);
+			   h_gsfMcGsfEnVsVtxEESc->Fill(numberOfVertices,(gsfScEn-enGen)/gsfScEn,myweight[0]);
+			   h_pfMcPfPhiVsVtxEESc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
+			   h_pfMcPfEtaVsVtxEESc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
+			   h_pfMcPfEnVsVtxEESc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+			}
 
 			h_gsfMcGsfEtaVsEtaSc->Fill(gsfScEta,(gsfScEta-etaGen), myweight[0]);
 			h_gsfMcGsfEtaVsPhiSc->Fill(gsfScPhi,(gsfScEta-etaGen), myweight[0]);
@@ -507,6 +523,22 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			h_pfMcPfEtaVsVtxSc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
 			h_pfMcPfEnVsVtxSc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
 
+			if (fabs(gsfScEta)<edgeEB){			   
+			   h_gsfMcGsfPhiVsVtxEBSc->Fill(numberOfVertices,(gsfScPhi-phiGen),myweight[0]);
+			   h_gsfMcGsfEtaVsVtxEBSc->Fill(numberOfVertices,(gsfScEta-etaGen),myweight[0]);
+			   h_gsfMcGsfEnVsVtxEBSc->Fill(numberOfVertices,(gsfScEn-enGen)/gsfScEn,myweight[0]);
+			   h_pfMcPfPhiVsVtxEBSc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
+			   h_pfMcPfEtaVsVtxEBSc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
+			   h_pfMcPfEnVsVtxEBSc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+			}else if (fabs(gsfScEta)<edgeEE){
+			   h_gsfMcGsfPhiVsVtxEESc->Fill(numberOfVertices,(gsfScPhi-phiGen),myweight[0]);
+			   h_gsfMcGsfEtaVsVtxEESc->Fill(numberOfVertices,(gsfScEta-etaGen),myweight[0]);
+			   h_gsfMcGsfEnVsVtxEESc->Fill(numberOfVertices,(gsfScEn-enGen)/gsfScEn,myweight[0]);
+			   h_pfMcPfPhiVsVtxEESc->Fill(numberOfVertices,(pfScPhi-phiGen),myweight[0]);
+			   h_pfMcPfEtaVsVtxEESc->Fill(numberOfVertices,(pfScEta-etaGen),myweight[0]);
+			   h_pfMcPfEnVsVtxEESc->Fill(numberOfVertices,(pfScEn-enGen)/pfScEn,myweight[0]);
+			}
+
 			h_gsfMcGsfEtaVsEtaSc->Fill(gsfScEta,(gsfScEta-etaGen), myweight[0]);
 			h_gsfMcGsfEtaVsPhiSc->Fill(gsfScPhi,(gsfScEta-etaGen), myweight[0]);
 			h_gsfMcGsfEtaVsEnSc->Fill(gsfScEn,(gsfScEta-etaGen), myweight[0]);
@@ -720,13 +752,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       double totCkE= chHE + nHE + phE + elE + muE + hfHE + hfEmE;
 	    
 	       h_energyFraction->Fill(0.5, totCkE/jet->energy(),myweight[0]);
-	       h_energyFraction->Fill(1.5, jet->chargedHadronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(2.5, jet->neutralHadronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(3.5, jet->photonEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(4.5, jet->electronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(5.5, jet->muonEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(6.5, jet->HFHadronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(7.5, jet->HFEMEnergyFraction(),myweight[0]);
+	       h_energyFraction->Fill(1.5, chHE/totCkE,myweight[0]);
+	       h_energyFraction->Fill(2.5, nHE/totCkE,myweight[0]);
+	       h_energyFraction->Fill(3.5, phE/totCkE,myweight[0]);
+	       h_energyFraction->Fill(4.5, elE/totCkE,myweight[0]);
+	       h_energyFraction->Fill(5.5, muE/totCkE,myweight[0]);
+	       h_energyFraction->Fill(6.5, hfHE/totCkE,myweight[0]);
+	       h_energyFraction->Fill(7.5, hfEmE/totCkE,myweight[0]);
 	    
 	       double chHM = jet->chargedHadronMultiplicity();
 	       double nHM  = jet->neutralHadronMultiplicity();
@@ -771,13 +803,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       h_muMultFraction->Fill(muM/jet->nConstituents(), myweight[0]);
 	       h_hfHMultFraction->Fill(hfHM/jet->nConstituents(), myweight[0]);
 	       h_hfEmMultFraction->Fill(hfEmM/jet->nConstituents(), myweight[0]);
-	       h_chEnerFraction->Fill(jet->chargedHadronEnergyFraction(), myweight[0]);
-	       h_nEnerFraction->Fill(jet->neutralHadronEnergyFraction(), myweight[0]);
-	       h_phEnerFraction->Fill(jet->photonEnergyFraction(), myweight[0]);
-	       h_elEnerFraction->Fill(jet->electronEnergyFraction(), myweight[0]);
-	       h_muEnerFraction->Fill(jet->muonEnergyFraction(), myweight[0]);
-	       h_hfHEnerFraction->Fill(jet->HFHadronEnergyFraction(), myweight[0]);
-	       h_hfEmEnerFraction->Fill(jet->HFEMEnergyFraction(), myweight[0]);
+	       h_chEnerFraction->Fill(chHE/totCkE, myweight[0]);
+	       h_nEnerFraction->Fill(nHE/totCkE, myweight[0]);
+	       h_phEnerFraction->Fill(phE/totCkE, myweight[0]);
+	       h_elEnerFraction->Fill(elE/totCkE, myweight[0]);
+	       h_muEnerFraction->Fill(muE/totCkE, myweight[0]);
+	       h_hfHEnerFraction->Fill(hfHE/totCkE, myweight[0]);
+	       h_hfEmEnerFraction->Fill(hfEmE/totCkE, myweight[0]);
 	    
 	       double etaStep = 0.05, ptStep = 2.0;
 	    
@@ -799,13 +831,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     h_muMultFractionVsPt->Fill(meanPt,muM/jet->nConstituents(), myweight[0]);
 		     h_hfHMultFractionVsPt->Fill(meanPt,hfHM/jet->nConstituents(), myweight[0]);
 		     h_hfEmMultFractionVsPt->Fill(meanPt,hfEmM/jet->nConstituents(), myweight[0]);
-		     h_chEnerFractionVsPt->Fill(meanPt,jet->chargedHadronEnergyFraction(), myweight[0]);
-		     h_nEnerFractionVsPt->Fill(meanPt,jet->neutralHadronEnergyFraction(), myweight[0]);
-		     h_phEnerFractionVsPt->Fill(meanPt,jet->photonEnergyFraction(), myweight[0]);
-		     h_elEnerFractionVsPt->Fill(meanPt,jet->electronEnergyFraction(), myweight[0]);
-		     h_muEnerFractionVsPt->Fill(meanPt,jet->muonEnergyFraction(), myweight[0]);
-		     h_hfHEnerFractionVsPt->Fill(meanPt,jet->HFHadronEnergyFraction(), myweight[0]);
-		     h_hfEmEnerFractionVsPt->Fill(meanPt,jet->HFEMEnergyFraction(), myweight[0]);
+		     h_chEnerFractionVsPt->Fill(meanPt,chHE/totCkE, myweight[0]);
+		     h_nEnerFractionVsPt->Fill(meanPt,nHE/totCkE, myweight[0]);
+		     h_phEnerFractionVsPt->Fill(meanPt,phE/totCkE, myweight[0]);
+		     h_elEnerFractionVsPt->Fill(meanPt,elE/totCkE, myweight[0]);
+		     h_muEnerFractionVsPt->Fill(meanPt,muE/totCkE, myweight[0]);
+		     h_hfHEnerFractionVsPt->Fill(meanPt,hfHE/totCkE, myweight[0]);
+		     h_hfEmEnerFractionVsPt->Fill(meanPt,hfEmE/totCkE, myweight[0]);
 		  }
 		  if ((jet->eta()+2.5)> k*etaStep && (jet->eta()+2.5)<= (k+1)*etaStep){
 		     double meanEta = (k+0.5)*etaStep -2.5;
@@ -823,13 +855,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     h_muMultFractionVsEta->Fill(meanEta,muM/jet->nConstituents(), myweight[0]);
 		     h_hfHMultFractionVsEta->Fill(meanEta,hfHM/jet->nConstituents(), myweight[0]);
 		     h_hfEmMultFractionVsEta->Fill(meanEta,hfEmM/jet->nConstituents(), myweight[0]);
-		     h_chEnerFractionVsEta->Fill(meanEta,jet->chargedHadronEnergyFraction(), myweight[0]);
-		     h_nEnerFractionVsEta->Fill(meanEta,jet->neutralHadronEnergyFraction(), myweight[0]);
-		     h_phEnerFractionVsEta->Fill(meanEta,jet->photonEnergyFraction(), myweight[0]);
-		     h_elEnerFractionVsEta->Fill(meanEta,jet->electronEnergyFraction(), myweight[0]);
-		     h_muEnerFractionVsEta->Fill(meanEta,jet->muonEnergyFraction(), myweight[0]);
-		     h_hfHEnerFractionVsEta->Fill(meanEta,jet->HFHadronEnergyFraction(), myweight[0]);
-		     h_hfEmEnerFractionVsEta->Fill(meanEta,jet->HFEMEnergyFraction(), myweight[0]);
+		     h_chEnerFractionVsEta->Fill(meanEta,chHE/totCkE, myweight[0]);
+		     h_nEnerFractionVsEta->Fill(meanEta,nHE/totCkE, myweight[0]);
+		     h_phEnerFractionVsEta->Fill(meanEta,phE/totCkE, myweight[0]);
+		     h_elEnerFractionVsEta->Fill(meanEta,elE/totCkE, myweight[0]);
+		     h_muEnerFractionVsEta->Fill(meanEta,muE/totCkE, myweight[0]);
+		     h_hfHEnerFractionVsEta->Fill(meanEta,hfHE/totCkE, myweight[0]);
+		     h_hfEmEnerFractionVsEta->Fill(meanEta,hfEmE/totCkE, myweight[0]);
 		  }
 
 	       }
@@ -1074,7 +1106,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
 
-   } else {std::cout << "WARNING: More than two electron selected"<< std::endl;}  
+   } //else {std::cout << "WARNING: More than two electron selected"<< std::endl;}
 
    //Fill Unfolding rootuple!
    treeUN_->Fill();
