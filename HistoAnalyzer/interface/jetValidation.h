@@ -225,6 +225,19 @@ class jetValidation : public edm::EDAnalyzer {
       TH2F * h_pfMcPfPhiVsVtxSc;
       TH2F * h_pfMcPfEnVsVtxSc;
 
+      TH2F * h_gsfMcGsfEtaVsVtxEBSc;
+      TH2F * h_gsfMcGsfPhiVsVtxEBSc;
+      TH2F * h_gsfMcGsfEnVsVtxEBSc;
+      TH2F * h_pfMcPfEtaVsVtxEBSc;
+      TH2F * h_pfMcPfPhiVsVtxEBSc;
+      TH2F * h_pfMcPfEnVsVtxEBSc;
+      TH2F * h_gsfMcGsfEtaVsVtxEESc;
+      TH2F * h_gsfMcGsfPhiVsVtxEESc;
+      TH2F * h_gsfMcGsfEnVsVtxEESc;
+      TH2F * h_pfMcPfEtaVsVtxEESc;
+      TH2F * h_pfMcPfPhiVsVtxEESc;
+      TH2F * h_pfMcPfEnVsVtxEESc;
+
       TH2F * h_gsfMcGsfEtaVsEtaSc;
       TH2F * h_gsfMcGsfEtaVsEnSc;
       TH2F * h_gsfMcGsfEtaVsPhiSc;
@@ -255,6 +268,23 @@ class jetValidation : public edm::EDAnalyzer {
       TH2F * h_pfMcPfEtaVsVtx;
       TH2F * h_pfMcPfPhiVsVtx;
       TH2F * h_pfMcPfEnVsVtx;
+
+      TH2F * h_gsfMcGsfPtVsVtxEB;
+      TH2F * h_gsfMcGsfEtaVsVtxEB;
+      TH2F * h_gsfMcGsfPhiVsVtxEB;
+      TH2F * h_gsfMcGsfEnVsVtxEB;
+      TH2F * h_pfMcPfPtVsVtxEB;
+      TH2F * h_pfMcPfEtaVsVtxEB;
+      TH2F * h_pfMcPfPhiVsVtxEB;
+      TH2F * h_pfMcPfEnVsVtxEB;
+      TH2F * h_gsfMcGsfPtVsVtxEE;
+      TH2F * h_gsfMcGsfEtaVsVtxEE;
+      TH2F * h_gsfMcGsfPhiVsVtxEE;
+      TH2F * h_gsfMcGsfEnVsVtxEE;
+      TH2F * h_pfMcPfPtVsVtxEE;
+      TH2F * h_pfMcPfEtaVsVtxEE;
+      TH2F * h_pfMcPfPhiVsVtxEE;
+      TH2F * h_pfMcPfEnVsVtxEE;
 
       TH1F * h_gsfMcGsfPt;
       TH1F * h_gsfMcGsfEta;
@@ -751,6 +781,19 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 	h_pfMcPfPhiVsVtxSc=fs->make<TH2F>("h_pfMcPfPhiVsVtxSc","pfMcPfPhiVsVtxSc",20,0,20,160,-0.5,0.5);
 	h_pfMcPfEnVsVtxSc=fs->make<TH2F>("h_pfMcPfEnVsVtxSc","pfMcPfEnVsVtxSc",20,0,20,160,-0.5,0.5);
 
+	h_gsfMcGsfEtaVsVtxEBSc=fs->make<TH2F>("h_gsfMcGsfEtaVsVtxEBSc","gsfMcGsfEtaVsVtxEBSc",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfPhiVsVtxEBSc=fs->make<TH2F>("h_gsfMcGsfPhiVsVtxEBSc","gsfMcGsfPhiVsVtxEBSc",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEnVsVtxEBSc=fs->make<TH2F>("h_gsfMcGsfEnVsVtxEBSc","gsfMcGsfEnVsVtxEBSc",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEtaVsVtxEBSc=fs->make<TH2F>("h_pfMcPfEtaVsVtxEBSc","pfMcPfEtaVsVtxEBSc",20,0,20,160,-0.5,0.5);
+	h_pfMcPfPhiVsVtxEBSc=fs->make<TH2F>("h_pfMcPfPhiVsVtxEBSc","pfMcPfPhiVsVtxEBSc",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEnVsVtxEBSc=fs->make<TH2F>("h_pfMcPfEnVsVtxEBSc","pfMcPfEnVsVtxEBSc",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEtaVsVtxEESc=fs->make<TH2F>("h_gsfMcGsfEtaVsVtxEESc","gsfMcGsfEtaVsVtxEESc",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfPhiVsVtxEESc=fs->make<TH2F>("h_gsfMcGsfPhiVsVtxEESc","gsfMcGsfPhiVsVtxEESc",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEnVsVtxEESc=fs->make<TH2F>("h_gsfMcGsfEnVsVtxEESc","gsfMcGsfEnVsVtxEESc",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEtaVsVtxEESc=fs->make<TH2F>("h_pfMcPfEtaVsVtxEESc","pfMcPfEtaVsVtxEESc",20,0,20,160,-0.5,0.5);
+	h_pfMcPfPhiVsVtxEESc=fs->make<TH2F>("h_pfMcPfPhiVsVtxEESc","pfMcPfPhiVsVtxEESc",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEnVsVtxEESc=fs->make<TH2F>("h_pfMcPfEnVsVtxEESc","pfMcPfEnVsVtxEESc",20,0,20,160,-0.5,0.5);
+
 	h_gsfMcGsfEtaVsEtaSc=fs->make<TH2F>("h_gsfMcGsfEtaVsEtaSc","gsfMcGsfEtaVsEtaSc",100,-2.5,2.5,160,-0.5,0.5);
 	h_gsfMcGsfEtaVsEnSc=fs->make<TH2F>("h_gsfMcGsfEtaVsEnSc","gsfMcGsfEtaVsEnSc",200,0,200,160,-0.5,0.5);
 	h_gsfMcGsfEtaVsPhiSc=fs->make<TH2F>("h_gsfMcGsfEtaVsPhiSc","gsfMcGsfEtaVsPhiSc",100,-pi_,pi_,160,-0.5,0.5);
@@ -781,6 +824,23 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 	h_pfMcPfEtaVsVtx=fs->make<TH2F>("h_pfMcPfEtaVsVtx","pfMcPfEtaVsVtx",20,0,20,160,-0.5,0.5);
 	h_pfMcPfPhiVsVtx=fs->make<TH2F>("h_pfMcPfPhiVsVtx","pfMcPfPhiVsVtx",20,0,20,160,-0.5,0.5);
 	h_pfMcPfEnVsVtx=fs->make<TH2F>("h_pfMcPfEnVsVtx","pfMcPfEnVsVtx",20,0,20,160,-0.5,0.5);
+
+	h_gsfMcGsfPtVsVtxEB=fs->make<TH2F>("h_gsfMcGsfPtVsVtxEB","gsfMcGsfPtVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEtaVsVtxEB=fs->make<TH2F>("h_gsfMcGsfEtaVsVtxEB","gsfMcGsfEtaVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfPhiVsVtxEB=fs->make<TH2F>("h_gsfMcGsfPhiVsVtxEB","gsfMcGsfPhiVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEnVsVtxEB=fs->make<TH2F>("h_gsfMcGsfEnVsVtxEB","gsfMcGsfEnVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_pfMcPfPtVsVtxEB=fs->make<TH2F>("h_pfMcPfPtVsVtxEB","pfMcPfPtVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEtaVsVtxEB=fs->make<TH2F>("h_pfMcPfEtaVsVtxEB","pfMcPfEtaVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_pfMcPfPhiVsVtxEB=fs->make<TH2F>("h_pfMcPfPhiVsVtxEB","pfMcPfPhiVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEnVsVtxEB=fs->make<TH2F>("h_pfMcPfEnVsVtxEB","pfMcPfEnVsVtxEB",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfPtVsVtxEE=fs->make<TH2F>("h_gsfMcGsfPtVsVtxEE","gsfMcGsfPtVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEtaVsVtxEE=fs->make<TH2F>("h_gsfMcGsfEtaVsVtxEE","gsfMcGsfEtaVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfPhiVsVtxEE=fs->make<TH2F>("h_gsfMcGsfPhiVsVtxEE","gsfMcGsfPhiVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_gsfMcGsfEnVsVtxEE=fs->make<TH2F>("h_gsfMcGsfEnVsVtxEE","gsfMcGsfEnVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_pfMcPfPtVsVtxEE=fs->make<TH2F>("h_pfMcPfPtVsVtxEE","pfMcPfPtVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEtaVsVtxEE=fs->make<TH2F>("h_pfMcPfEtaVsVtxEE","pfMcPfEtaVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_pfMcPfPhiVsVtxEE=fs->make<TH2F>("h_pfMcPfPhiVsVtxEE","pfMcPfPhiVsVtxEE",20,0,20,160,-0.5,0.5);
+	h_pfMcPfEnVsVtxEE=fs->make<TH2F>("h_pfMcPfEnVsVtxEE","pfMcPfEnVsVtxEE",20,0,20,160,-0.5,0.5);
 
 	h_gsfMcGsfPt=fs->make<TH1F>("h_gsfMcGsfPt","gsfMcGsfPt",160,-0.5,0.5);
 	h_gsfMcGsfEta=fs->make<TH1F>("h_gsfMcGsfEta","gsfMcGsfEta",160,-0.5,0.5);
