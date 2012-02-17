@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.35 2012/02/14 11:02:57 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.35.2.1 2012/02/14 12:00:20 marone Exp $
 //
 //
 
@@ -43,6 +43,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // We need the output Muon association collection to fill 
   std::auto_ptr<std::vector<float> > EventWeight( new std::vector<float>);
+
   //IMPORTANTE
   clean_vectors();
   nEvents_++;
@@ -472,7 +473,7 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 	//--------------------------------//
 	//---------Fill del Tree----------//
 	treeVJ_->Fill();
-	iEvent.put( EventWeight,"EventWeight" );
+	iEvent.put( EventWeight,eventWeightsCollection_);
 }
 
 
