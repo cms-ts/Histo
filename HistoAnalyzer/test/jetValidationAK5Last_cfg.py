@@ -290,8 +290,7 @@ process.JetValidation = cms.Path(
     process.demo*
     process.goodEPair*
     process.ak5PFJets*
-    process.ak5PFJetsL2L3Residual*
-    process.validationL2L3Residual*
+    process.validation*
     process.ak5PFJetsL1FastL2L3Residual
     *process.validationJEC
     )

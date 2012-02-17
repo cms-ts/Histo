@@ -185,21 +185,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
                               WhichRun = cms.string("Run2011A"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
                               RootuplaName = cms.string("treeVJ_"),
+                              eventWeightsCollection= cms.string("EventWeight"), 
                               )
-
-process.demobefore = cms.EDProducer('HistoProducer',
-                                    electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
-                                    triggerCollection = cms.InputTag("TriggerResults","","HLT"),
-                                    UseCombinedPrescales = cms.bool(False),
-                                    TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
-                                    removePU=  cms.bool(True),
-                                    usingMC=  cms.bool(True),
-                                    doTheHLTAnalysis = cms.bool(False),
-                                    VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
-                                    TotalNEventTag = cms.vstring('TotalEventCounter'),
-                                    WhichRun = cms.string("Run2011A"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
-                                    RootuplaName = cms.string("treeVJBefore_"),
-                                    )
 
 
 ######################
@@ -325,7 +312,6 @@ process.JetValidation = cms.Path(
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*     
-    process.demobefore*
     process.Selection*
     process.demo*
     process.goodEPair*
