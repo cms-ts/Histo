@@ -21,11 +21,11 @@
 
 #include "lumi_scale_factors.h"
 
-bool lumiweights 	= 0;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
+bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
 
 string plotpath		="./"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_dataAug05_v1_11.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011B_v1_11.root"; 
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11.root";
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_11.root"; 
 string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_10.root"; 
 string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_10.root";
 
@@ -119,7 +119,7 @@ void DrawComparisonJetMCData(void){
 		mc->SetMinimum(1.);
 		mc->Draw();
 		zwemean = mc->GetMean();
-		tmpname=plotpath+name+"-zjets.png";
+		tmpname=plotpath+name+"-zjets.eps";
 		Canv->Print(tmpname.c_str());
 		}
 
@@ -133,7 +133,7 @@ void DrawComparisonJetMCData(void){
 		ttbar->GetXaxis()->SetRangeUser(0.,2.);
 		ttbar->Draw();
 		ttwemean = ttbar->GetMean();
-		tmpname=plotpath+name+"-ttbar.png";
+		tmpname=plotpath+name+"-ttbar.eps";
 		Canv->Print(tmpname.c_str());
 		}
 
@@ -146,7 +146,7 @@ void DrawComparisonJetMCData(void){
 		w->GetXaxis()->SetRangeUser(0.,2.);
 		w->Draw();
 		wwemean = w->GetMean();
-		tmpname=plotpath+name+"-wjets.png";
+		tmpname=plotpath+name+"-wjets.eps";
 		Canv->Print(tmpname.c_str());
 		}
 	
@@ -569,7 +569,7 @@ void comparisonJetMCData(string plot,int rebin){
 		r3->Draw();
 		Canv->Update();
 
-		tmp=plotpath+plot+".png";
+		tmp=plotpath+plot+".eps";
 //		Canv->Print(tmp.c_str());
 
 	}
@@ -589,7 +589,7 @@ void comparisonJetMCData(string plot,int rebin){
 		r1->Draw();
 		Canv->Update();
 
-		tmp=plotpath+plot+"data.png";
+		tmp=plotpath+plot+"data.eps";
 		Canv->Print(tmp.c_str());
 
 
@@ -608,7 +608,7 @@ void comparisonJetMCData(string plot,int rebin){
 		r2->Draw();
 		Canv->Update();
 
-		tmp=plotpath+plot+"mc.png";
+		tmp=plotpath+plot+"mc.eps";
 //		Canv->Print(tmp.c_str());
 	}
 //	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
