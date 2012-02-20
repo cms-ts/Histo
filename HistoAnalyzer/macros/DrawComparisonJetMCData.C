@@ -119,7 +119,7 @@ void DrawComparisonJetMCData(void){
 		mc->SetMinimum(1.);
 		mc->Draw();
 		zwemean = mc->GetMean();
-		tmpname=plotpath+name+"-zjets.eps";
+		tmpname=plotpath+name+"-zjets.png";
 		Canv->Print(tmpname.c_str());
 		}
 
@@ -133,7 +133,7 @@ void DrawComparisonJetMCData(void){
 		ttbar->GetXaxis()->SetRangeUser(0.,2.);
 		ttbar->Draw();
 		ttwemean = ttbar->GetMean();
-		tmpname=plotpath+name+"-ttbar.eps";
+		tmpname=plotpath+name+"-ttbar.png";
 		Canv->Print(tmpname.c_str());
 		}
 
@@ -146,7 +146,7 @@ void DrawComparisonJetMCData(void){
 		w->GetXaxis()->SetRangeUser(0.,2.);
 		w->Draw();
 		wwemean = w->GetMean();
-		tmpname=plotpath+name+"-wjets.eps";
+		tmpname=plotpath+name+"-wjets.png";
 		Canv->Print(tmpname.c_str());
 		}
 	
@@ -492,11 +492,11 @@ void comparisonJetMCData(string plot,int rebin){
 		data->Draw("E1 SAMES");
 		r2->Draw();
 		legend->Draw();
-		TLegend* lumi = new TLegend(0.60,0.9,0.85,0.75);
+		TLegend* lumi = new TLegend(0.45,0.3,0.75,0.2);
 		lumi->SetFillColor(0);
 		lumi->SetFillStyle(0);
 		lumi->SetBorderSize(0);
-		lumi->AddEntry((TObject*)0,"L=2.050 1/fb",""); // mean on Y
+		lumi->AddEntry((TObject*)0,"#int L dt =2.050 1/fb","");
 		lumi->Draw();
 		Canv->Update();
 
@@ -569,7 +569,7 @@ void comparisonJetMCData(string plot,int rebin){
 		r3->Draw();
 		Canv->Update();
 
-		tmp=plotpath+plot+".eps";
+		tmp=plotpath+plot+".png";
 		Canv->Print(tmp.c_str());
 
 	}
@@ -589,7 +589,7 @@ void comparisonJetMCData(string plot,int rebin){
 		r1->Draw();
 		Canv->Update();
 
-		tmp=plotpath+plot+"data.eps";
+		tmp=plotpath+plot+"data.png";
 		Canv->Print(tmp.c_str());
 
 
@@ -608,7 +608,7 @@ void comparisonJetMCData(string plot,int rebin){
 		r2->Draw();
 		Canv->Update();
 
-		tmp=plotpath+plot+"mc.eps";
+		tmp=plotpath+plot+"mc.png";
 		Canv->Print(tmp.c_str());
 	}
 //	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
