@@ -11,11 +11,14 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger(process,sequence='patDefaultSequence',hltProcess = '*')
 from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.PatAlgos.tools.pfTools import *
+from PhysicsTools.PatAlgos.tools.helpers import listModules, applyPostfix
 from RecoJets.JetProducers.FastjetParameters_cfi import *
 from RecoJets.JetProducers.ak5TrackJets_cfi import *
 from RecoJets.JetProducers.GenJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
+process.load("CommonTools.ParticleFlow.pfElectrons_cff")
 ##-------------------- Import the JEC services -----------------------
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
@@ -186,7 +189,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
                               WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
-                              RootuplaName = cms.string("treeVJ_"), 
+                              RootuplaName = cms.string("treeVJ_"),
+                              eventWeightsCollection= cms.string("EventWeight")
 )
 
 process.demobefore = cms.EDProducer('HistoProducer',
@@ -200,15 +204,20 @@ process.demobefore = cms.EDProducer('HistoProducer',
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
                               WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
-                              RootuplaName = cms.string("treeVJBefore_"),     
+                              RootuplaName = cms.string("treeVJBefore_"),
+                              eventWeightsCollection= cms.string("EventWeight")
 )
 ######################
 #                    #
 #  TRG MATCHING -ON- #
 #                    #
 ######################
+#adaptPFElectrons(process,"patElectrons","PF")
+#postfix = ""
+#adaptPFElectrons(process,applyPostfix(process,"patElectrons",postfix),postfix)
 
-
+#process.patElectrons.useParticleFlow=True
+#process.patElectrons.pfElectronSource = "particleFlow:electrons"
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
                                              src     = cms.InputTag( "patElectrons" ),# This one shold become a PFpat
                                              matched = cms.InputTag( "patTrigger"),##patTriggerObjectStandAlones_patTrigger__PAT
