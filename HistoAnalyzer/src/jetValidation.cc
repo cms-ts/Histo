@@ -71,12 +71,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if (goodEPair->size()==2)
    {   
-      double gsfScEn;
-      double gsfScEta;
-      double gsfScPhi;
-      double pfScEn;
-      double pfScEta;
-      double pfScPhi;
+      double gsfScEn=0;
+      double gsfScEta=0;
+      double gsfScPhi=0;
+      double pfScEn=0;
+      double pfScEta=0;
+      double pfScPhi=0;
       double deltaEta_ = 5.0/100.0;
       double deltaPhi_ = 2.0*pi_/100;
       int cluSize1 =0;
