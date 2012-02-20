@@ -125,11 +125,11 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 pfScEta= it->pflowSuperCluster()->eta();
 	 pfScPhi= it->pflowSuperCluster()->phi();
 
-	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta-pfScEta,myweight[0]);
+	 h_gsfPfSCEtaVsEta->Fill(gsfScEta,gsfScEta-pfScEta,myweight[0]);
 	 for (int j=0; j< 100; j++){
-	    if ( it->eta()> j*deltaEta_ && it->eta()<(j+1)*deltaEta_){
+	    if ( gsfScEta> j*deltaEta_ && gsfScEta<(j+1)*deltaEta_){
 	       for (int k=0; k<100; k++){
-		  if ( it->phi()> k*deltaPhi_ && it->phi()<(k+1)*deltaPhi_){
+		  if ( gsfScPhi> k*deltaPhi_ && gsfScPhi<(k+1)*deltaPhi_){
 		     h_gsfPfSCEnVsEtaPhi->Fill((j+0.5)*deltaEta_,(k+0.5)*deltaPhi_,gsfScEn/pfScEn,myweight[0]);
 		  }
 	       }
@@ -138,13 +138,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(gsfScEta)<edgeEB){
 	    h_gsfPfSCEta_EB->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
+	    h_gsfPfSCEnVsEn_EB->Fill(gsfScEn,gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EB->Fill(gsfScEn,gsfScEta-pfScEta,myweight[0]);
 	 } else if (fabs(gsfScEta)<edgeEE){
 	    h_gsfPfSCEta_EE->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
+	    h_gsfPfSCEnVsEn_EE->Fill(gsfScEn,gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EE->Fill(gsfScEn,gsfScEta-pfScEta,myweight[0]);
 
 
 	    reco::CaloCluster_iterator itClu = it->superCluster()->clustersBegin();
@@ -392,13 +392,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 pfScEta= it->pflowSuperCluster()->eta();
 	 pfScPhi= it->pflowSuperCluster()->phi();
 
-	 h_gsfPfSCEtaVsEta->Fill(it->eta(),gsfScEta-pfScEta,myweight[0]);
-	 h_gsfPfSCEnVsEtaPhi->Fill(it->eta(),it->phi(),gsfScEn/pfScEn,myweight[0]);
+	 h_gsfPfSCEtaVsEta->Fill(gsfScEta,gsfScEta-pfScEta,myweight[0]);
 
 	 for (int j=0; j< 100; j++){
-	    if ( it->eta()> j*deltaEta_ && it->eta()<(j+1)*deltaEta_){
+	    if ( gsfScEta> j*deltaEta_ && gsfScEta<(j+1)*deltaEta_){
 	       for (int k=0; k<100; k++){
-		  if ( it->phi()> k*deltaPhi_ && it->phi()<(k+1)*deltaPhi_){
+		  if ( gsfScPhi> k*deltaPhi_ && gsfScPhi<(k+1)*deltaPhi_){
 		     h_gsfPfSCEnVsEtaPhi->Fill((j+0.5)*deltaEta_,(k+0.5)*deltaPhi_,gsfScEn/pfScEn,myweight[0]);
 		  }
 	       }
@@ -408,13 +407,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(gsfScEta)<edgeEB){
 	    h_gsfPfSCEta_EB->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EB->Fill(gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEnVsEn_EB->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EB->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
+	    h_gsfPfSCEnVsEn_EB->Fill(gsfScEn,gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EB->Fill(gsfScEn,gsfScEta-pfScEta,myweight[0]);
 	 } else if (fabs(gsfScEta)<edgeEE){
 	    h_gsfPfSCEta_EE->Fill(gsfScEta-pfScEta,myweight[0]);
 	    h_gsfPfSCEn_EE->Fill(gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEnVsEn_EE->Fill(it->energy(),gsfScEn/pfScEn,myweight[0]);
-	    h_gsfPfSCEtaVsEn_EE->Fill(it->energy(),gsfScEta-pfScEta,myweight[0]);
+	    h_gsfPfSCEnVsEn_EE->Fill(gsfScEn,gsfScEn/pfScEn,myweight[0]);
+	    h_gsfPfSCEtaVsEn_EE->Fill(gsfScEn,gsfScEta-pfScEta,myweight[0]);
 	 }     
       }      
 
@@ -1024,10 +1023,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (checkPf1 && checkPf2){
 	 h_invMassPF->Fill(pfe_pair.M(),myweight[0]);
 	 h_massMinusPdgPf->Fill(pfe_pair.M()-zMassPdg,myweight[0]);
-	 if (fabs(pfe1.Eta())<=edgeEB && fabs(pfe2.Eta())<=edgeEB) {h_massMinusPdgPf_EB->Fill(zInvMass-zMassPdg,myweight[0]);}
+	 if (fabs(pfe1.Eta())<=edgeEB && fabs(pfe2.Eta())<=edgeEB) {
+	    h_massMinusPdgPf_EB->Fill(pfe_pair.M()-zMassPdg,myweight[0]);}
 	 else if (fabs(pfe1.Eta())<=edgeEE && fabs(pfe2.Eta())<=edgeEE &&
-		  fabs(pfe1.Eta())>edgeEB && fabs(pfe2.Eta())>edgeEB) {h_massMinusPdgPf_EE->Fill(zInvMass-zMassPdg,myweight[0]);}
-	 else if (fabs(pfe1.Eta())<edgeEE && fabs(pfe2.Eta())<edgeEE) {h_massMinusPdgPf_EBEE->Fill(zInvMass-zMassPdg,myweight[0]);}
+		  fabs(pfe1.Eta())>edgeEB && fabs(pfe2.Eta())>edgeEB) {
+	    h_massMinusPdgPf_EE->Fill(pfe_pair.M()-zMassPdg,myweight[0]);}
+	 else if (fabs(pfe1.Eta())<edgeEE && fabs(pfe2.Eta())<edgeEE) {
+	    h_massMinusPdgPf_EBEE->Fill(pfe_pair.M()-zMassPdg,myweight[0]);}
       }
 
       h_zEta->Fill(e_pair.Eta(),myweight[0]);
