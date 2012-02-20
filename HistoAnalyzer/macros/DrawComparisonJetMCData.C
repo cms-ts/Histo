@@ -570,7 +570,7 @@ void comparisonJetMCData(string plot,int rebin){
 		Canv->Update();
 
 		tmp=plotpath+plot+".eps";
-//		Canv->Print(tmp.c_str());
+		Canv->Print(tmp.c_str());
 
 	}
 	else if (flag==2){
@@ -609,7 +609,7 @@ void comparisonJetMCData(string plot,int rebin){
 		Canv->Update();
 
 		tmp=plotpath+plot+"mc.eps";
-//		Canv->Print(tmp.c_str());
+		Canv->Print(tmp.c_str());
 	}
 //	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
 
