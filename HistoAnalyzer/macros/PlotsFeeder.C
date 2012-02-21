@@ -112,9 +112,9 @@ TObjArray * PlotsFeeder::Loop(int NumOfVtx)
 	TH1D * h_IsoHcal_EER_PUR;
 	
 	//EE Reweight PUR
-	h_IsoTrk_EER_PUR = new TH1D("h_IsoTrk_EER_PUR","IsoTrk",tEB,tEBmin,tEBmax);
-	h_IsoEcal_EER_PUR = new TH1D("h_IsoEcal_EER_PUR","IsoEcal",eEB,eEBmin,eEBmax);
-	h_IsoHcal_EER_PUR = new TH1D("h_IsoHcal_EER_PUR","IsoHcal",hEB,hEBmin,hEBmax);
+	h_IsoTrk_EER_PUR = new TH1D("h_IsoTrk_EER_PUR","IsoTrk",tEE,tEEmin,tEEmax);
+	h_IsoEcal_EER_PUR = new TH1D("h_IsoEcal_EER_PUR","IsoEcal",eEE,eEEmin,eEEmax);
+	h_IsoHcal_EER_PUR = new TH1D("h_IsoHcal_EER_PUR","IsoHcal",hEE,hEEmin,hEEmax);
 
 
 	//==================//
