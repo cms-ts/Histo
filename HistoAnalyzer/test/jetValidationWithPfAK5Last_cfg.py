@@ -144,7 +144,7 @@ process.goodEPair = cms.EDProducer('pfAnalyzer',
                                    removePU=  cms.bool(True),
                                    )
                                    
-process.validationJEC = cms.EDAnalyzer('jetValidationWithPf',
+process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3Residual"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
@@ -152,9 +152,10 @@ process.validationJEC = cms.EDAnalyzer('jetValidationWithPf',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
+                                       usingPF = cms.untracked.bool(True)
                                        )
                                    
-process.validationL2L3Residual = cms.EDAnalyzer('jetValidationWithPf',
+process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFJetsL2L3Residual"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
@@ -162,9 +163,10 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidationWithPf',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
+                                       usingPF = cms.untracked.bool(True)
                                        )
 
-process.validation = cms.EDAnalyzer('jetValidationWithPf',
+process.validation = cms.EDAnalyzer('jetValidation',
                                     electronCollection = cms.InputTag("particleFlow:electrons"),
                                     jetCollection = cms.InputTag("ak5PFJets"),
                                     VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
@@ -172,6 +174,7 @@ process.validation = cms.EDAnalyzer('jetValidationWithPf',
                                     tpMapName = cms.string('EventWeight'),
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(True)
                                     )
 
 ####################
@@ -190,6 +193,7 @@ process.demo = cms.EDProducer('HistoProducer',
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
                               WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
                               RootuplaName = cms.string("treeVJ_"), 
+                              eventWeightsCollection= cms.string("EventWeight")
 )
 
 process.demobefore = cms.EDProducer('HistoProducer',
@@ -203,7 +207,8 @@ process.demobefore = cms.EDProducer('HistoProducer',
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
                               WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
-                              RootuplaName = cms.string("treeVJBefore_"),     
+                              RootuplaName = cms.string("treeVJBefore_"),
+                              eventWeightsCollection= cms.string("EventWeight")     
 )
 ######################
 #                    #
@@ -250,7 +255,7 @@ process.out.outputCommands =  cms.untracked.vstring(
 process.out.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('JetValidation'))
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('jetValidationWithPf.root')
+                                   fileName = cms.string('jetValidationWithPfNEW.root')
                                    )
 
 
