@@ -19,6 +19,9 @@ from RecoJets.JetProducers.GenJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
 process.load("CommonTools.ParticleFlow.pfElectrons_cff")
+process.load("CommonTools.ParticleFlow.pfMuons_cff")
+process.load("CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff")
+process.load("CommonTools.ParticleFlow.pfNoPileUp_cff")
 ##-------------------- Import the JEC services -----------------------
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
@@ -74,7 +77,7 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(500),
  )
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = readFiles,
@@ -106,12 +109,13 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 #### Lepton Selection
 ###################
 
-process.Selection = cms.EDFilter('ZpatFilter',
+process.Selection = cms.EDFilter('ZpatFilterPf',
                                  electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                  triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(True),
-                                 removePU=  cms.bool(True),
+                                 #removePU=  cms.bool(True),
+                                 removePU=  cms.bool(False),
                                  TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
 )
 
@@ -119,8 +123,11 @@ process.Selection = cms.EDFilter('ZpatFilter',
 #### TAP
 ###################
 
-process.TAP = cms.EDFilter('EfficiencyFilter',
+
+process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                            electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                           superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                           superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
                            triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                            filename=cms.untracked.string("ZAnalysisFilter.root"),
                            UseCombinedPrescales = cms.bool(False),
@@ -128,6 +135,27 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
                            WP80_efficiency  =  cms.bool(True),
                            HLTele17_efficiency  =  cms.bool(False),
                            HLTele8NOTele17_efficiency  =  cms.bool(False),
+                           RECO_efficiency  =  cms.bool(False),
+                           VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                           electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                           candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           )
+
+process.TAPreco = cms.EDFilter('EfficiencyFilter',
+                           electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                           superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                           superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                           triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                           filename=cms.untracked.string("ZAnalysisFilter.root"),
+                           UseCombinedPrescales = cms.bool(False),
+                           removePU=  cms.bool(True),
+                           WP80_efficiency  =  cms.bool(False),
+                           HLTele17_efficiency  =  cms.bool(False),
+                           HLTele8NOTele17_efficiency  =  cms.bool(False),
+                           RECO_efficiency  =  cms.bool(True),
+                           VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
@@ -140,8 +168,8 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
 
 process.goodEPair = cms.EDProducer('pfAnalyzer',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
-                                   #electronCollection = cms.InputTag("gsfElectrons"),
-                                   removePU=  cms.bool(True),
+                                   #removePU=  cms.bool(True),
+                                   removePU=  cms.bool(False),
                                    )
                                    
 process.validationJEC = cms.EDAnalyzer('jetValidation',
@@ -220,7 +248,17 @@ process.demobefore = cms.EDProducer('HistoProducer',
 #adaptPFElectrons(process,applyPostfix(process,"patElectrons",postfix),postfix)
 
 process.patElectrons.useParticleFlow=True
-process.patElectrons.pfElectronSource = "particleFlow:electrons"
+process.isoValElectronWithNeutral.deposits[0].deltaR = 0.3
+process.isoValElectronWithCharged.deposits[0].deltaR = 0.3
+process.isoValElectronWithPhotons.deposits[0].deltaR = 0.3
+process.pfIsolatedElectrons.combinedIsolationCut = 0.5
+process.pfAllElectrons.src = "particleFlow:electrons"
+#process.pfAllElectrons.src = "pfNoPileUp"
+
+
+process.patElectronsForTap=process.patElectrons.clone()
+process.patElectronsForTap.pfElectronSource = "particleFlow:electrons"
+
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
                                              src     = cms.InputTag( "patElectrons" ),# This one shold become a PFpat
                                              matched = cms.InputTag( "patTrigger"),##patTriggerObjectStandAlones_patTrigger__PAT
@@ -276,15 +314,36 @@ process.TotalEventCounter = cms.EDProducer("EventCountProducer")
 #                   #
 #####################
 
-process.TAPAnalysis = cms.Path(
+process.TAPAnalysisWP80 = cms.Path(
     process.kt6PFJetsForIsolation*
     process.kt6PFJets*
     process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
     process.patTrigger*
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
-    process.TAP
+    process.TAPwp80
+    )
+
+process.TAPAnalysisRECO = cms.Path(
+    process.kt6PFJetsForIsolation*
+    process.kt6PFJets*
+    process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
+    process.patTrigger*
+    process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPreco
     )
 
 process.JetValidation = cms.Path(
@@ -293,6 +352,11 @@ process.JetValidation = cms.Path(
     #process.kt6PFJets*
 #    #process.kt6PFJets*
     #process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
     process.patTrigger*
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
