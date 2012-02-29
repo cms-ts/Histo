@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.35.2.1 2012/02/14 12:00:20 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.35.2.2 2012/02/17 16:48:44 marone Exp $
 //
 //
 
@@ -68,7 +68,9 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Define Isolation Variables (Non-Removed PU)
   double IsoTrk;
   double IsoEcal;
+  double IsoEcal_ned;
   double IsoHcal;
+  double IsoHcal_ned;
   double HE;
   double fbrem;
   double etaSC;
@@ -350,7 +352,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		// Define Isolation variables
 		IsoTrk = (itElect->dr03TkSumPt () / itElect->et ());
 		IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
+		IsoEcal_ned = (itElect->dr03EcalRecHitSumEt ());
 		IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
+		IsoHcal_ned = (itElect->dr03HcalTowerSumEt () );
 		HE = itElect->hadronicOverEm();
 
 		//Assign Isolation variables
@@ -374,7 +378,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			//histos
 			h_IsoTrk_EB->Fill(IsoTrk);
 			h_IsoEcal_EB->Fill(IsoEcal);
+			h_IsoEcal_EB_ned->Fill(IsoEcal_ned);
 			h_IsoHcal_EB->Fill(IsoHcal);
+			h_IsoHcal_EB_ned->Fill(IsoHcal_ned);
 			h_HE_EB->Fill(HE);
 
 			h_DeltaPhiTkClu_EB->Fill(DeltaPhiTkClu);
@@ -384,7 +390,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			//vectors
 			vIsoTrkEB.push_back(IsoTrk);
 			vIsoEcalEB.push_back(IsoEcal);
+			vIsoEcalEB_ned.push_back(IsoEcal_ned);
 			vIsoHcalEB.push_back(IsoHcal);
+			vIsoHcalEB_ned.push_back(IsoHcal_ned);
 			vHEEB.push_back(HE);
 			vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
 			vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
@@ -396,7 +404,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			//histos
 			h_IsoTrk_EE->Fill(IsoTrk);
 			h_IsoEcal_EE->Fill(IsoEcal);
+			h_IsoEcal_EE_ned->Fill(IsoEcal_ned);
 			h_IsoHcal_EE->Fill(IsoHcal);
+			h_IsoHcal_EE_ned->Fill(IsoHcal_ned);
 			h_HE_EE->Fill(HE);
 
 			h_DeltaPhiTkClu_EE->Fill(DeltaPhiTkClu);
@@ -406,7 +416,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			//vectors
 			vIsoTrkEE.push_back(IsoTrk);
 			vIsoEcalEE.push_back(IsoEcal);
+			vIsoEcalEE_ned.push_back(IsoEcal_ned);
 			vIsoHcalEE.push_back(IsoHcal);
+			vIsoHcalEE_ned.push_back(IsoHcal_ned);
 			vHEEE.push_back(HE);
 			vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
 			vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
@@ -439,11 +451,15 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 
 	h_IsoTrk_EB->GetYaxis()-> SetTitle("Events");
 	h_IsoEcal_EB->GetYaxis()-> SetTitle("Events");
+	h_IsoEcal_EB_ned->GetYaxis()-> SetTitle("Events");
 	h_IsoHcal_EB->GetYaxis()-> SetTitle("Events");
+	h_IsoHcal_EB_ned->GetYaxis()-> SetTitle("Events");
 	h_HE_EB->GetYaxis()-> SetTitle("Events");
 	h_IsoTrk_EE->GetYaxis()-> SetTitle("Events");
 	h_IsoEcal_EE->GetYaxis()-> SetTitle("Events");
+	h_IsoEcal_EE_ned->GetYaxis()-> SetTitle("Events");
 	h_IsoHcal_EE->GetYaxis()-> SetTitle("Events");
+	h_IsoHcal_EE_ned->GetYaxis()-> SetTitle("Events");
 	h_HE_EE->GetYaxis()-> SetTitle("Events");
 	h_fbrem->GetYaxis()-> SetTitle("Events");
 	h_etaSC->GetYaxis()-> SetTitle("Events");
@@ -516,7 +532,9 @@ vRun.clear();
 	//EB
 	treeVJ_->Branch("IsoTrkEB","IsoTrkEB",&vIsoTrkEB);
 	treeVJ_->Branch("IsoEcalEB","IsoEcalEB",&vIsoEcalEB);
+	treeVJ_->Branch("IsoEcalEB_ned","IsoEcalEB_ned",&vIsoEcalEB_ned);
 	treeVJ_->Branch("IsoHcalEB","IsoHcalEB",&vIsoHcalEB);
+	treeVJ_->Branch("IsoHcalEB_ned","IsoHcalEB_ned",&vIsoHcalEB_ned);
 	treeVJ_->Branch("HEEB","HEEB",&vHEEB);
 	treeVJ_->Branch("DeltaPhiTkCluEB","DeltaPhiTkCluEB",&vDeltaPhiTkCluEB);
 	treeVJ_->Branch("DeltaEtaTkCluEB","DeltaEtaTkCluEB",&vDeltaEtaTkCluEB);
@@ -525,7 +543,9 @@ vRun.clear();
 	//EE
 	treeVJ_->Branch("IsoTrkEE","IsoTrkEE",&vIsoTrkEE);
 	treeVJ_->Branch("IsoEcalEE","IsoEcalEE",&vIsoEcalEE);
+	treeVJ_->Branch("IsoEcalEE_ned","IsoEcalEE_ned",&vIsoEcalEE_ned);
 	treeVJ_->Branch("IsoHcalEE","IsoHcalEE",&vIsoHcalEE);
+	treeVJ_->Branch("IsoHcalEE_ned","IsoHcalEE_ned",&vIsoHcalEE_ned);
 	treeVJ_->Branch("HEEE","HEEE",&vHEEE);
 	treeVJ_->Branch("DeltaPhiTkCluEE","DeltaPhiTkCluEE",&vDeltaPhiTkCluEE);
 	treeVJ_->Branch("DeltaEtaTkCluEE","DeltaEtaTkCluEE",&vDeltaEtaTkCluEE);

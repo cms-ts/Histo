@@ -106,7 +106,9 @@ class HistoProducer : public edm::EDProducer {
       //EB
       TH1D * h_IsoTrk_EB;
       TH1D * h_IsoEcal_EB;
+      TH1D * h_IsoEcal_EB_ned;
       TH1D * h_IsoHcal_EB;
+      TH1D * h_IsoHcal_EB_ned;
       TH1D * h_HE_EB;
       TH1F * h_DeltaPhiTkClu_EB;
       TH1F * h_DeltaEtaTkClu_EB;
@@ -114,7 +116,9 @@ class HistoProducer : public edm::EDProducer {
       //EE
       TH1D * h_IsoTrk_EE;
       TH1D * h_IsoEcal_EE;
+      TH1D * h_IsoEcal_EE_ned;
       TH1D * h_IsoHcal_EE;
+      TH1D * h_IsoHcal_EE_ned;
       TH1D * h_HE_EE;
       TH1F * h_DeltaPhiTkClu_EE;
       TH1F * h_DeltaEtaTkClu_EE;
@@ -134,7 +138,9 @@ class HistoProducer : public edm::EDProducer {
       //EB
       std::vector<double> vIsoTrkEB;
       std::vector<double> vIsoEcalEB;
+      std::vector<double> vIsoEcalEB_ned;
       std::vector<double> vIsoHcalEB;
+      std::vector<double> vIsoHcalEB_ned;
       std::vector<double> vHEEB;
       std::vector<float> vDeltaPhiTkCluEB;
       std::vector<float> vDeltaEtaTkCluEB;
@@ -142,7 +148,9 @@ class HistoProducer : public edm::EDProducer {
       //EE
       std::vector<double> vIsoTrkEE;
       std::vector<double> vIsoEcalEE;
+      std::vector<double> vIsoEcalEE_ned;
       std::vector<double> vIsoHcalEE;
+      std::vector<double> vIsoHcalEE_ned;
       std::vector<double> vHEEE;
       std::vector<float> vDeltaPhiTkCluEE;
       std::vector<float> vDeltaEtaTkCluEE;
@@ -191,14 +199,18 @@ class HistoProducer : public edm::EDProducer {
 	vRho.clear();
 	vIsoTrkEB.clear();
 	vIsoEcalEB.clear();
+        vIsoEcalEB_ned.clear();
 	vIsoHcalEB.clear();
+        vIsoHcalEB_ned.clear();
 	vHEEB.clear();
 	vDeltaPhiTkCluEB.clear();
 	vDeltaEtaTkCluEB.clear();
 	vsigmaIeIeEB.clear();
 	vIsoTrkEE.clear();
 	vIsoEcalEE.clear();
+        vIsoEcalEE_ned.clear();
 	vIsoHcalEE.clear();
+        vIsoHcalEE_ned.clear();
 	vHEEE.clear();
 	vDeltaPhiTkCluEE.clear();
 	vDeltaEtaTkCluEE.clear();
@@ -247,7 +259,9 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   //EB
   h_IsoTrk_EB = fs->make<TH1D>("h_IsoTrk_EB","IsoTrk",20,0.,0.20);
   h_IsoEcal_EB = fs->make<TH1D>("h_IsoEcal_EB","IsoEcal",20,0.,0.20);
+  h_IsoEcal_EB_ned = fs->make<TH1D>("h_IsoEcal_EB_ned","IsoEcal_ned",20,0.,0.20);
   h_IsoHcal_EB = fs->make<TH1D>("h_IsoHcal_EB","IsoHcal",20,0.,0.20);
+  h_IsoHcal_EB_ned = fs->make<TH1D>("h_IsoHcal_EB_ned","IsoHcal_ned",20,0.,0.20);
   h_HE_EB = fs->make<TH1D>("h_HE_EB","H/E",20,0.,0.20);
   h_DeltaPhiTkClu_EB = fs->make<TH1F>("h_DeltaPhiTkClu_EB","DeltaPhiTkClu",20,0.,0.2);
   h_DeltaEtaTkClu_EB = fs->make<TH1F>("h_DeltaEtaTkClu_EB","DeltaEtaTkClu",20,0.,.05);
@@ -255,7 +269,9 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   //EE
   h_IsoTrk_EE = fs->make<TH1D>("h_IsoTrk_EE","IsoTrk",20,0.,0.20);
   h_IsoEcal_EE = fs->make<TH1D>("h_IsoEcal_EE","IsoEcal",20,0.,0.20);
+  h_IsoEcal_EE_ned = fs->make<TH1D>("h_IsoEcal_EE_ned","IsoEcal_ned",20,0.,0.20);
   h_IsoHcal_EE = fs->make<TH1D>("h_IsoHcal_EE","IsoHcal",20,0.,0.20);
+  h_IsoHcal_EE_ned = fs->make<TH1D>("h_IsoHcal_EE_ned","IsoHcal_ned",20,0.,0.20);
   h_HE_EE = fs->make<TH1D>("h_HE_EE","H/E",20,0.,0.20);
   h_DeltaPhiTkClu_EE = fs->make<TH1F>("h_DeltaPhiTkClu_EE","DeltaPhiTkClu",20,0.,0.2);
   h_DeltaEtaTkClu_EE = fs->make<TH1F>("h_DeltaEtaTkClu_EE","DeltaEtaTkClu",20,0.,.05);
