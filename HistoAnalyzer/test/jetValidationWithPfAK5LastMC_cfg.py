@@ -50,12 +50,10 @@ process.ak5PFJets.doAreaFastjet = True
 process.kt6PFJetsForIsolation = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True)
 process.kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
 
-#################################################################
-############ WARNING! to be run on data only! (r.c. 2011)########
-############        need to be adapted for MC            ########
-#################################################################
-removeMCMatching(process, ['All'])###############################
-#################################################################
+
+process.options   = cms.untracked.PSet(
+    SkipEvent = cms.untracked.vstring('ProductNotFound'),
+    wantSummary = cms.untracked.bool(True) )
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
