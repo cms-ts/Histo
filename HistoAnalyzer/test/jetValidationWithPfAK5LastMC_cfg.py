@@ -10,11 +10,16 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger(process,sequence='patDefaultSequence',hltProcess = '*')
 from PhysicsTools.PatAlgos.tools.coreTools import *
+from PhysicsTools.PatAlgos.tools.pfTools import *
 from RecoJets.JetProducers.FastjetParameters_cfi import *
 from RecoJets.JetProducers.ak5TrackJets_cfi import *
 from RecoJets.JetProducers.GenJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
+process.load("CommonTools.ParticleFlow.pfElectrons_cff")
+process.load("CommonTools.ParticleFlow.pfMuons_cff")
+process.load("CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff")
+process.load("CommonTools.ParticleFlow.pfNoPileUp_cff")
 ##-------------------- Import the JEC services -----------------------
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
@@ -100,12 +105,12 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 ###################
 
 
-process.Selection = cms.EDFilter('ZpatFilter',
+process.Selection = cms.EDFilter('ZpatFilterPf',
                                  electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                  triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(False),
-                                 removePU=  cms.bool(True),
+                                 removePU=  cms.bool(False),
                                  TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
                                  secondEleEnThrhold   = cms.double(20.0),
                                  firstEleEnThrhold    = cms.double(20.0),
@@ -137,19 +142,20 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
 #### Jets..
 ###################
 
-process.goodEPair = cms.EDProducer('ZanalyzerProducer',
+process.goodEPair = cms.EDProducer('pfAnalyzer',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
-                                   removePU=  cms.bool(True),
+                                   removePU=  cms.bool(False),
                                    )
                                    
 process.validationJEC = cms.EDAnalyzer('jetValidation',
-                                       electronCollection = cms.InputTag("gsfElectrons"),
+                                       electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(True),
+                                       usingPF = cms.untracked.bool(True),
                                        deltaRCone           = cms.double(0.3),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),
@@ -162,13 +168,14 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        )
                                    
 process.validationL2L3 = cms.EDAnalyzer('jetValidation',
-                                       electronCollection = cms.InputTag("gsfElectrons"),
+                                       electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFJetsL2L3"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(True),
+                                        usingPF = cms.untracked.bool(True),
                                        deltaRCone           = cms.double(0.3),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),
@@ -181,13 +188,14 @@ process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        )
 
 process.validation = cms.EDAnalyzer('jetValidation',
-                                    electronCollection = cms.InputTag("gsfElectrons"),
+                                    electronCollection = cms.InputTag("particleFlow:electrons"),
                                     jetCollection = cms.InputTag("ak5PFJets"),
                                     VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
                                     goodEPair = cms.InputTag("goodEPair"),
                                     tpMapName = cms.string('EventWeight'),
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(True),
+                                    usingPF = cms.untracked.bool(True),
                                     deltaRCone           = cms.double(0.3),
                                     deltaRConeGen         = cms.double(0.1),
                                     maxEtaJets           = cms.double(2.4),
@@ -225,6 +233,18 @@ process.demo = cms.EDProducer('HistoProducer',
 #  TRG MATCHING -ON- #
 #                    #
 ######################
+
+process.patElectrons.useParticleFlow=True
+process.isoValElectronWithNeutral.deposits[0].deltaR = 0.3
+process.isoValElectronWithCharged.deposits[0].deltaR = 0.3
+process.isoValElectronWithPhotons.deposits[0].deltaR = 0.3
+process.pfIsolatedElectrons.isolationCut = 0.5
+process.pfAllElectrons.src = "particleFlow:electrons"
+#process.pfAllElectrons.src = "pfNoPileUp"
+
+
+process.patElectronsForTap=process.patElectrons.clone()
+process.patElectronsForTap.pfElectronSource = "particleFlow:electrons"
 
 
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
@@ -326,6 +346,11 @@ process.TAPAnalysis = cms.Path(
     process.kt6PFJetsForIsolation*
     process.kt6PFJets*
     process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
     process.patTrigger*
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
@@ -339,6 +364,11 @@ process.JetValidation = cms.Path(
     #process.kt6PFJets*
 #    #process.kt6PFJets*
     #process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
     process.patTrigger*
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*

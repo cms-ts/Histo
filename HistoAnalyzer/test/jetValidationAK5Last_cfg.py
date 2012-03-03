@@ -16,20 +16,21 @@ from RecoJets.JetProducers.ak5TrackJets_cfi import *
 from RecoJets.JetProducers.GenJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
+process.load("CommonTools.ParticleFlow.pfElectrons_cff")
 ##-------------------- Import the JEC services -----------------------
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 ##process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 
-##-------------------- Import the Jet RECO modules -----------------------
-process.load('RecoJets.Configuration.RecoPFJets_cff')
-
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 #process.load("MagneticField.Engine.uniformMagneticField_cfi") 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+##-------------------- Import the Jet RECO modules -----------------------
+process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.load("RecoJets.Configuration.GenJetParticles_cff")
 process.load("RecoJets.Configuration.RecoGenJets_cff") 
 
@@ -142,7 +143,6 @@ process.TAP = cms.EDFilter('EfficiencyFilter',
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
-                                   #electronCollection = cms.InputTag("gsfElectrons"),
                                    removePU=  cms.bool(True),
                                    )
                                    
@@ -154,6 +154,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
+                                       usingPF = cms.untracked.bool(False),
                                        deltaRCone           = cms.double(0.3),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),
@@ -173,6 +174,7 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
+                                       usingPF = cms.untracked.bool(False),
                                        deltaRCone           = cms.double(0.3),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),
@@ -192,6 +194,7 @@ process.validation = cms.EDAnalyzer('jetValidation',
                                     tpMapName = cms.string('EventWeight'),
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(False),
                                     deltaRCone           = cms.double(0.3),
                                     deltaRConeGen         = cms.double(0.1),
                                     maxEtaJets           = cms.double(2.4),
@@ -208,7 +211,7 @@ process.validation = cms.EDAnalyzer('jetValidation',
 ###################
 
 process.demo = cms.EDProducer('HistoProducer',
-                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
+                              electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
@@ -217,7 +220,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight.. 
+                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              eventWeightsCollection= cms.string("EventWeight") 
 )
 
 
