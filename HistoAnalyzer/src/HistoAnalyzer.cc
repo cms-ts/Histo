@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    HistoProducer
+// Package:    HistoProducer     
 // Class:      HistoProducer
 // 
 /**\class HistoProducer HistoProducer.cc Histo/HistoProducer/src/HistoProducer.cc
@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.34 2012/02/02 10:13:50 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.35 2012/02/14 11:02:57 marone Exp $
 //
 //
 
@@ -63,6 +63,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double IsoTrk_PUR;
   double IsoEcal_PUR;
   double IsoHcal_PUR;
+  double CombinedIso_PUR;
   
   //Define Isolation Variables (Non-Removed PU)
   double IsoTrk;
@@ -71,6 +72,11 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double HE;
   double fbrem;
   double etaSC;
+
+  double NeutHadIso;
+  double ChgHadIso;
+  double PhotIso;
+  double CombinedIso;
   
   //Define ID variables
   float DeltaPhiTkClu;
@@ -292,12 +298,14 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 	///////////////////
 
 	//Getting the Electron Collection
-	using reco::GsfElectronCollection;
-	Handle<GsfElectronCollection> gsfElectrons;
+	//using reco::GsfElectronCollection;
+	//Handle<GsfElectronCollection> gsfElectrons;
+  
+        Handle < pat::ElectronCollection > gsfElectrons;
 	iEvent.getByLabel(electronCollection_,gsfElectrons);
 
 	//Loop over the gsf collection to study the variables distributions
-	for(GsfElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
+	for(pat::ElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
 
 		if (removePU_){
 			double lepIsoRho;
@@ -342,6 +350,14 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 				vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
 				vIsoHcalEE_PUR.push_back(IsoHcal_PUR);
 			}
+			if (fabs (itElect->eta()) <= 1.4442 || (fabs (itElect->eta()) >= 1.5660
+								&& fabs (itElect->eta()) <= 2.5000)){	   
+			   NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso;
+			   ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso;
+			   PhotIso= itElect->pfIsolationVariables().photonIso;
+			   CombinedIso_PUR = ((NeutHadIso + ChgHadIso + PhotIso - 3.*lepIsoRho*0.096)/ itElect->pt ());
+			   vCombinedIso_PUR.push_back(CombinedIso_PUR);
+			}
 		}
 
 
@@ -351,6 +367,11 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
 		IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
 		HE = itElect->hadronicOverEm();
+
+		NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso;
+		ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso;
+		PhotIso= itElect->pfIsolationVariables().photonIso;
+		CombinedIso = ((NeutHadIso + ChgHadIso + PhotIso)/ itElect->pt ());
 
 		//Assign Isolation variables
 		fbrem	= itElect->fbrem();
@@ -411,6 +432,14 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
 			vsigmaIeIeEE.push_back(sigmaIeIe);
 
+		}
+		
+		if (fabs (itElect->eta()) <= 1.4442 || (fabs (itElect->eta()) >= 1.5660
+							&& fabs (itElect->eta()) <= 2.5000)){
+		   vNeutHadIso.push_back(NeutHadIso);
+		   vChgHadIso.push_back(ChgHadIso);
+		   vPhotIso.push_back(PhotIso);
+		   vCombinedIso.push_back(CombinedIso);
 		}
 
 		//Common (histo)
@@ -512,6 +541,8 @@ vRun.clear();
 	treeVJ_->Branch("IsoEcalEE_PUR","IsoEcalEE_PUR",&vIsoEcalEE_PUR);
 	treeVJ_->Branch("IsoHcalEE_PUR","IsoHcalEE_PUR",&vIsoHcalEE_PUR);
 
+	treeVJ_->Branch("CombinedIso_PUR","CombinedIso_PUR",&vCombinedIso_PUR);
+
 	//EB
 	treeVJ_->Branch("IsoTrkEB","IsoTrkEB",&vIsoTrkEB);
 	treeVJ_->Branch("IsoEcalEB","IsoEcalEB",&vIsoEcalEB);
@@ -531,6 +562,11 @@ vRun.clear();
 	treeVJ_->Branch("sigmaIeIeEE","sigmaIeIeEE",&vsigmaIeIeEE);
 
 	//Common
+	treeVJ_->Branch("NeutHadIso","NeutHadIso",&vNeutHadIso);
+	treeVJ_->Branch("ChgHadIso","ChgHadIso",&vChgHadIso);
+	treeVJ_->Branch("PhotIso","PhotIso",&vPhotIso);
+	treeVJ_->Branch("CombinedIso","CombinedIso",&vCombinedIso);
+
 	treeVJ_->Branch("fbrem","fbrem",&vfbrem);
 	treeVJ_->Branch("etaSC","etaSC",&vetaSC);
 	treeVJ_->Branch("Dcot","Dcot",&vDcot);
