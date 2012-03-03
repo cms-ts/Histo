@@ -239,12 +239,12 @@ process.isoValElectronWithNeutral.deposits[0].deltaR = 0.3
 process.isoValElectronWithCharged.deposits[0].deltaR = 0.3
 process.isoValElectronWithPhotons.deposits[0].deltaR = 0.3
 process.pfIsolatedElectrons.isolationCut = 0.5
-process.pfAllElectrons.src = "particleFlow:electrons"
+process.pfAllElectrons.src = "particleFlow"
 #process.pfAllElectrons.src = "pfNoPileUp"
 
 
 process.patElectronsForTap=process.patElectrons.clone()
-process.patElectronsForTap.pfElectronSource = "particleFlow:electrons"
+process.patElectronsForTap.pfElectronSource = "particleFlow"
 
 
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
