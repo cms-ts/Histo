@@ -621,7 +621,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
 
-   } else {std::cout << "WARNING: More than two electron selected"<< std::endl;}  
+   } else if (Debug){std::cout << "WARNING: More than two electron selected"<< std::endl;}  
 
    //Fill Unfolding rootuple!
    treeUN_->Fill();
