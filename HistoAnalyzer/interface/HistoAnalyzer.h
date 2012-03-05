@@ -152,6 +152,8 @@ class HistoProducer : public edm::EDProducer {
       std::vector<float> vDcot;
       std::vector<float> vDist;
       std::vector<int> vNumberOfExpectedInnerHits;
+      double HE_bc;
+      double HE_old;
 
       // particle based isolation
       std::vector<int> vNeutHadIso;

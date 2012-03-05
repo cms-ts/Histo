@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.35 2012/02/14 11:02:57 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.36 2012/03/03 17:21:25 montanin Exp $
 //
 //
 
@@ -367,6 +367,8 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		IsoEcal = (itElect->dr03EcalRecHitSumEt () / itElect->et ());
 		IsoHcal = (itElect->dr03HcalTowerSumEt () / itElect->et ());
 		HE = itElect->hadronicOverEm();
+		HE_old = itElect->hadronicOverEm();
+		HE_bc = itElect->hcalOverEcalBc();
 
 		NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso;
 		ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso;
@@ -573,6 +575,8 @@ vRun.clear();
 	treeVJ_->Branch("Dist","Dist",&vDist);
 	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
 	treeVJ_->Branch("Rho","Rho",&vRho);
+	treeVJ_->Branch("HE_bc",&HE_bc,"HE_bc/D");
+	treeVJ_->Branch("HE_old",&HE_old,"HE_old/D");
 
 	//HLT and Prescale
 	treeHLT_->Branch("HLTPaths",&HLTPaths);
