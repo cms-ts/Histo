@@ -40,7 +40,34 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int totJetsCk=0;
    //bool isEB;
    //bool isEE;
-
+   
+   e1_pt  =0;
+   e1_eta =0;
+   e1_phi =0;
+   e1_mass=0;
+   e2_pt  =0;
+   e2_eta =0;
+   e2_phi =0;
+   e2_mass=0;
+   
+   jet1_pt  =0;
+   jet2_pt  =0;
+   jet3_pt  =0;
+   jet4_pt  =0;
+   jet1_eta =0;
+   jet2_eta =0;
+   jet3_eta =0;
+   jet4_eta =0;
+   jet1_phi =0;
+   jet2_phi =0;
+   jet3_phi =0;
+   jet4_phi =0;
+   jet1_mass=0;
+   jet2_mass=0;
+   jet3_mass=0; 
+   jet4_mass=0;
+   jetHt    =0;
+   
    ///////////////////////
    ///// Vertex Analysis
    ///////////////////////
@@ -111,23 +138,6 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       e2_phi =e2.Phi();
       e2_mass=e2.M();
    
-      jet1_pt  =0;
-      jet2_pt  =0;
-      jet3_pt  =0;
-      jet4_pt  =0;
-      jet1_eta =0;
-      jet2_eta =0;
-      jet3_eta =0;
-      jet4_eta =0;
-      jet1_phi =0;
-      jet2_phi =0;
-      jet3_phi =0;
-      jet4_phi =0;
-      jet1_mass=0;
-      jet2_mass=0;
-      jet3_mass=0; 
-      jet4_mass=0;
-      jetHt    =0;
       // ================================
     
       ///////////////////
@@ -629,19 +639,19 @@ jetValidation::beginJob()
   treeUN_->Branch("jet1_pt",&jet1_pt);
   treeUN_->Branch("jet2_pt",&jet2_pt);
   treeUN_->Branch("jet3_pt",&jet3_pt);
-  treeUN_->Branch("jet4_pt",&jet3_pt);
+  treeUN_->Branch("jet4_pt",&jet4_pt);
   treeUN_->Branch("jet1_eta",&jet1_eta);
   treeUN_->Branch("jet2_eta",&jet2_eta);
   treeUN_->Branch("jet3_eta",&jet3_eta);
-  treeUN_->Branch("jet4_eta",&jet3_eta);
+  treeUN_->Branch("jet4_eta",&jet4_eta);
   treeUN_->Branch("jet1_phi",&jet1_phi);
   treeUN_->Branch("jet2_phi",&jet2_phi);
   treeUN_->Branch("jet3_phi",&jet3_phi);
-  treeUN_->Branch("jet4_phi",&jet3_phi);
+  treeUN_->Branch("jet4_phi",&jet4_phi);
   treeUN_->Branch("jet1_mass",&jet1_mass);
   treeUN_->Branch("jet2_mass",&jet2_mass);
   treeUN_->Branch("jet3_mass",&jet3_mass);
-  treeUN_->Branch("jet4_mass",&jet3_mass);
+  treeUN_->Branch("jet4_mass",&jet4_mass);
   treeUN_->Branch("jetHt",&jetHt);
 
 }

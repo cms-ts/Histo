@@ -163,7 +163,6 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
 
 process.goodEPair = cms.EDProducer('ZanalyzerProducer',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
-                                   #electronCollection = cms.InputTag("gsfElectrons"),
                                    removePU=  cms.bool(True),
                                    )
                                    
@@ -175,6 +174,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
+                                       usingPF = cms.untracked.bool(False)
                                        )
                                    
 process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
@@ -185,6 +185,7 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        tpMapName = cms.string('EventWeight'),
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
+                                       usingPF = cms.untracked.bool(False)
                                        )
 
 process.validation = cms.EDAnalyzer('jetValidation',
@@ -195,6 +196,7 @@ process.validation = cms.EDAnalyzer('jetValidation',
                                     tpMapName = cms.string('EventWeight'),
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(False)
                                     )
 
 ####################
@@ -202,7 +204,7 @@ process.validation = cms.EDAnalyzer('jetValidation',
 ###################
 
 process.demo = cms.EDProducer('HistoProducer',
-                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
+                              electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
@@ -217,7 +219,7 @@ process.demo = cms.EDProducer('HistoProducer',
 )
 
 process.demobefore = cms.EDProducer('HistoProducer',
-                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
+                              electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 

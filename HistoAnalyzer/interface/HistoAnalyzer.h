@@ -25,6 +25,7 @@
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 
 // root includes
 #include "TH1.h"
@@ -162,6 +163,12 @@ class HistoProducer : public edm::EDProducer {
       std::vector<float> vDist;
       std::vector<int> vNumberOfExpectedInnerHits;
 
+      // particle based isolation
+      std::vector<int> vNeutHadIso;
+      std::vector<int> vChgHadIso;
+      std::vector<int> vPhotIso;
+      std::vector<int> vCombinedIso;
+
       // PileUp REMOVED variables
       //EB
       std::vector<double> vIsoTrkEB_PUR;
@@ -171,6 +178,8 @@ class HistoProducer : public edm::EDProducer {
       std::vector<double> vIsoTrkEE_PUR;
       std::vector<double> vIsoEcalEE_PUR;
       std::vector<double> vIsoHcalEE_PUR;
+      
+      std::vector<int> vCombinedIso_PUR;
       
       //Run Properties
       int Run;
@@ -220,6 +229,11 @@ class HistoProducer : public edm::EDProducer {
 	vDcot.clear();
 	vDist.clear();
 	vNumberOfExpectedInnerHits.clear();
+	vNeutHadIso.clear();
+	vChgHadIso.clear();
+	vPhotIso.clear();
+	vCombinedIso.clear();
+	vCombinedIso_PUR.clear();
 	//statento che uccido ogni giro anche il vettore stringa!
 	path.clear();
 	vIsoTrkEB_PUR.clear();

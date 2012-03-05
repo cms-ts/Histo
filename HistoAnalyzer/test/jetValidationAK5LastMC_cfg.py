@@ -197,7 +197,7 @@ process.validation = cms.EDAnalyzer('jetValidation',
 ###################
 
 process.demo = cms.EDProducer('HistoProducer',
-                              electronCollection = cms.InputTag('gsfElectrons'),# Change it, sooner or later...
+                              electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
                               TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
