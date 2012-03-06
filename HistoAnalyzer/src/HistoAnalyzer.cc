@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.36 2012/03/03 17:21:25 montanin Exp $
+// $Id: HistoAnalyzer.cc,v 1.37 2012/03/05 15:38:23 schizzi Exp $
 //
 //
 
@@ -76,6 +76,9 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double NeutHadIso;
   double ChgHadIso;
   double PhotIso;
+  double NeutHadIso_ned;
+  double ChgHadIso_ned;
+  double PhotIso_ned;
   double CombinedIso;
   
   //Define ID variables
@@ -335,6 +338,12 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 				vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
 				vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
 				vIsoHcalEB_PUR.push_back(IsoHcal_PUR);
+					   
+				NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
+				ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
+				PhotIso_ned= itElect->pfIsolationVariables().photonIso;
+				CombinedIso_PUR = ((ChgHadIso_ned + PhotIso_ned + NeutHadIso_ned - lepIsoRho*0.096)/ itElect->pt ());
+				vCombinedIsoEB_PUR.push_back(CombinedIso_PUR);
 			}
 			//EE
 			if (fabs (itElect->eta()) >= 1.5660
@@ -349,14 +358,12 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 				vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
 				vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
 				vIsoHcalEE_PUR.push_back(IsoHcal_PUR);
-			}
-			if (fabs (itElect->eta()) <= 1.4442 || (fabs (itElect->eta()) >= 1.5660
-								&& fabs (itElect->eta()) <= 2.5000)){	   
-			   NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso;
-			   ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso;
-			   PhotIso= itElect->pfIsolationVariables().photonIso;
-			   CombinedIso_PUR = ((NeutHadIso + ChgHadIso + PhotIso - 3.*lepIsoRho*0.096)/ itElect->pt ());
-			   vCombinedIso_PUR.push_back(CombinedIso_PUR);
+			   
+				NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
+				ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
+				PhotIso_ned= itElect->pfIsolationVariables().photonIso;
+				CombinedIso_PUR = ((ChgHadIso_ned + PhotIso_ned + NeutHadIso_ned - lepIsoRho*0.096)/ itElect->pt ());
+				vCombinedIsoEE_PUR.push_back(CombinedIso_PUR);
 			}
 		}
 
@@ -370,10 +377,13 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		HE_old = itElect->hadronicOverEm();
 		HE_bc = itElect->hcalOverEcalBc();
 
-		NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso;
-		ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso;
-		PhotIso= itElect->pfIsolationVariables().photonIso;
-		CombinedIso = ((NeutHadIso + ChgHadIso + PhotIso)/ itElect->pt ());
+		NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
+		ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
+		PhotIso_ned= itElect->pfIsolationVariables().photonIso;
+		NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso/ itElect->pt ();
+		ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso/ itElect->pt ();
+		PhotIso= itElect->pfIsolationVariables().photonIso/ itElect->pt ();
+		CombinedIso = ((NeutHadIso_ned + ChgHadIso_ned + PhotIso_ned)/ itElect->pt ());
 
 		//Assign Isolation variables
 		fbrem	= itElect->fbrem();
@@ -410,7 +420,15 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vHEEB.push_back(HE);
 			vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
 			vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
-			vsigmaIeIeEB.push_back(sigmaIeIe);
+			vsigmaIeIeEB.push_back(sigmaIeIe);			
+			
+			vNeutHadIsoEB.push_back(NeutHadIso);
+			vChgHadIsoEB.push_back(ChgHadIso);
+			vPhotIsoEB.push_back(PhotIso);
+			vNeutHadIsoEB_ned.push_back(NeutHadIso_ned);
+			vChgHadIsoEB_ned.push_back(ChgHadIso_ned);
+			vPhotIsoEB_ned.push_back(PhotIso_ned);
+			vCombinedIsoEB.push_back(CombinedIso);
 		}
 		//EE
 		if (fabs (itElect->eta()) >= 1.5660
@@ -434,14 +452,14 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
 			vsigmaIeIeEE.push_back(sigmaIeIe);
 
-		}
-		
-		if (fabs (itElect->eta()) <= 1.4442 || (fabs (itElect->eta()) >= 1.5660
-							&& fabs (itElect->eta()) <= 2.5000)){
-		   vNeutHadIso.push_back(NeutHadIso);
-		   vChgHadIso.push_back(ChgHadIso);
-		   vPhotIso.push_back(PhotIso);
-		   vCombinedIso.push_back(CombinedIso);
+			vNeutHadIsoEE.push_back(NeutHadIso);
+			vChgHadIsoEE.push_back(ChgHadIso);
+			vPhotIsoEE.push_back(PhotIso);
+			vNeutHadIsoEE_ned.push_back(NeutHadIso_ned);
+			vChgHadIsoEE_ned.push_back(ChgHadIso_ned);
+			vPhotIsoEE_ned.push_back(PhotIso_ned);
+			vCombinedIsoEE.push_back(CombinedIso);
+
 		}
 
 		//Common (histo)
@@ -543,7 +561,8 @@ vRun.clear();
 	treeVJ_->Branch("IsoEcalEE_PUR","IsoEcalEE_PUR",&vIsoEcalEE_PUR);
 	treeVJ_->Branch("IsoHcalEE_PUR","IsoHcalEE_PUR",&vIsoHcalEE_PUR);
 
-	treeVJ_->Branch("CombinedIso_PUR","CombinedIso_PUR",&vCombinedIso_PUR);
+	treeVJ_->Branch("CombinedIsoEB_PUR","CombinedIsoEB_PUR",&vCombinedIsoEB_PUR);
+	treeVJ_->Branch("CombinedIsoEE_PUR","CombinedIsoEE_PUR",&vCombinedIsoEE_PUR);
 
 	//EB
 	treeVJ_->Branch("IsoTrkEB","IsoTrkEB",&vIsoTrkEB);
@@ -554,6 +573,14 @@ vRun.clear();
 	treeVJ_->Branch("DeltaEtaTkCluEB","DeltaEtaTkCluEB",&vDeltaEtaTkCluEB);
 	treeVJ_->Branch("sigmaIeIeEB","sigmaIeIeEB",&vsigmaIeIeEB);
 
+	treeVJ_->Branch("NeutHadIsoEB","NeutHadIsoEB",&vNeutHadIsoEB);
+	treeVJ_->Branch("ChgHadIsoEB","ChgHadIsoEB",&vChgHadIsoEB);
+	treeVJ_->Branch("PhotIsoEB","PhotIsoEB",&vPhotIsoEB);
+	treeVJ_->Branch("NeutHadIsoEB_ned","NeutHadIsoEB_ned",&vNeutHadIsoEB_ned);
+	treeVJ_->Branch("ChgHadIsoEB_ned","ChgHadIsoEB_ned",&vChgHadIsoEB_ned);
+	treeVJ_->Branch("PhotIsoEB_ned","PhotIsoEB_ned",&vPhotIsoEB_ned);
+	treeVJ_->Branch("CombinedIsoEB","CombinedIsoEB",&vCombinedIsoEB);
+
 	//EE
 	treeVJ_->Branch("IsoTrkEE","IsoTrkEE",&vIsoTrkEE);
 	treeVJ_->Branch("IsoEcalEE","IsoEcalEE",&vIsoEcalEE);
@@ -563,12 +590,15 @@ vRun.clear();
 	treeVJ_->Branch("DeltaEtaTkCluEE","DeltaEtaTkCluEE",&vDeltaEtaTkCluEE);
 	treeVJ_->Branch("sigmaIeIeEE","sigmaIeIeEE",&vsigmaIeIeEE);
 
-	//Common
-	treeVJ_->Branch("NeutHadIso","NeutHadIso",&vNeutHadIso);
-	treeVJ_->Branch("ChgHadIso","ChgHadIso",&vChgHadIso);
-	treeVJ_->Branch("PhotIso","PhotIso",&vPhotIso);
-	treeVJ_->Branch("CombinedIso","CombinedIso",&vCombinedIso);
+	treeVJ_->Branch("NeutHadIsoEE","NeutHadIsoEE",&vNeutHadIsoEE);
+	treeVJ_->Branch("ChgHadIsoEE","ChgHadIsoEE",&vChgHadIsoEE);
+	treeVJ_->Branch("PhotIsoEE","PhotIsoEE",&vPhotIsoEE);
+	treeVJ_->Branch("NeutHadIsoEE_ned","NeutHadIsoEE_ned",&vNeutHadIsoEE_ned);
+	treeVJ_->Branch("ChgHadIsoEE_ned","ChgHadIsoEE_ned",&vChgHadIsoEE_ned);
+	treeVJ_->Branch("PhotIsoEE_ned","PhotIsoEE_ned",&vPhotIsoEE_ned);
+	treeVJ_->Branch("CombinedIsoEE","CombinedIsoEE",&vCombinedIsoEE);
 
+	//Common
 	treeVJ_->Branch("fbrem","fbrem",&vfbrem);
 	treeVJ_->Branch("etaSC","etaSC",&vetaSC);
 	treeVJ_->Branch("Dcot","Dcot",&vDcot);

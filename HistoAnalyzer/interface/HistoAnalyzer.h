@@ -156,10 +156,22 @@ class HistoProducer : public edm::EDProducer {
       double HE_old;
 
       // particle based isolation
-      std::vector<int> vNeutHadIso;
-      std::vector<int> vChgHadIso;
-      std::vector<int> vPhotIso;
-      std::vector<int> vCombinedIso;
+      // barrel
+      std::vector<double> vNeutHadIsoEB;
+      std::vector<double> vChgHadIsoEB;
+      std::vector<double> vPhotIsoEB;
+      std::vector<double> vNeutHadIsoEB_ned;
+      std::vector<double> vChgHadIsoEB_ned;
+      std::vector<double> vPhotIsoEB_ned;
+      std::vector<double> vCombinedIsoEB;
+      //edncaps
+      std::vector<double> vNeutHadIsoEE;
+      std::vector<double> vChgHadIsoEE;
+      std::vector<double> vPhotIsoEE;
+      std::vector<double> vNeutHadIsoEE_ned;
+      std::vector<double> vChgHadIsoEE_ned;
+      std::vector<double> vPhotIsoEE_ned;
+      std::vector<double> vCombinedIsoEE;
 
       // PileUp REMOVED variables
       //EB
@@ -171,7 +183,8 @@ class HistoProducer : public edm::EDProducer {
       std::vector<double> vIsoEcalEE_PUR;
       std::vector<double> vIsoHcalEE_PUR;
       
-      std::vector<int> vCombinedIso_PUR;
+      std::vector<double> vCombinedIsoEB_PUR;
+      std::vector<double> vCombinedIsoEE_PUR;
 
       //Run Properties
       int Run;
@@ -217,11 +230,21 @@ class HistoProducer : public edm::EDProducer {
 	vDcot.clear();
 	vDist.clear();
 	vNumberOfExpectedInnerHits.clear();
-	vNeutHadIso.clear();
-	vChgHadIso.clear();
-	vPhotIso.clear();
-	vCombinedIso.clear();
-	vCombinedIso_PUR.clear();
+	// particle-based isolation variables
+	vNeutHadIsoEB.clear();
+	vChgHadIsoEB.clear();
+	vPhotIsoEB.clear();
+	vNeutHadIsoEE.clear();
+	vChgHadIsoEE.clear();
+	vPhotIsoEE.clear();
+	vNeutHadIsoEB_ned.clear();
+	vChgHadIsoEB_ned.clear();
+	vPhotIsoEB_ned.clear();
+	vNeutHadIsoEE_ned.clear();
+	vChgHadIsoEE_ned.clear();
+	vPhotIsoEE_ned.clear();
+	vCombinedIsoEB.clear();
+	vCombinedIsoEE.clear();
 	//statento che uccido ogni giro anche il vettore stringa!
 	path.clear();
 	vIsoTrkEB_PUR.clear();
@@ -230,6 +253,9 @@ class HistoProducer : public edm::EDProducer {
 	vIsoTrkEE_PUR.clear();
 	vIsoEcalEE_PUR.clear();
 	vIsoHcalEE_PUR.clear();
+	// particle-based isolation variables
+	vCombinedIsoEE_PUR.clear();
+	vCombinedIsoEB_PUR.clear();
       }
       
 
