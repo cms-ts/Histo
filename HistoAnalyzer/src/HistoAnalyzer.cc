@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.37 2012/03/05 15:38:23 schizzi Exp $
+// $Id: HistoAnalyzer.cc,v 1.38 2012/03/06 10:44:10 montanin Exp $
 //
 //
 
@@ -252,15 +252,18 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 
     if (cold){
       if (WhichRun_=="Run2011B") {
-	LumiWeights_ = edm::Lumi3DReWeighting("Summer11_Generated_Flat10Tail.root", "Data2011B_175832-180252.root", "pileup", "pileup");
+	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011B_175832-180252.root", "PU_intended", "pileup");
 	cout<<"Reweighting using the DATA RUN2011B distribution"<<endl;
       }
       if (WhichRun_=="Run2011A") {
-	LumiWeights_ = edm::Lumi3DReWeighting("Summer11_Generated_Flat10Tail.root", "Data2011A_160404-173692.root", "pileup", "pileup");
+	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011A_160404-173692.root", "PU_intended", "pileup");
 	cout<<"Reweighting using the DATA RUN2011A distribution"<<endl;
       }
-      LumiWeights_.weight3D_init( ScaleFactor );
-      cout<<"Initializing weight3D at Factor Scale ->"<<ScaleFactor<<endl;
+      if (WhichRun_=="Run2011AB") {
+	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011_160404-180252.root", "PU_intended", "pileup");
+	LumiWeights_.weight3D_init( ScaleFactor );
+	cout<<"Initializing weight3D at Factor Scale ->"<<ScaleFactor<<endl;
+      }
       cold=false;
     }
     
@@ -270,13 +273,16 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
       int BX = PVI->getBunchCrossing();
       
       if(BX == -1) { 
-	nm1 = PVI->getPU_NumInteractions();
+	//nm1 = PVI->getPU_NumInteractions();
+	  nm1 =PVI->getTrueNumInteractions();
       }
       if(BX == 0) { 
-	n0 = PVI->getPU_NumInteractions();
+	//n0 = PVI->getPU_NumInteractions();
+	  n0 = PVI->getTrueNumInteractions();
       }
       if(BX == 1) { 
-	np1 = PVI->getPU_NumInteractions();
+	//np1 = PVI->getPU_NumInteractions();
+          np1 = PVI->getTrueNumInteractions();
       }
     }
     double MyWeight3D = LumiWeights_.weight3D( nm1,n0,np1);
@@ -286,8 +292,8 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
     //////// Storing info
     Weight=MyWeight3D;
     if (MyWeight3D>10) {
-      cout<<"You are over-correcting in the MC reweight, HistoAnalyzer.cc!!! Event re corrected by factor 1.0"<<endl;
-      MyWeight3D=1.0;
+    cout<<"You are over-correcting in the MC reweight, HistoAnalyzer.cc!!! Event re corrected by factor 1.0"<<endl;
+    MyWeight3D=1.0;
     }
     EventWeight->push_back(MyWeight3D); 
   }
@@ -312,7 +318,6 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 
 		if (removePU_){
 			double lepIsoRho;
-
 			/////// Pileup density "rho" for lepton isolation subtraction /////
 			edm::Handle<double> rhoLepIso;
 			const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
