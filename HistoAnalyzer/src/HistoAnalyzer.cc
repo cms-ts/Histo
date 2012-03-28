@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.38 2012/03/06 10:44:10 montanin Exp $
+// $Id: HistoAnalyzer.cc,v 1.39 2012/03/28 12:15:52 marone Exp $
 //
 //
 
@@ -261,9 +261,10 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
       }
       if (WhichRun_=="Run2011AB") {
 	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011_160404-180252.root", "PU_intended", "pileup");
-	LumiWeights_.weight3D_init( ScaleFactor );
-	cout<<"Initializing weight3D at Factor Scale ->"<<ScaleFactor<<endl;
+	cout<<"Reweighting using the DATA RUN2011A+Run2011B distribution"<<endl;
       }
+      LumiWeights_.weight3D_init( ScaleFactor );
+      cout<<"Initializing weight3D at Factor Scale ->"<<ScaleFactor<<endl;
       cold=false;
     }
     
