@@ -84,6 +84,10 @@ process.source = cms.Source("PoolSource",
 #### Trigger...
 ###################
 
+trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10")
+
+trigger2011RunB= cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10")
+
 trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v3","HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3","HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v3","HLT_Ele45_CaloIdVT_TrkIdT_v3","HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4")
 
 trigger2010    = cms.vstring("HLT_Ele17_CaloIdl_Ele8_CaloIsoIdL_CaloIsoVL_v3","HLT_Ele15_SW_L1R","HLT_Ele15_SW_CaloEleId_L1R","HLT_Ele17_SW_CaloEleId_L1R","HLT_Ele17_SW_TightEleId_L1R","HLT_Ele17_SW_TightEleId_L1R_v2","HLT_Ele17_SW_TightEleId_L1R_v3","HLT_Photon10_L1R","HLT_Photon15_L1R","HTL_Photon15_Cleaned_L1R")
@@ -111,7 +115,8 @@ process.Selection = cms.EDFilter('ZpatFilterPf',
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(False),
                                  removePU=  cms.bool(False),
-                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
+                                 #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011v2+trigger2010,
+                                 TriggerNames = trigger2011v3,
                                  secondEleEnThrhold   = cms.double(20.0),
                                  firstEleEnThrhold    = cms.double(20.0),
                                  lowZmassLimit        = cms.double(71.0),
@@ -134,17 +139,18 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                            #removePU=  cms.bool(True),
                            WP80_efficiency  =  cms.bool(True),
                            HLTele17_efficiency  =  cms.bool(False),
-                           HLTele8NOTele17_efficiency  =  cms.bool(False),
+                           HLTele8_efficiency  =  cms.bool(False),
                            RECO_efficiency  =  cms.bool(False),
                            New_HE  =  cms.bool(False),
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
                            )
 
-process.TAPwp80_NewHE = cms.EDFilter('EfficiencyFilter',
+process.TAPwp80newHE = cms.EDFilter('EfficiencyFilter',
                            electronCollection = cms.InputTag("patElectronsWithTrigger"),
                            superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                            superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
@@ -155,14 +161,57 @@ process.TAPwp80_NewHE = cms.EDFilter('EfficiencyFilter',
                            #removePU=  cms.bool(True),
                            WP80_efficiency  =  cms.bool(True),
                            HLTele17_efficiency  =  cms.bool(False),
-                           HLTele8NOTele17_efficiency  =  cms.bool(False),
+                           HLTele8_efficiency  =  cms.bool(False),
                            RECO_efficiency  =  cms.bool(False),
                            New_HE  =  cms.bool(True),
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
+                           )
+
+process.TAPhltele8 = cms.EDFilter('EfficiencyFilter',
+                           electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                           superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                           superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                           triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                           filename=cms.untracked.string("ZAnalysisFilter.root"),
+                           UseCombinedPrescales = cms.bool(False),
+                           removePU=  cms.bool(False),
+                           WP80_efficiency  =  cms.bool(False),
+                           HLTele17_efficiency  =  cms.bool(False),
+                           HLTele8_efficiency  =  cms.bool(True),
+                           RECO_efficiency  =  cms.bool(False),
+                           New_HE  =  cms.bool(False),
+                           VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                           electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                           candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
+                           )
+
+process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
+                           electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                           superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                           superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                           triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                           filename=cms.untracked.string("ZAnalysisFilter.root"),
+                           UseCombinedPrescales = cms.bool(False),
+                           removePU=  cms.bool(False),
+                           WP80_efficiency  =  cms.bool(False),
+                           HLTele17_efficiency  =  cms.bool(True),
+                           HLTele8_efficiency  =  cms.bool(False),
+                           RECO_efficiency  =  cms.bool(False),
+                           New_HE  =  cms.bool(False),
+                           VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                           electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                           candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
                            )
 
 process.TAPreco = cms.EDFilter('EfficiencyFilter',
@@ -176,14 +225,15 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                            #removePU=  cms.bool(True),
                            WP80_efficiency  =  cms.bool(False),
                            HLTele17_efficiency  =  cms.bool(False),
-                           HLTele8NOTele17_efficiency  =  cms.bool(False),
+                           HLTele8_efficiency  =  cms.bool(False),
                            RECO_efficiency  =  cms.bool(True),
                            New_HE  =  cms.bool(False),
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
                            )
 
 
@@ -265,7 +315,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               electronCollection = cms.InputTag('patElectronsWithTrigger'),
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
-                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03, 
+                              #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03,
+                              TriggerNames = trigger2011v3,
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(True),
                               doTheHLTAnalysis = cms.bool(False),
@@ -299,7 +350,7 @@ process.patElectronsForTap.pfElectronSource = "particleFlow"
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
                                              src     = cms.InputTag( "patElectrons" ),
                                              matched = cms.InputTag( "patTrigger"),##patTriggerObjectStandAlones_patTrigger__PAT
-                                             matchedCuts = cms.string('(path("HLT_Ele17*Ele8*",0,0) && filter("hlt*") )'),
+                                             matchedCuts = cms.string('path("HLT_Ele17*Ele8*",0,0)'),
                                              maxDPtRel = cms.double( 5 ),
                                              maxDeltaR = cms.double( 0.3 ),
                                              resolveAmbiguities    = cms.bool( True ),
@@ -406,8 +457,7 @@ process.TAPAnalysisWP80 = cms.Path(
     process.patElectronsWithTrigger*
     process.TAPwp80
     )
-
-process.TAPAnalysisWP80_NewHE = cms.Path(
+process.TAPAnalysisWP80newHE = cms.Path(
     process.kt6PFJetsForIsolation*
     process.kt6PFJets*
     process.ak5PFJets*
@@ -420,7 +470,38 @@ process.TAPAnalysisWP80_NewHE = cms.Path(
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
-    process.TAPwp80_NewHE
+    process.TAPwp80newHE
+    )
+process.TAPAnalysisHLTele8 = cms.Path(
+    process.kt6PFJetsForIsolation*
+    process.kt6PFJets*
+    process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
+    process.patTrigger*
+    process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPhltele8
+    )
+
+process.TAPAnalysisHLTele17 = cms.Path(
+    process.kt6PFJetsForIsolation*
+    process.kt6PFJets*
+    process.ak5PFJets*
+    process.pfNoPileUpSequence*
+    process.pfAllNeutralHadrons*
+    process.pfAllChargedHadrons*
+    process.pfAllPhotons*
+    process.pfElectronSequence*
+    process.patTrigger*
+    process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPhltele17
     )
 
 process.TAPAnalysisRECO = cms.Path(
