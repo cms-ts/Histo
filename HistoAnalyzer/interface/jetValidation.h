@@ -96,6 +96,8 @@ class jetValidation : public edm::EDAnalyzer {
 
       //Unfolding Rootple and members
       TTree* treeUN_;
+
+      double evWeight;
       double Z_pt;
       double Z_y;
       int Jet_multiplicity;

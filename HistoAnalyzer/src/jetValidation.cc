@@ -29,7 +29,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle< std::vector<float> > weight;
   iEvent.getByLabel("demo","EventWeight",weight);
   const std::vector<float> & myweight=*weight;
-
+  evWeight = myweight[0];
+  
    //IMPORTANTE  
    numberOfVertices=0;
    
@@ -636,6 +637,8 @@ jetValidation::beginJob()
   treeUN_= new TTree("treeUN_","treeUN_");
   
   //EB PileUp REMOVED
+
+  treeUN_->Branch("evWeight",&evWeight);
   treeUN_->Branch("Z_pt",&Z_pt);
   treeUN_->Branch("Z_y",&Z_y);
   treeUN_->Branch("Jet_multiplicity",&Jet_multiplicity);
