@@ -87,6 +87,8 @@ process.source = cms.Source("PoolSource",
 #### Trigger
 ###################
 
+trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v1","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v2","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v4","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v5","HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8","HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10")
+
 trigger2011RunB= cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v9", "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10")
 
 trigger2011v1  = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v3","HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v3","HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v3","HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3","HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2","HLT_Ele32_CaloIdL_CaloIsoVL_SC17_v3","HLT_Ele45_CaloIdVT_TrkIdT_v3","HLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau15_v4","HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v4")
@@ -114,7 +116,8 @@ process.Selection = cms.EDFilter('ZpatFilterPf',
                                  UseCombinedPrescales = cms.bool(False),
                                  doTheHLTAnalysis = cms.bool(True),
                                  removePU=  cms.bool(False),
-                                 TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
+                                 #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
+                                 TriggerNames = trigger2011v3,
                                  secondEleEnThrhold   = cms.double(20.0),
                                  firstEleEnThrhold    = cms.double(20.0),
                                  lowZmassLimit        = cms.double(71.0),
@@ -144,7 +147,8 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
+                           TriggerNames = trigger2011v3
                            )
 
 process.TAPwp80newHE = cms.EDFilter('EfficiencyFilter',
@@ -164,7 +168,8 @@ process.TAPwp80newHE = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
                            )
 
 process.TAPhltele8 = cms.EDFilter('EfficiencyFilter',
@@ -184,7 +189,8 @@ process.TAPhltele8 = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3       
                            )
 
 process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
@@ -204,7 +210,8 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
                            )
 
 process.TAPreco = cms.EDFilter('EfficiencyFilter',
@@ -224,7 +231,8 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
                            JetCollectionLabel = cms.InputTag("ak5PFJets"),
-                           TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
+                           TriggerNames = trigger2011v3
                            )
 
 ####################
@@ -304,7 +312,8 @@ process.demo = cms.EDProducer('HistoProducer',
                               electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
                               triggerCollection = cms.InputTag("TriggerResults","","HLT"),
                               UseCombinedPrescales = cms.bool(False),
-                              TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
+                              #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB, 
+                              TriggerNames = trigger2011v3,
                               removePU=  cms.bool(True),
                               usingMC=  cms.bool(False),
                               doTheHLTAnalysis = cms.bool(True),
