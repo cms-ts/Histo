@@ -1,0 +1,31 @@
+First... make a tag on 44X
+
+ setjet44   #Go inside the 44 area
+
+ 1294  cvs diff
+ 1296  cvs update
+ 1302  cvs tag Feb14_v11 Histo                  # it creates a tag of the available code, dir by dir  
+ 1303  cvs tag Feb14_v11 VecBosSelection/       # it creates a tag of the available code
+
+
+ 1305  setjet
+ 1308  cvs diff 
+
+Creatinh  branch 42
+
+ 1310  cvs tag -r Feb14_v11 -b branch_4_2 Histo/
+ 1311  cvs tag -r Feb14_v11 -b branch_4_2 VecBosSelection/
+
+ 1314  cvs commit -r branch_4_2 -m "New branch to save 42X version"
+ 1315  cvs commit -r branch_4_2 -m "New branch to save 42X version" Histo/
+ 1333  cvs commit -r branch_4_2 -m "New branch to save 42X version" VecBosSelection/
+
+Create a TAG
+
+1) main
+
+simply typing: cvs tag nomedellatag whateveryouwonnatag
+
+2) branch
+
+cvs tag -b -r branch_4_2 nomedellatag whateveryouwonnatag
