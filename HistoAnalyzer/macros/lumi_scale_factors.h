@@ -1,8 +1,21 @@
 // Montecarlo scale factors for 2011A Run
 // search here https://cmsweb.cern.ch/das/
+
 // integrated cross sections expressed in pb
 double dataLumi2011A = 2046.769; double dataXsect = 3048.0;
 double dataLumi2011B = 2579.073; //9 febbraio 2012
+double dataLumi2011 = dataLumi2011A + dataLumi2011B;
+
+//Repro using pixelcalc 42X
+double dataLumi2011Apix = 2200; //double dataXsect = 3048.0;
+double dataLumi2011Bpix = 2707; //9 febbraio 2012   
+double dataLumi2011pix = dataLumi2011Apix + dataLumi2011Bpix;
+
+
+//Repro using pixelcalc 44X                                                                                                                                                      
+//double dataLumi2011A = 2285; double dataXsect = 3048.0;
+//double dataLumi2011B = 2733; //5 marzo 2012      
+
 double zjetsXsect = 3048.0;	double zjetsNevts = 36277961; // /DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
 double wjetsXsect = 31314.0;	double wjetsNevts = 81352581; // /WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
 double ttbarXsect = 157.0;	double ttbarNevts = 3701947; // /TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM
