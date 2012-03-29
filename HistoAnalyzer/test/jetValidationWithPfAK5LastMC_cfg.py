@@ -194,7 +194,7 @@ process.TAPhltele8 = cms.EDFilter('EfficiencyFilter',
                            )
 
 process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
-                           electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                           electronCollection = cms.InputTag("patElectronsWithTriggerele17"),
                            superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                            superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
                            triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
@@ -346,24 +346,41 @@ process.pfAllElectrons.src = "particleFlow"
 process.patElectronsForTap=process.patElectrons.clone()
 process.patElectronsForTap.pfElectronSource = "particleFlow"
 
-
+### ELE8
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
                                              src     = cms.InputTag( "patElectrons" ),
-                                             matched = cms.InputTag( "patTrigger"),##patTriggerObjectStandAlones_patTrigger__PAT
-                                             matchedCuts = cms.string('path("HLT_Ele17*Ele8*",0,0)'),
+                                             matched = cms.InputTag( "patTrigger"),
+                                             matchedCuts = cms.string('(path("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*",0,0) && filter("hltEle17CaloIdIsoEle8CaloIdIsoPixelMatchDoubleFilter")) || (path("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",0,0) && filter("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsolDoubleFilter"))'),
                                              maxDPtRel = cms.double( 5 ),
                                              maxDeltaR = cms.double( 0.3 ),
                                              resolveAmbiguities    = cms.bool( True ),
                                              resolveByMatchQuality = cms.bool( True )
                                              )
 
-### patElectronsWithTrigger ###########################################
 process.patElectronsWithTrigger = cms.EDProducer("PATTriggerMatchElectronEmbedder",
                                                     src     = cms.InputTag("patElectrons"),
                                                     matches = cms.VInputTag(cms.InputTag('eleTriggerMatchHLT'))
                                                  )
 
 switchOnTriggerMatching( process, ['eleTriggerMatchHLT' ],sequence ='patDefaultSequence', hltProcess = '*' )
+
+### ELE17
+process.eleTriggerMatchHLTele17 = cms.EDProducer( "PATTriggerMatcherDRLessByR",
+                                             src     = cms.InputTag( "patElectrons" ),
+                                             matched = cms.InputTag( "patTrigger"),
+                                             matchedCuts = cms.string('(path("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*",0,0) && filter("hltEle17CaloIdLCaloIsoVLPixelMatchFilter")) || (path("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",0,0) && filter("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsolFilter"))'),
+                                             maxDPtRel = cms.double( 5 ),
+                                             maxDeltaR = cms.double( 0.3 ),
+                                             resolveAmbiguities    = cms.bool( True ),
+                                             resolveByMatchQuality = cms.bool( True )
+                                             )
+
+process.patElectronsWithTriggerele17 = cms.EDProducer("PATTriggerMatchElectronEmbedder",
+                                                    src     = cms.InputTag("patElectrons"),
+                                                    matches = cms.VInputTag(cms.InputTag('eleTriggerMatchHLTele17'))
+                                                 )
+
+switchOnTriggerMatching( process, ['eleTriggerMatchHLTele17' ],sequence ='patDefaultSequence', hltProcess = '*' )
 
 
 #####################
@@ -499,8 +516,8 @@ process.TAPAnalysisHLTele17 = cms.Path(
     process.pfElectronSequence*
     process.patTrigger*
     process.patDefaultSequence*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*
+    process.eleTriggerMatchHLTele17*
+    process.patElectronsWithTriggerele17*
     process.TAPhltele17
     )
 
