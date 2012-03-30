@@ -324,23 +324,29 @@ process.demo = cms.EDProducer('HistoProducer',
 )
 
 
+
 ######################
 #                    #
-#  TRG MATCHING -ON- #
+#    pfElectrons     #
 #                    #
 ######################
 
+
+process.pfPileUp.PFCandidates = cms.InputTag("particleFlow")
+process.pfNoPileUp.bottomCollection = cms.InputTag("particleFlow")
 process.patElectrons.useParticleFlow=True
 process.isoValElectronWithNeutral.deposits[0].deltaR = 0.4
 process.isoValElectronWithCharged.deposits[0].deltaR = 0.4
 process.isoValElectronWithPhotons.deposits[0].deltaR = 0.4
 process.pfIsolatedElectrons.isolationCut = 0.2
-process.pfAllElectrons.src = "particleFlow"
-#process.pfAllElectrons.src = "pfNoPileUp"
+#process.pfAllElectrons.src = "particleFlow"
+process.pfAllElectrons.src = "pfNoPileUp"
 
-
-process.patElectronsForTap=process.patElectrons.clone()
-process.patElectronsForTap.pfElectronSource = "particleFlow"
+######################
+#                    #
+#  TRG MATCHING -ON- #
+#                    #
+######################
 
 ### ELE8
 process.eleTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRLessByR",
