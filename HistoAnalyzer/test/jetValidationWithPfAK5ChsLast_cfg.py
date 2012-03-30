@@ -149,7 +149,7 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
                            TriggerNames = trigger2011v3
                            )
@@ -170,7 +170,7 @@ process.TAPwp80newHE = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3
                            )
@@ -191,7 +191,7 @@ process.TAPhltele8 = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3       
                            )
@@ -212,7 +212,7 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3
                            )
@@ -233,7 +233,7 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFJets"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3
                            )
@@ -562,97 +562,11 @@ process.TotalEventCounter = cms.EDProducer("EventCountProducer")
 #                   #
 #####################
 
-process.TAPAnalysisWP80 = cms.Path(
+process.ToolInizialization = cms.Path(
     process.kt6PFJetsForIsolation*
     process.kt6PFJets*
     process.ak5PFJets*
-    process.goodOfflinePrimaryVertices*
-    process.pfNoPileUpSequence*
-    process.pfAllNeutralHadrons*
-    process.pfAllChargedHadrons*
-    process.pfAllPhotons*
-    process.pfElectronSequence*
-    process.patTrigger*
-    process.patDefaultSequence*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*
-    process.TAPwp80
-    )
-
-process.TAPAnalysisWP80newHE = cms.Path(
-    process.kt6PFJetsForIsolation*
-    process.kt6PFJets*
-    process.ak5PFJets*
-    process.goodOfflinePrimaryVertices*
-    process.pfNoPileUpSequence*
-    process.pfAllNeutralHadrons*
-    process.pfAllChargedHadrons*
-    process.pfAllPhotons*
-    process.pfElectronSequence*
-    process.patTrigger*
-    process.patDefaultSequence*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*
-    process.TAPwp80newHE
-    )
-
-process.TAPAnalysisHLTele8 = cms.Path(
-    process.kt6PFJetsForIsolation*
-    process.kt6PFJets*
-    process.ak5PFJets*
-    process.goodOfflinePrimaryVertices*
-    process.pfNoPileUpSequence*
-    process.pfAllNeutralHadrons*
-    process.pfAllChargedHadrons*
-    process.pfAllPhotons*
-    process.pfElectronSequence*
-    process.patTrigger*
-    process.patDefaultSequence*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*
-    process.TAPhltele8
-    )
-
-process.TAPAnalysisHLTele17 = cms.Path(
-    process.kt6PFJetsForIsolation*
-    process.kt6PFJets*
-    process.ak5PFJets*
-    process.goodOfflinePrimaryVertices*
-    process.pfNoPileUpSequence*
-    process.pfAllNeutralHadrons*
-    process.pfAllChargedHadrons*
-    process.pfAllPhotons*
-    process.pfElectronSequence*
-    process.patTrigger*
-    process.patDefaultSequence*
-    process.eleTriggerMatchHLTele17*
-    process.patElectronsWithTriggerele17*
-    process.TAPhltele17
-    )
-
-process.TAPAnalysisRECO = cms.Path(
-    process.kt6PFJetsForIsolation*
-    process.kt6PFJets*
-    process.ak5PFJets*
-    process.goodOfflinePrimaryVertices*
-    process.pfNoPileUpSequence*
-    process.pfAllNeutralHadrons*
-    process.pfAllChargedHadrons*
-    process.pfAllPhotons*
-    process.pfElectronSequence*
-    process.patTrigger*
-    process.patDefaultSequence*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*
-    process.TAPreco
-    )
-
-process.JetValidation = cms.Path(
-    process.TotalEventCounter*
-    process.kt6PFJetsForIsolation*
-    #process.kt6PFJets*
-#    #process.kt6PFJets*
-    #process.ak5PFJets*
+    process.ak5PFJetsL1FastL2L3Residual*
     process.goodOfflinePrimaryVertices*
     process.pfNoPileUpSequence*
     process.pfAllNeutralHadrons*
@@ -662,21 +576,51 @@ process.JetValidation = cms.Path(
     process.pfNoElectron*
     process.patTrigger*
     process.patDefaultSequence*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*     
-    process.Selection*
-    process.demo*
-    process.goodEPair*
-    process.ak5PFJets*
-    process.ak5PFJetsL2L3Residual*
-    process.validationL2L3Residual*
-    process.ak5PFJetsL1FastL2L3Residual*
     process.ak5PFJetsRC*
     process.ak5PFchsJetsRCL1FastL2L3Residual*
     process.ak5PFJetsOLD*
     process.ak5PFJetsOLDL1FastL2L3Residual*
     process.ak5PFJetsPU*
-    process.ak5PFchsJetsPUL1FastL2L3Residual*
+    process.ak5PFchsJetsPUL1FastL2L3Residual
+    )
+
+process.TAPAnalysisWP80 = cms.Path(
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPwp80
+    )
+
+process.TAPAnalysisWP80newHE = cms.Path(
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPwp80newHE
+    )
+
+process.TAPAnalysisHLTele8 = cms.Path(
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPhltele8
+    )
+
+process.TAPAnalysisHLTele17 = cms.Path(
+    process.eleTriggerMatchHLTele17*
+    process.patElectronsWithTriggerele17*
+    process.TAPhltele17
+    )
+
+process.TAPAnalysisRECO = cms.Path(
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.TAPreco
+    )
+
+process.JetValidation = cms.Path(
+    process.TotalEventCounter*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*     
+    process.Selection*
+    process.demo*
+    process.goodEPair*
     #process.reclusValidationJEC*
     process.validationOldJEC*
     process.validationPUJEC*
