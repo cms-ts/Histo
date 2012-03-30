@@ -31,6 +31,9 @@ public :
    Double_t        Z_pt_gen;
    Double_t        Z_y_gen;
    Int_t           Jet_multiplicity_gen;
+   Double_t        jet1_pt;
+   Double_t        jet1_pt_gen;
+
 
    // List of branches
    TBranch        *b_Z_pt;   //!
@@ -39,6 +42,8 @@ public :
    TBranch        *b_Z_pt_gen;   //!
    TBranch        *b_Z_y_gen;   //!
    TBranch        *b_Jet_multiplicity_gen;   //!
+   TBranch        *b_jet1_pt;
+   TBranch        *b_jet1_pt_gen;
 
    Unfolding(TTree *tree=0);
    virtual ~Unfolding();
@@ -50,6 +55,7 @@ public :
    virtual void     LoopZpt();
    virtual void     LoopZy();
    virtual void     Loop();
+   virtual void     LoopJetPt();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -122,6 +128,9 @@ void Unfolding::Init(TTree *tree)
    fChain->SetBranchAddress("Z_pt_gen", &Z_pt_gen, &b_Z_pt_gen);
    fChain->SetBranchAddress("Z_y_gen", &Z_y_gen, &b_Z_y_gen);
    fChain->SetBranchAddress("Jet_multiplicity_gen", &Jet_multiplicity_gen, &b_Jet_multiplicity_gen);
+   fChain->SetBranchAddress("jet1_pt", &jet1_pt, &b_jet1_pt);
+   fChain->SetBranchAddress("jet1_pt_gen", &jet1_pt_gen, &b_jet1_pt_gen);
+  
    Notify();
 }
 
