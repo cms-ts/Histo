@@ -21,29 +21,42 @@
 
 #include "lumi_scale_factors.h"
 
-bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
+bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata//
+bool WholeStat= true;                // if true, reweing on RunA lumi, if false, on the whole stat. if true, the other variabs are uneffective, except lumipixel 
+bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
+bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-string plotpath		="/tmp/marone"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_11.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v2_11.root"; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v2_11.root"; 
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v2_11.root";
+string plotpath		="/tmp/marone/"; //put here the path where you want the plots
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17pf.root";
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17pf.root"; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011_v2_17pf.root"; 
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
-string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v2_11.root";
-string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v2_11.root";
-string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v2_11.root";
-string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root";
-string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_EMEnriched_v2_11.root";
-string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_EMEnriched_v2_11.root";
+string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+
+string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17.root";
+string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17.root";
+string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17.root";
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
 double ttwemean=140.;
+double wzwemean=120;
+double zzwemean=120;
+double wwwemean=120;
 
 double dataNumEvents=-999;
 double zNumEvents=-999; //lo definisco globale anche se non Ã¨ la cosa piÃ¹ bella da fare
 double ttNumEvents=-999; //questo lavoro andrebbe fatto anche per i qcd... 
 double wNumEvents=-999; //al momento non l'ho fatto perchÃ© passano 0 eventi e e' gran smeno
+double wzEvents=-999; 
+double zzEvents=-999; 
+double wwEvents=-999; 
 
 using namespace std;
 
@@ -72,8 +85,10 @@ void DrawComparisonJetMCData(void){
 	zNumEvents = numEventsPerStep(mcfile, "demo"); 
 	ttNumEvents = numEventsPerStep(back_ttbar, "demo"); 
 	wNumEvents = numEventsPerStep(back_w, "demo"); 
+	wzEvents = numEventsPerStep(WZ, "demo"); 
+	zzEvents = numEventsPerStep(ZZ, "demo"); 
+	wwEvents = numEventsPerStep(WW, "demo"); 
 	// ---------------------------------------------------
-
 
 	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
 	mcf->cd("validationJEC/");
@@ -102,6 +117,9 @@ void DrawComparisonJetMCData(void){
 		TFile *mcf = TFile::Open(mcfile.c_str()); 
 		TFile *ttbarf = TFile::Open(back_ttbar.c_str()); 
 		TFile *wf = TFile::Open(back_w.c_str());
+		TFile *wzf = TFile::Open(WZ.c_str());
+		TFile *zzf = TFile::Open(ZZ.c_str());
+		TFile *wwf = TFile::Open(WW.c_str());
 
 		TCanvas * Canv = (TCanvas*)gDirectory->GetList()->FindObject("Canv");
 		if (Canv) delete Canv;
@@ -149,7 +167,45 @@ void DrawComparisonJetMCData(void){
 		tmpname=plotpath+name+"-wjets.png";
 		Canv->Print(tmpname.c_str());
 		}
-	
+
+		//---- weights
+		wzf->cd("validationJEC");
+		TH1F* wz;
+		gDirectory->GetObject(name.c_str(),wz);
+		if(wz){
+		wz->SetFillColor(kYellow+2);
+		wz->GetXaxis()->SetRangeUser(0.,2.);
+		wz->Draw();
+		wzwemean = w->GetMean();
+		tmpname=plotpath+name+"-wzjets.png";
+		Canv->Print(tmpname.c_str());
+		}	
+
+		//---- weights
+		zzf->cd("validationJEC");
+		TH1F* zz;
+		gDirectory->GetObject(name.c_str(),zz);
+		if(zz){
+		zz->SetFillColor(kOrange+2);
+		zz->GetXaxis()->SetRangeUser(0.,2.);
+		zz->Draw();
+		zzwemean = w->GetMean();
+		tmpname=plotpath+name+"-zzjets.png";
+		Canv->Print(tmpname.c_str());
+		}
+
+		//---- weights
+		wwf->cd("validationJEC");
+		TH1F* www;
+		gDirectory->GetObject(name.c_str(),www);
+		if(www){
+		www->SetFillColor(kBlack);
+		www->GetXaxis()->SetRangeUser(0.,2.);
+		www->Draw();
+		wwwemean = www->GetMean();
+		tmpname=plotpath+name+"-wwwjets.png";
+		Canv->Print(tmpname.c_str());
+		}		
 
 		}
 		else comparisonJetMCData(name,1);
@@ -173,7 +229,16 @@ void DrawComparisonJetMCData(void){
 	
 	if(wNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
 	else cout << "Il numero di eventi di W+jets " << wNumEvents << "\n";
-	
+
+	if(wzEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di ZW+jets " << wzEvents << "\n";
+
+	if(zzEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di ZZ+jets " << zzEvents << "\n";	
+
+	if(wwEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di WW+jets " << wwEvents << "\n";
+
 	return;
 }
 
@@ -193,6 +258,7 @@ void comparisonJetMCData(string plot,int rebin){
 	TFile *ttbarf = TFile::Open(back_ttbar.c_str()); //MC background file
 	TFile *wf = TFile::Open(back_w.c_str());
 
+
 	TFile *qcd23emf = TFile::Open(qcd23em.c_str());
 	TFile *qcd38emf = TFile::Open(qcd38em.c_str());
 	TFile *qcd817emf = TFile::Open(qcd817em.c_str());
@@ -201,7 +267,9 @@ void comparisonJetMCData(string plot,int rebin){
 	TFile *qcd38bcf = TFile::Open(qcd38bc.c_str());
 	TFile *qcd817bcf = TFile::Open(qcd817bc.c_str());
 
-
+	TFile *WZf = TFile::Open(WZ.c_str());
+	TFile *ZZf = TFile::Open(ZZ.c_str());
+	TFile *WWf = TFile::Open(WW.c_str());
 
 	// Canvas
 	TCanvas * Canv = (TCanvas*)gDirectory->GetList()->FindObject("Canv");
@@ -316,12 +384,28 @@ void comparisonJetMCData(string plot,int rebin){
 		
 		// Blocco da propagare negli altri MC
 		if(zNumEvents>0.){
-			if(lumiweights==1) mc->Scale( dataLumi2011A / (zNumEvents / zjetsXsect));
-		} else {
-			if(lumiweights==1) mc->Scale(zjetsScale);
+		  if(lumiweights==1) {
+		    if (WholeStat){
+		      if (lumiPixel) mc->Scale( dataLumi2011pix / (zNumEvents / zjetsXsect));
+		      else mc->Scale( dataLumi2011 / (zNumEvents / zjetsXsect));
+		    }
+		    else{
+		      if (RunA){
+			if (lumiPixel) mc->Scale( dataLumi2011Apix / (zNumEvents / zjetsXsect));
+			else mc->Scale( dataLumi2011A / (zNumEvents / zjetsXsect));
+		      }
+		      if (!RunA){
+			if (lumiPixel) mc->Scale( dataLumi2011Bpix / (zNumEvents / zjetsXsect));
+			else mc->Scale( dataLumi2011B / (zNumEvents / zjetsXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) mc->Scale(zjetsScale);
 		}
 		// fin qui
-
+		
 		if(lumiweights==1) mc->Scale(1./zwemean);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
@@ -378,6 +462,126 @@ void comparisonJetMCData(string plot,int rebin){
 		if(lumiweights==1)legend->AddEntry(w,"W+jets","f");
 		}
 
+ 		//======================
+ 		// wz+jets
+ 		WZf->cd("validationJEC");
+ 		TH1F* wz;
+ 		gDirectory->GetObject(plot.c_str(),wz);
+ 		if(wz){
+ 		wz->SetFillColor(kYellow+2);
+ 		wz->Sumw2();
+
+ 		if(wzEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) wz->Scale( dataLumi2011pix / (wzEvents / WZXsect));
+ 		      else wz->Scale( dataLumi2011 / (wzEvents / WZXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) wz->Scale( dataLumi2011Apix / (wzEvents / WZXsect));
+ 			else wz->Scale( dataLumi2011A / (wzEvents / WZXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) wz->Scale( dataLumi2011Bpix / (wzEvents / WZXsect));
+			else wz->Scale( dataLumi2011B / (wzEvents / WZXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) wz->Scale(wzjetsScale);
+		}
+		// fin qui
+		
+		if(lumiweights==1) wz->Scale(1./wzwemean);  // perche' i Weights non fanno 1...
+		wz->Rebin(rebin);
+		if(lumiweights==0) wz->Draw("HISTO SAMES");
+		hsum->Rebin(rebin);
+		hsum->Add(wz);
+		legend->AddEntry(wz,"WZ+jets","f");
+		}
+		
+	//======================
+ 		// zz+jets
+ 		ZZf->cd("validationJEC");
+ 		TH1F* zz;
+ 		gDirectory->GetObject(plot.c_str(),zz);
+ 		if(zz){
+ 		zz->SetFillColor(kOrange+2);
+ 		zz->Sumw2();
+
+ 		if(zzEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) zz->Scale( dataLumi2011pix / (zzEvents / ZZXsect));
+ 		      else zz->Scale( dataLumi2011 / (zzEvents / ZZXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) zz->Scale( dataLumi2011Apix / (zzEvents / ZZXsect));
+ 			else zz->Scale( dataLumi2011A / (zzEvents / ZZXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) zz->Scale( dataLumi2011Bpix / (zzEvents / ZZXsect));
+			else zz->Scale( dataLumi2011B / (zzEvents / ZZXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) zz->Scale(zzjetsScale);
+		}
+		// fin qui
+		
+		if(lumiweights==1) zz->Scale(1./zzwemean);  // perche' i Weights non fanno 1...
+		zz->Rebin(rebin);
+		if(lumiweights==0) zz->Draw("HISTO SAMES");
+		//hsum->Rebin(rebin);
+		hsum->Add(zz);
+		legend->AddEntry(zz,"ZZ+jets","f");
+		}
+
+	//======================
+ 		// ww+jets
+ 		WWf->cd("validationJEC");
+ 		TH1F* ww;
+ 		gDirectory->GetObject(plot.c_str(),ww);
+ 		if(ww){
+ 		ww->SetFillColor(kBlack);
+ 		ww->Sumw2();
+
+ 		if(wwEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) ww->Scale( dataLumi2011pix / (wwEvents / WWXsect));
+ 		      else ww->Scale( dataLumi2011 / (wwEvents / WWXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) ww->Scale( dataLumi2011Apix / (wwEvents / WWXsect));
+ 			else ww->Scale( dataLumi2011A / (wwEvents / WWXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) ww->Scale( dataLumi2011Bpix / (wwEvents / WWXsect));
+			else ww->Scale( dataLumi2011B / (wwEvents / WWXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) ww->Scale(wwjetsScale);
+		}
+		// fin qui
+		
+		if(lumiweights==1) ww->Scale(1./wwwemean);  // perche' i Weights non fanno 1...
+		ww->Rebin(rebin);
+		if(lumiweights==0) ww->Draw("HISTO SAMES");
+		//hsum->Rebin(rebin);
+		hsum->Add(ww);
+		legend->AddEntry(ww,"WW+jets","f");
+		}
+		
 		//======================
 		// QCD EM enriched
 		qcd23emf->cd("validationJEC");
@@ -469,9 +673,13 @@ void comparisonJetMCData(string plot,int rebin){
 		// Stacked Histogram
 		//if(qcd23em) 	hs->Add(qcdTotEM);
 		//if(qcd23bc) 	hs->Add(qcdTotBC);
-		if(w)  		hs->Add(w);
-		if(ttbar)	hs->Add(ttbar);
+		if (ww)         hs->Add(ww);
+		if (ttbar)	hs->Add(ttbar);
+		if (zz)         hs->Add(zz);
+		if (wz)         hs->Add(wz);
+		if(w)  	        hs->Add(w);
 		if(mc)		hs->Add(mc); //Z+Jets
+
 		
 		// per avere le statistiche
 		if(lumiweights==1) hsum->Draw("HISTO SAMES");
@@ -496,7 +704,7 @@ void comparisonJetMCData(string plot,int rebin){
 		lumi->SetFillColor(0);
 		lumi->SetFillStyle(0);
 		lumi->SetBorderSize(0);
-		lumi->AddEntry((TObject*)0,"L=2.050 1/fb",""); // mean on Y
+		lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
 		lumi->Draw();
 		Canv->Update();
 
@@ -630,6 +838,8 @@ void comparisonJetMCData(string plot,int rebin){
 	qcd23bcf->Close();
 	qcd38bcf->Close();
 	qcd817bcf->Close();
+	WZf->Close();
+	ZZf->Close();
 
 
 	return;
