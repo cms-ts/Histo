@@ -26,7 +26,10 @@ double qcdBC23Xsect = 2.361e8 * 5.9E-4;	double qcdBC23Nevts = 2081560; // /QCD_P
 double qcdBC38Xsect = 5.944e7 * 0.00242;double qcdBC38Nevts = 2030033; // /QCD_Pt-30to80_BCtoE_TuneZ2_7TeV-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM
 double qcdBC817Xsect = 898200.0 * 0.0105;double qcdBC817Nevts = 1082691; // /QCD_Pt-80to170_BCtoE_TuneZ2_7TeV-pythia/Summer11-PU_S4_START42_V11-v1/AODSIM
 
-
+//Dibosons bkg
+double WZXsect= 18.2; double zwjetsNevts=4265243;
+double ZZXsect= 5.9; double zzjetsNevts=4191045;
+double WWXsect= 43.0; double wwjetsNevts=4225916;
 
 //======================================//
 //		Calc ratios		//
@@ -35,6 +38,9 @@ double qcdBC817Xsect = 898200.0 * 0.0105;double qcdBC817Nevts = 1082691; // /QCD
 double zjetsScale = dataLumi2011A / (zjetsNevts / zjetsXsect);
 double ttbarScale = dataLumi2011A / (ttbarNevts / ttbarXsect);
 double wjetsScale = dataLumi2011A / (wjetsNevts / wjetsXsect);
+double wzjetsScale = dataLumi2011A / (zwjetsNevts / WZXsect);
+double zzjetsScale = dataLumi2011A / (zzjetsNevts / ZZXsect);
+double wwjetsScale = dataLumi2011A / (wwjetsNevts / WWXsect);
 
 double qcd23emScale = dataLumi2011A / (qcdEM23Nevts / qcdEM23Xsect);
 double qcd38emScale = dataLumi2011A / (qcdEM38Nevts / qcdEM38Xsect);
