@@ -1,4 +1,4 @@
-//#include "tdrstyle.C"
+#include "tdrStyle.C"
 
 #include <TROOT.h>
 #include "TStyle.h"
@@ -39,9 +39,9 @@ string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v
 string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
-string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17.root";
-string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17.root";
-string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17.root";
+string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17pf.root";
+string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17pf.root";
+string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17pf.root";
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
@@ -77,8 +77,8 @@ void DrawComparisonJetMCData(void){
 
 	gROOT->Reset();
 	gROOT->ForceStyle();
-	//gROOT->LoadMacro("tdrstyle.C++");
-	//	tdrstyle();
+	gROOT->LoadMacro("tdrStyle.C++");
+	tdrStyle();
 
 	// Recupero l'informazione sul numero di eventi processati per singolo MC
 	dataNumEvents = numEventsPerStep(datafile, "demo"); 
@@ -104,7 +104,7 @@ void DrawComparisonJetMCData(void){
 
 	gROOT->Reset();
 	gROOT->ForceStyle();
-	//tdrStyle();
+	tdrStyle();
 		gStyle->SetPadRightMargin(0.15);
 
 		string name=tobj->GetName();
@@ -423,16 +423,34 @@ void comparisonJetMCData(string plot,int rebin){
 		if(ttbar){
 		ttbar->SetFillColor(kBlue);
 		ttbar->Sumw2();
-		
-		if(ttNumEvents>0.){
-			if(lumiweights==1) ttbar->Scale( dataLumi2011A / (ttNumEvents / ttbarXsect));
-		} else {
-			if(lumiweights==1) ttbar->Scale(ttbarScale);
+
+ 		if(ttNumEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) ttbar->Scale( dataLumi2011pix / (ttNumEvents / ttbarXsect));
+ 		      else ttbar->Scale( dataLumi2011 / (ttNumEvents / ttbarXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) ttbar->Scale( dataLumi2011Apix / (ttNumEvents / ttbarXsect));
+ 			else ttbar->Scale( dataLumi2011A / (ttNumEvents / ttbarXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) ttbar->Scale( dataLumi2011Bpix / (ttNumEvents / ttbarXsect));
+			else ttbar->Scale( dataLumi2011B / (ttNumEvents / ttbarXsect));
+		      }
+		    }
+		  }
 		}
+		else {
+		  if(lumiweights==1) ttbar->Scale(ttwemean);
+		}
+		// fin qui
 		
-		ttbar->Scale(1./ttwemean);  // perche' i Weights non fanno 1...
+		if(lumiweights==1) ttbar->Scale(1./ttwemean);  // perche' i Weights non fanno 1...
 		ttbar->Rebin(rebin);
-		//ttbar->Draw("HISTO SAMES");
+		if(lumiweights==0) ttbar->Draw("HISTO SAMES");
+		
 		hsum->Add(ttbar);
 		if(lumiweights==1)legend->AddEntry(ttbar,"ttbar","f");
 		}
@@ -446,18 +464,34 @@ void comparisonJetMCData(string plot,int rebin){
 
 		w->SetFillColor(kViolet+2);
 		w->Sumw2();
-		
+
 		if(wNumEvents>0.){
-			if(lumiweights==1) w->Scale( dataLumi2011A / (wNumEvents / wjetsXsect));
-		} else {
-			if(lumiweights==1) w->Scale(wjetsScale);
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) w->Scale( dataLumi2011pix / (wNumEvents / wjetsXsect));
+ 		      else w->Scale( dataLumi2011 / (wNumEvents / wjetsXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) w->Scale( dataLumi2011Apix / (wNumEvents / wjetsXsect));
+ 			else w->Scale( dataLumi2011A / (wNumEvents / wjetsXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) w->Scale( dataLumi2011Bpix / (wNumEvents / wjetsXsect));
+			else w->Scale( dataLumi2011B / (wNumEvents / wjetsXsect));
+		      }
+		    }
+		  }
 		}
+		else {
+		  if(lumiweights==1) w->Scale(wwemean);
+		}
+		// fin qui
 		
-		w->Scale(wjetsScale); 
-		if(wNumEvents>0.) w->Scale(wjetsNevts/wNumEvents); // perche' il mc non e' completo...
-		w->Scale(1./wwemean);  // perche' i Weights non fanno 1...
+		if(lumiweights==1) w->Scale(1./wwemean);  // perche' i Weights non fanno 1...
 		w->Rebin(rebin);
-		//w->Draw("HISTO SAMES");
+		if(lumiweights==0) w->Draw("HISTO SAMES");
+
 		hsum->Add(w);
 		if(lumiweights==1)legend->AddEntry(w,"W+jets","f");
 		}
@@ -628,10 +662,12 @@ void comparisonJetMCData(string plot,int rebin){
 		// QCD bc
 		qcd23bcf->cd("validationJEC");
 		TH1F* qcd23bc;
+		TH1D * qcdTotBC;
+		bool  qcdbcempty=true;
 		gDirectory->GetObject(plot.c_str(),qcd23bc);
 
 		if(qcd23bc){
-		TH1D * qcdTotBC =  (TH1D*) qcd23bc->Clone(); 
+		qcdTotBC =  (TH1D*) qcd23bc->Clone(); 
 		qcdTotBC->SetTitle("qcd bc");
 		qcdTotBC->SetName("qcd bc");
 		qcdTotBC->Reset();
@@ -661,6 +697,7 @@ void comparisonJetMCData(string plot,int rebin){
 		qcdTotBC->Add(qcd817bc);
 
 		hsum->Add(qcdTotBC);
+		if (qcdTotBC->GetEntries()>0) qcdbcempty=false; 
 
 		if(lumiweights==1)legend->AddEntry(qcdTotBC,"QCD bc","f");
 		}
@@ -672,7 +709,7 @@ void comparisonJetMCData(string plot,int rebin){
 		//======================
 		// Stacked Histogram
 		//if(qcd23em) 	hs->Add(qcdTotEM);
-		//if(qcd23bc) 	hs->Add(qcdTotBC);
+		if(!qcdbcempty) 	hs->Add(qcdTotBC);
 		if (ww)         hs->Add(ww);
 		if (ttbar)	hs->Add(ttbar);
 		if (zz)         hs->Add(zz);
@@ -700,7 +737,7 @@ void comparisonJetMCData(string plot,int rebin){
 		data->Draw("E1 SAMES");
 		r2->Draw();
 		legend->Draw();
-		TLegend* lumi = new TLegend(0.60,0.9,0.85,0.75);
+		TLegend* lumi = new TLegend(0.45,0.3,0.75,0.2);
 		lumi->SetFillColor(0);
 		lumi->SetFillStyle(0);
 		lumi->SetBorderSize(0);
@@ -778,7 +815,7 @@ void comparisonJetMCData(string plot,int rebin){
 		Canv->Update();
 
 		tmp=plotpath+plot+".png";
-//		Canv->Print(tmp.c_str());
+		Canv->Print(tmp.c_str());
 
 	}
 	else if (flag==2){
@@ -817,7 +854,7 @@ void comparisonJetMCData(string plot,int rebin){
 		Canv->Update();
 
 		tmp=plotpath+plot+"mc.png";
-//		Canv->Print(tmp.c_str());
+		Canv->Print(tmp.c_str());
 	}
 //	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
 
