@@ -35,18 +35,18 @@ double WWXsect= 43.0; double wwjetsNevts=4225916;
 //		Calc ratios		//
 //======================================//
 
-double zjetsScale = dataLumi2011A / (zjetsNevts / zjetsXsect);
-double ttbarScale = dataLumi2011A / (ttbarNevts / ttbarXsect);
-double wjetsScale = dataLumi2011A / (wjetsNevts / wjetsXsect);
-double wzjetsScale = dataLumi2011A / (zwjetsNevts / WZXsect);
-double zzjetsScale = dataLumi2011A / (zzjetsNevts / ZZXsect);
-double wwjetsScale = dataLumi2011A / (wwjetsNevts / WWXsect);
+double zjetsScale = dataLumi2011pix / (zjetsNevts / zjetsXsect);
+double ttbarScale = dataLumi2011pix / (ttbarNevts / ttbarXsect);
+double wjetsScale = dataLumi2011pix / (wjetsNevts / wjetsXsect);
+double wzjetsScale = dataLumi2011pix / (zwjetsNevts / WZXsect);
+double zzjetsScale = dataLumi2011pix / (zzjetsNevts / ZZXsect);
+double wwjetsScale = dataLumi2011pix / (wwjetsNevts / WWXsect);
 
-double qcd23emScale = dataLumi2011A / (qcdEM23Nevts / qcdEM23Xsect);
-double qcd38emScale = dataLumi2011A / (qcdEM38Nevts / qcdEM38Xsect);
-double qcd817emScale = dataLumi2011A / (qcdEM817Nevts / qcdEM817Xsect);
+double qcd23emScale = dataLumi2011pix / (qcdEM23Nevts / qcdEM23Xsect);
+double qcd38emScale = dataLumi2011pix / (qcdEM38Nevts / qcdEM38Xsect);
+double qcd817emScale = dataLumi2011pix / (qcdEM817Nevts / qcdEM817Xsect);
 
-double qcd23bcScale = dataLumi2011A / (qcdBC23Nevts / qcdBC23Xsect);
-double qcd38bcScale = dataLumi2011A / (qcdBC38Nevts / qcdBC38Xsect);
-double qcd817bcScale = dataLumi2011A / (qcdBC817Nevts / qcdBC817Xsect);
+double qcd23bcScale = dataLumi2011pix / (qcdBC23Nevts / qcdBC23Xsect);
+double qcd38bcScale = dataLumi2011pix / (qcdBC38Nevts / qcdBC38Xsect);
+double qcd817bcScale = dataLumi2011pix / (qcdBC817Nevts / qcdBC817Xsect);
 
