@@ -40,15 +40,12 @@ string s = "/home/candelis/html/Unfolding/DATA";
 
 // Set Parameters
 
-TFile* w;
-TF1 *l_ = new TF1 ("l", "1",  0, 10);
-TF1 *m_ = new TF1 ("m", "m",  0, 10);
-TF1 *n_ = new TF1 ("n", "n", 0, 10);
-TF1* jj_ = new TF1 ("jj", "jj",  0, 10);
-TF1* jj2_ = new TF1 ("jj2", "jj2",  0, 10);
-TF1* jj3_ = new TF1 ("jj3", "jj3",  0, 10);
+TFile* w = new TFile("Unfolded.root", "RECREATE");
 
 int maxNJets=5;
+
+//Double_t xbins[10] = {10, 10, 20, 20, 30, 30, 40, 40, 50, 100};
+Double_t xbins[10] = {30, 40, 50, 70, 90, 120, 150, 190, 230, 330};
 
 /* Number of jet associated to a Z distribution */
 TH1D *NTrue = new TH1D ("N true", "N Truth", maxNJets, 0.5, maxNJets+0.5);
@@ -75,12 +72,23 @@ TH1D *yData2 = new TH1D ("y data2", "y DATA Measured2", 25, -2.5, 2.5);
 TH1D *yRatio_ = new TH1D ("yRatio", "yRatio", 25, -2.5, 2.5);
 
 /* Jet pT Differential Xsec distribution */
-TH1D *jTrue = new TH1D ("jetpT true", "jetpT Truth", 30, 30, 330);
-TH1D *jData = new TH1D ("jetpT data", "jetpT DATA Measured", 30, 30, 330);
-TH2D *jMatx = new TH2D ("jetpT hMatx", "Unfolding Matrix jetpT Rapidity ", 30, 30, 330, 30, 30, 330);
-TH1D *jMCreco = new TH1D ("jetpT mcreco", "jetpT mcreco", 30, 30, 330);
-TH1D *jData2 = new TH1D ("jetpT data2", "jetpT DATA Measured2", 30, 30, 330);
-TH1D *jRatio_ = new TH1D ("jetpTRatio", "jetpTRatio",30, 30, 330);
+
+/*TH1D *jTrue = new TH1D ("jetpT true", "jetpT Truth", xbins, 30, 330);
+TH1D *jData = new TH1D ("jetpT data", "jetpT DATA Measured", xbins, 30, 330);
+TH2D *jMatx = new TH2D ("jetpT hMatx", "Unfolding Matrix jetpT Rapidity ", xbins, 30, 330, xbins, 30, 330);
+TH1D *jMCreco = new TH1D ("jetpT mcreco", "jetpT mcreco", xbins, 30, 330);
+TH1D *jData2 = new TH1D ("jetpT data2", "jetpT DATA Measured2", xbins, 30, 330);
+TH1D *jRatio_ = new TH1D ("jetpTRatio", "jetpTRatio", xbins, 30, 330);
+*/
+
+TH1D *jTrue = new TH1D ("jetpT true", "jetpT Truth", 9, xbins);
+TH1D *jData = new TH1D ("jetpT data", "jetpT DATA Measured", 9,  xbins);
+TH2D *jMatx = new TH2D ("jetpT hMatx", "Unfolding Matrix jetpT Rapidity ", 9, xbins, 9, xbins);
+TH1D *jMCreco = new TH1D ("jetpT mcreco", "jetpT mcreco", 9, xbins);
+TH1D *jData2 = new TH1D ("jetpT data2", "jetpT DATA Measured2", 9, xbins);
+TH1D *jRatio_ = new TH1D ("jetpTRatio", "jetpTRatio", 9, xbins);
+
+
 
 
 
@@ -103,16 +111,16 @@ RooUnfoldResponse response_y  (25, -2.5, 2.5);
 
 //FIles...
 
-TFile *fA = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_15.root");
-TFile *fB = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_15.root");
+TFile *fA = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root");
+TFile *fB = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root");
 
 
 void
 Unfolding::Loop()
 {
-  //LoopJetMultiplicity();
-  //LoopZpt();
-  //LoopZy();
+  LoopJetMultiplicity();
+  LoopZpt();
+  LoopZy();
   LoopJetPt();
 }
 
@@ -132,10 +140,10 @@ Unfolding::LoopJetMultiplicity ()
   gSystem->Load ("libRooUnfold");
 #endif
   //MC
-  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v2_14.root:/validationJEC");
+  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root:/validationJEC");
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
   //DATA
-  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_14.root:/validationJEC");
+  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
 
   /*costruisco la matrice di unfolding */
@@ -163,7 +171,6 @@ Unfolding::LoopJetMultiplicity ()
       if (Jet_multiplicity > 20 || Jet_multiplicity_gen > 20 )
 	continue;
       
-      //response_N.Fill (Jet_multiplicity, Jet_multiplicity_gen);
 
       NTrue->Fill (Jet_multiplicity_gen);
       NMCreco->Fill (Jet_multiplicity);
@@ -201,10 +208,10 @@ Unfolding::LoopJetMultiplicity ()
     }
       NData->Sumw2();
 
-      //bool consider_efficiency = true;
-      //if(consider_efficiency) {
+      bool consider_efficiency = false;
+      if(consider_efficiency) {
 
-      TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011A_v2_14.root");
+      TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_17.root");
       TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_nJets");
       
       TH1F *h1 = (TH1F*)gDirectory->Get("MC_WP80_Tag");
@@ -217,7 +224,8 @@ Unfolding::LoopJetMultiplicity ()
       //TH1F *k3 = (TH1F*)gDirectory->Get("DATA_RECO_Tag");
       TH1F *k4 = (TH1F*)gDirectory->Get("DATA_RECO_Probe");
 
-
+      bool isEff = false;
+      if(isEff){
 
       /* tag & probe efficiency study */
 
@@ -265,7 +273,7 @@ Unfolding::LoopJetMultiplicity ()
       C->Update();
 	cout << "1.2" << endl ;	
 	
-     /* C->cd(3);
+/*      C->cd(3);
       k3->SetMarkerColor(kBlack);
       k3->GetXaxis()->SetTitle("WP80 tag eff");
       k3->GetYaxis()->SetRangeUser(0.88, 1);
@@ -285,7 +293,7 @@ Unfolding::LoopJetMultiplicity ()
 
       C->Update();
 	cout << "2" << endl ;	
-*/
+
       C->cd(4);
       k4->SetMarkerColor(kBlack);
       k4->GetXaxis()->SetTitle("WP80 tag eff");
@@ -305,7 +313,7 @@ Unfolding::LoopJetMultiplicity ()
       legend_4->Draw ("same");
 
       C->Update();
-
+*/
       /*********************************************************/
 
       h1->Multiply(h2);
@@ -317,12 +325,11 @@ Unfolding::LoopJetMultiplicity ()
       //k1->Multiply(k3);
       k1->Multiply(k4);      
   
-      //}
 
       NData->Divide(k1);
-
+      }
 	cout << "4" << endl ;	
-      
+      }
       RooUnfoldResponse response_N(NMCreco, NTrue, NMatx); 
       response_N.UseOverflow();
 	cout << "5" << endl ;	
@@ -355,9 +362,7 @@ Unfolding::LoopJetMultiplicity ()
       
 	TH1F* NMCrecoratio = (TH1F*) NMCrecoratio_ -> Clone("NMCrecoratio");
 
-	TF1* l = (TF1*) l_ -> Clone("l");
 	
-	TF1* jj= (TF1*) jj_ -> Clone("jj");
 
 
 
@@ -433,9 +438,6 @@ Unfolding::LoopJetMultiplicity ()
 
   /* Save Jet Multiplicity */
 
-       w = new TFile("Unfolding.root", "RECREATE");
-       w->cd();
-       NReco->Write("NReco");
        pad1->Update();
 	
       c->cd ();
@@ -447,7 +449,7 @@ Unfolding::LoopJetMultiplicity ()
       NReco->GetXaxis ()->SetLabelSize (0.1);
       NReco->GetYaxis ()->SetLabelSize (0.08);
       NReco->SetStats (0);
-      NReco->Divide (NTrue);
+      NReco->Divide (NData);
       NReco->SetMarkerStyle (6);
       NReco->GetXaxis ()->SetLabelSize (0.06);
       NReco->GetYaxis ()->SetLabelSize (0.06);
@@ -540,10 +542,10 @@ Unfolding::LoopZpt ()
   gSystem->Load ("libRooUnfold");
 #endif
   
-  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_14.root:/validationJEC");
+  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root:/validationJEC");
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
   //DATA
-  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_14.root:/validationJEC");
+  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
   
   /*costruisco la matrice di unfolding */
@@ -635,8 +637,6 @@ Unfolding::LoopZpt ()
 
       TH1F* PRatio = (TH1F*) PRatio_ -> Clone("PRatio");
 
-      TF1* m = (TF1*) m_ -> Clone("m");
-      TF1* jj2= (TF1*) jj2_ -> Clone("jj2");
 
       TCanvas *d = new TCanvas ("d", "d", 1000, 700);
       d->cd ();
@@ -694,7 +694,7 @@ Unfolding::LoopZpt ()
       PReco->GetXaxis ()->SetLabelSize (0.1);
       PReco->GetYaxis ()->SetLabelSize (0.08);
       PReco->SetStats (0);
-      PReco->Divide (PTrue);
+      PReco->Divide (PData);
       PReco->SetMarkerStyle (6);
       PReco->GetXaxis ()->SetLabelSize (0.06);
       PReco->GetYaxis ()->SetLabelSize (0.06);
@@ -783,9 +783,9 @@ Unfolding::LoopZy ()
   gSystem->Load ("libRooUnfold");
 #endif
   
-  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_14.root:/validationJEC");
+  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root:/validationJEC");
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
-  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_14.root:/validationJEC");
+  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
   /*costruisco la matrice di unfolding */
   
@@ -863,8 +863,6 @@ Unfolding::LoopZy ()
   
       TH1F* yRatio = (TH1F*) yRatio_ -> Clone("yRatio");
       
-      TF1* n = (TF1*) n_ -> Clone("n");
-      TF1* jj3= (TF1*) jj3_ -> Clone("jj3");
 
       TCanvas *e = new TCanvas ("e", "e", 1000, 700);
       e->cd ();
@@ -927,7 +925,7 @@ Unfolding::LoopZy ()
       yReco->GetXaxis ()->SetLabelSize (0.1);
       yReco->GetYaxis ()->SetLabelSize (0.08);
       yReco->SetStats (0);
-      yReco->Divide (yTrue);
+      yReco->Divide (yData);
       yReco->SetMarkerStyle (6);
       yReco->GetXaxis ()->SetLabelSize (0.06);
       yReco->GetYaxis ()->SetLabelSize (0.06);
@@ -1015,11 +1013,15 @@ Unfolding::LoopJetPt ()
   gSystem->Load ("libRooUnfold");
 #endif
   //MC
-  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_15.root:/validationJEC");
+  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root:/validationJEC");
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
   //DATA
-  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_15.root:/validationJEC");
+  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+
+  TH1F* obj;
+  obj=(TH1F*)gDirectory->Get("h_invMass");
+  int NZ=obj->GetEntries();
 
   /*costruisco la matrice di unfolding */
 
@@ -1043,7 +1045,6 @@ Unfolding::LoopJetPt ()
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
       
-      //response_N.Fill (Jet_multiplicity, Jet_multiplicity_gen);
 
       if(jet1_pt>30 && jet1_pt<330 && jet1_pt_gen>30 && jet1_pt_gen<330){
       jTrue->Fill (jet1_pt_gen);
@@ -1080,127 +1081,61 @@ Unfolding::LoopJetPt ()
     }
       jData->Sumw2();
 
-  /*    TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011B_v2_14.root");
-      TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_nJets");
+      bool consider_efficiency = true;
+      
+      //if(consider_efficiency) {
+
+      TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_17.root");
+      TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_leadjetpt");
       
       TH1F *h1 = (TH1F*)gDirectory->Get("MC_WP80_Tag");
-      H1F *h2 = (TH1F*)gDirectory->Get("MC_WP80_Probe");
-      //TH1F *h3 = (TH1F*)gDirectory->Get("MC_RECO_Tag");
+      TH1F *h2 = (TH1F*)gDirectory->Get("MC_WP80_Probe");
+      TH1F *h3 = (TH1F*)gDirectory->Get("MC_HLTele8_Tag");
       TH1F *h4 = (TH1F*)gDirectory->Get("MC_RECO_Probe");
+      TH1F *h5 = (TH1F*)gDirectory->Get("MC_HLTele17_Tag");
+      TH1F *h6 = (TH1F*)gDirectory->Get("MC_HLTele8_Probe");
+      TH1F *h7 = (TH1F*)gDirectory->Get("MC_HLTele17_Probe");
 
       TH1F *k1 = (TH1F*)gDirectory->Get("DATA_WP80_Tag");
       TH1F *k2 = (TH1F*)gDirectory->Get("DATA_WP80_Probe");
-      //TH1F *k3 = (TH1F*)gDirectory->Get("DATA_RECO_Tag");
+      TH1F *k3 = (TH1F*)gDirectory->Get("DATA_HLTele8_Tag");
       TH1F *k4 = (TH1F*)gDirectory->Get("DATA_RECO_Probe");
+      TH1F *k5 = (TH1F*)gDirectory->Get("DATA_HLTele17_Tag");
+      TH1F *k6 = (TH1F*)gDirectory->Get("DATA_HLTele8_Probe");
+      TH1F *k7 = (TH1F*)gDirectory->Get("DATA_HLTele17_Probe");
 
-*/
+
 
       /* tag & probe efficiency study */
 
-  /*    C->Divide(2,2);
-      
-      C->cd(1);
-      k1->SetMarkerColor(kBlack);
-      k1->GetXaxis()->SetTitle("WP80 tag eff");
-      k1->GetYaxis()->SetRangeUser(0.7, 0.9);
-      k1->SetLineColor(kBlack);
-      k1->SetMarkerColor(kBlack);
-      k1->Draw("E1");
-      h1  ->SetMarkerColor(kRed);
-      h1  ->SetLineColor(kRed);
-      h1  ->Draw("HIST SAMES");
-      TLegend *legend_1 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-      legend_1->SetFillColor (0);
-      legend_1->SetFillStyle (0);
-      legend_1->SetBorderSize (0);
-      legend_1->AddEntry (k1, "data", "LP20");
-      legend_1->AddEntry (h1, "MC", "L");
-      legend_1->Draw ("same");
-
-      C->Update();
-	cout << "1" << endl ;	
-
-      C->cd(2);
-      k2->SetMarkerColor(kBlack);
-      k2->GetXaxis()->SetTitle("WP80 probe eff");
-      k2->GetYaxis()->SetRangeUser(0.5, 0.75);
-      k2->SetLineColor(kBlack);
-      k2->SetMarkerColor(kBlack);
-      k2->Draw("E1");
-      h2  ->SetMarkerColor(kRed);
-      h2  ->SetLineColor(kRed);
-      h2  ->Draw("HIST SAMES");
-      TLegend *legend_2 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-      legend_2->SetFillColor (0);
-      legend_2->SetFillStyle (0);
-      legend_2->SetBorderSize (0);
-      legend_2->AddEntry (k2, "data", "LP20");
-      legend_2->AddEntry (h2, "MC", "L");
-      legend_2->Draw ("same");
-
-      C->Update();
-	cout << "1.2" << endl ;	
-	
-      C->cd(3);
-      k3->SetMarkerColor(kBlack);
-      k3->GetXaxis()->SetTitle("WP80 tag eff");
-      k3->GetYaxis()->SetRangeUser(0.88, 1);
-      k3->SetLineColor(kBlack);
-      k3->SetMarkerColor(kBlack);
-      k3->Draw("E1");
-      h3  ->SetMarkerColor(kRed);
-      h3  ->SetLineColor(kRed);
-      h3  ->Draw("HIST SAMES");
-      TLegend *legend_3 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-      legend_3->SetFillColor (0);
-      legend_3->SetFillStyle (0);
-      legend_3->SetBorderSize (0);
-      legend_3->AddEntry (k3, "data", "LP20");
-      legend_3->AddEntry (h3, "MC", "L");
-      legend_3->Draw ("same");
-
-      C->Update();
 	cout << "2" << endl ;	
-
-      C->cd(4);
-      k4->SetMarkerColor(kBlack);
-      k4->GetXaxis()->SetTitle("WP80 tag eff");
-      k4->GetYaxis()->SetRangeUser(0.8, 1);
-      k4->SetLineColor(kBlack);
-      k4->SetMarkerColor(kBlack);
-      k4->Draw("E1");
-      h4  ->SetMarkerColor(kRed);
-      h4  ->SetLineColor(kRed);
-      h4  ->Draw("HIST SAMES");
-      TLegend *legend_4 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-      legend_4->SetFillColor (0);
-      legend_4->SetFillStyle (0);
-      legend_4->SetBorderSize (0);
-      legend_4->AddEntry (k4, "data", "LP20");
-      legend_4->AddEntry (h4, "MC", "L");
-      legend_4->Draw ("same");
-
-      C->Update();
-
-      /*********************************************************/
-/*
+     
       h1->Multiply(h2);
-      //h1->Multiply(h3);
+      h1->Multiply(h3);
       h1->Multiply(h4);      
-      NMCreco->Divide(h1);
+      h1->Multiply(h5);      
+      h1->Multiply(h6);      
+      h1->Multiply(h7);      
+      
+      jMCreco->Divide(h1);
 
       k1->Multiply(k2);
-      //k1->Multiply(k3);
+      k1->Multiply(k3);
       k1->Multiply(k4);      
-  
-      NData->Divide(k1);
+      k1->Multiply(k5);      
+      k1->Multiply(k6);      
+      k1->Multiply(k7);      
+     
+      jData->Divide(k1);
 
 	cout << "4" << endl ;	
-*/
+	    
+     // }
       RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
       response_j.UseOverflow();
 	cout << "5" << endl ;	
         
+
 
   	
  
@@ -1209,7 +1144,7 @@ Unfolding::LoopJetPt ()
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
     cout<<"Running "<<method<<" method"<<endl;
-    for (int k=2; k<10; k++){
+    for (int k=2; k<11; k++){
       int myNumber=k;
       stringstream num;
       num<<myNumber;
@@ -1226,7 +1161,18 @@ Unfolding::LoopJetPt ()
 	jReco = (TH1D *) unfold_j.Hreco ();
       }
 	jReco->Sumw2();
-	
+	jData->Sumw2();
+	jMCreco->Sumw2();
+	jTrue->Sumw2();
+
+	        
+if(k==10){ //need to be generalized for every k ...
+
+	jData   -> Scale(1./( double) NZ * 0.65284);
+	jReco   -> Scale(1./ (double) NZ * 0.65284);
+        jMCreco -> Scale(1./( double) NZ * 0.65284);
+        jTrue   -> Scale(1./( double) NZ * 0.65284);
+}	
       cout<<"6"<<endl;      
 
       TCanvas *c = new TCanvas ("c", "c", 1000, 700);
@@ -1238,23 +1184,28 @@ Unfolding::LoopJetPt ()
       title2="Jet pT diff xsec distribution. "+title;
       jReco->SetTitle (title2.c_str());
       jReco->GetXaxis ()->SetTitle ("");
-      jReco->GetYaxis ()->SetTitle ("Entries");
+      jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
       jReco->SetMarkerStyle (20);
       jData->SetMarkerStyle (21);
       jData->SetLineColor(kGreen);
       //if (k==2){
       
-      /*jData->Scale (1./1123667);
-      jTrue->Scale (1./1123667);
-      jReco->Scale (1./1123667);
-      */
+	
 
       double area = (((double)jReco->Integral ()) / (double)jTrue->Integral ());
       cout<<"area "<<area<<endl;
       
 
-      jReco->Scale (1.00000 / area);
-      jData->Scale (1.00000 / area);
+      //jReco->Scale (1.00000 / (area));
+      //jData->Scale (1.00000 / (area));
+       
+        jMCreco->Scale(area);
+        jTrue->Scale  (area);
+
+        w->cd();
+        jReco->Write("jReco");
+
+	cout<<NZ<<endl;	
      
       //}
       jReco->SetMarkerStyle (20);
@@ -1305,9 +1256,7 @@ Unfolding::LoopJetPt ()
        
       /* Save */
 
-       w = new TFile("Unfolding.root", "RECREATE");
-       w->cd();
-       jReco->Write("jReco");
+
        pad1->Update();
 	
       c->cd ();
@@ -1381,8 +1330,10 @@ Unfolding::LoopJetPt ()
   double entries=1.000/(double)jMatx->GetEntries();
   jMatx->Scale(entries);
   jMatx->Draw ("COLZ,text");
+      
  
 }
+
 
 #ifndef __CINT__
 
@@ -1390,6 +1341,12 @@ Unfolding::LoopJetPt ()
 	  main ()
 	{
 	  Unfolding ();
+	w->cd();
+        NReco->Write("NReco");
+        yReco->Write("yReco");
+        PReco->Write("PReco");
+
+
 	  return 0;
 	}				// Main program when run stand-alone
 #endif

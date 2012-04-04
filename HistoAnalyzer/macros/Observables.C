@@ -52,14 +52,22 @@ TLorentzVector E1, E2, Z;
 TLorentzVector J1, J2, JJ;
 
 TFile* p = new TFile("MC_zjets.root", "RECREATE");
+TFile* u = new TFile("MC_wjets.root", "RECREATE");
 TFile* q = new TFile("MC_ttbar.root", "RECREATE");
+TFile* v = new TFile("MC_diW.root", "RECREATE");
+TFile* s = new TFile("MC_diZ.root", "RECREATE");
+TFile* t = new TFile("MC_diWZ.root", "RECREATE");
 TFile* r = new TFile("DATA.root", "RECREATE");
 
 //FIles...
 
-TFile *fa = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_15.root");
-TFile *fb = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v2_14.root");
-TFile *fc = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_15.root");
+TFile *fa = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root");
+TFile *fb = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011_v2_17.root");
+TFile *fc = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root");
+TFile *fd = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17.root");
+TFile *fe = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17.root");
+TFile *ff = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17.root");
+TFile *fg = new TFile ("/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17.root");
 
 TFile *w;
 
@@ -68,10 +76,14 @@ Observables::Loop()
 {
   
   //DATA
-  for(int i=0; i<3; i++){
-    if (i==0) fc->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_15.root:/validationJEC");
-    if (i==1) fa->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_15.root:/validationJEC");
-    if (i==2) fb->cd ("/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v2_14.root:/validationJEC");
+  for(int i=0; i<7; i++){
+    if (i==0) fc->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
+    if (i==1) fa->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root:/validationJEC");
+    if (i==2) fb->cd ("/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011_v2_17.root:/validationJEC");
+    if (i==3) fd->cd ("/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17.root:/validationJEC");
+    if (i==4) fe->cd ("/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17.root:/validationJEC");
+    if (i==5) ff->cd ("/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17.root:/validationJEC");
+    if (i==6) fg->cd ("/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17.root:/validationJEC");
   
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
 
@@ -84,7 +96,7 @@ Observables::Loop()
     return;
 
 TH1D *NData             = new TH1D ("Jet_multi", "Jet_multi", 5, 0.5, 5.5);
-TH1F *Ht                = new TH1F ("HT", "HT", 94, 30, 500);
+TH1F *Ht                = new TH1F ("HT", "HT", 47, 30, 500);
 TH1F *Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
 TH1F *Dphi_13           = new TH1F ("Dphi_12", "Dphi_13", 25, 0, TMath::Pi());
 TH1F *Dphi_23           = new TH1F ("Dphi_12", "Dphi_23", 25, 0, TMath::Pi());
@@ -99,12 +111,18 @@ TH1F *ele_phi		= new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
 TH1F *jet_pT		= new TH1F ("jet_pT", "jet_pT", 30, 30, 330);
 TH1F *jet_pT2		= new TH1F ("jet_pT2", "jet_pT2", 30, 30, 330);
 TH1F *jet_pT3		= new TH1F ("jet_pT3", "jet_pT3", 30, 30, 330);
+TH1F *jet_eta		= new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
+TH1F *jet_eta2		= new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
+TH1F *jet_eta3		= new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
 TH1F *Z_pT		= new TH1F ("Z_pT", "Z_pT", 50, 30, 500);
 TH1F *dijet_mass	= new TH1F ("dijet_mass", "dijet_mass", 10, 400, 600);
 TH1F *Zjj_mass	        = new TH1F ("Zjj_mass", "Zjj_mass", 10, 400, 600);
 TH1F *Theta_JZ	        = new TH1F ("Theta_JZ", "Theta_JZ", 100, -1, 1);
 TH1F *Phi_star		= new TH1F ("Phi_star", "Phi_star", 25, 0, 6.5);
 TH1F *Phi_star_xs	= new TH1F ("(1/ #sigma) d #sigma / d#phi^{*}", "(1/ #sigma) d #sigma / d#phi^{*}", 25, 0, 6.5);
+
+
+
 
 TH2F *HZ		= new TH2F ("HZ", "HZ", 100, 30, 1000, 500, 0, 1000);
 TH2F *NZ		= new TH2F ("NZ", "NZ", 5, 0.5, 5.5, 500, 0, 1000);
@@ -169,6 +187,8 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
       
       /* Fill histos */
 
+   //if(MJJ>400 && MJJ<600){
+
       if (Jet_multiplicity >= 3){
       if (Z_pt > jet1_pt && jet1_pt > jet2_pt) {
 	      Dphi_all_Zlead -> Fill(Dphi_event);	
@@ -188,16 +208,21 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
       ele_eta  ->Fill(e1_eta);
       ele_phi  ->Fill(e1_phi);
       
-      if(jet1_pt>30 && jet1_pt<350){	
+      if(jet1_pt>30 && jet1_pt<350 && jet1_eta>-3 && jet1_eta<3){	
       jet_pT  -> Fill(jet1_pt);
+      jet_eta -> Fill(jet1_eta);
       }
  
-      if (Jet_multiplicity > 1 && jet2_pt > 30 && jet2_pt <350){
+      if (Jet_multiplicity > 1 && jet2_pt > 30 && jet2_pt <350 && TMath::Abs(jet2_eta)<2.5){
 	      jet_pT2 -> Fill(jet2_pt);
+	      jet_eta2 -> Fill(jet2_eta);
+
       }
 
-      if (Jet_multiplicity > 3 && jet3_pt > 30 && jet3_pt <350){
+      if (Jet_multiplicity > 3 && jet3_pt > 30 && jet3_pt <350 && TMath::Abs(jet3_eta)<2.5){
 	      jet_pT3 -> Fill(jet3_pt);
+	      jet_eta3 -> Fill(jet3_eta);
+
       }
       
       Z_pT     ->Fill(Z_pt);
@@ -221,29 +246,36 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
       double sigma = Phi_star -> GetEntries();
       Phi_star_xs -> Fill(phi_star/sigma);
 
+  // } 
+   
     }
       double Z = NData->GetEntries();
 
       // dividing by the Number of Z = 531198 in 2011A giving the xsec w/o efficiency, lumi
       
-      jet_pT2   ->Sumw2();
-      jet_pT    ->Sumw2();
+      jet_pT2    ->Sumw2();
+      jet_pT     ->Sumw2();
       jet_pT3    ->Sumw2();
-      Ht        ->Sumw2();
-      Dphi_12   ->Sumw2();
-      Dphi_ZJ1  ->Sumw2();
-      Dphi_ZJ2  ->Sumw2();
-      Phi_star  ->Sumw2();
-
-
-      jet_pT2   ->Scale(1./1123667);
-      jet_pT    ->Scale(1./1123667);
-      jet_pT3   ->Scale(1./1123667);
-      Ht        ->Scale(1./1123667);
-      Dphi_12   ->Scale(1./1123667);
-      Dphi_ZJ1  ->Scale(1./1123667);
-      Dphi_ZJ2  ->Scale(1./1123667);
-      Phi_star  ->Scale(1./1123667);
+      jet_eta    ->Sumw2();
+      jet_eta2   ->Sumw2();
+      jet_eta3   ->Sumw2();
+      Ht         ->Sumw2();
+      Dphi_12    ->Sumw2();
+      Dphi_ZJ1   ->Sumw2();
+      Dphi_ZJ2   ->Sumw2();
+      Phi_star   ->Sumw2();
+      
+      jet_eta    ->Scale(1./1123667);
+      jet_eta2   ->Scale(1./1123667);
+      jet_eta3   ->Scale(1./1123667);
+      jet_pT2    ->Scale(1./1123667);
+      jet_pT     ->Scale(1./1123667);
+      jet_pT3    ->Scale(1./1123667);
+      Ht         ->Scale(1./1123667);
+      Dphi_12    ->Scale(1./1123667);
+      Dphi_ZJ1   ->Scale(1./1123667);
+      Dphi_ZJ2   ->Scale(1./1123667);
+      Phi_star   ->Scale(1./1123667);
 
 
       dijet_mass -> GetXaxis() -> SetTitle("M_{jj} [GeV/c^{2}]");
@@ -256,6 +288,9 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
       jet_pT -> GetXaxis() -> SetTitle("Leading jet p_{T} [GeV/c]");
       jet_pT2   -> GetXaxis() -> SetTitle("2^{nd} jet p_{T} [GeV/c]");
       jet_pT3   -> GetXaxis() -> SetTitle("3^{rd} jet p_{T} [GeV/c]");
+      jet_eta -> GetXaxis() -> SetTitle("Leading jet #eta [GeV/c]");
+      jet_eta2   -> GetXaxis() -> SetTitle("2^{nd} jet #eta [GeV/c]");
+      jet_eta3   -> GetXaxis() -> SetTitle("3^{rd} jet #eta [GeV/c]");
       Z_pT     -> GetXaxis() -> SetTitle("Z boson p_{T} [GeV/c]");
       HZ       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
       HN       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
@@ -278,8 +313,9 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
       jet_pT   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
       jet_pT2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
       jet_pT3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
-      //jet_pT   -> GetYaxis() -> SetRangeUser(0.00000001, 0.1);
-      //jet_pT2  -> GetYaxis() -> SetRangeUser(0.00000001, 0.1);
+      jet_eta  -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}})   dN/d #eta");
+      jet_eta2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
+      jet_eta3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
       Z_pT     -> GetYaxis() -> SetTitle("Events");
       HZ       -> GetYaxis() -> SetTitle("Z boson p_{T} [GeV/c]");
       HN       -> GetYaxis() -> SetTitle("Jet multiplicity");
@@ -306,7 +342,21 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
        }
        if(i==0){
        	       r->cd();
+       }
+       if(i==3){
+       u->cd();
+       }
+       if(i==4){
+	      t->cd();
+       }
+       if(i==5){
+       	       s->cd();
+       }
+       if(i==6){
+       	       v->cd();
        } 
+
+
 	cout<<dijet_mass->GetEntries()<<endl;
       
        dijet_mass->Write();
@@ -318,6 +368,9 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
        jet_pT  ->Write("jet1_pt");
        jet_pT2  ->Write("jet2_pt");
        jet_pT3  ->Write("jet3_pt");
+       jet_eta  ->Write("jet1_eta");
+       jet_eta2  ->Write("jet2_eta");
+       jet_eta3  ->Write("jet3_eta");
        Z_pT    ->Write("Z_pt");
        Dphi_all_Zlead ->Write("Dphi_all_Zlead");
        Dphi_all_notZlead -> Write("Dphi_all_notZlead");
@@ -361,6 +414,9 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
        Dphi_ZJ3 ->Delete();
        Theta_JZ ->Delete();
        Phi_star ->Delete();
+       jet_eta  ->Delete();
+       jet_eta2 ->Delete();
+       jet_eta3 ->Delete();
 
 
 }
