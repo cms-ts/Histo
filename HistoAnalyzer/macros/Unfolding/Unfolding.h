@@ -67,15 +67,15 @@ Unfolding::Unfolding(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-  //if (tree == 0) {
-  //  TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("prova.root");
-  //if (!f) {
-  //   f = new TFile("prova.root");
-  //   f->cd("prova.root:/validationJEC");
-  //}
-  //tree = (TTree*)gDirectory->Get("treeUN_");
-  //
-  //}
+  if (tree == 0) {
+    //  TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("prova.root");
+    //if (!f) {
+    //   f = new TFile("prova.root");
+    //   f->cd("prova.root:/validationJEC");
+    //}
+    //tree = (TTree*)gDirectory->Get("treeUN_");
+    //
+  }
   //Init(tree);
 }
 
@@ -157,6 +157,6 @@ Int_t Unfolding::Cut(Long64_t entry)
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
- return 1;
+ return entry;
 }
 #endif // #ifdef Unfolding_cxx

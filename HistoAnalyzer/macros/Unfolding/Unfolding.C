@@ -38,7 +38,7 @@
 #include "TH2.h"
 #include "THStack.h"
 #include <string.h>
-#include "getEfficiencyCorrection.C"
+//#include "getEfficiencyCorrection.C"
 
 using
 std::cout;
@@ -56,7 +56,9 @@ TFile *fB = new TFile (smc.c_str());
 string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
-TFile* w = new TFile("Unfolded.root", "RECREATE");
+string direct="/gpfs/cms/data/2011/Unfolding/";
+string filename=direct+"UnfoldedDistributions_v2_17.root";
+TFile* w = new TFile(filename.c_str(), "RECREATE");
 
 // Efficiency corrections
 Double_t xbins[10] = {30, 40, 50, 70, 90, 120, 150, 190, 230, 330}; // specify what bins you wonna use for efficiency correction. Should match with Andrea's 
@@ -68,6 +70,7 @@ TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_17.root")
 double jetPtthreshold=30.0;
 int maxNJets=6;
 //------------------------
+
 TH1D *NTrue = new TH1D ("N true", "N Truth", maxNJets, 0, maxNJets);
 TH1D *NData = new TH1D ("N data", "N DATA Measured", maxNJets, 0, maxNJets);
 TH2D *NMatx = new TH2D ("N hMatx", "Unfolding Matrix in # of jets + Z", maxNJets, 0, maxNJets, maxNJets, 0, maxNJets);
@@ -101,7 +104,7 @@ TH1D *jData2 = new TH1D ("jetpT data2", "jetpT DATA Measured2", 9, xbins);
 TH1D *jRatio_ = new TH1D ("jetpTRatio", "jetpTRatio", 9, xbins);
 
 
-TH1D *PRatio = new TH1D ("reco/en ratio", "reco/gen ratio", 100, 0, 1000);
+TH1D *PRatio = new TH1D ("PRatio", "reco/gen ratio", 100, 0, 1000);
 
 
 TH1D *NReco;
@@ -132,7 +135,7 @@ Unfolding::Loop()
 void
 Unfolding::LoopJetMultiplicity ()
 {
-
+  cout<<endl;
   cout<<"*********************************"<<endl;
   cout<<"Unfolding number of Jets"<<endl;
   cout<<"*********************************"<<endl;
@@ -197,10 +200,24 @@ Unfolding::LoopJetMultiplicity ()
     NData2->Fill (Jet_multiplicity);
   }
 
-  double effscale;  
+
+  ///   NOTA BENE!!
+  //PER QUALCHE RAGIONE NON BISOGNA NORMALIZZARE NULLA PRIMA DI FARE LA RESPONSE MATRIX!!
+  //////////////
+  // MC Normalization
+  //////////////
+  double ScaleMCData = ((double)NData->GetEntries()/(double)NMCreco->GetEntries());
+ 
+  /////////////////
+  // Efficiency Correction
+  /////////////////
+
+  double areaRecoVsTruth=1.000;
+  TH1F* DataCorr;
+  TH1F* JetMultiplicityUnfolded;
   if(correctForEff) {
     TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_nJets");
-   
+    //dir->cd();
     TH1F *h1 = (TH1F*)gDirectory->Get("MC_WP80_Tag");
     TH1F *h2 = (TH1F*)gDirectory->Get("MC_WP80_Probe");
     TH1F *h3 = (TH1F*)gDirectory->Get("MC_RECO_Probe");
@@ -335,7 +352,7 @@ Unfolding::LoopJetMultiplicity ()
 
 
     /*********************************************************/  
-    //Perform the efficiency
+    //Perform the efficiency correction
 
     TH1F* NMCrecoNoEffCorr = (TH1F*)  NMCreco -> Clone("NMCreco");
     NMCrecoNoEffCorr->SetName("NMCrecoNoEffCorr");
@@ -350,11 +367,17 @@ Unfolding::LoopJetMultiplicity ()
     MCCorr->Multiply(h5);
     MCCorr->Multiply(h6); 
     MCCorr->Multiply(h7);
-    NMCreco->Divide(MCCorr);
-    NTrue->Divide(MCCorr);
-    effscale=MCCorr->GetMean();
 
-    TH1F* DataCorr = (TH1F*)  k1 -> Clone("h1");    
+    //Correct the MC for efficiency
+    NMCreco->Divide(MCCorr);
+
+    // Now NTrue has a huge difference in area...Account for it.
+    areaRecoVsTruth=((double)NMCreco->Integral())/((double)NTrue->Integral());
+    cout<<"NTrue renormalized to the MC eff corrected area! ratio->"<<areaRecoVsTruth<<endl;
+    NTrue->Scale(areaRecoVsTruth); 
+    cout<<"Warning: data unfolded distribution, obtained after matrix re3sponse, is somehow not rescaled to the area after the eff correction...I correct but CHECK!!!!!!!!!!!!!!!"<<endl;
+
+    DataCorr = (TH1F*)  k1 -> Clone("h1");    
     DataCorr->SetName("DataCorr");
     DataCorr->Multiply(k2);
     DataCorr->Multiply(k3);
@@ -362,6 +385,7 @@ Unfolding::LoopJetMultiplicity ()
     DataCorr->Multiply(k5);
     DataCorr->Multiply(k6);
     DataCorr->Multiply(k7);   
+    //Correct Data for efficiency
     NData->Divide(DataCorr);
 
     C->cd(4);
@@ -399,6 +423,15 @@ Unfolding::LoopJetMultiplicity ()
   RooUnfoldResponse response_N(NMCreco, NTrue, NMatx); 
   response_N.UseOverflow();
 
+  cout<<"***********************"<<endl;
+  cout<<"MC will be normalized to data, using entries"<<endl;
+  cout<<"N entries in Data:"<<NData->GetEntries()<<" and MC:"<<NMCreco->GetEntries()<<" ratio->"<<ScaleMCData<<endl;
+  cout<<endl;
+  NMCreco->Scale (ScaleMCData);
+  NTrue->Scale (ScaleMCData);
+  NMCrecoratio_->Scale (ScaleMCData);
+  
+
   //Repeating each algorithm
   for (int j=0; j<2; j++){
     string method;
@@ -424,10 +457,12 @@ Unfolding::LoopJetMultiplicity ()
 	RooUnfoldSvd unfold_N (&response_N, NData, myNumber);	// OR
 	NReco = (TH1D *) unfold_N.Hreco ();
       }
+      
       NReco->Sumw2();
-      
-      TH1F* NMCrecoratio = (TH1F*) NMCrecoratio_ -> Clone("NMCrecoratio");
-      
+      if (correctForEff) NReco->Multiply(DataCorr); // Necessary to have same area... Investigate, please
+      JetMultiplicityUnfolded=(TH1F*) NReco->Clone("NReco");
+      JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
+
       cmultip->cd ();
       TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.3, 1, 1);
       pad1->Draw ();
@@ -440,17 +475,6 @@ Unfolding::LoopJetMultiplicity ()
       NReco->SetMarkerStyle (20);
       NData->SetMarkerStyle (21);
       NData->SetLineColor(kGreen);
-
-      //MC - Data Normalization, done by the area!
-      if (k==2 && j==0) {
-	//double areaNMCreco = (((double)NData->Integral ()) / (double)NMCreco->Integral ());
-      double area = (((double)NReco->Integral ()) / (double)NMCreco->Integral ());
-      cout<<"Jets: MC normalized according to data entries.. "<<area<<endl;
-      NMCreco->Scale (area);
-      cout<<"efficiency drop the araea of a factor "<<effscale<<endl; 
-      NTrue->Scale (area);
-      //NData->Scale (area);
-      }
       
       NReco->SetMarkerStyle (20);
       NReco->SetStats(0);
@@ -565,8 +589,13 @@ Unfolding::LoopJetMultiplicity ()
       cmultip->Print(title3.c_str());
       num.str("");
       cout<<"PNG file saved (maybe) on "<<title3<<endl;
-   }
+    }
   }
+
+  w->cd();
+  JetMultiplicityUnfolded->Write();
+  w->Close();
+  
   TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
   N->cd ();
   NMatx->SetStats (0);
@@ -580,7 +609,7 @@ Unfolding::LoopJetMultiplicity ()
   NMatx->Scale(entries);
   NMatx->Draw ("COLZ,text");
   //N->Print(s+"/MatrixjetMultiplicity.pdf");
- 
+
 }
 
 
@@ -633,7 +662,7 @@ Unfolding::LoopZpt ()
       
       response_pT.Fill (Z_pt, Z_pt_gen);
      
-      double R = Z_pt/Z_pt_gen;
+      //double R = Z_pt/Z_pt_gen;
 
       PRatio_->Fill(Z_pt);
        
@@ -692,8 +721,7 @@ Unfolding::LoopZpt ()
 
       PRatio->Draw();
 
-      TH1F* PRatio = (TH1F*) PRatio_ -> Clone("PRatio");
-
+      //TH1F* PRatio = (TH1F*) PRatio_ -> Clone("PRatio_");
 
       TCanvas *d = new TCanvas ("d", "d", 1000, 700);
       d->cd ();
@@ -1079,7 +1107,7 @@ Unfolding::LoopJetPt ()
   //DATA
   fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-  TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_leadjetpt");
+  //TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_leadjetpt");
    
  //  TH1F *h1,*h2,*h3,*h4,*h5,*h6,*h7,*k1,*k2,*k3,*k4,*k5,*k6,*k7;
 //   if (correctForEff){
@@ -1372,12 +1400,6 @@ if(k==10){ //need to be generalized for every k ...
 	int
 	  main ()
 	{
-	  Unfolding ();
-	w->cd();
-        NReco->Write("NReco");
-        yReco->Write("yReco");
-        PReco->Write("PReco");
-
 
 	  return 0;
 	}				// Main program when run stand-alone
