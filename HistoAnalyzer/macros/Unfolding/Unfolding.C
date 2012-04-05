@@ -56,13 +56,15 @@ TFile *fB = new TFile (smc.c_str());
 string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
+bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UnfoldedDistributions_v2_17.root";
-TFile* w = new TFile(filename.c_str(), "RECREATE");
+string filename=direct+"UnfoldedDistributions_v2_17pf.root";
 
 // Efficiency corrections
 Double_t xbins[10] = {30, 40, 50, 70, 90, 120, 150, 190, 230, 330}; // specify what bins you wonna use for efficiency correction. Should match with Andrea's 
 bool correctForEff=true; // If true, it will take the correction factor from outside
+
+//File with efficiency coefficients
 TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_17.root"); 
 
 /* Number of jet associated to a Z distribution */
@@ -592,10 +594,13 @@ Unfolding::LoopJetMultiplicity ()
     }
   }
 
-  w->cd();
-  JetMultiplicityUnfolded->Write();
-  w->Close();
-  
+  if (saveFile){
+    TFile* w = new TFile(filename.c_str(), "RECREATE");
+    w->cd();
+    JetMultiplicityUnfolded->Write();
+    w->Close();
+  }  
+
   TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
   N->cd ();
   NMatx->SetStats (0);
@@ -1262,8 +1267,8 @@ if(k==10){ //need to be generalized for every k ...
         jMCreco->Scale(area);
         jTrue->Scale  (area);
 
-        w->cd();
-        jReco->Write("jReco");
+        //w->cd();
+        //jReco->Write("jReco");
 
 	cout<<NZ<<endl;	
      
