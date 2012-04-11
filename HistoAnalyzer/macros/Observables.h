@@ -95,7 +95,7 @@ Observables::Observables(TTree *tree)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-  //if (tree == 0) {
+  if (tree == 0) {
   //  TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("prova.root");
   //if (!f) {
   //   f = new TFile("prova.root");
@@ -103,7 +103,7 @@ Observables::Observables(TTree *tree)
   //}
   //tree = (TTree*)gDirectory->Get("treeUN_");
   //
-  //}
+  }
   //Init(tree);
 }
 
@@ -204,6 +204,6 @@ Int_t Observables::Cut(Long64_t entry)
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
- return 1;
+ return entry;
 }
 #endif
