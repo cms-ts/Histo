@@ -21,29 +21,42 @@
 
 #include "lumi_scale_factors.h"
 
-bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
+bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata//
+bool WholeStat= true;                // if true, reweing on RunA lumi, if false, on the whole stat. if true, the other variabs are uneffective, except lumipixel 
+bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
+bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-string plotpath		="./"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_11.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011A_v1_11.root"; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011A_v1_10.root"; 
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011A_v1_10.root";
+string plotpath		="/tmp/marone/"; //put here the path where you want the plots
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17pf.root";
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17pf.root"; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011_v2_17pf.root"; 
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
-string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root";
-string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root";
-string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root";
-string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root";
-string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root";
-string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root";
+string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+
+string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17pf.root";
+string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17pf.root";
+string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17pf.root";
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
 double ttwemean=140.;
+double wzwemean=120;
+double zzwemean=120;
+double wwwemean=120;
 
 double dataNumEvents=-999;
 double zNumEvents=-999; //lo definisco globale anche se non Ã¨ la cosa piÃ¹ bella da fare
 double ttNumEvents=-999; //questo lavoro andrebbe fatto anche per i qcd... 
 double wNumEvents=-999; //al momento non l'ho fatto perchÃ© passano 0 eventi e e' gran smeno
+double wzEvents=-999; 
+double zzEvents=-999; 
+double wwEvents=-999; 
 
 using namespace std;
 
@@ -72,8 +85,10 @@ void DrawComparisonJetMCData(void){
 	zNumEvents = numEventsPerStep(mcfile, "demo"); 
 	ttNumEvents = numEventsPerStep(back_ttbar, "demo"); 
 	wNumEvents = numEventsPerStep(back_w, "demo"); 
+	wzEvents = numEventsPerStep(WZ, "demo"); 
+	zzEvents = numEventsPerStep(ZZ, "demo"); 
+	wwEvents = numEventsPerStep(WW, "demo"); 
 	// ---------------------------------------------------
-
 
 	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
 	mcf->cd("validationJEC/");
@@ -85,7 +100,7 @@ void DrawComparisonJetMCData(void){
 	string tmpname;
 
 	int i=0; // solo di servizio quando debuggo...
-	while ( tobj = iter.Next() ) {
+	while ( (tobj = iter.Next()) ) {
 
 	gROOT->Reset();
 	gROOT->ForceStyle();
@@ -95,13 +110,16 @@ void DrawComparisonJetMCData(void){
 		string name=tobj->GetName();
 		TString temp = (TString)name;
 		
-		int num=tobj->GetUniqueID();
+		//int num=tobj->GetUniqueID();
 		//cout<<"num is "<<num<<endl;
 		if(temp.Contains("weight")){
 		
-		TFile *mcf = TFile::Open(mcfile.c_str()); 
+		  //TFile *mcf = TFile::Open(mcfile.c_str()); 
 		TFile *ttbarf = TFile::Open(back_ttbar.c_str()); 
 		TFile *wf = TFile::Open(back_w.c_str());
+		TFile *wzf = TFile::Open(WZ.c_str());
+		TFile *zzf = TFile::Open(ZZ.c_str());
+		TFile *wwf = TFile::Open(WW.c_str());
 
 		TCanvas * Canv = (TCanvas*)gDirectory->GetList()->FindObject("Canv");
 		if (Canv) delete Canv;
@@ -149,7 +167,45 @@ void DrawComparisonJetMCData(void){
 		tmpname=plotpath+name+"-wjets.png";
 		Canv->Print(tmpname.c_str());
 		}
-	
+
+		//---- weights
+		wzf->cd("validationJEC");
+		TH1F* wz;
+		gDirectory->GetObject(name.c_str(),wz);
+		if(wz){
+		wz->SetFillColor(kYellow+2);
+		wz->GetXaxis()->SetRangeUser(0.,2.);
+		wz->Draw();
+		wzwemean = w->GetMean();
+		tmpname=plotpath+name+"-wzjets.png";
+		Canv->Print(tmpname.c_str());
+		}	
+
+		//---- weights
+		zzf->cd("validationJEC");
+		TH1F* zz;
+		gDirectory->GetObject(name.c_str(),zz);
+		if(zz){
+		zz->SetFillColor(kOrange+2);
+		zz->GetXaxis()->SetRangeUser(0.,2.);
+		zz->Draw();
+		zzwemean = w->GetMean();
+		tmpname=plotpath+name+"-zzjets.png";
+		Canv->Print(tmpname.c_str());
+		}
+
+		//---- weights
+		wwf->cd("validationJEC");
+		TH1F* www;
+		gDirectory->GetObject(name.c_str(),www);
+		if(www){
+		www->SetFillColor(kBlack);
+		www->GetXaxis()->SetRangeUser(0.,2.);
+		www->Draw();
+		wwwemean = www->GetMean();
+		tmpname=plotpath+name+"-wwwjets.png";
+		Canv->Print(tmpname.c_str());
+		}		
 
 		}
 		else comparisonJetMCData(name,1);
@@ -173,7 +229,16 @@ void DrawComparisonJetMCData(void){
 	
 	if(wNumEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
 	else cout << "Il numero di eventi di W+jets " << wNumEvents << "\n";
-	
+
+	if(wzEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di ZW+jets " << wzEvents << "\n";
+
+	if(zzEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di ZZ+jets " << zzEvents << "\n";	
+
+	if(wwEvents<0.) cout << "ATTENZIONE: HAI FALLITO LA NORMALIZZAZIONE DEL W+JETS, quindi ho normalizzato sugli eventi totali del campione\n";
+	else cout << "Il numero di eventi di WW+jets " << wwEvents << "\n";
+
 	return;
 }
 
@@ -193,6 +258,7 @@ void comparisonJetMCData(string plot,int rebin){
 	TFile *ttbarf = TFile::Open(back_ttbar.c_str()); //MC background file
 	TFile *wf = TFile::Open(back_w.c_str());
 
+
 	TFile *qcd23emf = TFile::Open(qcd23em.c_str());
 	TFile *qcd38emf = TFile::Open(qcd38em.c_str());
 	TFile *qcd817emf = TFile::Open(qcd817em.c_str());
@@ -201,7 +267,9 @@ void comparisonJetMCData(string plot,int rebin){
 	TFile *qcd38bcf = TFile::Open(qcd38bc.c_str());
 	TFile *qcd817bcf = TFile::Open(qcd817bc.c_str());
 
-
+	TFile *WZf = TFile::Open(WZ.c_str());
+	TFile *ZZf = TFile::Open(ZZ.c_str());
+	TFile *WWf = TFile::Open(WW.c_str());
 
 	// Canvas
 	TCanvas * Canv = (TCanvas*)gDirectory->GetList()->FindObject("Canv");
@@ -221,7 +289,7 @@ void comparisonJetMCData(string plot,int rebin){
 
 
 	int flag=-1;
-	if (data = dynamic_cast<TH1F *>(obj) ){
+	if ((data = dynamic_cast<TH1F *>(obj)) ){
 		flag=1;
 		gROOT->Reset();
 		gROOT->ForceStyle();
@@ -230,7 +298,7 @@ void comparisonJetMCData(string plot,int rebin){
 		gPad->Modified();
 		gPad->Update();
 	}
-	if (data2 = dynamic_cast<TH2F *>(obj)){
+	if ((data2 = dynamic_cast<TH2F *>(obj)) ){
 		flag=2;
 		gStyle->SetPalette(1);
 		gStyle->SetPadRightMargin(0.15);
@@ -256,7 +324,7 @@ void comparisonJetMCData(string plot,int rebin){
 		data->SetLineColor(kBlack);
 		data->Rebin(rebin);
 		if(str.Contains("nJetVtx")) data->GetXaxis()->SetRangeUser(0,10);	
-		if(str.Contains("zMass")) data->GetXaxis()->SetRangeUser(60,120);	
+		if(str.Contains("zMass")) data->GetXaxis()->SetRangeUser(70,110);	
 		data->SetMinimum(1.);
 		data->Sumw2();
 		data->Draw("E1");
@@ -316,12 +384,28 @@ void comparisonJetMCData(string plot,int rebin){
 		
 		// Blocco da propagare negli altri MC
 		if(zNumEvents>0.){
-			if(lumiweights==1) mc->Scale( dataLumi2011A / (zNumEvents / zjetsXsect));
-		} else {
-			if(lumiweights==1) mc->Scale(zjetsScale);
+		  if(lumiweights==1) {
+		    if (WholeStat){
+		      if (lumiPixel) mc->Scale( dataLumi2011pix / (zNumEvents / zjetsXsect));
+		      else mc->Scale( dataLumi2011 / (zNumEvents / zjetsXsect));
+		    }
+		    else{
+		      if (RunA){
+			if (lumiPixel) mc->Scale( dataLumi2011Apix / (zNumEvents / zjetsXsect));
+			else mc->Scale( dataLumi2011A / (zNumEvents / zjetsXsect));
+		      }
+		      if (!RunA){
+			if (lumiPixel) mc->Scale( dataLumi2011Bpix / (zNumEvents / zjetsXsect));
+			else mc->Scale( dataLumi2011B / (zNumEvents / zjetsXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) mc->Scale(zjetsScale);
 		}
 		// fin qui
-
+		
 		if(lumiweights==1) mc->Scale(1./zwemean);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
@@ -339,16 +423,34 @@ void comparisonJetMCData(string plot,int rebin){
 		if(ttbar){
 		ttbar->SetFillColor(kBlue);
 		ttbar->Sumw2();
-		
-		if(ttNumEvents>0.){
-			if(lumiweights==1) ttbar->Scale( dataLumi2011A / (ttNumEvents / ttbarXsect));
-		} else {
-			if(lumiweights==1) ttbar->Scale(ttbarScale);
+
+ 		if(ttNumEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) ttbar->Scale( dataLumi2011pix / (ttNumEvents / ttbarXsect));
+ 		      else ttbar->Scale( dataLumi2011 / (ttNumEvents / ttbarXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) ttbar->Scale( dataLumi2011Apix / (ttNumEvents / ttbarXsect));
+ 			else ttbar->Scale( dataLumi2011A / (ttNumEvents / ttbarXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) ttbar->Scale( dataLumi2011Bpix / (ttNumEvents / ttbarXsect));
+			else ttbar->Scale( dataLumi2011B / (ttNumEvents / ttbarXsect));
+		      }
+		    }
+		  }
 		}
+		else {
+		  if(lumiweights==1) ttbar->Scale(ttwemean);
+		}
+		// fin qui
 		
-		ttbar->Scale(1./ttwemean);  // perche' i Weights non fanno 1...
+		if(lumiweights==1) ttbar->Scale(1./ttwemean);  // perche' i Weights non fanno 1...
 		ttbar->Rebin(rebin);
-		//ttbar->Draw("HISTO SAMES");
+		if(lumiweights==0) ttbar->Draw("HISTO SAMES");
+		hsum->Rebin(rebin);
 		hsum->Add(ttbar);
 		if(lumiweights==1)legend->AddEntry(ttbar,"ttbar","f");
 		}
@@ -362,58 +464,194 @@ void comparisonJetMCData(string plot,int rebin){
 
 		w->SetFillColor(kViolet+2);
 		w->Sumw2();
-		
+
 		if(wNumEvents>0.){
-			if(lumiweights==1) w->Scale( dataLumi2011A / (wNumEvents / wjetsXsect));
-		} else {
-			if(lumiweights==1) w->Scale(wjetsScale);
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) w->Scale( dataLumi2011pix / (wNumEvents / wjetsXsect));
+ 		      else w->Scale( dataLumi2011 / (wNumEvents / wjetsXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) w->Scale( dataLumi2011Apix / (wNumEvents / wjetsXsect));
+ 			else w->Scale( dataLumi2011A / (wNumEvents / wjetsXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) w->Scale( dataLumi2011Bpix / (wNumEvents / wjetsXsect));
+			else w->Scale( dataLumi2011B / (wNumEvents / wjetsXsect));
+		      }
+		    }
+		  }
 		}
+		else {
+		  if(lumiweights==1) w->Scale(wwemean);
+		}
+		// fin qui
 		
-		w->Scale(wjetsScale); 
-		if(wNumEvents>0.) w->Scale(wjetsNevts/wNumEvents); // perche' il mc non e' completo...
-		w->Scale(1./wwemean);  // perche' i Weights non fanno 1...
+		if(lumiweights==1) w->Scale(1./wwemean);  // perche' i Weights non fanno 1...
 		w->Rebin(rebin);
-		//w->Draw("HISTO SAMES");
+		if(lumiweights==0) w->Draw("HISTO SAMES");
+		hsum->Rebin(rebin);
 		hsum->Add(w);
 		if(lumiweights==1)legend->AddEntry(w,"W+jets","f");
 		}
 
+ 		//======================
+ 		// wz+jets
+ 		WZf->cd("validationJEC");
+ 		TH1F* wz;
+ 		gDirectory->GetObject(plot.c_str(),wz);
+ 		if(wz){
+ 		wz->SetFillColor(kYellow+2);
+ 		wz->Sumw2();
+
+ 		if(wzEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) wz->Scale( dataLumi2011pix / (wzEvents / WZXsect));
+ 		      else wz->Scale( dataLumi2011 / (wzEvents / WZXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) wz->Scale( dataLumi2011Apix / (wzEvents / WZXsect));
+ 			else wz->Scale( dataLumi2011A / (wzEvents / WZXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) wz->Scale( dataLumi2011Bpix / (wzEvents / WZXsect));
+			else wz->Scale( dataLumi2011B / (wzEvents / WZXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) wz->Scale(wzjetsScale);
+		}
+		// fin qui
+		
+		if(lumiweights==1) wz->Scale(1./wzwemean);  // perche' i Weights non fanno 1...
+		wz->Rebin(rebin);
+		if(lumiweights==0) wz->Draw("HISTO SAMES");
+		hsum->Rebin(rebin);
+		hsum->Add(wz);
+		legend->AddEntry(wz,"WZ+jets","f");
+		}
+		
+	//======================
+ 		// zz+jets
+ 		ZZf->cd("validationJEC");
+ 		TH1F* zz;
+ 		gDirectory->GetObject(plot.c_str(),zz);
+ 		if(zz){
+ 		zz->SetFillColor(kOrange+2);
+ 		zz->Sumw2();
+
+ 		if(zzEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) zz->Scale( dataLumi2011pix / (zzEvents / ZZXsect));
+ 		      else zz->Scale( dataLumi2011 / (zzEvents / ZZXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) zz->Scale( dataLumi2011Apix / (zzEvents / ZZXsect));
+ 			else zz->Scale( dataLumi2011A / (zzEvents / ZZXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) zz->Scale( dataLumi2011Bpix / (zzEvents / ZZXsect));
+			else zz->Scale( dataLumi2011B / (zzEvents / ZZXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) zz->Scale(zzjetsScale);
+		}
+		// fin qui
+		
+		if(lumiweights==1) zz->Scale(1./zzwemean);  // perche' i Weights non fanno 1...
+		zz->Rebin(rebin);
+		if(lumiweights==0) zz->Draw("HISTO SAMES");
+		hsum->Rebin(rebin);
+		hsum->Add(zz);
+		legend->AddEntry(zz,"ZZ+jets","f");
+		}
+
+	//======================
+ 		// ww+jets
+ 		WWf->cd("validationJEC");
+ 		TH1F* ww;
+ 		gDirectory->GetObject(plot.c_str(),ww);
+ 		if(ww){
+ 		ww->SetFillColor(kBlack);
+ 		ww->Sumw2();
+
+ 		if(wwEvents>0.){
+ 		  if(lumiweights==1) {
+ 		    if (WholeStat){
+ 		      if (lumiPixel) ww->Scale( dataLumi2011pix / (wwEvents / WWXsect));
+ 		      else ww->Scale( dataLumi2011 / (wwEvents / WWXsect));
+ 		    }
+ 		    else{
+ 		      if (RunA){
+ 			if (lumiPixel) ww->Scale( dataLumi2011Apix / (wwEvents / WWXsect));
+ 			else ww->Scale( dataLumi2011A / (wwEvents / WWXsect));
+ 		      }
+ 		      if (!RunA){
+ 			if (lumiPixel) ww->Scale( dataLumi2011Bpix / (wwEvents / WWXsect));
+			else ww->Scale( dataLumi2011B / (wwEvents / WWXsect));
+		      }
+		    }
+		  }
+		}
+		else {
+		  if(lumiweights==1) ww->Scale(wwjetsScale);
+		}
+		// fin qui
+		
+		if(lumiweights==1) ww->Scale(1./wwwemean);  // perche' i Weights non fanno 1...
+		ww->Rebin(rebin);
+		if(lumiweights==0) ww->Draw("HISTO SAMES");
+		hsum->Rebin(rebin);
+		hsum->Add(ww);
+		legend->AddEntry(ww,"WW+jets","f");
+		}
+		
 		//======================
 		// QCD EM enriched
 		qcd23emf->cd("validationJEC");
-		TH1F* qcd23em;
-		gDirectory->GetObject(plot.c_str(),qcd23em);
+		TH1F* qcd23emp;
+		gDirectory->GetObject(plot.c_str(),qcd23emp);
 
-		if(qcd23em){
-		TH1D * qcdTotEM =  (TH1D*) qcd23em->Clone(); 
+		if(qcd23emp){
+		TH1D * qcdTotEM =  (TH1D*) qcd23emp->Clone(); 
 		qcdTotEM->SetTitle("qcd em");
 		qcdTotEM->SetName("qcd em");
 		qcdTotEM->Reset();
 		qcdTotEM->Rebin(rebin);
 
 		qcd38emf->cd("validationJEC");
-		TH1F* qcd38em;
-		gDirectory->GetObject(plot.c_str(),qcd38em);
+		TH1F* qcd38emp;
+		gDirectory->GetObject(plot.c_str(),qcd38emp);
 
 
 		qcd817emf->cd("validationJEC");
-		TH1F* qcd817em;
-		gDirectory->GetObject(plot.c_str(),qcd817em);
+		TH1F* qcd817emp;
+		gDirectory->GetObject(plot.c_str(),qcd817emp);
 
-		qcd23em->Rebin(rebin);
-		qcd23em->Sumw2();
-		qcd23em->Scale(qcd23emScale); 
-		qcd38em->Rebin(rebin);
-		qcd38em->Sumw2();
-		qcd38em->Scale(qcd38emScale); 
-		qcd817em->Rebin(rebin);
-		qcd817em->Sumw2();
-		qcd817em->Scale(qcd817emScale); 
+		qcd23emp->Rebin(rebin);
+		qcd23emp->Sumw2();
+		qcd23emp->Scale(qcd23emScale); 
+		qcd38emp->Rebin(rebin);
+		qcd38emp->Sumw2();
+		qcd38emp->Scale(qcd38emScale); 
+		qcd817emp->Rebin(rebin);
+		qcd817emp->Sumw2();
+		qcd817emp->Scale(qcd817emScale); 
 
 		qcdTotEM->SetFillColor(kOrange+1);
-		qcdTotEM->Add(qcd23em);
-		qcdTotEM->Add(qcd38em);
-		qcdTotEM->Add(qcd817em);
+		qcdTotEM->Add(qcd23emp);
+		qcdTotEM->Add(qcd38emp);
+		qcdTotEM->Add(qcd817emp);
 
 		hsum->Add(qcdTotEM);
 
@@ -423,40 +661,43 @@ void comparisonJetMCData(string plot,int rebin){
 		//======================
 		// QCD bc
 		qcd23bcf->cd("validationJEC");
-		TH1F* qcd23bc;
-		gDirectory->GetObject(plot.c_str(),qcd23bc);
+		TH1F* qcd23bcp;
+		TH1D * qcdTotBC;
+		bool  qcdbcempty=true;
+		gDirectory->GetObject(plot.c_str(),qcd23bcp);
 
-		if(qcd23bc){
-		TH1D * qcdTotBC =  (TH1D*) qcd23bc->Clone(); 
+		if(qcd23bcp){
+		qcdTotBC =  (TH1D*) qcd23bcp->Clone(); 
 		qcdTotBC->SetTitle("qcd bc");
 		qcdTotBC->SetName("qcd bc");
 		qcdTotBC->Reset();
 		qcdTotBC->Rebin(rebin);
 
 		qcd38bcf->cd("validationJEC");
-		TH1F* qcd38bc;
-		gDirectory->GetObject(plot.c_str(),qcd38bc);
+		TH1F* qcd38bcp;
+		gDirectory->GetObject(plot.c_str(),qcd38bcp);
 
 		qcd817bcf->cd("validationJEC");
-		TH1F* qcd817bc;
-		gDirectory->GetObject(plot.c_str(),qcd817bc);
+		TH1F* qcd817bcp;
+		gDirectory->GetObject(plot.c_str(),qcd817bcp);
 
-		qcd23bc->Rebin(rebin);
-		qcd23bc->Sumw2();
-		qcd23bc->Scale(qcd23bcScale); 
-		qcd38bc->Rebin(rebin);
-		qcd38bc->Sumw2();
-		qcd38bc->Scale(qcd38bcScale); 
-		qcd817bc->Rebin(rebin);
-		qcd817bc->Sumw2();
-		qcd817bc->Scale(qcd817bcScale); 
+		qcd23bcp->Rebin(rebin);
+		qcd23bcp->Sumw2();
+		qcd23bcp->Scale(qcd23bcScale); 
+		qcd38bcp->Rebin(rebin);
+		qcd38bcp->Sumw2();
+		qcd38bcp->Scale(qcd38bcScale); 
+		qcd817bcp->Rebin(rebin);
+		qcd817bcp->Sumw2();
+		qcd817bcp->Scale(qcd817bcScale); 
 
 		qcdTotBC->SetFillColor(kGreen+2);
-		qcdTotBC->Add(qcd23bc);
-		qcdTotBC->Add(qcd38bc);
-		qcdTotBC->Add(qcd817bc);
+		qcdTotBC->Add(qcd23bcp);
+		qcdTotBC->Add(qcd38bcp);
+		qcdTotBC->Add(qcd817bcp);
 
 		hsum->Add(qcdTotBC);
+		if (qcdTotBC->GetEntries()>0) qcdbcempty=false; 
 
 		if(lumiweights==1)legend->AddEntry(qcdTotBC,"QCD bc","f");
 		}
@@ -468,10 +709,14 @@ void comparisonJetMCData(string plot,int rebin){
 		//======================
 		// Stacked Histogram
 		//if(qcd23em) 	hs->Add(qcdTotEM);
-		//if(qcd23bc) 	hs->Add(qcdTotBC);
-		if(w)  		hs->Add(w);
-		if(ttbar)	hs->Add(ttbar);
+		if(!qcdbcempty) 	hs->Add(qcdTotBC);
+		if (ww)         hs->Add(ww);
+		if (ttbar)	hs->Add(ttbar);
+		if(w)  	        hs->Add(w);
+		if (zz)         hs->Add(zz);
+		if (wz)         hs->Add(wz);
 		if(mc)		hs->Add(mc); //Z+Jets
+
 		
 		// per avere le statistiche
 		if(lumiweights==1) hsum->Draw("HISTO SAMES");
@@ -496,7 +741,7 @@ void comparisonJetMCData(string plot,int rebin){
 		lumi->SetFillColor(0);
 		lumi->SetFillStyle(0);
 		lumi->SetBorderSize(0);
-		lumi->AddEntry((TObject*)0,"#int L dt =2.050 1/fb","");
+		lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
 		lumi->Draw();
 		Canv->Update();
 
@@ -516,7 +761,7 @@ void comparisonJetMCData(string plot,int rebin){
 		ratio->Reset();
 
 		ratio->Sumw2();
-		data->Sumw2();
+		//data->Sumw2();
 		hsum->Sumw2(); // FIXME controlla che sia corretto questo... 
 		ratio->SetMarkerSize(.5);
 		ratio->SetLineColor(kBlack);
@@ -630,6 +875,8 @@ void comparisonJetMCData(string plot,int rebin){
 	qcd23bcf->Close();
 	qcd38bcf->Close();
 	qcd817bcf->Close();
+	WZf->Close();
+	ZZf->Close();
 
 
 	return;
