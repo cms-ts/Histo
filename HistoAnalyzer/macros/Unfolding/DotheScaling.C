@@ -24,8 +24,12 @@
 #include <vector>
 #include <iostream>
 #include "tdrStyle.C"
+#include "TGraph.h"
 
 void DotheScaling(){
+  
+  //be sure default is Minuit since we will use gMinuit 
+  TVirtualFitter::SetDefaultFitter("Minuit");
 
   using
     std::cout;
@@ -39,8 +43,8 @@ void DotheScaling(){
  
   const int maxNJets=7; 
 
-  TH1D *h2 = new TH1D ("N", "N", maxNJets-2, -0.5, maxNJets-2.5);
-  TH1D *h3 = new TH1D ("N", "N", maxNJets-2, -0.5, maxNJets-2.5);
+  TH1D *h2 = new TH1D ("N", "N", maxNJets-2, 0.5, maxNJets-1.5);
+  TH1D *h3 = new TH1D ("N", "N", maxNJets-2, 0.5, maxNJets-1.5);
   h2->Sumw2();
 
   TFile *eff = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_17pf.root");
@@ -81,10 +85,11 @@ void DotheScaling(){
   //////////
 
   for(int i=1; i<loop; i++){
-    double err1 = JetMultiplicityUnfolded->GetBinError(i);
-    if (i>0) double err2 = JetMultiplicityUnfolded->GetBinError(i-1);
+    double err1 = sqrt (JetMultiplicityUnfolded->GetBinContent(i)); // to have the sqrt(N) error, since it has been scaled
+    if (i>0) double err2 = sqrt(JetMultiplicityUnfolded->GetBinContent(i-1));
     double z = content[i-1]/content2[i-1];
     double err= sqrt(-(content[i]*content[i])*err2*err2*(1/(content2[i]*content2[i]*content2[i]*content2[i]))+ (1/(content2[i]*content2[i]))*err1*err1);
+    cout<<"For bin "<<i<<" err1 is "<<err1<<" while err2 is "<<err2<<" -> propagated:"<<err<<endl;
     h2->SetBinContent(i, z);
     h2->SetBinError(i, err);
   }
@@ -112,9 +117,56 @@ void DotheScaling(){
   lumi->AddEntry((TObject*)1,"anti-k_{T} jets R=0.5","");
   lumi->AddEntry((TObject*)2,"p^{jet}_{T} #geq 30 GeV/c","");
 
+  //Fit the plateau: only > 1 are considered for BG scaling 
+  TF1 *fitBG=new TF1("fitBG","[0]+[1]*x",2.,5.);
+  fitBG->SetRange(1.5,5.5);
+  h2->Fit(fitBG,"R");
+  h2->Draw();
+  double a=fitBG->GetParameter(0);
+  double beta=fitBG->GetParameter(1);
   lumi->Draw();
   Canv->Update();
 
+  /////////////
+  // Get Contour
+  //////////////
 
-
+  TCanvas *c2 = new TCanvas("c2","contours",10,10,800,800);
+  //Draw the central point
+  gMinuit->SetErrorDef(9);   //Get contour for parameter 0 versus parameter 1 for ERRDEF=3 -> 3 sigma, I guess (n^2->9)  
+  TGraph *gr3 = (TGraph*)gMinuit->Contour(30,0,1);
+  gr3->SetTitle("Berends-Giele Scaling, Contour Plot");
+  gr3->SetFillColor(34);
+  gr3->GetXaxis()->SetTitle("a");
+  gr3->GetYaxis()->SetTitle("#beta");
+  gr3->Draw("alf");
+  gMinuit->SetErrorDef(4); //note 4 and not 2!
+  TGraph *gr2 = (TGraph*)gMinuit->Contour(30,0,1);
+  gr2->SetFillColor(42);
+  gr2->Draw("lf");
+  gMinuit->SetErrorDef(1);
+  TGraph *gr1 = (TGraph*)gMinuit->Contour(30,0,1);
+  gr1->SetFillColor(38);
+  gr1->Draw("lf");
+  cout<<"Your central point in contour is->"<<a<<","<<beta<<endl;
+  double x[1]={a};
+  double y[1]={beta};
+  TGraph *gr4 = new TGraph(1,x,y);
+  //gr4->GetXaxis()->SetRangeUser(0.1,0.3);
+  //gr4->GetYaxis()->SetRangeUser(0.1,-0.3);
+  gr4->SetMarkerColor(kRed);
+  gr4->SetMarkerStyle(25);
+  gr4->Draw("p");
+  TLegend* lab = new TLegend(0.616422,0.667314,0.996507,0.867012);
+  lab->SetFillColor(0);
+  lab->SetFillStyle(0);
+  lab->SetBorderSize(0);
+  lab->SetTextAlign(12);
+  lab->SetTextSize(0.0244);
+  lab->SetTextFont(42);
+  lab->AddEntry(gr3,"3 sigma","pf");
+  lab->AddEntry(gr2,"2 sigma","pf");
+  lab->AddEntry(gr1,"1 sigma","pf");
+  lab->AddEntry(gr4,"best fit","p");
+  lab->Draw();
 }
