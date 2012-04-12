@@ -27,80 +27,93 @@
 
 void DotheScaling(){
 
-using
-std::cout;
-using
-std::endl;
+  using
+    std::cout;
+  using
+    std::endl;
 
-gROOT->SetStyle("Plain");
-//gROOT->ForceStyle();
-//gROOT->LoadMacro("tdrStyle.C++");
-//tdrStyle();
+  gROOT->SetStyle("Plain");
+  //gROOT->ForceStyle();
+  //gROOT->LoadMacro("tdrStyle.C++");
+  //tdrStyle();
+ 
+  const int maxNJets=7; 
 
- const int maxNJets=7; 
+  TH1D *h2 = new TH1D ("N", "N", maxNJets-2, -0.5, maxNJets-2.5);
+  TH1D *h3 = new TH1D ("N", "N", maxNJets-2, -0.5, maxNJets-2.5);
+  h2->Sumw2();
 
-TH1D *h2 = new TH1D ("N", "N", maxNJets, 0.5, maxNJets+0.5);
-TH1D *h3 = new TH1D ("N", "N", maxNJets, 0.5, maxNJets+0.5);
+  TFile *eff = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_17pf.root");
 
+  TH1F *h1 = (TH1F*)gDirectory->Get("JetMultiplicityUnfolded");
 
-TFile *eff = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_17pf.root");
+  int counter = 1;
+  const int loop = maxNJets-1;
+  double content[loop];
+  double content2[loop];
 
-TH1F *h1 = (TH1F*)gDirectory->Get("JetMultiplicityUnfolded");
+  ///////////
+  //Reset the histo
+  ///////////
 
-int counter = 0;
-const int loop = maxNJets-1;
-double content[loop];
-double content2[loop];
-double content3[loop];
+  for(int i=0; i<loop; i++){
+    content[i]=0;
+    content2[i]=0;
+  }
 
-for(int u=1; u<loop; u++){
-	content3[u] = JetMultiplicityUnfolded->GetBinContent(u);
-}
+  ///////////
+  // Caclculate ratio and errors
+  ///////////
 
+  for(int i=1; i<=loop; i++){
+    for (unsigned int j=counter;j<=loop;j++){
+      if (j != counter) content[i-1]  += JetMultiplicityUnfolded->GetBinContent(j);
+      content2[i-1] += JetMultiplicityUnfolded->GetBinContent(j);
+      cout<<"bin "<<j<<" has entries "<<JetMultiplicityUnfolded->GetBinContent(j)<<"; numerator is "<<content[i-1]<<" while denominator is "<<content2[i-1]<<endl;
+    }
+    cout<<"ratio "<<i<<" is "<<content[i-1]/content2[i-1]<<endl;
+    counter++;
+    cout<<endl;
+  }	
 
+  //////////
+  // Fill the histogram properly
+  //////////
 
-for(int i=1; i<=loop; i++){
-	for (unsigned int j=counter;j<=loop;j++){
-	if (j != counter) content[i-1]  += JetMultiplicityUnfolded->GetBinContent(j);
-	content2[i-1] += JetMultiplicityUnfolded->GetBinContent(j);
-	}	
-	counter++;
-}	
-for(int i=1; i<=loop; i++){
-	
-	double err1 = JetMultiplicityUnfolded->GetBinError(i);
-	double err2 = JetMultiplicityUnfolded->GetBinError(i-1);
-	double z = content[i-1]/content2[i-1];
-	double err= sqrt(-(content[i]*content[i])*err2*err2*(1/(content2[i]*content2[i]*content2[i]*content2[i]))+ (1/(content2[i]*content2[i]))*err1*err1);
-	h2->SetBinContent(i, z);
-	h2->SetBinError(i, err);
-}
+  for(int i=1; i<loop; i++){
+    double err1 = JetMultiplicityUnfolded->GetBinError(i);
+    if (i>0) double err2 = JetMultiplicityUnfolded->GetBinError(i-1);
+    double z = content[i-1]/content2[i-1];
+    double err= sqrt(-(content[i]*content[i])*err2*err2*(1/(content2[i]*content2[i]*content2[i]*content2[i]))+ (1/(content2[i]*content2[i]))*err1*err1);
+    h2->SetBinContent(i, z);
+    h2->SetBinError(i, err);
+  }
 
-	TCanvas * Canv = new TCanvas("Canv","Canv",0,0,800,600);
-	Canv->cd();
-	h2->GetYaxis()->SetRangeUser(0., 0.4);
-	h2->SetMarkerStyle(20);
-	h2->SetMarkerColor(kRed);
-	h2->GetXaxis()->SetTitle("N_{Jets}");
-	h2->GetYaxis()->SetTitle("#sigma(Z + #geq N_{Jets}) / #sigma(Z + #geq (N-1)_{Jets})");
-	h2->GetYaxis()->SetTitleSize(0.03);
-	h2->GetYaxis()->SetTitleOffset(1.53);
+  TCanvas * Canv = new TCanvas("Canv","Canv",0,0,800,600);
+  Canv->cd();
+  h2->GetYaxis()->SetRangeUser(0., 0.4);
+  h2->SetMarkerStyle(20);
+  h2->SetMarkerColor(kRed);
+  h2->GetXaxis()->SetTitle("N_{Jets}");
+  h2->GetYaxis()->SetTitle("#sigma(Z + #geq N_{Jets}) / #sigma(Z + #geq (N-1)_{Jets})");
+  h2->GetYaxis()->SetTitleSize(0.03);
+  h2->GetYaxis()->SetTitleOffset(1.53);
 
-	h2->Draw("E1");
+  h2->Draw("E1");
 
-	TLegend* lumi = new TLegend(0.067,0.659,0.448,0.858);
-	lumi->SetFillColor(0);
-	lumi->SetFillStyle(0);
-	lumi->SetBorderSize(0);
-	lumi->SetTextAlign(12);
-	lumi->SetTextSize(0.0244);
-	lumi->SetTextFont(42);
-	lumi->AddEntry((TObject*)0,"#int L dt = 4.907 fb^{-1}","");
-	lumi->AddEntry((TObject*)1,"anti-k_{T} jets R=0.5","");
-	lumi->AddEntry((TObject*)2,"p^{jet}_{T} #geq 30 GeV/c","");
+  TLegend* lumi = new TLegend(0.067,0.659,0.448,0.858);
+  lumi->SetFillColor(0);
+  lumi->SetFillStyle(0);
+  lumi->SetBorderSize(0);
+  lumi->SetTextAlign(12);
+  lumi->SetTextSize(0.0244);
+  lumi->SetTextFont(42);
+  lumi->AddEntry((TObject*)0,"#int L dt = 4.907 fb^{-1}","");
+  lumi->AddEntry((TObject*)1,"anti-k_{T} jets R=0.5","");
+  lumi->AddEntry((TObject*)2,"p^{jet}_{T} #geq 30 GeV/c","");
 
-        lumi->Draw();
-	Canv->Update();
+  lumi->Draw();
+  Canv->Update();
 
 
 
