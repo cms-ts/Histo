@@ -21,6 +21,8 @@
 
 #include "lumi_scale_factors.h"
 
+bool isAngularAnalysis= true;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
+
 bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata//
 bool WholeStat= true;                // if true, reweing on RunA lumi, if false, on the whole stat. if true, the other variabs are uneffective, except lumipixel 
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
@@ -42,6 +44,7 @@ string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched
 string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_17pf.root";
 string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_17pf.root";
 string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_17pf.root";
+
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
@@ -90,6 +93,19 @@ void DrawComparisonJetMCData(void){
 	wwEvents = numEventsPerStep(WW, "demo"); 
 	// ---------------------------------------------------
 
+ 	string direc="/gpfs/cms/data/2011/Observables/";
+ 	string version="_v2_17.root";
+
+	if (isAngularAnalysis){
+	mcfile=direc+"MC_zjets"+version;
+	back_w=direc+"MC_wjets"+version;
+	back_ttbar=direc+"MC_ttbar"+version;
+	WW=direc+"MC_diW"+version;
+	ZZ=direc+"MC_siZ"+version;
+	WZ=direc+"MC_diWZ"+version;
+	datafile=direc+"DATA"+version;
+	}
+
 	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
 	mcf->cd("validationJEC/");
 	TDirectory *dir=gDirectory;
@@ -113,8 +129,7 @@ void DrawComparisonJetMCData(void){
 		//int num=tobj->GetUniqueID();
 		//cout<<"num is "<<num<<endl;
 		if(temp.Contains("weight")){
-		
-		  //TFile *mcf = TFile::Open(mcfile.c_str()); 
+		TFile *mcf = TFile::Open(mcfile.c_str()); 
 		TFile *ttbarf = TFile::Open(back_ttbar.c_str()); 
 		TFile *wf = TFile::Open(back_w.c_str());
 		TFile *wzf = TFile::Open(WZ.c_str());
@@ -252,7 +267,20 @@ void comparisonJetMCData(string plot,int rebin){
 
 	string tmp;
 
+ 	string dir="/gpfs/cms/data/2011/Observables/";
+ 	string version="_v2_17.root";
+	
+	if (isAngularAnalysis){
+	  mcfile=dir+"MC_zjets"+version;
+	  back_w=dir+"MC_wjets"+version;
+	  back_ttbar=dir+"MC_ttbar"+version;
+	  WW=dir+"MC_diW"+version;
+	  ZZ=dir+"MC_siZ"+version;
+	  WZ=dir+"MC_diWZ"+version;
+	  datafile=dir+"DATA"+version;
+	}
 	// List of files
+
 	TFile *dataf = TFile::Open(datafile.c_str()); //data file
 	TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
 	TFile *ttbarf = TFile::Open(back_ttbar.c_str()); //MC background file
@@ -405,9 +433,9 @@ void comparisonJetMCData(string plot,int rebin){
 		  if(lumiweights==1) mc->Scale(zjetsScale);
 		}
 		// fin qui
-		
 		if(lumiweights==1) mc->Scale(1./zwemean);  // perche' i Weights non fanno 1...
 		mc->Rebin(rebin);
+		cout<<zwemean<<endl;
 		if(lumiweights==0) mc->Draw("HISTO SAMES");
 		hsum->Rebin(rebin);
 		hsum->Add(mc);
