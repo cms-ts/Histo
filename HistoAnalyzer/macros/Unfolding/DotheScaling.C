@@ -27,6 +27,9 @@
 #include "TGraph.h"
 
 void DotheScaling(){
+
+  //Save plots here
+  string direc = "/afs/infn.it/ts/user/marone/html/ZJets/ScalingBG/";
   
   //be sure default is Minuit since we will use gMinuit 
   TVirtualFitter::SetDefaultFitter("Minuit");
@@ -125,7 +128,8 @@ void DotheScaling(){
   double a=fitBG->GetParameter(0);
   double beta=fitBG->GetParameter(1);
   lumi->Draw();
-  Canv->Update();
+  string path=direc+"BGScaling.png";
+  Canv->Print(path.c_str());
 
   /////////////
   // Get Contour
@@ -169,4 +173,6 @@ void DotheScaling(){
   lab->AddEntry(gr1,"1 sigma","pf");
   lab->AddEntry(gr4,"best fit","p");
   lab->Draw();
+  path=direc+"BGContour.png";
+  c2->Print(path.c_str());
 }
