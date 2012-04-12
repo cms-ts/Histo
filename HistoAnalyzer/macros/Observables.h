@@ -48,6 +48,7 @@ public :
    Double_t	   jetHt; 
    Double_t	   jet1_mass; 
    Double_t	   jet2_mass; 
+   Double_t	   evWeight; 
 
    // List of branches
    TBranch        *b_Z_pt;   //!
@@ -77,6 +78,7 @@ public :
    TBranch	  *b_jetHt; 
    TBranch	  *b_jet1_mass; 
    TBranch	  *b_jet2_mass; 
+   TBranch	  *b_evWeight;
 
    Observables(TTree *tree=0);
    virtual ~Observables();
@@ -177,6 +179,7 @@ void Observables::Init(TTree *tree)
    fChain->SetBranchAddress("jet4_eta", &jet4_eta, &b_jet4_eta);
    fChain->SetBranchAddress("jet4_phi", &jet4_phi, &b_jet4_phi);
    fChain->SetBranchAddress("jetHt", &jetHt, &b_jetHt);
+   fChain->SetBranchAddress("evWeight", &evWeight, &b_evWeight);
    
    Notify();
 }

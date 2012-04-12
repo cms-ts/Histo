@@ -2,6 +2,7 @@
  * Observables for Z+jet analysis *
  *                                *
  * Vieri Candelise March 2012     *
+ * Matteo Marone
  **********************************
  *********************************/
 
@@ -63,6 +64,7 @@ TLorentzVector J1, J2, JJ;
 
 //Important parameters
 double jetThreshold=30.0;
+bool evalDiffCS=true; // if false it does not divide for # of Zs
 
 // Files to be saved
 string dir="/gpfs/cms/data/2011/Observables/";
@@ -84,6 +86,14 @@ TFile* fWW = new TFile(sWW.c_str(), "RECREATE");
 TFile* fZZ = new TFile(sZZ.c_str(), "RECREATE");
 TFile* fWZ = new TFile(sWZ.c_str(), "RECREATE");
 TFile* fda = new TFile(sda.c_str(), "RECREATE");
+
+TDirectory *validationJECz=fzj->mkdir("validationJEC");
+TDirectory *validationJECw=fwj->mkdir("validationJEC");
+TDirectory *validationJECtt=ftt->mkdir("validationJEC");
+TDirectory *validationJECWW=fWW->mkdir("validationJEC");
+TDirectory *validationJECZZ=fZZ->mkdir("validationJEC");
+TDirectory *validationJECWZ=fWZ->mkdir("validationJEC");
+TDirectory *validationJECda=fda->mkdir("validationJEC");
 
 //FIles do be opened
 
@@ -144,11 +154,13 @@ TH2F *HZ		= new TH2F ("HZ", "HZ", 100, 30, 1000, 500, 0, 1000);
 TH2F *NZ		= new TH2F ("NZ", "NZ", 5, 0.5, 5.5, 500, 0, 1000);
 TH2F *HN		= new TH2F ("HN", "HN", 5, 0.5, 5.5, 100, 30, 1000);
 TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
+//Storing weights
+TH1F  *h_weights        = new TH1F ("h_weights","Event Weights",500,0.,5);
 
 void
 Observables::Loop()
 {
-  
+  double numbOfZ = 0;
   //DATA
   for(int i=0; i<7; i++){
     if (i==0) Fda->cd (sodda.c_str());
@@ -198,6 +210,7 @@ Observables::Loop()
     NZ		    = new TH2F ("NZ", "NZ", 5, 0.5, 5.5, 500, 0, 1000);
     HN		    = new TH2F ("HN", "HN", 5, 0.5, 5.5, 100, 30, 1000);
     NZy		    = new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
+    h_weights       = new TH1F ("h_weights","h_weights",500,0.,5);
     
     
     //Making the plots
@@ -250,6 +263,9 @@ Observables::Loop()
       
 	/* Fill histos */
 	
+	//Fill all the weights
+	h_weights->Fill(evWeight);
+
 	//if(MJJ>400 && MJJ<600){
 	
 	if (Jet_multiplicity >= 3){
@@ -310,7 +326,12 @@ Observables::Loop()
 	Phi_star_xs -> Fill(phi_star/sigma);
 	
       }
-    double numbOfZ = NData->GetEntries();
+    
+    //Get the number of Z bosons in data
+    if (i==0)  {
+      numbOfZ = NData->GetEntries();
+      cout<<"Data contains # Z ->"<<numbOfZ<<endl;
+    }
     
     jet_pT2    ->Sumw2();
     jet_pT     ->Sumw2();
@@ -324,18 +345,19 @@ Observables::Loop()
     Dphi_ZJ2   ->Sumw2();
     Phi_star   ->Sumw2();
     
-    jet_eta    ->Scale(1./numbOfZ);
-    jet_eta2   ->Scale(1./numbOfZ);
-    jet_eta3   ->Scale(1./numbOfZ);
-    jet_pT2    ->Scale(1./numbOfZ);
-    jet_pT     ->Scale(1./numbOfZ);
-    jet_pT3    ->Scale(1./numbOfZ);
-    Ht         ->Scale(1./numbOfZ);
-    Dphi_12    ->Scale(1./numbOfZ);
-    Dphi_ZJ1   ->Scale(1./numbOfZ);
-    Dphi_ZJ2   ->Scale(1./numbOfZ);
-    Phi_star   ->Scale(1./numbOfZ);
-    
+    if (evalDiffCS){
+      jet_eta    ->Scale(1./numbOfZ);
+      jet_eta2   ->Scale(1./numbOfZ);
+      jet_eta3   ->Scale(1./numbOfZ);
+      jet_pT2    ->Scale(1./numbOfZ);
+      jet_pT     ->Scale(1./numbOfZ);
+      jet_pT3    ->Scale(1./numbOfZ);
+      Ht         ->Scale(1./numbOfZ);
+      Dphi_12    ->Scale(1./numbOfZ);
+      Dphi_ZJ1   ->Scale(1./numbOfZ);
+      Dphi_ZJ2   ->Scale(1./numbOfZ);
+      Phi_star   ->Scale(1./numbOfZ);
+    }
     
     dijet_mass -> GetXaxis() -> SetTitle("M_{jj} [GeV/c^{2}]");
     Zjj_mass   -> GetXaxis() -> SetTitle("M_{Zjj} [GeV/c^{2}]");
@@ -391,29 +413,37 @@ Observables::Loop()
     
     
     /* Save on a file */
-    
+
     if(i==0){
       fda->cd();
+      validationJECda->cd();
     }
     if(i==1){
       fzj->cd();
+      validationJECz->cd();
     }
     if(i==2){
       ftt->cd();
+      validationJECtt->cd();
     }
     if(i==3){
       fWW->cd();
+      validationJECWW->cd();
     }
     if(i==4){
       fWZ->cd();
+      validationJECWZ->cd();
     }
     if(i==5){
       fZZ->cd();
+      validationJECZZ->cd();
     }
     if(i==6){
       fwj->cd();
+      validationJECw->cd();
     } 
     
+    h_weights->Write();
     dijet_mass->Write();
     Zjj_mass ->Write();       	
     Ht      ->Write("jetHt");
@@ -442,7 +472,7 @@ Observables::Loop()
     Theta_JZ->Write("Theta_JZ");
     Phi_star->Write("phi_star");
     NData->Write();
-    
+
     // Clearing plots
     dijet_mass->Delete();
     Zjj_mass  ->Delete();       	
@@ -472,7 +502,16 @@ Observables::Loop()
     jet_eta  ->Delete();
     jet_eta2 ->Delete();
     jet_eta3 ->Delete();   
+    h_weights->Delete();
+
   }
+  fzj->Close();
+  fwj->Close();
+  ftt->Close();
+  fWW->Close();
+  fZZ->Close();
+  fWZ->Close();
+  fda->Close();
 }
 
 #ifndef __CINT__
