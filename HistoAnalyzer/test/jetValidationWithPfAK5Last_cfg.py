@@ -473,6 +473,7 @@ process.JetValidation = cms.Path(
     process.Selection*
     process.demo*
     process.goodEPair*
+    process.validation*
     process.validationL2L3Residual
     *process.validationJEC
     )
