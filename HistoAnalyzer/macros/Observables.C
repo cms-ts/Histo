@@ -141,9 +141,11 @@ TH1F *ele_phi	        = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
 TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 30, 30, 330);
 TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 30, 30, 330);
 TH1F *jet_pT3	        = new TH1F ("jet_pT3", "jet_pT3", 30, 30, 330);
+TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 30, 30, 330);
 TH1F *jet_eta	        = new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
 TH1F *jet_eta2	        = new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
 TH1F *jet_eta3	        = new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
+TH1F *jet_eta4	        = new TH1F ("jet_eta4", "jet_eta4", 30, -2.5, 2.5);
 TH1F *Z_pT		= new TH1F ("Z_pT", "Z_pT", 50, 30, 500);
 TH1F *dijet_mass	= new TH1F ("dijet_mass", "dijet_mass", 10, 400, 600);
 TH1F *Zjj_mass	        = new TH1F ("Zjj_mass", "Zjj_mass", 10, 400, 600);
@@ -197,10 +199,12 @@ Observables::Loop()
     jet_pT	    = new TH1F ("jet_pT", "jet_pT", 30, 30, 330);
     jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 30, 30, 330);
     jet_pT3	    = new TH1F ("jet_pT3", "jet_pT3", 30, 30, 330);
+    jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 30, 30, 330);
     jet_eta	    = new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
     jet_eta2	    = new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
     jet_eta3	    = new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
-    Z_pT		    = new TH1F ("Z_pT", "Z_pT", 50, 30, 500);
+    jet_eta4	    = new TH1F ("jet_eta4", "jet_eta4", 30, -2.5, 2.5);
+    Z_pT	    = new TH1F ("Z_pT", "Z_pT", 50, 30, 500);
     dijet_mass	    = new TH1F ("dijet_mass", "dijet_mass", 10, 400, 600);
     Zjj_mass	    = new TH1F ("Zjj_mass", "Zjj_mass", 10, 400, 600);
     Theta_JZ	    = new TH1F ("Theta_JZ", "Theta_JZ", 100, -1, 1);
@@ -260,70 +264,92 @@ Observables::Loop()
 	if(DphiZJ3 > TMath::Pi())  DphiZJ3 = 2*TMath::Pi() - DphiZJ3;
 	
 	double Dphi_event = Dphi12 + Dphi13 + Dphi23;
-      
+
+	////////////////      
 	/* Fill histos */
-	
+	////////////////
+
 	//Fill all the weights
 	h_weights->Fill(evWeight);
 
-	//if(MJJ>400 && MJJ<600){
-	
+
 	if (Jet_multiplicity >= 3){
 	  if (Z_pt > jet1_pt && jet1_pt > jet2_pt) {
-	    Dphi_all_Zlead -> Fill(Dphi_event);	
+	    Dphi_all_Zlead -> Fill(Dphi_event,evWeight);	
 	  }else if((jet1_pt > Z_pt && Z_pt > jet2_pt) || (jet1_pt > jet2_pt && jet2_pt > Z_pt)) { 
-	    Dphi_all_notZlead -> Fill(Dphi_event);
+	    Dphi_all_notZlead -> Fill(Dphi_event,evWeight);
 	  }
 	}
 	
 	if(Z_pt != 0 && Jet_multiplicity > 0){
-	  Theta_JZ->Fill(TMath::Cos(theta_JZ));  
+	  Theta_JZ->Fill(TMath::Cos(theta_JZ),evWeight);  
 	}
 	
-	NData->Fill(Jet_multiplicity);
+	NData->Fill(Jet_multiplicity,evWeight);
 	
-	if(Jet_multiplicity>0) Ht->Fill(jetHt);
-	ele_pT   ->Fill(e1_pt);
-	ele_eta  ->Fill(e1_eta);
-	ele_phi  ->Fill(e1_phi);
+
+	///////////////////
+	///  HT, inclusive pt,eta and phi
+	/////////////////// 
+
+
+	if(Jet_multiplicity>0) Ht->Fill(jetHt,evWeight);
+	ele_pT   ->Fill(e1_pt,evWeight);
+	ele_eta  ->Fill(e1_eta,evWeight);
+	ele_phi  ->Fill(e1_phi,evWeight);
+
+
+	///////////////////
+	///  jet pt/eta spectra, up to 4
+	/////////////////// 
+
 	
 	if(jet1_pt>jetThreshold && jet1_pt<350 && jet1_eta>-3 && jet1_eta<3){	
-	  jet_pT  -> Fill(jet1_pt);
-	  jet_eta -> Fill(jet1_eta);
+	  jet_pT  -> Fill(jet1_pt,evWeight);
+	  jet_eta -> Fill(jet1_eta,evWeight);
 	}
 	
 	if (Jet_multiplicity > 1 && jet2_pt > jetThreshold && jet2_pt <350 && TMath::Abs(jet2_eta)<2.5){
-	  jet_pT2 -> Fill(jet2_pt);
-	  jet_eta2 -> Fill(jet2_eta);
+	  jet_pT2 -> Fill(jet2_pt,evWeight);
+	  jet_eta2 -> Fill(jet2_eta,evWeight);
 	  
 	}
 	
-	if (Jet_multiplicity > 3 && jet3_pt > jetThreshold && jet3_pt <350 && TMath::Abs(jet3_eta)<2.5){
-	  jet_pT3 -> Fill(jet3_pt);
-	  jet_eta3 -> Fill(jet3_eta);
-	  
+	if (Jet_multiplicity > 2 && jet3_pt > jetThreshold && jet3_pt <350 && TMath::Abs(jet3_eta)<2.5){
+	  jet_pT3 -> Fill(jet3_pt,evWeight);
+	  jet_eta3 -> Fill(jet3_eta,evWeight);
 	}
+
+	if (Jet_multiplicity > 3 && jet4_pt > jetThreshold && jet4_pt <350 && TMath::Abs(jet4_eta)<2.5){
+	  jet_pT4 -> Fill(jet4_pt,evWeight);
+	  jet_eta4 -> Fill(jet4_eta,evWeight);
+	}
+
+	///////////////////
+	///  Z Boson, Ht and angles and other
+	/////////////////// 
 	
-	Z_pT     ->Fill(Z_pt);
-	HZ       ->Fill(Z_pt, jetHt);
-	HN       ->Fill(Jet_multiplicity, jetHt);
-	NZ       ->Fill(Jet_multiplicity, Z_pt);
-	NZy      ->Fill(Jet_multiplicity, Z_y);
-	if (Jet_multiplicity >  0) Dphi_12  ->Fill(Dphi12);
-	if (Jet_multiplicity >  2) Dphi_13  ->Fill(Dphi13);
-	if (Jet_multiplicity >  2) Dphi_23  ->Fill(Dphi23);
 	
-	if (Jet_multiplicity >  0) Dphi_ZJ1 ->Fill(DphiZJ1);
-	if (Jet_multiplicity >  1) Dphi_ZJ2 ->Fill(DphiZJ2);
-	if (Jet_multiplicity >  2) Dphi_ZJ3 ->Fill(DphiZJ3);
+	Z_pT     ->Fill(Z_pt,evWeight);
+	HZ       ->Fill(Z_pt, jetHt,evWeight);
+	HN       ->Fill(Jet_multiplicity, jetHt,evWeight);
+	NZ       ->Fill(Jet_multiplicity, Z_pt,evWeight);
+	NZy      ->Fill(Jet_multiplicity, Z_y,evWeight);
+	if (Jet_multiplicity >  0) Dphi_12  ->Fill(Dphi12,evWeight);
+	if (Jet_multiplicity >  2) Dphi_13  ->Fill(Dphi13,evWeight);
+	if (Jet_multiplicity >  2) Dphi_23  ->Fill(Dphi23,evWeight);
 	
-	if (Jet_multiplicity >  1) dijet_mass ->Fill(MJJ); 
-	if (Jet_multiplicity >  1) Zjj_mass ->Fill(ZJJ); 
+	if (Jet_multiplicity >  0) Dphi_ZJ1 ->Fill(DphiZJ1,evWeight);
+	if (Jet_multiplicity >  1) Dphi_ZJ2 ->Fill(DphiZJ2,evWeight);
+	if (Jet_multiplicity >  2) Dphi_ZJ3 ->Fill(DphiZJ3,evWeight);
 	
-	if (Jet_multiplicity >  0) Phi_star->Fill(phi_star);
+	if (Jet_multiplicity >  1) dijet_mass ->Fill(MJJ,evWeight); 
+	if (Jet_multiplicity >  1) Zjj_mass ->Fill(ZJJ,evWeight); 
+	
+	if (Jet_multiplicity >  0) Phi_star->Fill(phi_star,evWeight);
 	
 	double sigma = Phi_star -> GetEntries();
-	Phi_star_xs -> Fill(phi_star/sigma);
+	Phi_star_xs -> Fill(phi_star/sigma,evWeight);
 	
       }
     
@@ -336,9 +362,11 @@ Observables::Loop()
     jet_pT2    ->Sumw2();
     jet_pT     ->Sumw2();
     jet_pT3    ->Sumw2();
+    jet_pT4    ->Sumw2();
     jet_eta    ->Sumw2();
     jet_eta2   ->Sumw2();
     jet_eta3   ->Sumw2();
+    jet_eta4   ->Sumw2();
     Ht         ->Sumw2();
     Dphi_12    ->Sumw2();
     Dphi_ZJ1   ->Sumw2();
@@ -349,9 +377,11 @@ Observables::Loop()
       jet_eta    ->Scale(1./numbOfZ);
       jet_eta2   ->Scale(1./numbOfZ);
       jet_eta3   ->Scale(1./numbOfZ);
+      jet_eta4   ->Scale(1./numbOfZ);
       jet_pT2    ->Scale(1./numbOfZ);
       jet_pT     ->Scale(1./numbOfZ);
       jet_pT3    ->Scale(1./numbOfZ);
+      jet_pT4    ->Scale(1./numbOfZ);
       Ht         ->Scale(1./numbOfZ);
       Dphi_12    ->Scale(1./numbOfZ);
       Dphi_ZJ1   ->Scale(1./numbOfZ);
@@ -369,9 +399,11 @@ Observables::Loop()
     jet_pT -> GetXaxis() -> SetTitle("Leading jet p_{T} [GeV/c]");
     jet_pT2   -> GetXaxis() -> SetTitle("2^{nd} jet p_{T} [GeV/c]");
     jet_pT3   -> GetXaxis() -> SetTitle("3^{rd} jet p_{T} [GeV/c]");
+    jet_pT4   -> GetXaxis() -> SetTitle("4^{th} jet p_{T} [GeV/c]");
     jet_eta -> GetXaxis() -> SetTitle("Leading jet #eta [GeV/c]");
     jet_eta2   -> GetXaxis() -> SetTitle("2^{nd} jet #eta [GeV/c]");
     jet_eta3   -> GetXaxis() -> SetTitle("3^{rd} jet #eta [GeV/c]");
+    jet_eta4   -> GetXaxis() -> SetTitle("4^{th} jet #eta [GeV/c]");
     Z_pT     -> GetXaxis() -> SetTitle("Z boson p_{T} [GeV/c]");
     HZ       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
     HN       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
@@ -394,9 +426,11 @@ Observables::Loop()
     jet_pT   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
     jet_pT2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
     jet_pT3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
+    jet_pT4   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d p_{T}");
     jet_eta  -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}})   dN/d #eta");
     jet_eta2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
     jet_eta3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
+    jet_eta4   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
     Z_pT     -> GetYaxis() -> SetTitle("Events");
     HZ       -> GetYaxis() -> SetTitle("Z boson p_{T} [GeV/c]");
     HN       -> GetYaxis() -> SetTitle("Jet multiplicity");
@@ -453,9 +487,11 @@ Observables::Loop()
     jet_pT  ->Write("jet1_pt");
     jet_pT2  ->Write("jet2_pt");
     jet_pT3  ->Write("jet3_pt");
+    jet_pT4  ->Write("jet4_pt");
     jet_eta  ->Write("jet1_eta");
     jet_eta2  ->Write("jet2_eta");
     jet_eta3  ->Write("jet3_eta");
+    jet_eta4  ->Write("jet4_eta");
     Z_pT    ->Write("Z_pt");
     Dphi_all_Zlead ->Write("Dphi_all_Zlead");
     Dphi_all_notZlead -> Write("Dphi_all_notZlead");
@@ -484,6 +520,7 @@ Observables::Loop()
     jet_pT    ->Delete();
     jet_pT2   ->Delete();
     jet_pT3   ->Delete();
+    jet_pT4   ->Delete();
     Z_pT      ->Delete();
     Dphi_all_Zlead ->Delete();
     Dphi_all_notZlead ->Delete();
@@ -502,6 +539,7 @@ Observables::Loop()
     jet_eta  ->Delete();
     jet_eta2 ->Delete();
     jet_eta3 ->Delete();   
+    jet_eta4 ->Delete();   
     h_weights->Delete();
 
   }
