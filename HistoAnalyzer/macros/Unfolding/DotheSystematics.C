@@ -29,8 +29,8 @@ void DotheSystematics(){
         //TFile *A = TFile::Open("Unfolding.root");
         //TH1F *h1 = (TH1F*)gDirectory->Get("NReco");
 
-	TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_dataOct03_v1_11.root");
-        f->cd("validation/");
+	TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_17.root");
+        f->cd("validationJEC/"); //wrong one!!! need to have the dir. w/o JEC
 	
 	TH1F *NoJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
 	
