@@ -74,6 +74,7 @@ class HistoProducer : public edm::EDProducer {
       edm::InputTag VertexCollectionTag_;
       std::vector<std::string>  numEventsNames_;
       std::string WhichRun_;
+      std::string rootuplaname;
  
       bool useCombinedPrescales_; // switch between HLT only and L1*HLT prescales
       bool useAllTriggers_; // if no trigger names are provided, use all triggers to find event weight
@@ -84,6 +85,7 @@ class HistoProducer : public edm::EDProducer {
       bool usingMC_;
       bool doTheHLTAnalysis_;
       TimeValue_t  Timestamp;
+      bool giveEventWeightEqualToOne_;
 
       //Event Counter
       int lumi;
@@ -277,6 +279,8 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   VertexCollectionTag_  = conf.getParameter<edm::InputTag>("VertexCollectionTag");
   numEventsNames_       = conf.getParameter< std::vector<std::string> > ("TotalNEventTag");
   WhichRun_             = conf.getParameter< std::string > ("WhichRun");
+  giveEventWeightEqualToOne_ = conf.getParameter<bool>("giveEventWeightEqualToOne");
+  rootuplaname          = conf.getParameter< std::string > ("RootuplaName");
 
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 

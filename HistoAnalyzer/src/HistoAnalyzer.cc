@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.39 2012/03/28 12:15:52 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.40 2012/03/28 12:25:30 marone Exp $
 //
 //
 
@@ -210,7 +210,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////// Pile UP studies
   /////////////////
   
-  if (usingMC_){
+  if (usingMC_ && !giveEventWeightEqualToOne_){
     edm::InputTag PileupSrc_ = (edm::InputTag) "addPileupInfo";
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
     iEvent.getByLabel(PileupSrc_, PupInfo);
@@ -550,8 +550,9 @@ vRun.clear();
    //LumiWeights_.weight3D_init( ScaleFactor ); UNESSENTIAL AT FIRST SIGHT! CHECK IF REWEWIGHT IS SCREWED UP!!!
  }
 	//TFile and TTree initialization
-	treeVJ_= new TTree("treeVJ_","treeVJ_");
-	treeHLT_= new TTree("treeHLT_","treeHLT_");
+ //TFile and TTree initialization
+ treeVJ_= new TTree(rootuplaname.c_str(),rootuplaname.c_str());
+ treeHLT_= new TTree("treeHLT_","treeHLT_");
 
 	//////////////////
 	//// Z->EE SELECTION VARIABLES 
