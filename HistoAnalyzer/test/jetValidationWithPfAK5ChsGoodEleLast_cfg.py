@@ -73,7 +73,7 @@ readFiles = cms.untracked.vstring()
 readFiles.extend([
 #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
   #"file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/B05CFB4E-7AF1-E011-B4BF-0015178C1574.root"
-   "file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-19Nov2011-v1/0000/08EABC25-971A-E111-9EDC-001D0967D625.root"
+  "file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-19Nov2011-v1/0000/08F51AA2-A71A-E111-B4EA-001D0967B82E.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -487,10 +487,28 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
-                              eventWeightsCollection= cms.string("EventWeight") 
+                              WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              eventWeightsCollection= cms.string("EventWeight"),
+                              RootuplaName = cms.string("treeVJ_"),
+                              giveEventWeightEqualToOne= cms.bool(False),
 )
 
+process.demobefore = cms.EDProducer('HistoProducer',
+                                    electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
+                                    triggerCollection = cms.InputTag("TriggerResults","","HLT"),
+                                    UseCombinedPrescales = cms.bool(False),
+                                    #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
+                                    TriggerNames = trigger2011v3,
+                                    removePU=  cms.bool(True),
+                                    usingMC=  cms.bool(False),
+                                    doTheHLTAnalysis = cms.bool(True),
+                                    VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                                    TotalNEventTag = cms.vstring('TotalEventCounter'),
+                                    WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                                    eventWeightsCollection= cms.string("EventWeight"),
+                                    giveEventWeightEqualToOne= cms.bool(False),
+                                    RootuplaName = cms.string("treeVJBefore_"),
+                                    )
 
 ######################
 #                    #
@@ -666,7 +684,8 @@ process.TAPAnalysisRECO = cms.Path(
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
     process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*     
+    process.patElectronsWithTrigger*
+    process.demobefore*
     process.Selection*
     process.demo*
     process.goodEPair*
