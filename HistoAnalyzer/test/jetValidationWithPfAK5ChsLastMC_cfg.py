@@ -65,12 +65,40 @@ process.GlobalTag.globaltag = 'MC_44_V5D::All'
 #### Files
 ###################
 
+# readFiles = cms.untracked.vstring()
+# readFiles.extend([
+# #"file:/gpfs/cms/data/2011/r9test/pythiaZ2tunesroot/FEF7EE7B-8780-E011-837F-E41F131816A8.root",
+# "file:/gpfs/cms/data/2011/SynchTest/DYJetsToLL_TuneZ2_PU_S6_START44.root",
+#     ])
+
+#No FSR
+# readFiles = cms.untracked.vstring()
+# readFiles.extend([    
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_5_1_gjk.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_2_1_zEi.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_3_1_fL9.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_1_1_BaG.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_4_1_Rhn.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_6_1_5wf.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_7_1_jrE.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_9_1_AeS.root",
+# "file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_nolepfsr_cff_py_RAW2DIGI_L1Reco_RECO_8_1_tEX.root",
+#     ])
+
+# #Tauola
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-#"file:/gpfs/cms/data/2011/r9test/pythiaZ2tunesroot/FEF7EE7B-8780-E011-837F-E41F131816A8.root",
-"file:/gpfs/cms/data/2011/SynchTest/DYJetsToLL_TuneZ2_PU_S6_START44.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_2_1_vpH.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_1_1_5GF.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_6_1_JKT.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_7_1_BcD.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_4_1_LZx.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_3_1_s7f.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_8_1_kAs.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_5_1_lkN.root",
+"file:/gpfs/cms/data/2012/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph/20120410-RAW2DIGI_L1Reco_RECO-CMSSW_4_4_2_patch8/Hadronizer_MgmMatchTuneZ2_7TeV_madgraph_tauola_cff_py_RAW2DIGI_L1Reco_RECO_9_1_0zt.root",
     ])
-
+    
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(500),
  )
@@ -443,9 +471,10 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(False),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##Select which datasets you wonna use to reweight
+                              WhichRun = cms.string("Run2011AB"), ##Select which datasets you wonna use to reweight
                               RootuplaName = cms.string("treeVJ_"),
-                              eventWeightsCollection= cms.string("EventWeight")
+                              eventWeightsCollection= cms.string("EventWeight"),
+                              giveEventWeightEqualToOne= cms.bool(False),
 )
 
 
