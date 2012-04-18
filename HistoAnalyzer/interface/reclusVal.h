@@ -1,4 +1,4 @@
-e#ifndef reclusVal_h
+#ifndef reclusVal_h
 #define reclusVal_h
 
 // system files
