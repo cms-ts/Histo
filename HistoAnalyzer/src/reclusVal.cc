@@ -199,6 +199,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }else {
 	       h_deltaEtaBVjet_EB->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    }
+	    h_totEtaBV_EB->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    if (fabs(e1.Eta()-jet1.Eta()) > 1.3 && fabs(e1.Eta()-jet1.Eta()) < 1.7){
 	       h_cracksEtaBVe_EB->Fill(e1.Eta(),myweight[0]);
 	       h_cracksEtaBVjet_EB->Fill(jet1.Eta(),myweight[0]);
@@ -223,6 +224,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }else {
 	       h_deltaEtaBVjet_EE->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    }
+	    h_totEtaBV_EE->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    h_deltaPhiBV_EE->Fill(deltaPhi,myweight[0]);
 	    h_deltaRBV_EE->Fill(dist1,myweight[0]);
 	    h_deltaEtaPhiBV_EE->Fill(fabs(e1.Eta()-jet1.Eta()),deltaPhi,myweight[0]);	 
@@ -237,6 +239,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }else {
 	       h_deltaEtaBVjet_EB->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    }
+	    h_totEtaBV_EB->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    if (fabs(e2.Eta()-jet2.Eta()) > 1.3 && fabs(e2.Eta()-jet2.Eta()) < 1.7){
 	       h_cracksEtaBVe_EB->Fill(e2.Eta(),myweight[0]);
 	       h_cracksEtaBVjet_EB->Fill(jet2.Eta(),myweight[0]);
@@ -261,6 +264,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }else {
 	       h_deltaEtaBVjet_EE->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    }
+	    h_totEtaBV_EE->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    h_deltaPhiBV_EE->Fill(deltaPhi,myweight[0]);
 	    h_deltaRBV_EE->Fill(dist2,myweight[0]);
 	    h_deltaEtaPhiBV_EE->Fill(fabs(e2.Eta()-jet2.Eta()),deltaPhi,myweight[0]);	 

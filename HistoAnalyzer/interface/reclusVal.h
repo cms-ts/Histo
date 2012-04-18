@@ -1,4 +1,4 @@
-#ifndef reclusVal_h
+e#ifndef reclusVal_h
 #define reclusVal_h
 
 // system files
@@ -99,6 +99,7 @@ class reclusVal : public edm::EDAnalyzer {
       TH1F * h_cracksEtaBVe_EB;
       TH1F * h_cracksEtaBVjet_EB;
       TH2F * h_cracksEtaBV_EB;
+      TH2F * h_totEtaBV_EB;
       TH1F * h_cracks2EtaBVe_EB;
       TH1F * h_cracks2EtaBVjet_EB;
       TH2F * h_cracks2EtaBV_EB;
@@ -119,6 +120,7 @@ class reclusVal : public edm::EDAnalyzer {
       TH1F * h_deltaEtaBV_EE;
       TH1F * h_deltaEtaBVe_EE;
       TH1F * h_deltaEtaBVjet_EE;
+      TH2F * h_totEtaBV_EE;
       TH1F * h_deltaEtaAV_EE;
       TH1F * h_deltaEtaRC_EE;
       TH1F * h_deltaPhiBV_EE;
@@ -198,6 +200,7 @@ reclusVal::reclusVal(const edm::ParameterSet& conf)
   h_cracksEtaBVe_EB = fs->make<TH1F>("h_cracksEtaBVe_EB","cracksEtaBVe_EB",500,-2.5,2.5);
   h_cracksEtaBVjet_EB = fs->make<TH1F>("h_cracksEtaBVjet_EB","cracksEtaBVjet_EB",500,-2.5,2.5);
   h_cracksEtaBV_EB = fs->make<TH2F>("h_cracksEtaBV_EB","cracksEtaBV_EB",500,-2.5,2.5,500,-2.5,2.5);
+  h_totEtaBV_EB = fs->make<TH2F>("h_totEtaBV_EB","totEtaBV_EB",500,-2.5,2.5,500,-2.5,2.5);
   h_cracks2EtaBVe_EB = fs->make<TH1F>("h_cracks2EtaBVe_EB","cracks2EtaBVe_EB",500,-2.5,2.5);
   h_cracks2EtaBVjet_EB = fs->make<TH1F>("h_cracks2EtaBVjet_EB","cracks2EtaBVjet_EB",500,-2.5,2.5);
   h_cracks2EtaBV_EB = fs->make<TH2F>("h_cracks2EtaBV_EB","cracks2EtaBV_EB",500,-2.5,2.5,500,-2.5,2.5);
@@ -219,6 +222,7 @@ reclusVal::reclusVal(const edm::ParameterSet& conf)
   h_deltaEtaBV_EE = fs->make<TH1F>("h_deltaEtaBV_EE","deltaEtaBV_EE",500,0,5);
   h_deltaEtaBVe_EE = fs->make<TH1F>("h_deltaEtaBVe_EE","deltaEtaBVe_EE",500,0,5);
   h_deltaEtaBVjet_EE = fs->make<TH1F>("h_deltaEtaBVjet_EE","deltaEtaBVjet_EE",500,0,5);
+  h_totEtaBV_EE = fs->make<TH2F>("h_totEtaBV_EE","totEtaBV_EE",500,-2.5,2.5,500,-2.5,2.5);
   h_deltaEtaAV_EE = fs->make<TH1F>("h_deltaEtaAV_EE","deltaEtaAV_EE",500,0,5);
   h_deltaEtaRC_EE = fs->make<TH1F>("h_deltaEtaRC_EE","deltaEtaRC_EE",500,0,5);
 
