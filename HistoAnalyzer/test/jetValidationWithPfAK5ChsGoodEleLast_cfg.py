@@ -72,8 +72,7 @@ process.GlobalTag.globaltag = 'FT_R_44_V9::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
 #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
-  #"file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/B05CFB4E-7AF1-E011-B4BF-0015178C1574.root"
-  "file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-19Nov2011-v1/0000/08F51AA2-A71A-E111-B4EA-001D0967B82E.root"
+   "file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-19Nov2011-v1/0000/08EABC25-971A-E111-9EDC-001D0967D625.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -305,6 +304,12 @@ process.goodEPair = cms.EDProducer('pfAnalyzer',
                                    removePU=  cms.bool(False),
                                    )
 
+process.goodElec = cms.EDProducer('goodEleProducer',
+                                   electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                                   pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
+                                   removePU=  cms.bool(False),
+                                   )
+
 process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3Residual"),
@@ -453,7 +458,7 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
 process.reclusValidation = cms.EDAnalyzer('reclusVal',
                                        electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3Residual"),
-                                       jetCollectionRC = cms.InputTag("ak5PFJetsRCL1FastL2L3Residual"),
+                                       jetCollectionRC = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        tpMapName = cms.string('EventWeight'),
@@ -487,10 +492,10 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
                               eventWeightsCollection= cms.string("EventWeight"),
-                              RootuplaName = cms.string("treeVJ_"),
                               giveEventWeightEqualToOne= cms.bool(False),
+                              RootuplaName = cms.string("treeVJ_")
 )
 
 process.demobefore = cms.EDProducer('HistoProducer',
@@ -535,7 +540,8 @@ process.isoValElectronWithCharged.deposits[0].deltaR = 0.4
 process.isoValElectronWithPhotons.deposits[0].deltaR = 0.4
 process.pfIsolatedElectrons.isolationCut = 0.2
 process.pfNoElectron.bottomCollection = cms.InputTag("pfNoPileUp")
-process.pfNoElectron.topCollection = cms.InputTag("goodEPair")
+#process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
+process.pfNoElectron.topCollection = cms.InputTag("goodElec")   #remove all the electron passing the selections
 
 ######################
 #                    #
@@ -641,7 +647,8 @@ process.ToolInizialization = cms.Path(
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
-    process.goodEPair*
+    process.goodElec*
+    #process.goodEPair*
     process.pfNoElectron*
     process.ak5PFJetsRC*
     process.ak5PFchsJetsRCL1FastL2L3Residual*
@@ -652,30 +659,35 @@ process.ToolInizialization = cms.Path(
     )
 
 process.TAPAnalysisWP80 = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPwp80
     )
 
 process.TAPAnalysisWP80newHE = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPwp80newHE
     )
 
 process.TAPAnalysisHLTele8 = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPhltele8
     )
 
 process.TAPAnalysisHLTele17 = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLTele17*
     process.patElectronsWithTriggerele17*
     process.TAPhltele17
     )
 
 process.TAPAnalysisRECO = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPreco
@@ -684,11 +696,12 @@ process.TAPAnalysisRECO = cms.Path(
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
     process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*
-    process.demobefore*
+    process.patElectronsWithTrigger*  
+    process.demobefore*   
+    process.goodOfflinePrimaryVertices*
     process.Selection*
-    process.demo*
     process.goodEPair*
+    process.demo*
     process.reclusValidation*
     process.validationOldJEC*
     process.validationPUJEC*
