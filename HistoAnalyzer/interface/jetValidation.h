@@ -75,6 +75,7 @@ class jetValidation : public edm::EDAnalyzer {
       virtual void endRun(edm::Run const&, edm::EventSetup const&);
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual double evaluateJECUncertainties(double jetpt,double jeteta);
 
 
       std::string tpMapName;
@@ -93,6 +94,7 @@ class jetValidation : public edm::EDAnalyzer {
       bool usingPF;
       bool useCkElInJet;
       bool doPlotsJetComposition;
+      double param;
 
       //Unfolding Rootple and members
       TTree* treeUN_;
@@ -104,6 +106,11 @@ class jetValidation : public edm::EDAnalyzer {
       double Z_pt_gen;
       double Z_y_gen;
       int Jet_multiplicity_gen;
+      double jet1_pt_gen;
+      double jet2_pt_gen;
+      double jet3_pt_gen;
+      double jet4_pt_gen;
+
 
       // member for angular distributions  
       double e1_pt;
@@ -370,6 +377,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   neutralEmEnergyFraction= conf.getParameter<double>("neutralEmEnergyFraction");
   chargedHadronEnergyFraction= conf.getParameter<double>("chargedHadronEnergyFraction");
   chargedMultiplicity= conf.getParameter<int>("chargedMultiplicity");
+  param                = conf.getParameter<double>("JECUncertainties");
 
   double maxEnJet=200;
 //EB ========================================================================

@@ -4,6 +4,8 @@
 #include "Histo/HistoAnalyzer/interface/jetValidation.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 //
 // member functions
 //
@@ -148,6 +150,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       std::vector<math::XYZTLorentzVector> JetContainer;  
       JetContainer.clear();
+      std::vector<math::XYZTLorentzVector> GenJetContainer;  
+      GenJetContainer.clear();
+
       Handle<PFJetCollection> pfJets;
       iEvent.getByLabel(jetCollection_, pfJets);
       if (pfJets.isValid()) {
@@ -156,13 +161,17 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 //
          for(reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
 	     jet!=pfJets->end (); jet++) {
-	    
+
+	   double uncert=evaluateJECUncertainties(jet->pt(), jet->eta()); //pt of the jet changed, if JEC unc are "active".
+	   double corr=(1.0+uncert*param);                                // "param" is defined in the cfi: ±1 -> sistematics, 0 normal
+	   math::XYZTLorentzVector myjet(jet->px()*corr, jet->py()*corr, jet->pz()*corr, jet->p()*corr);
+	   
 	    // check if the jet is equal to one of the isolated electrons
 	    double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
 	    double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
 	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
 		// cut on the jet pt 
-		&& jet->pt()> minPtJets
+		&& myjet.Pt()> minPtJets
 		&& fabs(jet->eta())<maxEtaJets
 		&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
 		&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
@@ -170,7 +179,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
 		&& jet->chargedMultiplicity()>chargedMultiplicity
 	       ){ 
-	       JetContainer.push_back(jet->p4()); 
+	       JetContainer.push_back(myjet); 
 	    }
 	 }
          std::stable_sort(JetContainer.begin(),JetContainer.end(),GreaterPt()); 
@@ -397,12 +406,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
 	 h_sizeJetRejected->Fill(sizeRJ,myweight[0]);
       }
+
+
 //------------------------------------------------------------------------------------------------- 
 // study on  P A S S I N G  jets *************************************************************************
 //-------------------------------------------------------------------------------------------------
       for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); 
 	   jet != JetContainer.end (); jet++) {
-	 
 	 // jet in the BARREL
 	 if (fabs(jet->Eta())<edgeEB){
 	    totJetsCk++;
@@ -484,9 +494,37 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
 
-      //////////////////
+
+      /////////////////////////////////////////////////////////////////////////////////
       //Filling the Unfolding rootuple!
-      //////////////////
+      /////////////////////////////////////////////////////////////////////////////////
+
+
+      /////////////////////
+      /// Create a JetGenContainer, as done for the RecoJets, to create the jetpt variable, afterwards
+      ////////////////////
+
+      if (usingMC){
+	edm::Handle<reco::GenJetCollection> genJets;
+	iEvent.getByLabel(genJetsCollection, genJets );
+	
+	for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
+	  // check if the jet is equal to one of the isolated electrons
+	  double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
+	  double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
+	  if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
+	      // cut on the jet pt 
+	      //&& jet->pt()> minPtJets //No Cut on Energy!!!!!
+	      //&& fabs(jet->eta())<maxEtaJets
+	      ){ 
+	    GenJetContainer.push_back(jet->p4()); 
+	  }
+	}
+	std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GreaterPt()); 
+      }
+
+      ///////////////////////////////////////
+
       Jet_multiplicity=totJets;
       Z_y=e_pair.Rapidity();
       Z_pt=zPt;
@@ -494,7 +532,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       Jet_multiplicity_gen=-9999;
       Z_y_gen=-9999;
       Z_pt_gen=-9999;
+      jet1_pt_gen=-9999;
+      jet2_pt_gen=-9999;
+      jet3_pt_gen=-9999;
+      jet4_pt_gen=-9999;
 
+      
       //bUILDING THE Z GEN BOSON
 
       if (usingMC){
@@ -518,7 +561,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//Number of GenJet
 	edm::Handle<reco::GenJetCollection> genJets;
 	iEvent.getByLabel(genJetsCollection, genJets );
-	
+
 	for (reco::GenJetCollection::const_iterator iter=genJets->begin();iter!=genJets->end();++iter){
 	  if (ele_gen_vec.size()==2){  // Only jets reaching the detector are allowed...
 	    // check if the jet is equal to one of the isolated electrons
@@ -543,6 +586,43 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (numbOfJets<100) Jet_multiplicity_gen=numbOfJets;
       }
       //DONE
+
+      ///////////////////
+      ///// Matching Gen-RECO
+      ///////////////////
+
+      if (usingMC){
+	// Loop sui RecoGet ordinati in pt
+	std::vector <double> jetpt_gen; 
+	//cout<<"Reco Jet size is "<<JetContainer.size()<<" while gen size is "<<GenJetContainer.size()<<endl;
+	for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); jet != JetContainer.end (); jet++) {
+	  //cout<<"++++++++++ Reco Jet has pt of "<<jet->Pt()<<" and eta "<<jet->Eta()<<" and phi "<<jet->Phi()<<endl;
+	  // Calcolare il DeltaR verso tutti i GenJet
+	  double deltaRGenReco=9999;
+	  double matchedGJetpt=9999;
+	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
+	    //cout<<"Gen Jet has pt of "<<gjet->Pt()<<" and eta "<<gjet->Eta()<<" and phi "<<gjet->Phi()<<endl;
+	    //DeltaR
+	    double deltaRswap= sqrt( pow(jet->eta()-gjet->eta(),2)+pow(jet->phi()-gjet->phi(),2) );
+	    //cout<<"Delta r is "<<deltaRswap<<endl;
+	    if (deltaRswap < deltaRGenReco) {
+	      deltaRGenReco=deltaRswap;
+	      matchedGJetpt=gjet->Pt();
+	      //cout<<"New Delta r is "<<deltaRswap<<" and Pt is "<<matchedGJetpt<<endl;
+	    }
+	  }
+	  jetpt_gen.push_back(matchedGJetpt);
+	}
+	int gvectorsize=jetpt_gen.size();
+	if (gvectorsize>0) jet1_pt_gen=jetpt_gen[0];
+	if (gvectorsize>1) jet2_pt_gen=jetpt_gen[1];
+	if (gvectorsize>2) jet3_pt_gen=jetpt_gen[2];
+	if (gvectorsize>3) jet4_pt_gen=jetpt_gen[3];
+	//cout<<"gen jet1 has pt "<<jet1_pt_gen<<" jet2 "<<jet2_pt_gen<<" jet3 "<<jet3_pt_gen<<" jet4_pt_gen "<<jet4_pt_gen<<endl;
+      }
+      GenJetContainer.clear();
+      //cout<<"------"<<endl;
+      ////////////////////
 
       h_invMass->Fill(zInvMass,myweight[0]);
       h_massMinusPdgGsf->Fill(zInvMass-zMassPdg,myweight[0]);
@@ -645,6 +725,10 @@ jetValidation::beginJob()
   treeUN_->Branch("Z_pt_gen",&Z_pt_gen);
   treeUN_->Branch("Z_y_gen",&Z_y_gen);
   treeUN_->Branch("Jet_multiplicity_gen",&Jet_multiplicity_gen);
+  treeUN_->Branch("jet1_pt_gen",&jet1_pt_gen);
+  treeUN_->Branch("jet2_pt_gen",&jet2_pt_gen);
+  treeUN_->Branch("jet3_pt_gen",&jet3_pt_gen);
+  treeUN_->Branch("jet4_pt_gen",&jet4_pt_gen);
 
   treeUN_->Branch("e1_pt",&e1_pt);
   treeUN_->Branch("e1_eta",&e1_eta);
@@ -684,6 +768,7 @@ jetValidation::beginJob()
   cout<<"neutralEmEnergyFraction<"<<neutralEmEnergyFraction<<endl;
   cout<<"chargedHadronEnergyFraction>"<<chargedHadronEnergyFraction<<endl;
   cout<<"chargedMultiplicity>"<<chargedMultiplicity<<endl;
+  cout<<"JEC scale Uncertainty parameter "<<param<<endl;
   cout<<endl;
 
 
@@ -1014,6 +1099,21 @@ jetValidation::endJob()
     }
  }  
 
+}
+
+// Evalaute the systematics on JEC
+double jetValidation::evaluateJECUncertainties(double jetpt,double jeteta){
+  
+  JetCorrectorParameters *p = new JetCorrectorParameters("JEC11_V12_AK5PF_UncertaintySources.txt", "Total");
+  JetCorrectionUncertainty *t = new JetCorrectionUncertainty(*p);
+  t->setJetPt(jetpt);
+  t->setJetEta(jeteta);
+  double uncert = t->getUncertainty(true);
+
+  //Increase the efficiencies by an extra factor, according to https://hypernews.cern.ch/HyperNews/CMS/get/jes/316.html
+  if (fabs(jeteta)<1.3 ) uncert+=0.01;
+  else uncert+=0.015;
+  return uncert;
 }
 
 // ------------ method called when starting to processes a run  ------------
