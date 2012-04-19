@@ -265,6 +265,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
+                                       JECUncertainties= cms.double(0),
                                        )
                                    
 process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
@@ -284,7 +285,8 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                                
+                                       chargedMultiplicity= cms.int32(0),
+                                       JECUncertainties= cms.double(0),                                                
                                        )
 
 process.validation = cms.EDAnalyzer('jetValidation',
@@ -304,9 +306,51 @@ process.validation = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                     
+                                    chargedMultiplicity= cms.int32(0),  
+                                       JECUncertainties= cms.double(0),                                   
                                     )
 
+process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
+                                    electronCollection = cms.InputTag("particleFlow:electrons"),
+                                    jetCollection = cms.InputTag("ak5PFJets"),
+                                    VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
+                                    goodEPair = cms.InputTag("goodEPair"),
+                                    tpMapName = cms.string('EventWeight'),
+                                    genJets = cms.InputTag("ak5GenJets"),
+                                    usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(True),
+                                    deltaRCone           = cms.double(0.3),
+                                    deltaRConeGen         = cms.double(0.1),
+                                    maxEtaJets           = cms.double(2.4),
+                                    minPtJets            = cms.double(30.0),
+                                    chargedEmEnergyFraction = cms.double(0.99),
+                                    neutralHadronEnergyFraction= cms.double(0.99),
+                                    neutralEmEnergyFraction= cms.double(0.99),
+                                    chargedHadronEnergyFraction= cms.double(0.0),
+                                    chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(1),   
+                                    )
+
+process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
+                                    electronCollection = cms.InputTag("particleFlow:electrons"),
+                                    jetCollection = cms.InputTag("ak5PFJets"),
+                                    VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
+                                    goodEPair = cms.InputTag("goodEPair"),
+                                    tpMapName = cms.string('EventWeight'),
+                                    genJets = cms.InputTag("ak5GenJets"),
+                                    usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(True),
+                                    deltaRCone           = cms.double(0.3),
+                                    deltaRConeGen         = cms.double(0.1),
+                                    maxEtaJets           = cms.double(2.4),
+                                    minPtJets            = cms.double(30.0),
+                                    chargedEmEnergyFraction = cms.double(0.99),
+                                    neutralHadronEnergyFraction= cms.double(0.99),
+                                    neutralEmEnergyFraction= cms.double(0.99),
+                                    chargedHadronEnergyFraction= cms.double(0.0),
+                                    chargedMultiplicity= cms.int32(0),
+                                    JECUncertainties= cms.double(-1),
+                                   )
 ####################
 #### HLT Analysis, MC reweight, and other stuff
 ###################
@@ -322,12 +366,29 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
                               eventWeightsCollection= cms.string("EventWeight"),
                               giveEventWeightEqualToOne= cms.bool(False),
                               RootuplaName = cms.string("treeVJ_")
 )
 
+
+process.demobefore = cms.EDProducer('HistoProducer',
+                                    electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
+                                    triggerCollection = cms.InputTag("TriggerResults","","HLT"),
+                                    UseCombinedPrescales = cms.bool(False),
+                                    #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
+                                    TriggerNames = trigger2011v3,
+                                    removePU=  cms.bool(True),
+                                    usingMC=  cms.bool(False),
+                                    doTheHLTAnalysis = cms.bool(True),
+                                    VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                                    TotalNEventTag = cms.vstring('TotalEventCounter'),
+                                    WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                                    eventWeightsCollection= cms.string("EventWeight"),
+                                    giveEventWeightEqualToOne= cms.bool(False),
+                                    RootuplaName = cms.string("treeVJBefore_"),
+                                    )
 
 
 ######################
@@ -488,14 +549,17 @@ process.TAPAnalysisRECO = cms.Path(
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
     process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*     
-    process.Selection*
+    process.patElectronsWithTrigger*
+    process.demobefore*
     process.goodOfflinePrimaryVertices*
+    process.Selection*
     process.demo*
     process.goodEPair*
     process.validation*
-    process.validationL2L3Residual
-    *process.validationJEC
+    process.validationL2L3Residual*
+    process.validationJECScaleUp*
+    process.validationJECScaleDown* 
+    process.validationJEC
     )
 
 #####################

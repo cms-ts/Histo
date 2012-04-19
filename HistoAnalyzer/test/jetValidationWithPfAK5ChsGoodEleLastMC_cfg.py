@@ -357,7 +357,8 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(0),                                        
                                        )
                                    
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -377,7 +378,8 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),   
+                                      JECUncertainties= cms.double(0),                                     
                                        )
                                    
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -397,7 +399,8 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                      
                                        )
                                    
 process.validationJEC = cms.EDAnalyzer('jetValidation',
@@ -418,7 +421,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),     
+                                      JECUncertainties= cms.double(0),                                   
                                        )
 
 process.validationRC = cms.EDAnalyzer('jetValidation',
@@ -438,7 +442,8 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                    
+                                    chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                   
                                     )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -458,7 +463,8 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                    
+                                    chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                   
                                     )
 
                                   
@@ -505,22 +511,6 @@ process.demo = cms.EDProducer('HistoProducer',
 )
 
 
-process.demobefore = cms.EDProducer('HistoProducer',
-                                    electronCollection = cms.InputTag('patElectronsWithTrigger'),# Change it, sooner or later...
-                                    triggerCollection = cms.InputTag("TriggerResults","","HLT"),
-                                    UseCombinedPrescales = cms.bool(False),
-                                    #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
-                                    TriggerNames = trigger2011v3,
-                                    removePU=  cms.bool(True),
-                                    usingMC=  cms.bool(True),
-                                    doTheHLTAnalysis = cms.bool(False),
-                                    VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
-                                    TotalNEventTag = cms.vstring('TotalEventCounter'),
-                                    WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
-                                    eventWeightsCollection= cms.string("EventWeight"),
-                                    giveEventWeightEqualToOne= cms.bool(False),
-                                    RootuplaName = cms.string("treeVJBefore_")
-                                    )
 
 ######################
 #                    #
@@ -732,8 +722,7 @@ process.TAPAnalysisRECO = cms.Path(
 process.JetValidation = cms.Path(
     process.TotalEventCounter* 
     process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger* 
-    process.demobefore*    
+    process.patElectronsWithTrigger*  
     process.goodOfflinePrimaryVertices*   
     process.Selection*
     process.demo*

@@ -265,7 +265,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                      
                                        )
                                    
 process.validationL2L3 = cms.EDAnalyzer('jetValidation',
@@ -285,7 +286,8 @@ process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                        
+                                       chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                       
                                        )
 
 process.validation = cms.EDAnalyzer('jetValidation',
@@ -305,7 +307,8 @@ process.validation = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                    
+                                    chargedMultiplicity= cms.int32(0),   
+                                      JECUncertainties= cms.double(0),                                  
                                     )
 
 
@@ -324,13 +327,11 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(False),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),              
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##Select which datasets you wonna use to reweight
+                              WhichRun = cms.string("Run2011AB"), ##Select which datasets you wonna use to reweight
                               RootuplaName = cms.string("treeVJ_"),
                               eventWeightsCollection= cms.string("EventWeight"),
                               giveEventWeightEqualToOne= cms.bool(False),
-                              RootuplaName = cms.string("treeVJ_")
 )
-
 
 
 ######################

@@ -1,4 +1,4 @@
-
+ok
 import FWCore.ParameterSet.Config as cms
 import os
 process = cms.Process("JetValidation")
@@ -328,6 +328,7 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
+                                          JECUncertainties= cms.double(0),   
                                        )
                                  
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -349,6 +350,7 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(0),   
                                        )
                                  
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -370,6 +372,7 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(0),   
                                        )
 
 
@@ -392,6 +395,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(0),   
                                        )
                                    
 process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
@@ -411,7 +415,8 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                                
+                                       chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                                 
                                        )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -431,7 +436,8 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                     
+                                    chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                      
                                     )
 
 
@@ -452,7 +458,51 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                     
+                                    chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(0),                                        
+                                    )
+
+
+process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
+                                    electronCollection = cms.InputTag("particleFlow:electrons"),
+                                    jetCollection = cms.InputTag("ak5PFJetsRC"),
+                                    VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
+                                    goodEPair = cms.InputTag("goodEPair"),
+                                    tpMapName = cms.string('EventWeight'),
+                                    genJets = cms.InputTag("ak5GenJets"),
+                                    usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(True),
+                                    deltaRCone           = cms.double(-1),
+                                    deltaRConeGen         = cms.double(0.1),
+                                    maxEtaJets           = cms.double(2.4),
+                                    minPtJets            = cms.double(30.0),
+                                    chargedEmEnergyFraction = cms.double(0.99),
+                                    neutralHadronEnergyFraction= cms.double(0.99),
+                                    neutralEmEnergyFraction= cms.double(0.99),
+                                    chargedHadronEnergyFraction= cms.double(0.0),
+                                    chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(1),   
+                                    )
+
+process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
+                                    electronCollection = cms.InputTag("particleFlow:electrons"),
+                                    jetCollection = cms.InputTag("ak5PFJetsRC"),
+                                    VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
+                                    goodEPair = cms.InputTag("goodEPair"),
+                                    tpMapName = cms.string('EventWeight'),
+                                    genJets = cms.InputTag("ak5GenJets"),
+                                    usingMC = cms.untracked.bool(False),
+                                    usingPF = cms.untracked.bool(True),
+                                    deltaRCone           = cms.double(-1),
+                                    deltaRConeGen         = cms.double(0.1),
+                                    maxEtaJets           = cms.double(2.4),
+                                    minPtJets            = cms.double(30.0),
+                                    chargedEmEnergyFraction = cms.double(0.99),
+                                    neutralHadronEnergyFraction= cms.double(0.99),
+                                    neutralEmEnergyFraction= cms.double(0.99),
+                                    chargedHadronEnergyFraction= cms.double(0.0),
+                                    chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(-1),   
                                     )
                                   
 process.reclusValidation = cms.EDAnalyzer('reclusVal',
@@ -492,7 +542,7 @@ process.demo = cms.EDProducer('HistoProducer',
                               doTheHLTAnalysis = cms.bool(True),
                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                               TotalNEventTag = cms.vstring('TotalEventCounter'),
-                              WhichRun = cms.string("Run2011B"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
+                              WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
                               eventWeightsCollection= cms.string("EventWeight"),
                               giveEventWeightEqualToOne= cms.bool(False),
                               RootuplaName = cms.string("treeVJ_")
@@ -707,6 +757,8 @@ process.JetValidation = cms.Path(
     process.validationPUJEC*
     #process.validationPU*
     process.validationRC*
+    process.validationJECScaleUp*
+    process.validationJECScaleDown* 
     #process.validationTESTJEC*
     process.validationJEC
     )

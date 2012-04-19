@@ -330,6 +330,13 @@ process.ak5PFchsJetsPUL1FastL2L3 = process.ak5PFJetsL1FastL2L3.clone(src = 'ak5P
 
 process.goodEPair = cms.EDProducer('pfAnalyzer',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                                   pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
+                                   removePU=  cms.bool(False),
+                                   )
+
+process.goodElec = cms.EDProducer('goodEleProducer',
+                                   electronCollection = cms.InputTag("patElectronsWithTrigger"),
+                                   pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
                                    removePU=  cms.bool(False),
                                    )
                                    
@@ -350,7 +357,8 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),
+                                      JECUncertainties= cms.double(0),                                        
                                        )
                                    
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -370,7 +378,8 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),    
+                                      JECUncertainties= cms.double(0),                                    
                                        )
                                    
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -391,7 +400,8 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                      
                                        )
                                    
 process.validationJEC = cms.EDAnalyzer('jetValidation',
@@ -412,7 +422,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralHadronEnergyFraction= cms.double(0.99),
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
-                                       chargedMultiplicity= cms.int32(0),                                       
+                                       chargedMultiplicity= cms.int32(0), 
+                                      JECUncertainties= cms.double(0),                                       
                                        )
 
 process.validationRC = cms.EDAnalyzer('jetValidation',
@@ -432,7 +443,8 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                    
+                                    chargedMultiplicity= cms.int32(0), 
+                                      JECUncertainties= cms.double(0),                                    
                                     )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -452,9 +464,31 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralHadronEnergyFraction= cms.double(0.99),
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
-                                    chargedMultiplicity= cms.int32(0),                                    
+                                    chargedMultiplicity= cms.int32(0),  
+                                      JECUncertainties= cms.double(0),                                   
                                     )
 
+                                  
+process.reclusValidation = cms.EDAnalyzer('reclusVal',
+                                       electronCollection = cms.InputTag("particleFlow:electrons"),
+                                       jetCollection = cms.InputTag("ak5PFJetsL1FastL2L3"),
+                                       jetCollectionRC = cms.InputTag("ak5PFJetsRCL1FastL2L3"),
+                                       VertexCollection = cms.InputTag("offlinePrimaryVertices"),
+                                       goodEPair = cms.InputTag("goodEPair"),
+                                       tpMapName = cms.string('EventWeight'),
+                                       genJets = cms.InputTag("ak5GenJets"),
+                                       usingMC = cms.untracked.bool(True),
+                                       usingPF = cms.untracked.bool(True),
+                                       deltaRCone           = cms.double(0.3),
+                                       deltaRConeGen         = cms.double(0.1),
+                                       maxEtaJets           = cms.double(2.4),
+                                       minPtJets            = cms.double(30.0),
+                                       chargedEmEnergyFraction = cms.double(0.99),
+                                       neutralHadronEnergyFraction= cms.double(0.99),
+                                       neutralEmEnergyFraction= cms.double(0.99),
+                                       chargedHadronEnergyFraction= cms.double(0.0),
+                                       chargedMultiplicity= cms.int32(0),
+                                       )
 
 ####################
 #### HLT Analysis, MC reweight, and other stuff
@@ -496,13 +530,15 @@ process.pfNoPileUp.bottomCollection = cms.InputTag("particleFlow")
 ######################
 
 process.patElectrons.useParticleFlow=True
+#process.pfAllElectrons.src = "particleFlow"
+process.pfAllElectrons.src = "pfNoPileUp"
 process.isoValElectronWithNeutral.deposits[0].deltaR = 0.4
 process.isoValElectronWithCharged.deposits[0].deltaR = 0.4
 process.isoValElectronWithPhotons.deposits[0].deltaR = 0.4
 process.pfIsolatedElectrons.isolationCut = 0.2
-#process.pfAllElectrons.src = "particleFlow"
-process.pfAllElectrons.src = "pfNoPileUp"
 process.pfNoElectron.bottomCollection = cms.InputTag("pfNoPileUp")
+#process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
+process.pfNoElectron.topCollection = cms.InputTag("goodElec")   #remove all the electron passing the selections
 
 
 ######################
@@ -635,9 +671,13 @@ process.ToolInizialization = cms.Path(
     process.pfAllChargedHadrons*
     process.pfAllPhotons*
     process.pfElectronSequence*
-    process.pfNoElectron*
     process.patTrigger*
     process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*
+    process.goodElec*
+    #process.goodEPair*
+    process.pfNoElectron*
     process.ak5PFJetsRC*
     process.ak5PFchsJetsRCL1FastL2L3*
     process.ak5PFJetsOLD*
@@ -647,28 +687,33 @@ process.ToolInizialization = cms.Path(
     )
 
 process.TAPAnalysisWP80 = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPwp80
     )
 process.TAPAnalysisWP80newHE = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPwp80newHE
     )
 process.TAPAnalysisHLTele8 = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPhltele8
     )
 
 process.TAPAnalysisHLTele17 = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLTele17*
     process.patElectronsWithTriggerele17*
     process.TAPhltele17
     )
 
 process.TAPAnalysisRECO = cms.Path(
+    process.goodOfflinePrimaryVertices*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*
     process.TAPreco
@@ -677,11 +722,12 @@ process.TAPAnalysisRECO = cms.Path(
 process.JetValidation = cms.Path(
     process.TotalEventCounter* 
     process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*     
+    process.patElectronsWithTrigger* 
+    process.goodOfflinePrimaryVertices*    
     process.Selection*
     process.demo*
     process.goodEPair*
- #   process.reclusValidationJEC*
+    process.reclusValidation*
     process.validationOldJEC*
     process.validationPUJEC*
     #process.validationPU*
