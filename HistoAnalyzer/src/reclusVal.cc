@@ -161,7 +161,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
          std::stable_sort(JetContainerRC.begin(),JetContainerRC.end(),GreaterPt()); 
       }
-      else{cout<<"No valid Jets Collection RC"<<endl;}
+      else{cout<<"reclusVal: No valid Jets Collection RC"<<endl;}
 
 //------------------------------------------------------------------------------------------------- 
 // study on BEFORE VETO  jets *************************************************************************
@@ -177,17 +177,19 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 //cout <<"dist calcolata con la funzione = "<< deltaEJ<< " ; calcolata a mano = "<<
 	 // sqrt(pow(e1.Phi()-jet->Phi(),2)+ pow(e1.Eta()-jet->Eta(),2))<< endl;
 	 deltaEE = distR(e2,(*jet));
-	 if (deltaEJ<dist1 && deltaEE>0.3){
+	 //if (deltaEJ<dist1 && deltaEE>0.3){
+	 if (deltaEJ<dist1){
 	    jet1=*jet;
 	    dist1 = deltaEJ;
 	 }
 	 deltaEJ= distR(e2,(*jet));
 	 deltaEE = distR(e1,(*jet));
-	 if (deltaEJ<dist2 && deltaEE>0.3){
+	 //if (deltaEJ<dist2 && deltaEE>0.3){
+	 if (deltaEJ<dist2){
 	    jet2=*jet;
 	    dist2 = deltaEJ;
 	 }	 
-      }  
+      }
       if (JetContainerBV.size()>0){
 	 // jet in the BARREL
 	 if (fabs(jet1.Eta())<edgeEB){	    
@@ -196,8 +198,10 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_deltaEtaBV_EB->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    if (distR(e1,jet1)<deltaRCone ||distR(e2,jet1)<deltaRCone){	       
 	       h_deltaEtaBVe_EB->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
+	       h_totEtaBVe_EB->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    }else {
 	       h_deltaEtaBVjet_EB->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
+	       h_totEtaBVjet_EB->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    }
 	    h_totEtaBV_EB->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    if (fabs(e1.Eta()-jet1.Eta()) > 1.3 && fabs(e1.Eta()-jet1.Eta()) < 1.7){
@@ -221,8 +225,10 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_deltaEtaBV_EE->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    if (distR(e1,jet1)<deltaRCone ||distR(e2,jet1)<deltaRCone ){	       
 	       h_deltaEtaBVe_EE->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
+	       h_totEtaBVe_EE->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    }else {
 	       h_deltaEtaBVjet_EE->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
+	       h_totEtaBVjet_EE->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    }
 	    h_totEtaBV_EE->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    h_deltaPhiBV_EE->Fill(deltaPhi,myweight[0]);
@@ -236,8 +242,10 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_deltaEtaBV_EB->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    if (distR(e1,jet2)<deltaRCone ||distR(e2,jet2)<deltaRCone ){	       
 	       h_deltaEtaBVe_EB->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
+	       h_totEtaBVe_EB->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    }else {
 	       h_deltaEtaBVjet_EB->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
+	       h_totEtaBVjet_EB->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    }
 	    h_totEtaBV_EB->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    if (fabs(e2.Eta()-jet2.Eta()) > 1.3 && fabs(e2.Eta()-jet2.Eta()) < 1.7){
@@ -261,8 +269,10 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    h_deltaEtaBV_EE->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    if (distR(e1,jet2)<deltaRCone ||distR(e2,jet2)<deltaRCone ){	       
 	       h_deltaEtaBVe_EE->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
+	       h_totEtaBVe_EE->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    }else {
 	       h_deltaEtaBVjet_EE->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
+	       h_totEtaBVjet_EE->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    }
 	    h_totEtaBV_EE->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    h_deltaPhiBV_EE->Fill(deltaPhi,myweight[0]);
@@ -291,6 +301,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet1.Eta())<edgeEB){
 	    deltaPhi = fabs(e1.Phi()-jet1.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaAV_EB->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    h_deltaEtaAV_EB->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    h_deltaPhiAV_EB->Fill(deltaPhi,myweight[0]);
 	    h_deltaRAV_EB->Fill(dist1,myweight[0]);
@@ -300,6 +311,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet1.Eta())>edgeEB && fabs(jet1.Eta())<edgeEE){
 	    deltaPhi = fabs(e1.Phi()-jet1.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaAV_EE->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    h_deltaEtaAV_EE->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    h_deltaPhiAV_EE->Fill(deltaPhi,myweight[0]);
 	    h_deltaRAV_EE->Fill(dist1,myweight[0]);
@@ -309,6 +321,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet2.Eta())<edgeEB){
 	    deltaPhi = fabs(e2.Phi()-jet2.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaAV_EB->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    h_deltaEtaAV_EB->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    h_deltaPhiAV_EB->Fill(deltaPhi,myweight[0]);
 	    h_deltaRAV_EB->Fill(dist2,myweight[0]);
@@ -318,6 +331,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet2.Eta())>edgeEB && fabs(jet2.Eta())<edgeEE){
 	    deltaPhi = fabs(e2.Phi()-jet2.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaAV_EE->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    h_deltaEtaAV_EE->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    h_deltaPhiAV_EE->Fill(deltaPhi,myweight[0]);
 	    h_deltaRAV_EE->Fill(dist2,myweight[0]);
@@ -345,6 +359,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet1.Eta())<edgeEB){
 	    deltaPhi = fabs(e1.Phi()-jet1.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaRC_EB->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    h_deltaEtaRC_EB->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    h_deltaPhiRC_EB->Fill(deltaPhi,myweight[0]);
 	    h_deltaRRC_EB->Fill(dist1,myweight[0]);
@@ -354,6 +369,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet1.Eta())>edgeEB && fabs(jet1.Eta())<edgeEE){
 	    deltaPhi = fabs(e1.Phi()-jet1.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaRC_EE->Fill(e1.Eta(),jet1.Eta(),myweight[0]);
 	    h_deltaEtaRC_EE->Fill(fabs(e1.Eta()-jet1.Eta()),myweight[0]);
 	    h_deltaPhiRC_EE->Fill(deltaPhi,myweight[0]);
 	    h_deltaRRC_EE->Fill(dist1,myweight[0]);
@@ -363,6 +379,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet2.Eta())<edgeEB){
 	    deltaPhi = fabs(e2.Phi()-jet2.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaRC_EB->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    h_deltaEtaRC_EB->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    h_deltaPhiRC_EB->Fill(deltaPhi,myweight[0]);
 	    h_deltaRRC_EB->Fill(dist2,myweight[0]);
@@ -372,6 +389,7 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet2.Eta())>edgeEB && fabs(jet2.Eta())<edgeEE){
 	    deltaPhi = fabs(e2.Phi()-jet2.Phi());
 	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    h_totEtaRC_EE->Fill(e2.Eta(),jet2.Eta(),myweight[0]);
 	    h_deltaEtaRC_EE->Fill(fabs(e2.Eta()-jet2.Eta()),myweight[0]);
 	    h_deltaPhiRC_EE->Fill(deltaPhi,myweight[0]);
 	    h_deltaRRC_EE->Fill(dist2,myweight[0]);
