@@ -82,11 +82,13 @@ class reclusVal : public edm::EDAnalyzer {
       edm::InputTag pflowCollection_;
       edm::InputTag VertexCollection_;
       edm::InputTag jetCollection_;
+      edm::InputTag jetCollectionPU_;
       edm::InputTag jetCollectionRC_;
       edm::InputTag goodEPairTag;
       std::string weightCollection_;
       bool usingMC;
       bool usingPF;
+      bool testMC;
 
       // Weight
       TH1F * h_weights;
@@ -141,6 +143,12 @@ class reclusVal : public edm::EDAnalyzer {
       TH2F * h_deltaEtaPhiBV_EE;
       TH2F * h_deltaEtaPhiAV_EE;
       TH2F * h_deltaEtaPhiRC_EE;
+      
+// common
+      TH1F * h_zPt_1jetPU;
+      TH1F * h_zPt_1jetInclPU;
+      TH1F * h_zPt_1jetRC;
+      TH1F * h_zPt_1jetInclRC;
 
 // constant variable definition ========== 
       double edgeEB;
@@ -177,11 +185,13 @@ reclusVal::reclusVal(const edm::ParameterSet& conf)
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   pflowCollection_ = conf.getUntrackedParameter<edm::InputTag>("pflowCollection",edm::InputTag("particleFlow"));
   jetCollection_      = conf.getParameter<edm::InputTag>("jetCollection");
+  jetCollectionPU_      = conf.getParameter<edm::InputTag>("jetCollectionPU");
   jetCollectionRC_      = conf.getParameter<edm::InputTag>("jetCollectionRC");
   VertexCollection_   = conf.getParameter<edm::InputTag>("VertexCollection");
   goodEPairTag        = conf.getParameter<edm::InputTag>("goodEPair");
   usingPF             = conf.getUntrackedParameter<bool>("usingPF",false);
   usingMC             = conf.getUntrackedParameter<bool>("usingMC",false);
+  testMC             = conf.getUntrackedParameter<bool>("testMC",false);
  
 
   //now do what ever initialization is needed
@@ -253,6 +263,12 @@ reclusVal::reclusVal(const edm::ParameterSet& conf)
   h_deltaEtaPhiBV_EE = fs->make<TH2F>("h_deltaEtaPhiBV_EE","deltaEtaPhiBV_EE",500,0,5,500,0,6.5);
   h_deltaEtaPhiAV_EE = fs->make<TH2F>("h_deltaEtaPhiAV_EE","deltaEtaPhiAV_EE",500,0,5,500,0,6.5);
   h_deltaEtaPhiRC_EE = fs->make<TH2F>("h_deltaEtaPhiRC_EE","deltaEtaPhiRC_EE",500,0,5,500,0,6.5);
+
+  // common
+  h_zPt_1jetPU = fs->make<TH1F>("h_zPt_1jetPU","zPt_1jetPU",200,0,200);
+  h_zPt_1jetRC = fs->make<TH1F>("h_zPt_1jetRC","zPt_1jetRC",200,0,200);
+  h_zPt_1jetInclPU = fs->make<TH1F>("h_zPt_1jetInclPU","zPt_1jetInclPU",200,0,200);
+  h_zPt_1jetInclRC = fs->make<TH1F>("h_zPt_1jetInclRC","zPt_1jetInclRC",200,0,200);
 
 }
 

@@ -30,7 +30,14 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   bool Debug=false;
-
+  
+  int runNumber = -99;
+  int eventNumber= -99;
+  if (testMC){
+     runNumber = iEvent.id().run();
+     eventNumber = iEvent.id().event();
+     //cout << "run = "<< runNumber<< " ; event number = "<< eventNumber<<endl;
+  }
   ////////
   //  Get The Weights
   ///////
@@ -110,12 +117,14 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       /// Jet Validation
       ///////////////////
       
-      std::vector<math::XYZTLorentzVector> JetContainerBV, JetContainerAV, JetContainerRC;  
+      std::vector<math::XYZTLorentzVector> JetContainerBV, JetContainerAV, JetContainerPU, JetContainerRC;  
       JetContainerBV.clear();  
       JetContainerAV.clear();  
+      JetContainerPU.clear();  
       JetContainerRC.clear();
-      Handle<PFJetCollection> pfJets, pfJetsRC;
+      Handle<PFJetCollection> pfJets, pfJetsPU, pfJetsRC;
       iEvent.getByLabel(jetCollection_, pfJets);
+      iEvent.getByLabel(jetCollectionPU_, pfJetsPU);
       iEvent.getByLabel(jetCollectionRC_, pfJetsRC);
 
       if (pfJets.isValid()) {
@@ -143,6 +152,30 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       else{cout<<"No valid Jets Collection"<<endl;}
 
+      if (pfJetsPU.isValid()) {
+         for(reco::PFJetCollection::const_iterator jet = pfJetsPU->begin(); 
+	     jet!=pfJetsPU->end (); jet++) {
+	    
+	    // check if the jet is equal to one of the isolated electrons
+	    double deltaR1= distR(e1,(jet->p4()));
+	    double deltaR2= distR(e2,(jet->p4()));
+	    if (// cut on the jet pt 
+		jet->pt()> minPtJets
+		&& fabs(jet->eta())<maxEtaJets
+		&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
+		&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
+		&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
+		&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
+		&& jet->chargedMultiplicity()>chargedMultiplicity
+		&& deltaR1 > deltaRCone && deltaR2 > deltaRCone
+	       ){ 
+	       JetContainerPU.push_back(jet->p4());
+	    }
+	 }
+         std::stable_sort(JetContainerPU.begin(),JetContainerPU.end(),GreaterPt()); 
+      }
+      else{cout<<"No valid Jets Collection PU"<<endl;}
+
       if (pfJetsRC.isValid()) {
          for(reco::PFJetCollection::const_iterator jet = pfJetsRC->begin(); 
 	     jet!=pfJetsRC->end (); jet++) {
@@ -162,6 +195,72 @@ reclusVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          std::stable_sort(JetContainerRC.begin(),JetContainerRC.end(),GreaterPt()); 
       }
       else{cout<<"reclusVal: No valid Jets Collection RC"<<endl;}
+//
+
+//------------------------------------------------------------------------------------------------- 
+// study on discrepancy n jets *************************************************************************
+//-------------------------------------------------------------------------------------------------
+      
+      bool passPU=false;
+      bool passRC=false;
+      bool passInclPU=false;
+      bool passInclRC=false;
+      if (JetContainerPU.size()==1) {
+	 h_zPt_1jetPU->Fill(e_pair.Pt());
+	 passPU=true;}
+      if (JetContainerRC.size()==1) {
+	 h_zPt_1jetRC->Fill(e_pair.Pt());
+	 passRC=true;}
+      if (JetContainerPU.size()>=1) {
+	 h_zPt_1jetInclPU->Fill(e_pair.Pt());
+	 passInclPU= true;}
+      if (JetContainerRC.size()>=1) {
+	 h_zPt_1jetInclRC->Fill(e_pair.Pt());
+	 passInclRC=true;}
+
+      if (testMC){
+	 if (!(passPU && passRC) && (passPU || passRC) && e_pair.Pt()< 20){
+	    cout << "-----------------------------------------------------------"<< endl;
+	    cout << "zPt1jet - discrepancy in this run = "<< runNumber<< " ; event number = "<< eventNumber<<endl;
+	    cout << "Number of PU jets = "<< JetContainerPU.size()<< " ; number of RC jets = "<<JetContainerRC.size() <<endl;
+	    int kjet=1;
+	    cout << "Z - pt = "<< e_pair.Pt() <<" - eta = "<<e_pair.Eta()<< " - phi = "<< e_pair.Phi()<< endl;
+	    cout << "e1 - pt = "<< e1.Pt() <<" - eta = "<<e1.Eta()<< " - phi = "<< e1.Phi()<< endl;
+	    cout << "e2 - pt = "<< e2.Pt() <<" - eta = "<<e2.Eta()<< " - phi = "<< e2.Phi()<< endl;
+	    for(reco::PFJetCollection::const_iterator jet = pfJetsPU->begin(); 
+		jet!=pfJetsPU->end (); jet++) {
+	       cout << kjet << " PU jet - pt = "<<jet->pt()<<" - eta = "<<jet->eta()<<" - phi = "<<jet->phi()<<endl;
+	       kjet++;
+	    }
+	    kjet=1;
+	    for(reco::PFJetCollection::const_iterator jet = pfJetsRC->begin(); 
+		jet!=pfJetsRC->end (); jet++) {
+	       cout << kjet << " RC jet - pt = "<<jet->pt()<<" - eta = "<<jet->eta()<<" - phi = "<<jet->phi()<<endl;
+	       kjet++;
+	    }
+	       
+	 }
+	 if (passInclPU && !passInclRC && e_pair.Pt()< 20){
+	    cout << "-----------------------------------------------------------"<< endl;
+	    cout << "zPt1jetIncl - discrepancy in this run = "<< runNumber<< " ; event number = "<< eventNumber<<endl;
+	    cout << "Number of PU jets = "<< JetContainerPU.size()<< " ; number of RC jets = "<<JetContainerRC.size() <<endl;
+	    int kjet=1;
+	    cout << "Z - pt = "<< e_pair.Pt() <<" - eta = "<<e_pair.Eta()<< " - phi = "<< e_pair.Phi()<< endl;
+	    cout << "e1 - pt = "<< e1.Pt() <<" - eta = "<<e1.Eta()<< " - phi = "<< e1.Phi()<< endl;
+	    cout << "e2 - pt = "<< e2.Pt() <<" - eta = "<<e2.Eta()<< " - phi = "<< e2.Phi()<< endl;
+	    for(reco::PFJetCollection::const_iterator jet = pfJetsPU->begin(); 
+		jet!=pfJetsPU->end (); jet++) {
+	       cout << kjet << " PU jet - pt = "<<jet->pt()<<" - eta = "<<jet->eta()<<" - phi = "<<jet->phi()<<endl;
+	       kjet++;
+	    }
+	    kjet=1;
+	    for(reco::PFJetCollection::const_iterator jet = pfJetsRC->begin(); 
+		jet!=pfJetsRC->end (); jet++) {
+	       cout << kjet << " RC jet - pt = "<<jet->pt()<<" - eta = "<<jet->eta()<<" - phi = "<<jet->phi()<<endl;
+	       kjet++;
+	    }
+	 }
+      }
 
 //------------------------------------------------------------------------------------------------- 
 // study on BEFORE VETO  jets *************************************************************************
