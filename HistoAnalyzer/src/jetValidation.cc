@@ -16,6 +16,14 @@ public:
   }
 };
 
+double
+jetValidation::distR(TLorentzVector a ,math::XYZTLorentzVector b){
+
+   double deltaPhi = fabs(a.Phi()-b.Phi());
+   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+   double delta = sqrt( deltaPhi*deltaPhi  + ((a.Eta()-b.Eta())*(a.Eta()-b.Eta())));
+   return delta;
+}
 // ------------ method called for each event  ------------
 void
 jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -40,6 +48,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nJetsEE=0;
    int totJets=0;
    int totJetsCk=0;
+   double deltaPhi=0;
    //bool isEB;
    //bool isEE;
    
@@ -164,9 +173,16 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   double corr=(1.0+uncert*param);                                // "param" is defined in the cfi: ±1 -> sistematics, 0 normal
 	   math::XYZTLorentzVector myjet(jet->px()*corr, jet->py()*corr, jet->pz()*corr, jet->p()*corr);
 	    // check if the jet is equal to one of the isolated electrons
-	    double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
-	    double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
-	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
+	   
+	   deltaPhi = fabs(jet->phi()-e1.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
+
+	   deltaPhi = fabs(jet->phi()-e2.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
+
+	    if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet 
 		// cut on the jet pt 
 		&& myjet.Pt()> minPtJets
 		&& fabs(jet->eta())<maxEtaJets
@@ -190,8 +206,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (reco::PFCandidateCollection::const_iterator pfCand = pfPart->begin();
 	   pfCand != pfPart->end(); pfCand++)
       {
-	 double deltaR1= sqrt( pow(pfCand->eta()-e1.Eta(),2)+pow(pfCand->phi()-e1.Phi(),2) );
-	 double deltaR2= sqrt( pow(pfCand->eta()-e2.Eta(),2)+pow(pfCand->phi()-e2.Phi(),2) );	   
+	 deltaPhi = fabs(pfCand->phi()-e1.Phi());
+	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	 double deltaR1= sqrt( deltaPhi*deltaPhi  + pow(pfCand->eta()-e1.Eta(),2) );
+
+	 deltaPhi = fabs(pfCand->phi()-e2.Phi());
+	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	 double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(pfCand->eta()-e2.Eta(),2) );	   
 	 
 	 if (deltaR1 > deltaConeGen && deltaR2 > deltaConeGen ){
 	    h_pfIdPdgAroundE->Fill(pfCand->particleId(),myweight[0]);
@@ -204,8 +225,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
 	     itgen!=genPart->end();itgen++)
 	 {
-	    double deltaR1= sqrt( pow(itgen->eta()-e1.Eta(),2)+pow(itgen->phi()-e1.Phi(),2) );
-	    double deltaR2= sqrt( pow(itgen->eta()-e2.Eta(),2)+pow(itgen->phi()-e2.Phi(),2) );	   
+	    deltaPhi = fabs(itgen->phi()-e1.Phi());
+	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    double deltaR1= sqrt( deltaPhi*deltaPhi  + pow(itgen->eta()-e1.Eta(),2) );
+
+	    deltaPhi = fabs(itgen->phi()-e2.Phi());
+	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(itgen->eta()-e2.Eta(),2) );	   
 	    
 	    if (deltaR1 > deltaConeGen && deltaR2 > deltaConeGen ){
 	       if (itgen->status() ==1) h_idPdgAroundE->Fill(fabs(itgen->pdgId()),myweight[0]);
@@ -224,8 +250,14 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 for (reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
 	      jet != pfJets->end(); jet++) {
 	 
-	    double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
-	    double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
+	   deltaPhi = fabs(jet->phi()-e1.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
+
+	   deltaPhi = fabs(jet->phi()-e2.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
+	   
 	    double totEnergy=0.;
 	    //double totPt=0.;
 	    if (useCkElInJet ){
@@ -383,7 +415,10 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
 		      itgen!=genPart->end();itgen++)
 		  {
-		     dist= sqrt( pow(itgen->eta()-jet->eta(),2)+pow(itgen->phi()-jet->phi(),2) );
+		     deltaPhi = fabs(itgen->phi()-jet->phi());
+		     if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+		     dist= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-itgen->eta(),2) );
+
 		     if (dist < maxDist && dist < nearerDist){
 			nearerDist = dist;
 			pdgValue= itgen->pdgId();
@@ -506,9 +541,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.getByLabel(genJetsCollection, genJets );
 	
 	for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
-	  // check if the jet is equal to one of the isolated electrons
-	  double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
-	  double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
+
+	  // check if the jet is equal to one of the isolated electrons 
+	   deltaPhi = fabs(jet->phi()-e1.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
+
+	   deltaPhi = fabs(jet->phi()-e2.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
 
 	  if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
 	      // cut on the jet pt 
@@ -570,8 +611,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double ptgen = (*iter).pt();
 	    double etagen = (*iter).eta();
 	    double phigen = (*iter).phi();
-	    double deltaR1= sqrt( pow(etagen-ele_gen_vec[0].Eta(),2)+pow(phigen-ele_gen_vec[0].Phi(),2) );
-	    double deltaR2= sqrt( pow(etagen-ele_gen_vec[1].Eta(),2)+pow(phigen-ele_gen_vec[1].Phi(),2) );
+	    deltaPhi = fabs(phigen-ele_gen_vec[0].Phi());
+	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    double deltaR1= sqrt( pow(etagen-ele_gen_vec[0].Eta(),2)+pow(deltaPhi,2) );
+	    deltaPhi = fabs(phigen-ele_gen_vec[1].Phi());
+	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	    double deltaR2= sqrt( pow(etagen-ele_gen_vec[1].Eta(),2)+pow(deltaPhi,2) );
 	    if (Debug) cout<<"ptgen "<<ptgen<<" etagen "<<etagen<<" deltaR1 "<<deltaR1<<" deltaR2 "<<deltaR2<<" phigen "<<phigen<<endl;
 	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone && ptgen>minPtJets
 		//aggiungi
@@ -597,11 +642,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  double deltaRGenReco=9999;
 	  double matchedGJetpt=9999;
 	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
-	    double deltaRswap= sqrt( pow(jet->eta()-gjet->eta(),2)+pow(jet->phi()-gjet->phi(),2) );
-	    if (deltaRswap < deltaRGenReco) {
-	      deltaRGenReco=deltaRswap;
-	      matchedGJetpt=gjet->Pt();
-	    }
+	     deltaPhi = fabs(jet->phi()-gjet->phi());
+	     if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	     double deltaRswap= sqrt( pow(jet->eta()-gjet->eta(),2)+pow(deltaPhi,2) );
+	     if (deltaRswap < deltaRGenReco) {
+		deltaRGenReco=deltaRswap;
+		matchedGJetpt=gjet->Pt();
+	     }
 	  }
 	  jetpt_gen.push_back(matchedGJetpt);
 	  if (Debug) cout<<"Gen Jet Matched: pt->"<<matchedGJetpt<<endl;

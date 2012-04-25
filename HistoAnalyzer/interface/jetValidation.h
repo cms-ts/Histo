@@ -79,7 +79,8 @@ class jetValidation : public edm::EDAnalyzer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual double evaluateJECUncertainties(double jetpt,double jeteta);
-
+      
+      double distR(TLorentzVector ,math::XYZTLorentzVector);
 
       std::string tpMapName;
       // ----------member data ---------------------------
@@ -323,6 +324,7 @@ class jetValidation : public edm::EDAnalyzer {
       double edgeEE;
       double edgeTrk;
       double deltaRCone;
+      double deltaRConeJet;
       double pi_;
       double zMassPdg;
       double deltaConeGen;
@@ -376,6 +378,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 
   //Jets Properties
   deltaRCone           = conf.getParameter<double>("deltaRCone");
+  deltaRConeJet          = conf.getParameter<double>("deltaRConeJet");
   deltaConeGen        = conf.getParameter<double>("deltaRConeGen");
   maxEtaJets           = conf.getParameter<double>("maxEtaJets");
   minPtJets            = conf.getParameter<double>("minPtJets");
