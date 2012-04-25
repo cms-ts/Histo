@@ -47,6 +47,9 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+//JEC
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
 using namespace edm;
 using namespace reco;
@@ -96,6 +99,10 @@ class jetValidation : public edm::EDAnalyzer {
       bool doPlotsJetComposition;
       double param;
 
+      //JEC
+      JetCorrectorParameters *p;
+      JetCorrectionUncertainty *t;
+	
       //Unfolding Rootple and members
       TTree* treeUN_;
 

@@ -4,8 +4,7 @@
 #include "Histo/HistoAnalyzer/interface/jetValidation.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+
 //
 // member functions
 //
@@ -161,11 +160,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 //
          for(reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
 	     jet!=pfJets->end (); jet++) {
-
 	   double uncert=evaluateJECUncertainties(jet->pt(), jet->eta()); //pt of the jet changed, if JEC unc are "active".
 	   double corr=(1.0+uncert*param);                                // "param" is defined in the cfi: ±1 -> sistematics, 0 normal
 	   math::XYZTLorentzVector myjet(jet->px()*corr, jet->py()*corr, jet->pz()*corr, jet->p()*corr);
-	   
 	    // check if the jet is equal to one of the isolated electrons
 	    double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
 	    double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
@@ -512,6 +509,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // check if the jet is equal to one of the isolated electrons
 	  double deltaR1= sqrt( pow(jet->eta()-e1.Eta(),2)+pow(jet->phi()-e1.Phi(),2) );
 	  double deltaR2= sqrt( pow(jet->eta()-e2.Eta(),2)+pow(jet->phi()-e2.Phi(),2) );
+
 	  if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
 	      // cut on the jet pt 
 	      //&& jet->pt()> minPtJets //No Cut on Energy!!!!!
@@ -594,25 +592,48 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (usingMC){
 	// Loop sui RecoGet ordinati in pt
 	std::vector <double> jetpt_gen; 
-	//cout<<"Reco Jet size is "<<JetContainer.size()<<" while gen size is "<<GenJetContainer.size()<<endl;
 	for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); jet != JetContainer.end (); jet++) {
-	  //cout<<"++++++++++ Reco Jet has pt of "<<jet->Pt()<<" and eta "<<jet->Eta()<<" and phi "<<jet->Phi()<<endl;
 	  // Calcolare il DeltaR verso tutti i GenJet
 	  double deltaRGenReco=9999;
 	  double matchedGJetpt=9999;
 	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
-	    //cout<<"Gen Jet has pt of "<<gjet->Pt()<<" and eta "<<gjet->Eta()<<" and phi "<<gjet->Phi()<<endl;
-	    //DeltaR
 	    double deltaRswap= sqrt( pow(jet->eta()-gjet->eta(),2)+pow(jet->phi()-gjet->phi(),2) );
-	    //cout<<"Delta r is "<<deltaRswap<<endl;
 	    if (deltaRswap < deltaRGenReco) {
 	      deltaRGenReco=deltaRswap;
 	      matchedGJetpt=gjet->Pt();
-	      //cout<<"New Delta r is "<<deltaRswap<<" and Pt is "<<matchedGJetpt<<endl;
 	    }
 	  }
 	  jetpt_gen.push_back(matchedGJetpt);
+	  if (Debug) cout<<"Gen Jet Matched: pt->"<<matchedGJetpt<<endl;
 	}
+	
+	// In the above loop, in jetpt_gen you have the collection of gen jets matched by the detector. Now evaluating the viceversa,
+	// jets generated > 30 but not reconstructed
+	
+	if (jetpt_gen.size() < GenJetContainer.size()){    // check if some gen jets are somehow missing... 
+	  if (Debug) cout<<"There are more genjets than jetReco. # matched jets->"<<jetpt_gen.size()<<" # jets gen->"<<GenJetContainer.size()<<" you will see the entire list of jets, for residual matching"<<endl;
+	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
+	    if (Debug) cout<<"gen jet pt->"<<gjet->Pt()<<" and eta->"<<gjet->Eta()<<endl;
+	    bool isAgoodJet=false;
+	    if (gjet->Pt()>30 && fabs(gjet->Eta())<2.4 ){ // it should be above thresholds.. ADD the CHARGE information!
+	      isAgoodJet=true; // it has at least one charged track
+	    }
+	    if (isAgoodJet){
+	      if (Debug) cout<<"this is a overthreshold gen jet!, chcking if already stored!"<<endl;
+	      bool matchedalready=false;
+	      for (unsigned int k=0; k < jetpt_gen.size(); k++){
+		//Check if it has already been added
+		if (jetpt_gen[k]==gjet->Pt()) matchedalready=true;
+	      }
+	      if (!matchedalready) {
+		jetpt_gen.push_back(gjet->Pt());
+		if (Debug) cout<<"adding JET not reconstructed! pt->"<<gjet->Pt()<<" eta->"<<gjet->Eta()<<endl;
+	      }
+	      else if (Debug) cout<<"gen jet already stored!"<<endl;
+	    }
+	  }
+	}
+
 	int gvectorsize=jetpt_gen.size();
 	if (gvectorsize>0) jet1_pt_gen=jetpt_gen[0];
 	if (gvectorsize>1) jet2_pt_gen=jetpt_gen[1];
@@ -713,6 +734,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 jetValidation::beginJob()
 {
+
   //TFile and TTree initialization
   treeUN_= new TTree("treeUN_","treeUN_");
   
@@ -771,7 +793,10 @@ jetValidation::beginJob()
   cout<<"JEC scale Uncertainty parameter "<<param<<endl;
   cout<<endl;
 
-
+  //Initilize the JEDC
+  p = new JetCorrectorParameters("JEC11_V12_AK5PF_UncertaintySources.txt", "Total");
+  t = new JetCorrectionUncertainty(*p);  
+  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -1104,8 +1129,6 @@ jetValidation::endJob()
 // Evalaute the systematics on JEC
 double jetValidation::evaluateJECUncertainties(double jetpt,double jeteta){
   
-  JetCorrectorParameters *p = new JetCorrectorParameters("JEC11_V12_AK5PF_UncertaintySources.txt", "Total");
-  JetCorrectionUncertainty *t = new JetCorrectionUncertainty(*p);
   t->setJetPt(jetpt);
   t->setJetEta(jeteta);
   double uncert = t->getUncertainty(true);
