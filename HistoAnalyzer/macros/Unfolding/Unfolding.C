@@ -50,7 +50,7 @@ std::endl;
 
 //string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root";
 string smc="testUnfoldMC2.root";
-string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root";
+string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_21pf.root";
 TFile *fA = new TFile (smc.c_str());
 TFile *fB = new TFile (sdata.c_str());
 //Directory and files to start with
@@ -127,6 +127,39 @@ TH1D *NReco;
 TH1D *PReco;
 TH1D *yReco;
 
+// Correct for backgrounds
+bool correctForBkg=false;
+double bckJetPt[30]={0.00131055
+		   ,0.00159058
+		   ,0.00159838
+		   ,0.00146225
+		   ,0.00122172
+		   ,0.000999352
+		   ,0.000798524
+		   ,0.000623552
+		   ,0.000510327
+		   ,0.000440352
+		   ,0.000302648
+		   ,0.000248633
+		   ,0.000205012
+		   ,0.000146329
+		   ,9.66096e-05
+		   ,8.37175e-05
+		   ,5.97253e-05
+		   ,5.2899e-05
+		   ,5.28529e-05
+		   ,3.64884e-05
+		   ,3.14299e-05
+		   ,3.13798e-05
+		   ,1.30356e-05
+		   ,1.20052e-05
+		   ,1.64104e-05
+		   ,1.13519e-05
+		   ,1.32801e-05
+		   ,1.02123e-05
+		   ,9.33193e-06
+		   ,3.92058e-06
+};
 
 string supplabel="";
 
@@ -1242,6 +1275,7 @@ Unfolding::LoopJetPt (int numbOfJets)
   jData->Sumw2();
   double scaleFactor=jData->GetEntries();
   double Zarea=jData->Integral();
+  double ZMCarea=jMCreco->Integral();
   cout<<"#Z->"<<scaleFactor<<" area->"<<Zarea<<endl;
   
       ///   NOTA BENE!!
@@ -1258,18 +1292,28 @@ Unfolding::LoopJetPt (int numbOfJets)
       double areaRecoVsTruth=1.000;
       TH1F* DataCorr;
       TH1F* PTJetMultiplicityUnfolded;
-
+      cout<<"jData area before "<<jData->Integral()<<endl;
       if (correctForEff){
 	//Make the efficiency correction, not event by event.. to be upgrades
 	for (unsigned int k=0; k<30; k++){
 	  double effcorr=1.00/getEfficiencyCorrection("/gpfs/cms/data/2011/TaP/4matteo.root",2,(k+1)*30);
 	  cout<<effcorr<<endl;
 	  //jMCreco->SetBinContent(k+1, jMCreco->GetBinContent(k+1)*(effcorr)); //2 -> efficiency with 1 jet. NO GOOD
-	  jData->SetBinContent(k+1, jMCreco->GetBinContent(k+1)*(effcorr));
-	  //jData2->SetBinContent(k+1, jMCreco->GetBinContent(k+1)*(effcorr));	 
+	  jData->SetBinContent(k+1, jData->GetBinContent(k+1)*(effcorr));
+	  jData2->SetBinContent(k+1, jData2->GetBinContent(k+1)*(effcorr));	 
 	  //jMCreco->Scale(Zarea/jMCreco->Integral());
-	  //jData->Scale(Zarea/jData->Integral());
-	  //jData2->Scale(Zarea/jData2->Integral());
+	}
+	  jData->Scale(Zarea/jData->Integral());
+	  jData2->Scale(Zarea/jData2->Integral());
+	  jMCreco->Scale(ZMCarea/jMCreco->Integral());
+      }
+       cout<<"jData area after "<<jData->Integral()<<endl;     
+ 
+       if (correctForBkg){
+	for (unsigned int k=0; k<30; k++){
+	  cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckJetPt[k]*Zarea<<endl;
+	  jData->SetBinContent(k+1, jData->GetBinContent(k+1) -bckJetPt[k]*Zarea);
+	  jData2->SetBinContent(k+1, jData2->GetBinContent(k+1) -bckJetPt[k]*Zarea);	 
 	}
       }
 
@@ -1278,7 +1322,7 @@ Unfolding::LoopJetPt (int numbOfJets)
       
       cout<<"***********************"<<endl;
       cout<<"MC will be normalized to data, using entries"<<endl;
-      cout<<"N entries in Data:"<<jData->GetEntries()<<" and MC:"<<jMCreco->GetEntries()<<" ratio->"<<ScaleMCData<<endl;
+      cout<<"N entries in Data:"<<jData->Integral()<<" and MC:"<<jMCreco->Integral()<<" ratio->"<<ScaleMCData<<endl;
       cout<<endl;
       jMCreco->Scale (ScaleMCData);
       jTrue->Scale (ScaleMCData);
