@@ -18,63 +18,91 @@
 #include "tdrStyle.C"
 
 
-void DotheSystematics(){
-	
-	using	std::cout;
-	using	std::endl;
-	
-	Double_t systerr;
+std::vector<double> DotheSystematics(){
+  
+  using	std::cout;
+  using	std::endl;
+  Double_t systerr;
+  std::vector<double> systs;
 
+  TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_21pf.root");
+  f->cd("validationJECScaleDown"); //wrong one!!! need to have the dir. w/o JEC
+  
+  TH1F *DownJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
+  
+  f->cd("validationJEC/");
+  TH1F *JEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
+  TH1F *hnew = (TH1F*)JEC->Clone("hnew");
 
-        //TFile *A = TFile::Open("Unfolding.root");
-        //TH1F *h1 = (TH1F*)gDirectory->Get("NReco");
+   f->cd("validationJECScaleUp");
+   TH1F *UpJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
 
-	TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_17.root");
-        f->cd("validationJEC/"); //wrong one!!! need to have the dir. w/o JEC
-	
-	TH1F *NoJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
-	
-	f->cd("validationJEC/");
+  for(int i=1; i<=7; i++){		
+    double contentdown = DownJEC->GetBinContent(i);
+    double content = JEC->GetBinContent(i);
+    double contentup = UpJEC->GetBinContent(i);
+    systerr = max(fabs(contentdown - content),fabs(contentup-content));
+    cout<<"Difference in bin "<<i<<" for the JEC-No JEC is "<<systerr<<" ("<<100*systerr/content<<"%)"<<" scaleUp->"<<contentup<<" scaleDown->"<<contentdown<<" and central value "<<content<<endl;
+    hnew->SetBinError(i, systerr);
+    systs.push_back(fabs(systerr/content));
+  }
+  TCanvas *d = new TCanvas ("d", "d", 1000, 700);
+  d->cd ();
+  
+  d->SetLogy();
+  JEC->SetLineColor(kBlack);
+  JEC->SetMarkerStyle(20);
+  JEC->SetMarkerColor(kBlack);
+  JEC->GetXaxis()->SetTitle("# of Jets");
+  JEC->GetYaxis()->SetTitle("Number of Z+jet events");
+  hnew->SetLineColor(kBlack);
+  hnew->SetMarkerStyle(20);
+  hnew->SetFillColor(5); 
+  hnew->SetMarkerColor(kBlack);
+  
+  hnew->Draw("e2");
+  JEC->Draw("e1same");
+  
+  
+  TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+  legend_1->SetFillColor (0);
+  legend_1->SetFillStyle (0);
+  legend_1->SetBorderSize (0);
+  legend_1->SetTextFont(62);
+  legend_1->AddEntry (JEC, "DATA Unfolded", "LP20");
+  legend_1->AddEntry (hnew, "JEC systematic uncertanties", "F");
+  legend_1->Draw ("same");
 
-	TH1F *JEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
-	TH1F *hnew = (TH1F*)JEC->Clone("hnew");
+ 
+  TCanvas *JECp = new TCanvas ("JECp", "JECp", 1000, 700);
+  JECp->cd ();
+  JECp->SetLogy();
 
-	for(int i=1; i<=7; i++){
-		
-		double content = NoJEC->GetBinContent(i);
-                double content2 = JEC->GetBinContent(i);
-		systerr = (content2 - content)*0.5;
-		//cout<<content<<content2<<(systerr/content2)<<endl;
-		//cout<<(JEC->GetBinError(i))/content2<<endl;
-		hnew->SetBinError(i, systerr);
-	        //hnew->SetError(systerr);
-		//cout<<(JEC->GetBinError(i))/content2<<endl;
-	}
-	       TCanvas *d = new TCanvas ("d", "d", 1000, 700);
-	       d->cd ();
+  JEC->SetLineColor(kBlack);
+  JEC->SetMarkerStyle(20);
+  JEC->SetMarkerColor(kBlack);  
+  JEC->Draw("e2");
 
-	       d->SetLogy();
-	       JEC->SetLineColor(kBlack);
-	       JEC->SetMarkerStyle(20);
-	       JEC->SetMarkerColor(kBlack);
-               JEC->GetXaxis()->SetTitle("# of Jets");
-               JEC->GetYaxis()->SetTitle("Number of Z+jet events");
-	       hnew->SetLineColor(kBlack);
-               hnew->SetMarkerStyle(20);
-	       hnew->SetFillColor(5); 
-     	       hnew->SetMarkerColor(kBlack);
-		
-	       hnew->Draw("e2");
-	       JEC->Draw("e1same");
-	
+  UpJEC->SetLineColor(kBlue);
+  UpJEC->SetMarkerStyle(20);
+  UpJEC->SetMarkerColor(kBlue);
+  UpJEC->Draw("e1same");
+  
+  DownJEC->SetLineColor(kRed);
+  DownJEC->SetMarkerStyle(20);
+  DownJEC->SetMarkerColor(kRed);
+  DownJEC->Draw("e1same");
+  
+  TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+  legend_1->SetFillColor (0);
+  legend_1->SetFillStyle (0);
+  legend_1->SetBorderSize (0);
+  legend_1->SetTextFont(62);
+  legend_1->AddEntry (JEC, "jet multiplicity", "L");
+  legend_1->AddEntry (UpJEC, "jet multiplicity + error", "L");
+  legend_1->AddEntry (DownJEC, "jet multiplicity - errror", "L");
+  legend_1->Draw ("same");
 
-               TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
-               legend_1->SetFillColor (0);
-               legend_1->SetFillStyle (0);
-               legend_1->SetBorderSize (0);
-               legend_1->SetTextFont(62);
-	       legend_1->AddEntry (JEC, "DATA Unfolded", "LP20");
-               legend_1->AddEntry (hnew, "JEC systematic uncertanties", "F");
-               legend_1->Draw ("same");
+  return systs;
 }
 
