@@ -38,7 +38,7 @@
 #include "TH2.h"
 #include "THStack.h"
 #include <string.h>
-//#include "getEfficiencyCorrection.C"
+#include "getEfficiencyCorrection.C"
 
 using
 std::cout;
@@ -48,21 +48,25 @@ std::endl;
 
 //FIles...
 
-string sdata="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root";
-string smc="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root";
-TFile *fA = new TFile (sdata.c_str());
-TFile *fB = new TFile (smc.c_str());
+//string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root";
+string smc="testUnfoldMC2.root";
+string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root";
+TFile *fA = new TFile (smc.c_str());
+TFile *fB = new TFile (sdata.c_str());
 //Directory and files to start with
 string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
-bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UnfoldedDistributions_v2_17pf.root";
+string filename=direct+"UnfoldedDistributions_v2_21pf.root";
 
 // Efficiency corrections
-Double_t xbins[10] = {30, 40, 50, 70, 90, 120, 150, 190, 230, 330}; // specify what bins you wonna use for efficiency correction. Should match with Andrea's 
+const int nxbins=10;
+//Double_t xbins[nxbins] = {0,30, 40, 50, 70, 90, 120, 150, 190, 230, 330}; // specify what bins you wonna use for efficiency correction. Should match with Andrea's 
+Double_t xbins[nxbins] = {30, 60, 90, 120, 150, 180, 210, 240, 270, 300};
 bool correctForEff=true; // If true, it will take the correction factor from outside
+bool differentialCrossSection=true;
 
 //File with efficiency coefficients
 TFile *eff = TFile::Open("/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_17.root"); 
@@ -98,21 +102,33 @@ TH1D *yRatio_ = new TH1D ("yRatio", "yRatio", 25, -2.5, 2.5);
 
 /* Jet pT Differential Xsec distribution */
 
-TH1D *jTrue = new TH1D ("jetpT true", "jetpT Truth", 9, xbins);
-TH1D *jData = new TH1D ("jetpT data", "jetpT DATA Measured", 9,  xbins);
-TH2D *jMatx = new TH2D ("jetpT hMatx", "Unfolding Matrix jetpT Rapidity ", 9, xbins, 9, xbins);
-TH1D *jMCreco = new TH1D ("jetpT mcreco", "jetpT mcreco", 9, xbins);
-TH1D *jData2 = new TH1D ("jetpT data2", "jetpT DATA Measured2", 9, xbins);
-TH1D *jRatio_ = new TH1D ("jetpTRatio", "jetpTRatio", 9, xbins);
+// TH1D *jTrue = new TH1D ("jTrue", "jetpT Truth", nxbins-1, xbins);
+// TH1D *jData = new TH1D ("jData", "jetpT DATA Measured", nxbins-1,  xbins);
+// TH1D *jReco = new TH1D ("jReco", "jetpT Unfolded DATA", nxbins-1,  xbins);
+// TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jetpT Rapidity ", nxbins-1, xbins, nxbins-1, xbins);
+// TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco", nxbins-1, xbins);
+// TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2", nxbins-1, xbins);
+// TH1D *jRatio_ = new TH1D ("jRatio_", "jetpTRatio", nxbins-1, xbins);
+// TH1D *PRatio = new TH1D ("PRatio", "reco/gen ratio",30,30,330);
 
-
-TH1D *PRatio = new TH1D ("PRatio", "reco/gen ratio", 100, 0, 1000);
-
+TH1D *jTrue = new TH1D ("jTrue", "jetpT Truth",30,30,330);
+TH1D *jData = new TH1D ("jData", "jetpT DATA Measured",30,30,330);
+TH1D *jReco = new TH1D ("jReco", "jetpT Unfolded DATA",30,30,330);
+TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jetpT Rapidity ",30,30,330,30,30,330);
+TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco",30,30,330);
+TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2",30,30,330);
+TH1D *jRatio_ = new TH1D ("jRatio_", "jetpTRatio",30,30,330);
+TH1D *PRatio = new TH1D ("PRatio", "reco/gen ratio",30,30,330);
+//To compute errors
+TH1F *staterror = new TH1F ("staterror", "staterror",30,0,30);
+TH1F *unfoerror = new TH1F ("unfoerror", "unfoerror",30,0,30);
 
 TH1D *NReco;
 TH1D *PReco;
 TH1D *yReco;
-TH1D *jReco;
+
+
+string supplabel="";
 
 TCanvas* C = new TCanvas("C","C",0,0,800,600);
 TCanvas *cmultip = new TCanvas ("cmultip", "cmultip", 1000, 700);
@@ -128,10 +144,11 @@ RooUnfoldResponse response_y  (25, -2.5, 2.5);
 void
 Unfolding::Loop()
 {
-  LoopJetMultiplicity();
+  //LoopJetMultiplicity();
   //LoopZpt();
   //LoopZy();
-  //LoopJetPt();
+  int numbOfJets=1;
+  LoopJetPt(numbOfJets);
 }
 
 void
@@ -148,9 +165,9 @@ Unfolding::LoopJetMultiplicity ()
 
   string sdatadir=sdata+":/validationJEC";
   string smcdir=smc+":/validationJEC";
-  fA->cd (sdatadir.c_str());
+  fA->cd (smcdir.c_str());
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
-  fB->cd (smcdir.c_str());
+  fB->cd (sdatadir.c_str());
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
   
   //Setting the errors
@@ -174,7 +191,7 @@ Unfolding::LoopJetMultiplicity ()
       break;
     nb = fChain->GetEntry (jentry);
     nbytes += nb;
-    if (Jet_multiplicity > jetPtthreshold || Jet_multiplicity_gen > jetPtthreshold ) continue;
+    if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
     NTrue->Fill (Jet_multiplicity_gen);
     NMCreco->Fill (Jet_multiplicity);
     NMCrecoratio_->Fill(Jet_multiplicity);
@@ -217,6 +234,8 @@ Unfolding::LoopJetMultiplicity ()
   double areaRecoVsTruth=1.000;
   TH1F* DataCorr;
   TH1F* JetMultiplicityUnfolded;
+  //JetMultiplicityUnfolded->Sumw2();
+
   if(correctForEff) {
     TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_nJets");
     //dir->cd();
@@ -354,7 +373,7 @@ Unfolding::LoopJetMultiplicity ()
 
 
     /*********************************************************/  
-    //Perform the efficiency correction
+   //Perform the efficiency correction
 
     TH1F* NMCrecoNoEffCorr = (TH1F*)  NMCreco -> Clone("NMCreco");
     NMCrecoNoEffCorr->SetName("NMCrecoNoEffCorr");
@@ -464,6 +483,11 @@ Unfolding::LoopJetMultiplicity ()
       if (correctForEff) NReco->Multiply(DataCorr); // Necessary to have same area... Investigate, please
       JetMultiplicityUnfolded=(TH1F*) NReco->Clone("NReco");
       JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
+
+      //Save info to evaluate the unfolding uncertainties... Da fare a mano ogni volta cambiando il MC e vedendo la differenza nei dati... poi prendi i dati, e li trascrivi nella macro!
+      for (int c=0;c<6;c ++){
+	cout<<NReco->GetBinContent(c+1)<<endl;
+      }
 
       cmultip->cd ();
       TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.3, 1, 1);
@@ -921,7 +945,7 @@ Unfolding::LoopZy ()
 	break;
       nb2 = fChain->GetEntry (jentry);
       nbytes += nb2;
-      
+      //Correct for efficiencies...
       yData->Fill (Z_y);
       yData2->Fill (Z_y);
     }
@@ -1085,7 +1109,7 @@ Unfolding::LoopZy ()
 
 
 void
-Unfolding::LoopJetPt ()
+Unfolding::LoopJetPt (int numbOfJets)
 {
   cout<<"*********************************"<<endl;
   cout<<"Unfolding Jet Pt"<<endl;
@@ -1095,43 +1119,20 @@ Unfolding::LoopJetPt ()
   gSystem->Load ("libRooUnfold");
 #endif
 
-  //  if (correctForEff){
-  //delete jTrue;
-  //cout<<"Resizing histograms to allow efficiency corrections"<<endl;
-  //jTrue = new TH1D ("jetpT true", "jetpT Truth", xbins, 30, 330);
-  //jData = new TH1D ("jetpT data", "jetpT DATA Measured", xbins, 30, 330);
-  //jMatx = new TH2D ("jetpT hMatx", "Unfolding Matrix jetpT Rapidity ", xbins, 30, 330, xbins, 30, 330);
-  //jMCreco = new TH1D ("jetpT mcreco", "jetpT mcreco", xbins, 30, 330);
-  //jData2 = new TH1D ("jetpT data2", "jetpT DATA Measured2", xbins, 30, 330);
-  //jRatio_ = new TH1D ("jetpTRatio", "jetpTRatio", xbins, 30, 330);
-  //} 
+  string sdatadir=sdata+":/validationJEC";
+  string smcdir=smc+":/validationJEC";
   
   //Enter the files
-  fA->cd ("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_17.root:/validationJEC");
+  fA->cd (smcdir.c_str());
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
   //DATA
-  fB->cd ("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_17.root:/validationJEC");
+  fB->cd (sdatadir.c_str());
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-  //TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_leadjetpt");
-   
- //  TH1F *h1,*h2,*h3,*h4,*h5,*h6,*h7,*k1,*k2,*k3,*k4,*k5,*k6,*k7;
-//   if (correctForEff){
-//     h1 = (TH1F*)gDirectory->Get("MC_WP80_Tag");
-//     h2 = (TH1F*)gDirectory->Get("MC_WP80_Probe");
-//     h3 = (TH1F*)gDirectory->Get("MC_HLTele8_Tag");
-//     h4 = (TH1F*)gDirectory->Get("MC_RECO_Probe");
-//     h5 = (TH1F*)gDirectory->Get("MC_HLTele17_Tag");
-//     h6 = (TH1F*)gDirectory->Get("MC_HLTele8_Probe");
-//     h7 = (TH1F*)gDirectory->Get("MC_HLTele17_Probe");
-    
-//     k1 = (TH1F*)gDirectory->Get("DATA_WP80_Tag");
-//     k2 = (TH1F*)gDirectory->Get("DATA_WP80_Probe");
-//     k3 = (TH1F*)gDirectory->Get("DATA_HLTele8_Tag");
-//     k4 = (TH1F*)gDirectory->Get("DATA_RECO_Probe");
-//     k5 = (TH1F*)gDirectory->Get("DATA_HLTele17_Tag");
-//     k6 = (TH1F*)gDirectory->Get("DATA_HLTele8_Probe");
-//     k7 = (TH1F*)gDirectory->Get("DATA_HLTele17_Probe");
-//   }
+
+  //Setting the errors
+  jTrue->Sumw2();
+  jMCreco->Sumw2();
+  jData->Sumw2();
 
   //Dummy way to have the total number of Z
   TH1F* obj;
@@ -1157,18 +1158,45 @@ Unfolding::LoopJetPt ()
 	break;
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
-      
-      
-      if(jet1_pt>30 && jet1_pt<330 && jet1_pt_gen>30 && jet1_pt_gen<330){
-	jTrue->Fill (jet1_pt_gen);
-	jMCreco->Fill (jet1_pt);
-	jMatx->Fill (jet1_pt, jet1_pt_gen); 
-      }//qui correggo per le eff e poi fillo response
+
+
+      if (numbOfJets<=1){
+	if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>=0 && jet1_pt_gen<7000) ){   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
+	  jTrue->Fill (jet1_pt_gen);
+	  jMCreco->Fill (jet1_pt);
+	  jMatx->Fill (jet1_pt, jet1_pt_gen); 
+	  supplabel="_jet1";
+	}//qui correggo per le eff e poi fillo response
+      }
+      if (numbOfJets==2){
+	if((jet2_pt>=0 && jet2_pt<7000) || (jet2_pt_gen>=0 && jet2_pt_gen<7000) ){
+	  jTrue->Fill (jet2_pt_gen);
+	  jMCreco->Fill (jet2_pt);
+	  jMatx->Fill (jet2_pt, jet2_pt_gen); 
+	}//qui correggo per le eff e poi fillo response
+	  supplabel="_jet2";
+      }
+      if (numbOfJets==3){
+	if((jet3_pt>=0 && jet3_pt<7000) || (jet3_pt_gen>=0 && jet3_pt_gen<7000) ){
+	  jTrue->Fill (jet3_pt_gen);
+	  jMCreco->Fill (jet3_pt);
+	  jMatx->Fill (jet3_pt, jet3_pt_gen); 
+	}//qui correggo per le eff e poi fillo response
+	supplabel="_jet3";
+      }
+      if (numbOfJets==4){
+	if((jet4_pt>=0 && jet4_pt<7000) || (jet4_pt_gen>=0 && jet4_pt_gen<7000) ){
+	  jTrue->Fill (jet4_pt_gen);
+	  jMCreco->Fill (jet4_pt);
+	  jMatx->Fill (jet4_pt, jet4_pt_gen); 
+	}//qui correggo per le eff e poi fillo response
+	supplabel="_jet4";
+      }
     }
   jTrue->Sumw2();
   jMCreco->Sumw2();
   
-  
+
   fChain = tree_fB;		/* Loop RunB */
   Init (fChain);	
   Long64_t nentries2 = fChain->GetEntriesFast ();
@@ -1185,61 +1213,117 @@ Unfolding::LoopJetPt ()
 	break;
       nb2 = fChain->GetEntry (jentry);
       nbytes += nb2;
+
+      if (numbOfJets==1){      
+	if( jet1_pt>jetPtthreshold && jet1_pt<7000 ){    // Old        if( jet1_pt>=0 && jet1_pt<7000 ){
+	  jData->Fill (jet1_pt);
+	  jData2->Fill (jet1_pt);
+	}
+      }
+      if (numbOfJets==2){      
+	if(jet2_pt>jetPtthreshold && jet2_pt<7000){
+	  jData->Fill (jet2_pt);
+	  jData2->Fill (jet2_pt);
+	}
+      }
+      if (numbOfJets==3){      
+	if(jet3_pt>jetPtthreshold && jet3_pt<7000){
+	  jData->Fill (jet3_pt);
+	  jData2->Fill (jet3_pt);
+	}
+      }
+      if (numbOfJets==4){      
+	if(jet4_pt>jetPtthreshold && jet4_pt<7000){
+	  jData->Fill (jet4_pt);
+	  jData2->Fill (jet4_pt);
+	}
+      }
+    }
+  jData->Sumw2();
+  double scaleFactor=jData->GetEntries();
+  double Zarea=jData->Integral();
+  cout<<"#Z->"<<scaleFactor<<" area->"<<Zarea<<endl;
+  
+      ///   NOTA BENE!!
+      //PER QUALCHE RAGIONE NON BISOGNA NORMALIZZARE NULLA PRIMA DI FARE LA RESPONSE MATRIX!!
+      //////////////
+      // MC Normalization
+      //////////////
+  double ScaleMCData = ((double)jData->Integral()/(double)jMCreco->Integral());
       
-      if(jet1_pt>30 && jet1_pt<330){
+      /////////////////
+      // Efficiency Correction
+      /////////////////
+      
+      double areaRecoVsTruth=1.000;
+      TH1F* DataCorr;
+      TH1F* PTJetMultiplicityUnfolded;
 
-      jData->Fill (jet1_pt);
-      jData2->Fill (jet1_pt);
-    }
-    }
-      jData->Sumw2();
-
-      /* tag & probe efficiency study */
+      if (correctForEff){
+	//Make the efficiency correction, not event by event.. to be upgrades
+	for (unsigned int k=0; k<30; k++){
+	  double effcorr=1.00/getEfficiencyCorrection("/gpfs/cms/data/2011/TaP/4matteo.root",2,(k+1)*30);
+	  cout<<effcorr<<endl;
+	  //jMCreco->SetBinContent(k+1, jMCreco->GetBinContent(k+1)*(effcorr)); //2 -> efficiency with 1 jet. NO GOOD
+	  jData->SetBinContent(k+1, jMCreco->GetBinContent(k+1)*(effcorr));
+	  //jData2->SetBinContent(k+1, jMCreco->GetBinContent(k+1)*(effcorr));	 
+	  //jMCreco->Scale(Zarea/jMCreco->Integral());
+	  //jData->Scale(Zarea/jData->Integral());
+	  //jData2->Scale(Zarea/jData2->Integral());
+	}
+      }
 
       RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
       response_j.UseOverflow();
-	cout << "5" << endl ;	
-        
-
-
-  	
- 
-  for (int j=0; j<2; j++){
-    string method;
-    if (j==0) method="Bayesian";
-    if (j==1) method="Svd";
-    cout<<"Running "<<method<<" method"<<endl;
-    for (int k=2; k<3; k++){
-      int myNumber=k;
-      stringstream num;
-      num<<myNumber;
+      
+      cout<<"***********************"<<endl;
+      cout<<"MC will be normalized to data, using entries"<<endl;
+      cout<<"N entries in Data:"<<jData->GetEntries()<<" and MC:"<<jMCreco->GetEntries()<<" ratio->"<<ScaleMCData<<endl;
+      cout<<endl;
+      jMCreco->Scale (ScaleMCData);
+      jTrue->Scale (ScaleMCData);
+      
+      for (int j=1; j<2; j++){
+	string method;
+	if (j==0) method="Bayesian";
+	if (j==1) method="Svd";
+	cout<<"Running "<<method<<" method"<<endl;
+	for (int k=15; k<16; k++){
+	  int myNumber=k;
+	  stringstream num;
+	  num<<myNumber;
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       cout<<"ongoing:"<<title<<endl;
- 
+      
       if (method=="Bayesian") {
-	RooUnfoldBayes unfold_j(&response_j, jData, myNumber);
+	RooUnfoldBayes unfold_j(&response_j, jData, myNumber, 5000);
 	jReco = (TH1D *) unfold_j.Hreco ();
       }
       if (method=="Svd"){
-	RooUnfoldSvd unfold_j (&response_j, jData, myNumber);	// OR
+	RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 5000);	// OR
 	jReco = (TH1D *) unfold_j.Hreco ();
+	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
+	TVectorD vstat= unfold_j.ErecoV();
+	TVectorD vunfo= unfold_j.ErecoV(RooUnfold::kCovToy);
+	
+	for (unsigned int p=0;p<jData->GetNbinsX();p++){
+	  cout<<vstat[p]<<" "<<vunfo[p]<<endl;
+	  staterror->SetBinContent(p+1,vstat[p]);
+	  unfoerror->SetBinContent(p+1,vunfo[p]);
+	  //Returns vector of unfolding errors computed according to the withError flag:
+	  //0: Errors are the square root of the bin content
+	  //1: Errors from the diagonals of the covariance matrix given by the unfolding
+	  //2: Errors from the covariance matrix given by the unfolding
+	  //3: Errors from the covariance matrix from the variation of the results in toy MC tests
+	}
       }
-	jReco->Sumw2();
-	jData->Sumw2();
-	jMCreco->Sumw2();
-	jTrue->Sumw2();
-
-	        
-if(k==10){ //need to be generalized for every k ...
-
-	jData   -> Scale(1./( double) NZ * 0.65284);
-	jReco   -> Scale(1./ (double) NZ * 0.65284);
-        jMCreco -> Scale(1./( double) NZ * 0.65284);
-        jTrue   -> Scale(1./( double) NZ * 0.65284);
-}	
-      cout<<"6"<<endl;      
-
+      
+      jReco->Sumw2();
+      jData->Sumw2();
+      jMCreco->Sumw2();
+      jTrue->Sumw2();	
+      
       TCanvas *c = new TCanvas ("c", "c", 1000, 700);
       c->cd ();
       TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.3, 1, 1);
@@ -1253,26 +1337,19 @@ if(k==10){ //need to be generalized for every k ...
       jReco->SetMarkerStyle (20);
       jData->SetMarkerStyle (21);
       jData->SetLineColor(kGreen);
-      //if (k==2){
-      
-	
 
       double area = (((double)jReco->Integral ()) / (double)jTrue->Integral ());
       cout<<"area "<<area<<endl;
+      jMCreco->Scale(area);
+      jTrue->Scale  (area);
+
+      if (differentialCrossSection){
+	jReco->Scale(1./Zarea);		
+	jTrue->Scale(1./Zarea);
+	jMCreco->Scale(1./Zarea);
+	jData->Scale(1./Zarea);
+      }
       
-
-      //jReco->Scale (1.00000 / (area));
-      //jData->Scale (1.00000 / (area));
-       
-        jMCreco->Scale(area);
-        jTrue->Scale  (area);
-
-        //w->cd();
-        //jReco->Write("jReco");
-
-	cout<<NZ<<endl;	
-     
-      //}
       jReco->SetMarkerStyle (20);
       jReco->SetStats(0);
       jReco->GetXaxis()->SetTitle("jet pT [GeV/c]");
@@ -1285,29 +1362,28 @@ if(k==10){ //need to be generalized for every k ...
       jTrue->SetLineColor (kBlack);
       jMCreco->SetLineWidth (2);
       jTrue->SetLineWidth (2);
-
+      
       jTrue->Draw ("EPSAME");
       jData2->SetLineColor(kGreen+1);
       jData2->Draw("EPSAME");
-
+      
       jReco->DrawCopy ();
       pad1->SetLogy (1);
       jTrue->Draw ("same");
       jMCreco->Draw ("same");
       jData->SetLineStyle(2);
       jData->Draw("same");
-
+      
       pad1->SetBottomMargin (0);
       jReco->SetTitleSize (0);
-
+      
       jTrue->SetTitleSize (0);
-
+      
       for(int i=1; i<=5; i++){
 	double x = jReco->GetBinContent(i);
 	cout << x << endl;
-	}
-
-
+      }
+      
       TLegend *legend_d = new TLegend (0.73494, 0.63, 0.931727, 0.83);
       legend_d->SetFillColor (0);
       legend_d->SetFillStyle (0);
@@ -1319,11 +1395,8 @@ if(k==10){ //need to be generalized for every k ...
       legend_d->Draw ("same");
       //legend_d->AddEntry((TObject*)0,"#int L dt = 4.096 fb^{-1}","");
        
-      /* Save */
-
-
-       pad1->Update();
-	
+      pad1->Update();
+      
       c->cd ();
 
       TPad *pad2 = new TPad ("pad2", "pad2", 0, 0, 1, 0.3);
@@ -1333,7 +1406,7 @@ if(k==10){ //need to be generalized for every k ...
       jReco->GetXaxis ()->SetLabelSize (0.1);
       jReco->GetYaxis ()->SetLabelSize (0.08);
       jReco->SetStats (0);
-      jReco->Divide(jData);
+      jReco->Divide(jTrue);
       jReco->SetMarkerStyle (6);
       jReco->GetXaxis ()->SetLabelSize (0.06);
       jReco->GetYaxis ()->SetLabelSize (0.06);
@@ -1341,7 +1414,7 @@ if(k==10){ //need to be generalized for every k ...
       jReco->GetYaxis ()->SetTitleSize (0.06);
       jReco->GetYaxis ()->SetTitleOffset (0.5);
 
-      jReco->GetYaxis ()->SetRangeUser (0.5, 1.3);
+      jReco->GetYaxis ()->SetRangeUser (0.1, 2.0);
       jReco->GetXaxis ()->SetRangeUser (0, 5);
       jReco->GetYaxis ()->SetTitle ("Ratios");
       jReco->GetXaxis()->SetTitle("jet pT [GeV/c]");
@@ -1353,35 +1426,57 @@ if(k==10){ //need to be generalized for every k ...
       jReco->GetYaxis()->SetRangeUser(min,max);
       jReco->SetStats(1);
 
-    
       jReco->Draw("ep");
+
       
+      //TH1F *jRecoClone= (TH1F*) jMCreco->Clone("NMCReco");
+      //jRecoClone->SetName("jRecoClone");
+      //jRecoClone->Divide(jTrue);		
+      //jRecoClone->SetMarkerStyle (20);
+      //jRecoClone->SetMarkerSize(0.0);
+      //jRecoClone->SetTitle ("");
+      //jRecoClone->SetStats(1);
+      //jRecoClone->SetLineStyle(3);
+      //jRecoClone->SetLineColor(kMagenta+3);
+      //jRecoClone->Draw ("ep same");
+      
+      TF1 *f = new TF1("f","1",0,410);
+      f->SetLineWidth(1);
+      f->Draw("SAMES");
+
       TLegend *legend_w = new TLegend (0.73494, 0.63, 0.931727, 0.83);
       legend_w->SetFillColor (0);
       legend_w->SetFillStyle (0);
       legend_w->SetBorderSize (0);
-      legend_w->AddEntry (jReco, "Data unfolded / Data folded", "LP20");
+      legend_w->AddEntry (jReco, "Data unfolded / Data truth", "LP20");
+      //legend_w->AddEntry (jRecoClone, "MC reco / MC truth", "L");
       legend_w->Draw ("same");
-     
-      pad2->Update();
+  
+     //pad2->Update();
 
-      /*l->SetLineColor (kBlue + 1);
-      l->SetLineWidth (1);
-      l->SetLineStyle (2);
-      l->Draw ("same");
-      gStyle->SetOptStat(0);
-      gStyle->SetOptFit(111);
-      jj->SetParameter(0, 1);
-      jj->SetLineWidth(.5);
-      jj->SetLineColor(kWhite);
-      NReco->Fit(jj);
-      jj->Draw ("same");
-      l->Draw ("same");*/
-      string title3= s+"JETPTXSEC"+method+"_"+num.str()+".pdf";
-      c->cd ();
+      string title3= s+"JETPTXSEC"+method+"_"+num.str()+supplabel+".pdf";
+      //c->cd ();
       c->Print(title3.c_str());
+
+      TCanvas *err = new TCanvas ("err", "err", 1000, 700);
+      err->cd ();
+      staterror->Draw();
+      unfoerror->SetLineColor(kRed);
+      unfoerror->Draw("SAMES");
+      string title4= s+"JETPTerror"+method+"_"+num.str()+supplabel+".pdf";
+      err->Print(title4.c_str());
+
+      TLegend *legend_e = new TLegend (0.73494, 0.63, 0.931727, 0.83);
+      legend_e->SetFillColor (0);
+      legend_e->SetFillStyle (0);
+      legend_e->SetBorderSize (0);
+      legend_e->AddEntry (staterror, "Statistical Errors", "L");
+      legend_e->AddEntry (unfoerror, "Unf. Errors with Toy", "L");
+      legend_e->Draw ("same");
+
       num.str("");
-   }
+
+    }
   }
   TCanvas *N =new TCanvas ("jet pT response matrix", "jet pT response matrix", 1000, 700);
   N->cd ();
@@ -1398,7 +1493,6 @@ if(k==10){ //need to be generalized for every k ...
       
  
 }
-
 
 #ifndef __CINT__
 
