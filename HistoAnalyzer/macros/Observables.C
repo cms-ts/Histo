@@ -68,7 +68,7 @@ bool evalDiffCS=true; // if false it does not divide for # of Zs
 
 // Files to be saved
 string dir="/gpfs/cms/data/2011/Observables/";
-string version="_v2_17.root";
+string version="_v2_21pf.root";
 
 string szj=dir+"MC_zjets"+version;
 string swj=dir+"MC_wjets"+version;
@@ -99,7 +99,7 @@ TDirectory *validationJECda=fda->mkdir("validationJEC");
 
 string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
 string sozj=diropen+"zjets_magd_2011"+version;
-string sowj=diropen+"w_2011"+version;
+string sowj=diropen+"w_2011"+"_v2_17.root";//+version;
 string sott=diropen+"ttbar_2011"+version;
 string soWW=diropen+"ww_2011"+version;
 string soZZ=diropen+"zz_2011"+version;
@@ -163,6 +163,11 @@ void
 Observables::Loop()
 {
   double numbOfZ = 0;
+  double numbOfZPlus1 = 0;
+  double numbOfZPlus2 = 0;
+  double numbOfZPlus3 = 0;
+  double numbOfZPlus4 = 0;
+
   //DATA
   for(int i=0; i<7; i++){
     if (i==0) Fda->cd (sodda.c_str());
@@ -357,6 +362,14 @@ Observables::Loop()
     if (i==0)  {
       numbOfZ = NData->GetEntries();
       cout<<"Data contains # Z ->"<<numbOfZ<<endl;
+      numbOfZPlus1 = NData->GetBinContent(2)+NData->GetBinContent(3)+NData->GetBinContent(4)+NData->GetBinContent(5)+NData->GetBinContent(6)+NData->GetBinContent(7)+NData->GetBinContent(8)+NData->GetBinContent(9);
+      numbOfZPlus2 = NData->GetBinContent(3)+NData->GetBinContent(4)+NData->GetBinContent(5)+NData->GetBinContent(6)+NData->GetBinContent(7)+NData->GetBinContent(8)+NData->GetBinContent(9);
+      numbOfZPlus3 = NData->GetBinContent(4)+NData->GetBinContent(5)+NData->GetBinContent(6)+NData->GetBinContent(7)+NData->GetBinContent(8)+NData->GetBinContent(9);
+      numbOfZPlus4 = NData->GetBinContent(5)+NData->GetBinContent(6)+NData->GetBinContent(7)+NData->GetBinContent(8)+NData->GetBinContent(9);
+      cout<<"Data contains # Z >= 1 Jets ->"<<numbOfZPlus1<<endl;
+      cout<<"Data contains # Z >= 2 Jets ->"<<numbOfZPlus2<<endl;
+      cout<<"Data contains # Z >= 3 Jets ->"<<numbOfZPlus3<<endl;
+      cout<<"Data contains # Z >= 4 Jets ->"<<numbOfZPlus4<<endl;
     }
     
     jet_pT2    ->Sumw2();
@@ -374,14 +387,14 @@ Observables::Loop()
     Phi_star   ->Sumw2();
     
     if (evalDiffCS){
-      jet_eta    ->Scale(1./numbOfZ);
-      jet_eta2   ->Scale(1./numbOfZ);
-      jet_eta3   ->Scale(1./numbOfZ);
-      jet_eta4   ->Scale(1./numbOfZ);
-      jet_pT2    ->Scale(1./numbOfZ);
-      jet_pT     ->Scale(1./numbOfZ);
-      jet_pT3    ->Scale(1./numbOfZ);
-      jet_pT4    ->Scale(1./numbOfZ);
+      jet_eta    ->Scale(1./numbOfZPlus1);
+      jet_eta2   ->Scale(1./numbOfZPlus2);
+      jet_eta3   ->Scale(1./numbOfZPlus3);
+      jet_eta4   ->Scale(1./numbOfZPlus4);
+      jet_pT2    ->Scale(1./numbOfZPlus2);
+      jet_pT     ->Scale(1./numbOfZPlus1);
+      jet_pT3    ->Scale(1./numbOfZPlus3);
+      jet_pT4    ->Scale(1./numbOfZPlus4);
       Ht         ->Scale(1./numbOfZ);
       Dphi_12    ->Scale(1./numbOfZ);
       Dphi_ZJ1   ->Scale(1./numbOfZ);
