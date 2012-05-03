@@ -1251,11 +1251,13 @@ int TagProbeFitter::doFit_BWCB(string pass_data, string fail_data, string output
   TH1F* hist_passing = (TH1F*) gDirectory->Get(pass_data.c_str());
   TH1F* hist_failing = (TH1F*) gDirectory->Get(fail_data.c_str());
 
+  double ntot_events = hist_passing->Integral() + hist_failing->Integral();
+
   RooWorkspace w("w",kTRUE);
 
   // Definition of disjoint pdf's:
   // Passing PDF:
-  w.factory("RooBreitWigner::bwgauss(mass[60.0,120.0], pass_bwmean[91.1876], pass_bwsigma[2.4952])");
+  w.factory("RooBreitWigner::bwgauss(mass[71.0,111.0], pass_bwmean[91.1876], pass_bwsigma[2.4952])");
   w.factory("RooCBShape::pass_cball(mass, pass_cbmean[0.0,-2.0,2.0], pass_cbsigma[2.1,0.5,10.0], pass_alpha[1.4,0.1,4.0], pass_n[2.6,1.0,5.0])");
   w.factory("FCONV::signalPass(mass,bwgauss,pass_cball)");
   w.factory("RooExponential::backgroundPass(mass, cPass[-0.01,-0.08,0.0])");
@@ -1263,8 +1265,7 @@ int TagProbeFitter::doFit_BWCB(string pass_data, string fail_data, string output
 
   // Failing PDF:
   w.factory("RooCBShape::fail_cball(mass, fail_cbmean[0.0,-2.0,2.0], fail_cbsigma[2.0,0.5,10.0], fail_alpha[1.4,0.1,4.0], fail_n[2.6,1.0,5.0])");
-  //  w.var("fail_cbmean")->setVal(w.var("pass_cbmean")->getVal());
-  //  w.var("fail_cbmean")->setConstant(kTRUE);
+  //w.var("fail_n")->setConstant(kTRUE);
   w.factory("FCONV::signalFail(mass,bwgauss,fail_cball)");
   w.factory("RooExponential::backgroundFail(mass, cFail[-0.01,-0.08,0.0])");
   w.factory("SUM::failing_model(signalFailNorm[0.5,0.0,1.0]*signalFail,backgroundFail)");
@@ -1281,10 +1282,12 @@ int TagProbeFitter::doFit_BWCB(string pass_data, string fail_data, string output
   w.pdf("failing_model")->fitTo(binnedData_failing);
 
   // Definition of the simultaneous pdf for global fit:
-  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.9,0.0,1.0], fSigAll[0.9,0.0,1.0],numTot[10000.0,0.0,10000000000000.0])");
+  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.9,0.0,1.0], fSigAll[0.9,0.0,1.0],numTot[10000,0.0,1000000000.0])");
   w.factory("expr::nSignalFail('(1.0-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");  
   w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.1,0.0,1.0],fSigAll,numTot)");
   w.factory("expr::nBkgFail('(1.0-effBkg)*(1.0-fSigAll)*numTot', effBkg,fSigAll,numTot)");  
+
+  w.var("numTot")->setVal(ntot_events);
 
   w.factory("SUM::pdf_pass(nSignalPass*signalPass,nBkgPass*backgroundPass)");
   //  w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
