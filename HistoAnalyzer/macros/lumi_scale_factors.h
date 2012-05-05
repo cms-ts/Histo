@@ -7,8 +7,8 @@ double dataLumi2011B = 2579.073; //9 febbraio 2012
 double dataLumi2011 = dataLumi2011A + dataLumi2011B;
 
 //Repro using pixelcalc 42X
-double dataLumi2011Apix = 2200; //double dataXsect = 3048.0;
-double dataLumi2011Bpix = 2707; //9 febbraio 2012   
+double dataLumi2011Apix = 2151; //2200; //double dataXsect = 3048.0; // 3 may -> 4.890 - 2739 = 2151
+double dataLumi2011Bpix = 2739; //3 may 2012 + Giuseppe. Usa il comando crab -c XXXXX -report per stima perfetta!!!!   
 double dataLumi2011pix = dataLumi2011Apix + dataLumi2011Bpix;
 
 
