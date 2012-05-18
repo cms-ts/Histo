@@ -70,6 +70,7 @@ class HistoProducer : public edm::EDProducer {
 
       //Retrieved from the .py
       edm::InputTag electronCollection_;
+      edm::InputTag particleCollection_;
       edm::InputTag triggerCollection_;
       edm::InputTag VertexCollectionTag_;
       std::vector<std::string>  numEventsNames_;
@@ -162,17 +163,25 @@ class HistoProducer : public edm::EDProducer {
       std::vector<double> vNeutHadIsoEB;
       std::vector<double> vChgHadIsoEB;
       std::vector<double> vPhotIsoEB;
+      std::vector<double> vPhotIsoUserEB;
       std::vector<double> vNeutHadIsoEB_ned;
+      std::vector<double> vNeutHadIsoUserEB_ned;
       std::vector<double> vChgHadIsoEB_ned;
+      std::vector<double> vChgHadIsoUserEB_ned;
       std::vector<double> vPhotIsoEB_ned;
+      std::vector<double> vPhotIsoUserEB_ned;
       std::vector<double> vCombinedIsoEB;
       //edncaps
       std::vector<double> vNeutHadIsoEE;
       std::vector<double> vChgHadIsoEE;
       std::vector<double> vPhotIsoEE;
+      std::vector<double> vPhotIsoUserEE;
       std::vector<double> vNeutHadIsoEE_ned;
+      std::vector<double> vNeutHadIsoUserEE_ned;
       std::vector<double> vChgHadIsoEE_ned;
+      std::vector<double> vChgHadIsoUserEE_ned;
       std::vector<double> vPhotIsoEE_ned;
+      std::vector<double> vPhotIsoUserEE_ned;
       std::vector<double> vCombinedIsoEE;
 
       // PileUp REMOVED variables
@@ -236,15 +245,23 @@ class HistoProducer : public edm::EDProducer {
 	vNeutHadIsoEB.clear();
 	vChgHadIsoEB.clear();
 	vPhotIsoEB.clear();
+	vPhotIsoUserEB.clear();
 	vNeutHadIsoEE.clear();
 	vChgHadIsoEE.clear();
 	vPhotIsoEE.clear();
+	vPhotIsoUserEE.clear();
 	vNeutHadIsoEB_ned.clear();
+	vNeutHadIsoUserEB_ned.clear();
 	vChgHadIsoEB_ned.clear();
+	vChgHadIsoUserEB_ned.clear();
 	vPhotIsoEB_ned.clear();
+	vPhotIsoUserEB_ned.clear();
 	vNeutHadIsoEE_ned.clear();
+	vNeutHadIsoUserEE_ned.clear();
 	vChgHadIsoEE_ned.clear();
+	vChgHadIsoUserEE_ned.clear();
 	vPhotIsoEE_ned.clear();
+	vPhotIsoUserEE_ned.clear();
 	vCombinedIsoEB.clear();
 	vCombinedIsoEE.clear();
 	//statento che uccido ogni giro anche il vettore stringa!
@@ -269,6 +286,7 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   produces<std::vector<float> >("EventWeight");
 
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
+  particleCollection_ = conf.getParameter<edm::InputTag>("particleCollection");
   triggerCollection_  = conf.getParameter<edm::InputTag>("triggerCollection");
   useCombinedPrescales_ = conf.getParameter<bool>("UseCombinedPrescales");
   triggerNames_         = conf.getParameter< std::vector<std::string> > ("TriggerNames");

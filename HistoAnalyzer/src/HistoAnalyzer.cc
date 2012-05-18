@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.40 2012/03/28 12:25:30 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.41 2012/04/18 14:03:33 marone Exp $
 //
 //
 
@@ -76,9 +76,13 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double NeutHadIso;
   double ChgHadIso;
   double PhotIso;
+  double PhotIsoUser;
   double NeutHadIso_ned;
+  double NeutHadIsoUser_ned;
   double ChgHadIso_ned;
+  double ChgHadIsoUser_ned;
   double PhotIso_ned;
+  double PhotIsoUser_ned;
   double CombinedIso;
   
   //Define ID variables
@@ -314,10 +318,35 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
         Handle < pat::ElectronCollection > gsfElectrons;
 	iEvent.getByLabel(electronCollection_,gsfElectrons);
 
+	Handle<reco::PFCandidateCollection> particleCollection;
+	iEvent.getByLabel(particleCollection_,particleCollection);
+
 	//Loop over the gsf collection to study the variables distributions
 	for(pat::ElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
-
-		if (removePU_){
+	   double isoPhotonUser=0,isoChgHadUser=0,isoNeutHadUser=0;
+	   for(reco::PFCandidateCollection::const_iterator itPart = particleCollection->begin(); itPart!= particleCollection->end(); ++itPart) {
+	      if (itPart->pdgId()==22){
+		 double deltaPhi = fabs (itElect->phi() - itPart->phi());
+		 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+		 double deltaR = sqrt ( pow(itElect->eta() - itPart->eta(),2) + deltaPhi*deltaPhi);
+		 if (deltaR < 0.4 && itPart->pt()>0.5 ) isoPhotonUser += itPart->pt();
+	      }
+	      if (itPart->particleId()==1){
+		 double deltaPhi = fabs (itElect->phi() - itPart->phi());
+		 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+		 double deltaR = sqrt ( pow(itElect->eta() - itPart->eta(),2) + deltaPhi*deltaPhi);
+		 if (deltaR < 0.4 ) isoChgHadUser += itPart->pt();
+	      }
+	      if (itPart->particleId()==5){
+		 double deltaPhi = fabs (itElect->phi() - itPart->phi());
+		 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+		 double deltaR = sqrt ( pow(itElect->eta() - itPart->eta(),2) + deltaPhi*deltaPhi);
+		 if (deltaR < 0.4 && itPart->pt()>0.5 ) isoNeutHadUser += itPart->pt();
+	      }
+	      
+	   }
+	   
+	   if (removePU_){
 			double lepIsoRho;
 			/////// Pileup density "rho" for lepton isolation subtraction /////
 			edm::Handle<double> rhoLepIso;
@@ -384,11 +413,15 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		HE_bc = itElect->hcalOverEcalBc();
 
 		NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
+		NeutHadIsoUser_ned= isoNeutHadUser;
 		ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
+		ChgHadIsoUser_ned= isoChgHadUser;
 		PhotIso_ned= itElect->pfIsolationVariables().photonIso;
+		PhotIsoUser_ned=isoPhotonUser;
 		NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso/ itElect->pt ();
 		ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso/ itElect->pt ();
 		PhotIso= itElect->pfIsolationVariables().photonIso/ itElect->pt ();
+		PhotIsoUser=isoPhotonUser/ itElect->pt ();
 		CombinedIso = ((NeutHadIso_ned + ChgHadIso_ned + PhotIso_ned)/ itElect->pt ());
 
 		//Assign Isolation variables
@@ -431,9 +464,13 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vNeutHadIsoEB.push_back(NeutHadIso);
 			vChgHadIsoEB.push_back(ChgHadIso);
 			vPhotIsoEB.push_back(PhotIso);
+			vPhotIsoUserEB.push_back(PhotIsoUser);
+			vNeutHadIsoUserEB_ned.push_back(NeutHadIsoUser_ned);
 			vNeutHadIsoEB_ned.push_back(NeutHadIso_ned);
+			vChgHadIsoUserEB_ned.push_back(ChgHadIsoUser_ned);
 			vChgHadIsoEB_ned.push_back(ChgHadIso_ned);
 			vPhotIsoEB_ned.push_back(PhotIso_ned);
+			vPhotIsoUserEB_ned.push_back(PhotIsoUser_ned);
 			vCombinedIsoEB.push_back(CombinedIso);
 		}
 		//EE
@@ -461,9 +498,13 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vNeutHadIsoEE.push_back(NeutHadIso);
 			vChgHadIsoEE.push_back(ChgHadIso);
 			vPhotIsoEE.push_back(PhotIso);
+			vPhotIsoUserEE.push_back(PhotIsoUser);
 			vNeutHadIsoEE_ned.push_back(NeutHadIso_ned);
+			vNeutHadIsoUserEE_ned.push_back(NeutHadIsoUser_ned);
 			vChgHadIsoEE_ned.push_back(ChgHadIso_ned);
+			vChgHadIsoUserEE_ned.push_back(ChgHadIsoUser_ned);
 			vPhotIsoEE_ned.push_back(PhotIso_ned);
+			vPhotIsoUserEE_ned.push_back(PhotIsoUser_ned);
 			vCombinedIsoEE.push_back(CombinedIso);
 
 		}
@@ -583,9 +624,13 @@ vRun.clear();
 	treeVJ_->Branch("NeutHadIsoEB","NeutHadIsoEB",&vNeutHadIsoEB);
 	treeVJ_->Branch("ChgHadIsoEB","ChgHadIsoEB",&vChgHadIsoEB);
 	treeVJ_->Branch("PhotIsoEB","PhotIsoEB",&vPhotIsoEB);
+	treeVJ_->Branch("PhotIsoUserEB","PhotIsoUserEB",&vPhotIsoUserEB);
 	treeVJ_->Branch("NeutHadIsoEB_ned","NeutHadIsoEB_ned",&vNeutHadIsoEB_ned);
+	treeVJ_->Branch("NeutHadIsoUserEB_ned","NeutHadIsoUserEB_ned",&vNeutHadIsoUserEB_ned);
 	treeVJ_->Branch("ChgHadIsoEB_ned","ChgHadIsoEB_ned",&vChgHadIsoEB_ned);
+	treeVJ_->Branch("ChgHadIsoUserEB_ned","ChgHadIsoUserEB_ned",&vChgHadIsoUserEB_ned);
 	treeVJ_->Branch("PhotIsoEB_ned","PhotIsoEB_ned",&vPhotIsoEB_ned);
+	treeVJ_->Branch("PhotIsoUserEB_ned","PhotIsoUserEB_ned",&vPhotIsoUserEB_ned);
 	treeVJ_->Branch("CombinedIsoEB","CombinedIsoEB",&vCombinedIsoEB);
 
 	//EE
@@ -600,9 +645,13 @@ vRun.clear();
 	treeVJ_->Branch("NeutHadIsoEE","NeutHadIsoEE",&vNeutHadIsoEE);
 	treeVJ_->Branch("ChgHadIsoEE","ChgHadIsoEE",&vChgHadIsoEE);
 	treeVJ_->Branch("PhotIsoEE","PhotIsoEE",&vPhotIsoEE);
+	treeVJ_->Branch("PhotIsoUserEE","PhotIsoUserEE",&vPhotIsoUserEE);
 	treeVJ_->Branch("NeutHadIsoEE_ned","NeutHadIsoEE_ned",&vNeutHadIsoEE_ned);
+	treeVJ_->Branch("NeutHadIsoUserEE_ned","NeutHadIsoUserEE_ned",&vNeutHadIsoUserEE_ned);
 	treeVJ_->Branch("ChgHadIsoEE_ned","ChgHadIsoEE_ned",&vChgHadIsoEE_ned);
+	treeVJ_->Branch("ChgHadIsoUserEE_ned","ChgHadIsoUserEE_ned",&vChgHadIsoUserEE_ned);
 	treeVJ_->Branch("PhotIsoEE_ned","PhotIsoEE_ned",&vPhotIsoEE_ned);
+	treeVJ_->Branch("PhotIsoUserEE_ned","PhotIsoUserEE_ned",&vPhotIsoUserEE_ned);
 	treeVJ_->Branch("CombinedIsoEE","CombinedIsoEE",&vCombinedIsoEE);
 
 	//Common
