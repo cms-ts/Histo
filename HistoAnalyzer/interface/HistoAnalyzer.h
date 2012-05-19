@@ -1,3 +1,6 @@
+#ifndef HistoAnalyzer_h
+#define HistoAnalyzer_h
+
 // system include files  
 #include <memory>
 #include <string.h>
@@ -26,8 +29,19 @@
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include <TMath.h>
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 
 // root includes
+
 #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -41,7 +55,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-bool debug=false; //If true it will activate the cout verbosity
+bool debugH11=false; //If true it will activate the cout verbosity
 
 bool cold=true; //It is used to process few lines only once per job...
 class TTree;
@@ -50,10 +64,13 @@ class TTree;
 // class declaration
 /////
 
-class HistoProducer : public edm::EDProducer {
+typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > > IsoDepositMaps;
+typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
+
+class HistoAnalyzer : public edm::EDProducer {
    public:
-      explicit HistoProducer(const edm::ParameterSet&);
-      ~HistoProducer();
+      explicit HistoAnalyzer(const edm::ParameterSet&);
+      ~HistoAnalyzer();
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
@@ -66,6 +83,9 @@ class HistoProducer : public edm::EDProducer {
       virtual void beginLuminosityBlock (edm::LuminosityBlock &, const edm::EventSetup &);
       virtual void endLuminosityBlock (edm::LuminosityBlock &, const edm::EventSetup &);
 
+      static bool isGoodConversion(const reco::Conversion &conv, const math::XYZPoint &beamspot, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=1);   
+      static bool matchesConversion(const pat::Electron &ele, const reco::Conversion &conv, bool allowCkfMatch=true);
+      static bool hasMatchedConversion(const pat::Electron &ele, const edm::Handle<reco::ConversionCollection> &convCol, const math::XYZPoint &beamspot, bool allowCkfMatch=true, float lxyMin=2.0, float probMin=1e-6, unsigned int nHitsBeforeVtxMax=0);
       // ----------member data ---------------------------
 
       //Retrieved from the .py
@@ -73,6 +93,10 @@ class HistoProducer : public edm::EDProducer {
       edm::InputTag particleCollection_;
       edm::InputTag triggerCollection_;
       edm::InputTag VertexCollectionTag_;
+      edm::InputTag conversionsInputTag_;
+      edm::InputTag beamSpotInputTag_;
+      edm::InputTag primaryVertexInputTag_;
+      std::vector<edm::InputTag>  isoValInputTags_;
       std::vector<std::string>  numEventsNames_;
       std::string WhichRun_;
       std::string rootuplaname;
@@ -141,6 +165,8 @@ class HistoProducer : public edm::EDProducer {
       std::vector<float> vDeltaPhiTkCluEB;
       std::vector<float> vDeltaEtaTkCluEB;
       std::vector<float> vsigmaIeIeEB;
+      std::vector<float> vooemoopEB;
+      
       //EE
       std::vector<double> vIsoTrkEE;
       std::vector<double> vIsoEcalEE;
@@ -149,11 +175,15 @@ class HistoProducer : public edm::EDProducer {
       std::vector<float> vDeltaPhiTkCluEE;
       std::vector<float> vDeltaEtaTkCluEE;
       std::vector<float> vsigmaIeIeEE;
+      std::vector<float> vooemoopEE;
       //Common
       std::vector<double> vfbrem;
       std::vector<double> vetaSC;
       std::vector<float> vDcot;
       std::vector<float> vDist;
+      std::vector<float> vd0vtx;
+      std::vector<float> vdzvtx;
+      std::vector<bool> vFitConversion;
       std::vector<int> vNumberOfExpectedInnerHits;
       double HE_bc;
       double HE_old;
@@ -192,8 +222,11 @@ class HistoProducer : public edm::EDProducer {
       //EE
       std::vector<double> vIsoTrkEE_PUR;
       std::vector<double> vIsoEcalEE_PUR;
-      std::vector<double> vIsoHcalEE_PUR;
-      
+      std::vector<double> vIsoHcalEE_PUR;                                                                                
+      std::vector<double> vNeutHadIsoEB_PUR;
+      std::vector<double> vPhotIsoEB_PUR;                                                                               
+      std::vector<double> vNeutHadIsoEE_PUR;
+      std::vector<double> vPhotIsoEE_PUR;
       std::vector<double> vCombinedIsoEB_PUR;
       std::vector<double> vCombinedIsoEE_PUR;
 
@@ -229,6 +262,7 @@ class HistoProducer : public edm::EDProducer {
 	vDeltaPhiTkCluEB.clear();
 	vDeltaEtaTkCluEB.clear();
 	vsigmaIeIeEB.clear();
+	vooemoopEB.clear();
 	vIsoTrkEE.clear();
 	vIsoEcalEE.clear();
 	vIsoHcalEE.clear();
@@ -236,10 +270,14 @@ class HistoProducer : public edm::EDProducer {
 	vDeltaPhiTkCluEE.clear();
 	vDeltaEtaTkCluEE.clear();
 	vsigmaIeIeEE.clear();
+	vooemoopEE.clear();
 	vfbrem.clear();
 	vetaSC.clear();
 	vDcot.clear();
 	vDist.clear();
+	vd0vtx.clear();
+	vdzvtx.clear();
+	vFitConversion.clear();
 	vNumberOfExpectedInnerHits.clear();
 	// particle-based isolation variables
 	vNeutHadIsoEB.clear();
@@ -272,7 +310,11 @@ class HistoProducer : public edm::EDProducer {
 	vIsoTrkEE_PUR.clear();
 	vIsoEcalEE_PUR.clear();
 	vIsoHcalEE_PUR.clear();
-	// particle-based isolation variables
+	// particle-based isolatCion variables
+	vNeutHadIsoEB_PUR.clear();
+	vPhotIsoEB_PUR.clear();
+	vNeutHadIsoEE_PUR.clear();
+	vPhotIsoEE_PUR.clear();
 	vCombinedIsoEE_PUR.clear();
 	vCombinedIsoEB_PUR.clear();
       }
@@ -280,7 +322,7 @@ class HistoProducer : public edm::EDProducer {
 
 };
 
-HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
+HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
 
 {
   produces<std::vector<float> >("EventWeight");
@@ -295,6 +337,10 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
   usingMC_              = conf.getParameter<bool>("usingMC");
   doTheHLTAnalysis_     = conf.getParameter<bool>("doTheHLTAnalysis");
   VertexCollectionTag_  = conf.getParameter<edm::InputTag>("VertexCollectionTag");
+  conversionsInputTag_  = conf.getParameter<edm::InputTag>("conversionsInputTag");
+  beamSpotInputTag_     = conf.getParameter<edm::InputTag>("beamSpotInputTag");
+  primaryVertexInputTag_= conf.getParameter<edm::InputTag>("primaryVertexInputTag");
+  isoValInputTags_      = conf.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
   numEventsNames_       = conf.getParameter< std::vector<std::string> > ("TotalNEventTag");
   WhichRun_             = conf.getParameter< std::string > ("WhichRun");
   giveEventWeightEqualToOne_ = conf.getParameter<bool>("giveEventWeightEqualToOne");
@@ -334,7 +380,7 @@ HistoProducer::HistoProducer(const edm::ParameterSet& conf):hltConfig_()
 }
 
 
-HistoProducer::~HistoProducer()
+HistoAnalyzer::~HistoAnalyzer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -342,5 +388,5 @@ HistoProducer::~HistoProducer()
 
 }
 
-
+#endif
 

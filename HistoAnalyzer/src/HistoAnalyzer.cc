@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HistoProducer     
-// Class:      HistoProducer
+// Package:    HistoAnalyzer     
+// Class:      HistoAnalyzer
 // 
-/**\class HistoProducer HistoProducer.cc Histo/HistoProducer/src/HistoProducer.cc
+/**\class HistoAnalyzer HistoAnalyzer.cc Histo/HistoAnalyzer/src/HistoAnalyzer.cc
 
 */
 //
@@ -30,7 +30,7 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
 
-bool hltispresent=1;
+bool hltispresentH11=1;
 
 //
 // member functions
@@ -38,7 +38,7 @@ bool hltispresent=1;
 
 // ------------ method called for each event  ------------
 void
-HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HistoAnalyzer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // We need the output Muon association collection to fill 
@@ -63,6 +63,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double IsoTrk_PUR;
   double IsoEcal_PUR;
   double IsoHcal_PUR;
+  double NeutHadIso_PUR;
+  double PhotIso_PUR;
   double CombinedIso_PUR;
   
   //Define Isolation Variables (Non-Removed PU)
@@ -89,10 +91,14 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float DeltaPhiTkClu;
   float DeltaEtaTkClu;
   float sigmaIeIe;
+  float ooemoop;
   
   //Define Conversion Rejection Variables
   float Dcot;
   float Dist;
+  float d0vtx;
+  float dzvtx;
+  bool FitConversion;
   int NumberOfExpectedInnerHits;
   //EODefinitions
   
@@ -110,7 +116,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     /// Storing the Prescale information: loop over the triggers and record prescale
     
     // Matching the HLT information event per event if no hlt info is present in iRun
-    if(hltispresent==false){
+    if(hltispresentH11==false){
       std::vector<std::string>  hlNames;
       hlNames.clear();
       hlNames=triggerNames.triggerNames();
@@ -126,8 +132,8 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  myflag++;
 	}
       }
-      if(myflag==triggerNames_.size()) hltispresent=false;
-      else hltispresent=true; //cosi' prendo una sola volta l'hlt path tanto nie miei studi mi serve l'hlt path per run...
+      if(myflag==triggerNames_.size()) hltispresentH11=false;
+      else hltispresentH11=true; //cosi' prendo una sola volta l'hlt path tanto nie miei studi mi serve l'hlt path per run...
     }
     
     
@@ -161,7 +167,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      int prescaleset = hltConfig_.prescaleSet(iEvent,iSetup);
 	      if(prescaleset!=-1) {
 		prescalepair = hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[itrig]);
-		if (debug) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
+		if (debugH11) cout<<"prescale.first "<<prescalepair.first<<" prescalepair.second "<<prescalepair.second<<endl;
 		//getting prescale info
 		prescale = useCombinedPrescales_ ? prescalepair.first*prescalepair.second : prescalepair.second;
 		if((useCombinedPrescales_ && prescalepair.first<0) || prescalepair.second<0) {
@@ -173,7 +179,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	      
 	      minimalPrescale = minimalPrescale <  prescale ? minimalPrescale : prescale;
-	      if (debug) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
+	      if (debugH11) cout<<"prescale "<<prescale<<" minimal Prescale "<<minimalPrescale<<" for trigger "<<triggerNames.triggerName(itrig)<<endl;
 	      
 	      
 	      HLTPaths.push_back(stringa);
@@ -199,7 +205,7 @@ HistoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } // Chiusura filtro du HLTPaths
 	} //Chiusura del if(bit)
 	else {
-	  //edm::LogError("HistoProducer") << " Unable to get prescale set from event. Check that L1 data products are present.";
+	  //edm::LogError("HistoAnalyzer") << " Unable to get prescale set from event. Check that L1 data products are present.";
 	}
       }
       else {
@@ -321,6 +327,25 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 	Handle<reco::PFCandidateCollection> particleCollection;
 	iEvent.getByLabel(particleCollection_,particleCollection);
 
+	// conversions
+	edm::Handle<reco::ConversionCollection> conversions_h;
+	iEvent.getByLabel(conversionsInputTag_, conversions_h);
+	
+	// iso deposits
+	IsoDepositVals IsoVals(isoValInputTags_.size());
+	for (size_t j = 0; j < isoValInputTags_.size(); ++j) {
+	   iEvent.getByLabel(isoValInputTags_[j], IsoVals[j]);
+	}
+	
+	// beam spot
+	edm::Handle<reco::BeamSpot> beamspot_h;
+	iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+	const reco::BeamSpot &beamSpot = *(beamspot_h.product());
+	
+	// vertices
+	edm::Handle<reco::VertexCollection> vtx_h;
+	iEvent.getByLabel(primaryVertexInputTag_, vtx_h);
+
 	//Loop over the gsf collection to study the variables distributions
 	for(pat::ElectronCollection::const_iterator itElect = gsfElectrons->begin();itElect != gsfElectrons->end(); ++itElect) {
 	   double isoPhotonUser=0,isoChgHadUser=0,isoNeutHadUser=0;
@@ -329,23 +354,31 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		 double deltaPhi = fabs (itElect->phi() - itPart->phi());
 		 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 		 double deltaR = sqrt ( pow(itElect->eta() - itPart->eta(),2) + deltaPhi*deltaPhi);
-		 if (deltaR < 0.4 && itPart->pt()>0.5 ) isoPhotonUser += itPart->pt();
+		 if (deltaR < 0.3 
+		     //&& itPart->pt()>0.5 
+		    ) isoPhotonUser += itPart->pt();
 	      }
 	      if (itPart->particleId()==1){
 		 double deltaPhi = fabs (itElect->phi() - itPart->phi());
 		 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 		 double deltaR = sqrt ( pow(itElect->eta() - itPart->eta(),2) + deltaPhi*deltaPhi);
-		 if (deltaR < 0.4 ) isoChgHadUser += itPart->pt();
+		 if (deltaR < 0.3 ) isoChgHadUser += itPart->pt();
 	      }
 	      if (itPart->particleId()==5){
 		 double deltaPhi = fabs (itElect->phi() - itPart->phi());
 		 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 		 double deltaR = sqrt ( pow(itElect->eta() - itPart->eta(),2) + deltaPhi*deltaPhi);
-		 if (deltaR < 0.4 && itPart->pt()>0.5 ) isoNeutHadUser += itPart->pt();
+		 if (deltaR < 0.3 
+		     //&& itPart->pt()>0.5 
+		    ) isoNeutHadUser += itPart->pt();
 	      }
 	      
-	   }
-	   
+	   }	   
+			
+	   double charged = (*IsoVals[0])[itElect->originalObjectRef()];//myElectronRef
+	   double photon  = (*IsoVals[1])[itElect->originalObjectRef()]; //myElectronRef
+	   double neutral = (*IsoVals[2])[itElect->originalObjectRef()];//myElectronRef 
+
 	   if (removePU_){
 			double lepIsoRho;
 			/////// Pileup density "rho" for lepton isolation subtraction /////
@@ -361,6 +394,20 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 				vRho.push_back(lepIsoRho);
 			}
 
+			// Effective area for 2011 data (Delta_R=0.3) (taken from https://twiki.cern.ch/twiki/bin/view/Main/HVVElectronId2012 )
+			double A_eff_PH, A_eff_NH;
+			if(abs(itElect->eta())<=1.0){A_eff_PH=0.081; A_eff_NH=0.024;}
+			else if(abs(itElect->eta())>1.0 && abs(itElect->eta())<=1.479){A_eff_PH=0.084 ; A_eff_NH=0.037;}
+			else if(abs(itElect->eta())>1.479 && abs(itElect->eta())<=2.0){A_eff_PH=0.048 ; A_eff_NH=0.037;}
+			else if(abs(itElect->eta())>2.0 && abs(itElect->eta())<=2.2){A_eff_PH=0.089 ; A_eff_NH=0.023;}
+			else if(abs(itElect->eta())>2.2 && abs(itElect->eta())<=2.3){A_eff_PH=0.092 ; A_eff_NH=0.023;}
+			else if(abs(itElect->eta())>2.3 && abs(itElect->eta())<=2.4){A_eff_PH=0.097 ; A_eff_NH=0.021;}   
+			else {A_eff_PH=0.11 ; A_eff_NH=0.021;}
+			
+			NeutHadIso_PUR =max(neutral - lepIsoRho * A_eff_NH, 0.)/std::max(0.5, itElect->pt());
+			PhotIso_PUR = max(photon - lepIsoRho*A_eff_PH  , 0.) /std::max(0.5, itElect->pt());
+			CombinedIso_PUR = (charged + max(photon - lepIsoRho*A_eff_PH  , 0.) +  max(neutral - lepIsoRho * A_eff_NH, 0.))/std::max(0.5, itElect->pt());
+			
 			//EB
 			if (fabs (itElect->eta()) <= 1.4442) {      
 				//
@@ -373,12 +420,11 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 				vIsoTrkEB_PUR.push_back(IsoTrk_PUR);
 				vIsoEcalEB_PUR.push_back(IsoEcal_PUR);
 				vIsoHcalEB_PUR.push_back(IsoHcal_PUR);
-					   
-				NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
-				ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
-				PhotIso_ned= itElect->pfIsolationVariables().photonIso;
-				CombinedIso_PUR = ((ChgHadIso_ned + PhotIso_ned + NeutHadIso_ned - lepIsoRho*0.096)/ itElect->pt ());
+
+				vNeutHadIsoEB_PUR.push_back(NeutHadIso_PUR);
+				vPhotIsoEB_PUR.push_back(PhotIso_PUR);
 				vCombinedIsoEB_PUR.push_back(CombinedIso_PUR);
+					   
 			}
 			//EE
 			if (fabs (itElect->eta()) >= 1.5660
@@ -393,11 +439,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 				vIsoTrkEE_PUR.push_back(IsoTrk_PUR);
 				vIsoEcalEE_PUR.push_back(IsoEcal_PUR);
 				vIsoHcalEE_PUR.push_back(IsoHcal_PUR);
-			   
-				NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
-				ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
-				PhotIso_ned= itElect->pfIsolationVariables().photonIso;
-				CombinedIso_PUR = ((ChgHadIso_ned + PhotIso_ned + NeutHadIso_ned - lepIsoRho*0.096)/ itElect->pt ());
+
+				vNeutHadIsoEE_PUR.push_back(NeutHadIso_PUR);
+				vPhotIsoEE_PUR.push_back(PhotIso_PUR);
 				vCombinedIsoEE_PUR.push_back(CombinedIso_PUR);
 			}
 		}
@@ -412,17 +456,18 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		HE_old = itElect->hadronicOverEm();
 		HE_bc = itElect->hcalOverEcalBc();
 
-		NeutHadIso_ned= itElect->pfIsolationVariables().neutralHadronIso;
+		NeutHadIso_ned= neutral;
 		NeutHadIsoUser_ned= isoNeutHadUser;
-		ChgHadIso_ned= itElect->pfIsolationVariables().chargedHadronIso;
+		ChgHadIso_ned= charged;
 		ChgHadIsoUser_ned= isoChgHadUser;
-		PhotIso_ned= itElect->pfIsolationVariables().photonIso;
+		PhotIso_ned= photon;
 		PhotIsoUser_ned=isoPhotonUser;
-		NeutHadIso= itElect->pfIsolationVariables().neutralHadronIso/ itElect->pt ();
-		ChgHadIso= itElect->pfIsolationVariables().chargedHadronIso/ itElect->pt ();
-		PhotIso= itElect->pfIsolationVariables().photonIso/ itElect->pt ();
+
+		NeutHadIso = neutral/std::max(0.5, itElect->pt());
+		PhotIso = photon/std::max(0.5, itElect->pt());
+		ChgHadIso = charged /std::max(0.5, itElect->pt());
+		CombinedIso = NeutHadIso + PhotIso + ChgHadIso;
 		PhotIsoUser=isoPhotonUser/ itElect->pt ();
-		CombinedIso = ((NeutHadIso_ned + ChgHadIso_ned + PhotIso_ned)/ itElect->pt ());
 
 		//Assign Isolation variables
 		fbrem	= itElect->fbrem();
@@ -433,8 +478,21 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		DeltaPhiTkClu = itElect->deltaPhiSuperClusterTrackAtVtx();
 		DeltaEtaTkClu = itElect->deltaEtaSuperClusterTrackAtVtx();
 		sigmaIeIe     = itElect->sigmaIetaIeta ();
+		ooemoop = (1.0/itElect->ecalEnergy() - itElect->eSuperClusterOverP()/itElect->ecalEnergy());
 
 		//Assign Conversion Rejection Variables
+		d0vtx = 0.0;
+		dzvtx = 0.0;
+		if (vtx_h->size() >0){
+		   reco::VertexRef vtx(vtx_h,0);		       
+		   d0vtx = itElect->gsfTrack()->dxy(vtx->position());
+		   dzvtx = itElect->gsfTrack()->dz(vtx->position());
+		} else {
+		   d0vtx = itElect->gsfTrack()->dxy();
+		   dzvtx = itElect->gsfTrack()->dz();
+		}
+
+		FitConversion = HistoAnalyzer::hasMatchedConversion(*itElect, conversions_h, beamSpot.position());
 		Dcot		= itElect->convDcot();
 		Dist 	= itElect->convDist();
 		NumberOfExpectedInnerHits = itElect->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
@@ -459,8 +517,8 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vHEEB.push_back(HE);
 			vDeltaPhiTkCluEB.push_back(DeltaPhiTkClu);
 			vDeltaEtaTkCluEB.push_back(DeltaEtaTkClu);
-			vsigmaIeIeEB.push_back(sigmaIeIe);			
-			
+			vsigmaIeIeEB.push_back(sigmaIeIe);
+			vooemoopEB.push_back(ooemoop);			
 			vNeutHadIsoEB.push_back(NeutHadIso);
 			vChgHadIsoEB.push_back(ChgHadIso);
 			vPhotIsoEB.push_back(PhotIso);
@@ -494,6 +552,7 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 			vDeltaPhiTkCluEE.push_back(DeltaPhiTkClu);
 			vDeltaEtaTkCluEE.push_back(DeltaEtaTkClu);
 			vsigmaIeIeEE.push_back(sigmaIeIe);
+			vooemoopEE.push_back(ooemoop);
 
 			vNeutHadIsoEE.push_back(NeutHadIso);
 			vChgHadIsoEE.push_back(ChgHadIso);
@@ -519,8 +578,11 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 		//Common (vector)
 		vfbrem.push_back(fbrem);
 		vetaSC.push_back(etaSC);
+		vd0vtx.push_back(d0vtx);
+		vdzvtx.push_back(dzvtx);
 		vDcot.push_back(Dcot);
 		vDist.push_back(Dist);
+		vFitConversion.push_back(FitConversion);
 		vNumberOfExpectedInnerHits.push_back(NumberOfExpectedInnerHits);
 
 	}//End for
@@ -574,7 +636,7 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 
 // ------------ method called once each job just before starting event loop  ------------
 	void 
-HistoProducer::beginJob()
+HistoAnalyzer::beginJob()
 {
 	nEvents_ = 0;
 
@@ -609,6 +671,10 @@ vRun.clear();
 	treeVJ_->Branch("IsoEcalEE_PUR","IsoEcalEE_PUR",&vIsoEcalEE_PUR);
 	treeVJ_->Branch("IsoHcalEE_PUR","IsoHcalEE_PUR",&vIsoHcalEE_PUR);
 
+	treeVJ_->Branch("NeutHadIsoEB_PUR","NeutHadIsoEB_PUR",&vNeutHadIsoEB_PUR);
+	treeVJ_->Branch("PhotIsoEB_PUR","PhotIsoEB_PUR",&vPhotIsoEB_PUR);
+	treeVJ_->Branch("NeutHadIsoEE_PUR","NeutHadIsoEE_PUR",&vNeutHadIsoEE_PUR);
+	treeVJ_->Branch("PhotIsoEE_PUR","PhotIsoEE_PUR",&vPhotIsoEE_PUR);
 	treeVJ_->Branch("CombinedIsoEB_PUR","CombinedIsoEB_PUR",&vCombinedIsoEB_PUR);
 	treeVJ_->Branch("CombinedIsoEE_PUR","CombinedIsoEE_PUR",&vCombinedIsoEE_PUR);
 
@@ -620,6 +686,7 @@ vRun.clear();
 	treeVJ_->Branch("DeltaPhiTkCluEB","DeltaPhiTkCluEB",&vDeltaPhiTkCluEB);
 	treeVJ_->Branch("DeltaEtaTkCluEB","DeltaEtaTkCluEB",&vDeltaEtaTkCluEB);
 	treeVJ_->Branch("sigmaIeIeEB","sigmaIeIeEB",&vsigmaIeIeEB);
+	treeVJ_->Branch("ooemoopEB","ooemoopEB",&vooemoopEB);
 
 	treeVJ_->Branch("NeutHadIsoEB","NeutHadIsoEB",&vNeutHadIsoEB);
 	treeVJ_->Branch("ChgHadIsoEB","ChgHadIsoEB",&vChgHadIsoEB);
@@ -641,6 +708,7 @@ vRun.clear();
 	treeVJ_->Branch("DeltaPhiTkCluEE","DeltaPhiTkCluEE",&vDeltaPhiTkCluEE);
 	treeVJ_->Branch("DeltaEtaTkCluEE","DeltaEtaTkCluEE",&vDeltaEtaTkCluEE);
 	treeVJ_->Branch("sigmaIeIeEE","sigmaIeIeEE",&vsigmaIeIeEE);
+	treeVJ_->Branch("ooemoopEE","ooemoopEE",&vooemoopEE);
 
 	treeVJ_->Branch("NeutHadIsoEE","NeutHadIsoEE",&vNeutHadIsoEE);
 	treeVJ_->Branch("ChgHadIsoEE","ChgHadIsoEE",&vChgHadIsoEE);
@@ -659,6 +727,9 @@ vRun.clear();
 	treeVJ_->Branch("etaSC","etaSC",&vetaSC);
 	treeVJ_->Branch("Dcot","Dcot",&vDcot);
 	treeVJ_->Branch("Dist","Dist",&vDist);
+	treeVJ_->Branch("d0vtx","d0vtx",&vd0vtx);
+	treeVJ_->Branch("dzvtx","dzvtx",&vdzvtx);
+	treeVJ_->Branch("FitConversion","FitConversion",&vFitConversion);
 	treeVJ_->Branch("NumberOfExpectedInnerHits","NumberOfExpectedInnerHits",&vNumberOfExpectedInnerHits);
 	treeVJ_->Branch("Rho","Rho",&vRho);
 	treeVJ_->Branch("HE_bc",&HE_bc,"HE_bc/D");
@@ -689,17 +760,17 @@ vRun.clear();
 
 // ------------ method called once each job just after ending the event loop  ------------
 	void 
-HistoProducer::endJob() 
+HistoAnalyzer::endJob() 
 {
   //nEventsPerStep_->Write();
 }
 
 // ------------ method called when starting to processes a run  ------------
 	void 
-HistoProducer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
+HistoAnalyzer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
-hltispresent=true;
+hltispresentH11=true;
 	//HLT names
 	std::vector<std::string>  hlNames;
 	hlNames.clear();
@@ -715,10 +786,10 @@ hltispresent=true;
 
 //debug dav
 	if(hlNames.size()==0) { 
-		hltispresent=false;
+		hltispresentH11=false;
 	}
 
-	if (debug) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
+	if (debugH11) cout<<"useAllTriggers?"<<useAllTriggers_<<endl;
 	if(useAllTriggers_) triggerNames_ = hlNames;
 	
 	//HLT indices
@@ -731,31 +802,31 @@ hltispresent=true;
 			triggerIndices_.push_back(2048);
 	}
 
-	if (debug){
+	if (debugH11){
 		// text (debug) output
 		int i=0;
 		for(std::vector<std::string>::const_iterator it = triggerNames_.begin(); it<triggerNames_.end();++it) {
-			if (debug) cout << (i++) << " = " << (*it) << std::endl;
+			if (debugH11) cout << (i++) << " = " << (*it) << std::endl;
 		} 
 	}
 }
 
 // ------------ method called when ending the processing of a run  ------------
 	void 
-HistoProducer::endRun(edm::Run&,const edm::EventSetup&)
+HistoAnalyzer::endRun(edm::Run&,const edm::EventSetup&)
 {
 	treeHLT_->Fill();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 	void 
-HistoProducer::beginLuminosityBlock(edm::LuminosityBlock & lumi, const edm::EventSetup & iEvent)
+HistoAnalyzer::beginLuminosityBlock(edm::LuminosityBlock & lumi, const edm::EventSetup & iEvent)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 	void 
-	HistoProducer::endLuminosityBlock(edm::LuminosityBlock & lumi, const edm::EventSetup & iEvent)
+	HistoAnalyzer::endLuminosityBlock(edm::LuminosityBlock & lumi, const edm::EventSetup & iEvent)
 {
   for (size_t i = 0; i < numEventsNames_.size(); i++)
     {
@@ -769,8 +840,76 @@ HistoProducer::beginLuminosityBlock(edm::LuminosityBlock & lumi, const edm::Even
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-HistoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HistoAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
+
+bool HistoAnalyzer::isGoodConversion(const reco::Conversion &conv, const math::XYZPoint &beamspot, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
+{
+  
+  //Check if a given conversion candidate passes the conversion selection cuts
+  
+  const reco::Vertex &vtx = conv.conversionVertex();
+
+  //vertex validity
+  if (!vtx.isValid()) return false;
+
+  //fit probability
+  if (TMath::Prob( vtx.chi2(),  vtx.ndof() )<probMin) return false;
+
+  //compute transverse decay length
+  math::XYZVector mom(conv.refittedPairMomentum()); 
+  double dbsx = vtx.x() - beamspot.x();
+  double dbsy = vtx.y() - beamspot.y();
+  double lxy = (mom.x()*dbsx + mom.y()*dbsy)/mom.rho();
+
+  //transverse decay length  
+  if ( lxy<lxyMin )
+    return false;
+    
+  //loop through daughters to check nhitsbeforevtx
+  for (std::vector<uint8_t>::const_iterator it = conv.nHitsBeforeVtx().begin(); it!=conv.nHitsBeforeVtx().end(); ++it) {
+    if ( (*it)>nHitsBeforeVtxMax ) return false;
+  }
+  
+  return true;
+}
+
+bool HistoAnalyzer::matchesConversion(const pat::Electron &ele, const reco::Conversion &conv, bool allowCkfMatch)
+{
+
+  //check if a given GsfElectron matches a given conversion (no quality cuts applied)
+  //matching is always attempted through the gsf track ref, and optionally attempted through the
+  //closest ctf track ref
+
+  const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
+  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
+    if ( ele.gsfTrack().isNonnull() && ele.gsfTrack().id()==it->id() && ele.gsfTrack().key()==it->key()) return true;
+    else if ( allowCkfMatch && ele.closestCtfTrackRef().isNonnull() && ele.closestCtfTrackRef().id()==it->id() && ele.closestCtfTrackRef().key()==it->key() ) return true;
+  }
+
+  return false;
+}
+
+bool HistoAnalyzer::hasMatchedConversion(const pat::Electron &ele,
+					  const edm::Handle<reco::ConversionCollection> &convCol,
+					  const math::XYZPoint &beamspot, bool allowCkfMatch, float lxyMin, float probMin, unsigned int nHitsBeforeVtxMax)
+{
+  //check if a given electron candidate matches to at least one conversion candidate in the
+  //collection which also passes the selection cuts, optionally match with the closestckf track in
+  //in addition to just the gsf track (enabled in default arguments)
+  
+  for (reco::ConversionCollection::const_iterator it = convCol->begin(); it!=convCol->end(); ++it) {
+     if (!HistoAnalyzer::matchesConversion(ele, *it, allowCkfMatch)) continue;
+     if (!HistoAnalyzer::isGoodConversion(*it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
+   
+    return true;
+  }
+  
+  return false;
+  
+}
+
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(HistoProducer);
+DEFINE_FWK_MODULE(HistoAnalyzer);
