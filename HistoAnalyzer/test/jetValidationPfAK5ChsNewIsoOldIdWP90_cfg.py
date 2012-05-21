@@ -621,8 +621,8 @@ process.goodEPair = cms.EDProducer('goodEPairProducer2011',
 process.goodElec = cms.EDProducer('goodEleProducer2011',
                                   electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                   pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
-                                  useNewID=  cms.bool(False),    
-                                  doWP90 =  cms.untracked.bool(True),                         
+                                  useNewID=  cms.bool(False),  
+                                  doWP90 =  cms.untracked.bool(True),                           
                                   conversionsInputTag   = cms.InputTag("allConversions"),
                                   beamSpotInputTag      = cms.InputTag("offlineBeamSpot"),
                                   primaryVertexInputTag = cms.InputTag("offlinePrimaryVertices"),
@@ -849,36 +849,36 @@ process.ToolInizialization = cms.Path(
     process.ak5PFchsJetsPUL1FastL2L3Residual
     )
 
-# process.TAPAnalysisWP80 = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle8*
-#     process.TAPwp80
-#     )
+process.TAPAnalysisWP80 = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle8*
+    process.TAPwp80
+    )
 
-# process.TAPAnalysisWP80newHE = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle8*
-#     process.TAPwp80newHE
-#     )
+#process.TAPAnalysisWP80newHE = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchPatElectronsEle8*
+#    process.TAPwp80newHE
+#    )
 
-# process.TAPAnalysisHLTele8NOTele17 = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsNOTEle17*
-#     process.trgmatchPatElectronsEle8NOTEle17*
-#     process.TAPhltele8NOTele17
-#     )
+process.TAPAnalysisHLTele8NOTele17 = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsNOTEle17*
+    process.trgmatchPatElectronsEle8NOTEle17*
+    process.TAPhltele8NOTele17
+    )
 
-# process.TAPAnalysisHLTele17 = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle17*
-#     process.TAPhltele17
-#     )
+process.TAPAnalysisHLTele17 = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle17*
+    process.TAPhltele17
+    )
 
-# process.TAPAnalysisRECO = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle8*
-#     process.TAPreco
-#     )
+process.TAPAnalysisRECO = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle8*
+    process.TAPreco
+    )
 
 process.JetValidation = cms.Path(
     process.TotalEventCounter*

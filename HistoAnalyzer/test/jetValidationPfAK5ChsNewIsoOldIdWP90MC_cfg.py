@@ -820,11 +820,11 @@ process.ToolInizialization = cms.Path(
     process.ak5PFchsJetsPUL1FastL2L3
     )
 
-# process.TAPAnalysisWP80 = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle8*
-#     process.TAPwp80
-#     )
+process.TAPAnalysisWP80 = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle8*
+    process.TAPwp80
+    )
 
 # process.TAPAnalysisWP80newHE = cms.Path(
 #     process.goodOfflinePrimaryVertices*
@@ -832,24 +832,24 @@ process.ToolInizialization = cms.Path(
 #     process.TAPwp80newHE
 #     )
 
-# process.TAPAnalysisHLTele8NOTele17 = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsNOTEle17*
-#     process.trgmatchPatElectronsEle8NOTEle17*
-#     process.TAPhltele8NOTele17
-#     )
+process.TAPAnalysisHLTele8NOTele17 = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsNOTEle17*
+    process.trgmatchPatElectronsEle8NOTEle17*
+    process.TAPhltele8NOTele17
+    )
 
-# process.TAPAnalysisHLTele17 = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle17*
-#     process.TAPhltele17
-#     )
+process.TAPAnalysisHLTele17 = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle17*
+    process.TAPhltele17
+    )
 
-# process.TAPAnalysisRECO = cms.Path(
-#     process.goodOfflinePrimaryVertices*
-#     process.trgmatchPatElectronsEle8*
-#     process.TAPreco
-#     )
+process.TAPAnalysisRECO = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle8*
+    process.TAPreco
+    )
 
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
