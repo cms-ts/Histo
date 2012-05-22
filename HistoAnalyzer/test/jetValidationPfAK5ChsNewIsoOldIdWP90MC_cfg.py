@@ -127,7 +127,7 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB,
                            TriggerNames = trigger2011v3
                            )
@@ -152,7 +152,7 @@ process.TAPwp80newHE = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3
                            )
@@ -177,7 +177,7 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3       
                            )
@@ -202,7 +202,7 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3
                            )
@@ -227,7 +227,7 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                            VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
                            electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
                            candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                            #TriggerNames = triggersMay10Jul05+triggersAug05+triggersOct03+trigger2011RunB
                            TriggerNames = trigger2011v3
                            )
