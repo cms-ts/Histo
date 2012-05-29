@@ -43,7 +43,7 @@
 #include "TH2.h"
 #include "THStack.h"
 #include <string.h>
-//#include "getEfficiencyCorrection.C"
+#include "Unfolding/getEfficiencyCorrection.C"
 
 
 using
@@ -55,6 +55,12 @@ std::endl;
 
 #endif
 
+bool activateScaleFactors=false;
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_23.root";
+
+//Open MC and data files to retrieve effciencies
+TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+TFile *fBeff = new TFile (efffile.c_str()); 
 
 /* Interesting Z + jet distributions */
 
@@ -68,7 +74,7 @@ bool evalDiffCS=true; // if false it does not divide for # of Zs
 
 // Files to be saved
 string dir="/gpfs/cms/data/2011/Observables/";
-string version="_v2_21pf.root";
+string version="_v2_22.root";
 
 string szj=dir+"MC_zjets"+version;
 string swj=dir+"MC_wjets"+version;
@@ -99,7 +105,7 @@ TDirectory *validationJECda=fda->mkdir("validationJEC");
 
 string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
 string sozj=diropen+"zjets_magd_2011"+version;
-string sowj=diropen+"w_2011"+"_v2_17.root";//+version;
+string sowj=diropen+"w_2011"+"_v2_22.root";//+version;
 string sott=diropen+"ttbar_2011"+version;
 string soWW=diropen+"ww_2011"+version;
 string soZZ=diropen+"zz_2011"+version;
@@ -125,7 +131,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
 
 TFile *w;
 //List of observables to show
-TH1D *NData             = new TH1D ("Jet_multi", "Jet_multi", 5, 0, 5);
+TH1F *NData             = new TH1F ("Jet_multi", "Jet_multi", 6, 0, 6);
 TH1F *Ht                = new TH1F ("HT", "HT", 47, 30, 500);
 TH1F *Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
 TH1F *Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
@@ -138,10 +144,10 @@ TH1F *Dphi_all_notZlead = new TH1F ("Dphi_all_notZlead", "Dphi_all_notZlead", 6,
 TH1F *ele_pT	        = new TH1F ("ele_pT", "ele_pT", 50, 0, 250);
 TH1F *ele_eta	        = new TH1F ("ele_eta", "ele_eta", 20, -3, 3);
 TH1F *ele_phi	        = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
-TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 30, 30, 330);
-TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 30, 30, 330);
-TH1F *jet_pT3	        = new TH1F ("jet_pT3", "jet_pT3", 30, 30, 330);
-TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 30, 30, 330);
+TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 15, 30, 330);
+TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 10, 30, 330);
+TH1F *jet_pT3	        = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
+TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 7, 30, 100);
 TH1F *jet_eta	        = new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
 TH1F *jet_eta2	        = new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
 TH1F *jet_eta3	        = new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
@@ -188,7 +194,7 @@ Observables::Loop()
     if (fChain == 0)  return;
     
     //List of observables to show
-    NData             = new TH1D ("Jet_multi", "Jet_multi", 5, 0, 5);
+    NData             = new TH1F ("Jet_multi", "Jet_multi", 6, 0, 6);
     Ht                = new TH1F ("HT", "HT", 47, 30, 500);
     Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
     Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
@@ -201,10 +207,10 @@ Observables::Loop()
     ele_pT	    = new TH1F ("ele_pT", "ele_pT", 50, 0, 250);
     ele_eta	    = new TH1F ("ele_eta", "ele_eta", 20, -3, 3);
     ele_phi	    = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
-    jet_pT	    = new TH1F ("jet_pT", "jet_pT", 30, 30, 330);
-    jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 30, 30, 330);
-    jet_pT3	    = new TH1F ("jet_pT3", "jet_pT3", 30, 30, 330);
-    jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 30, 30, 330);
+    jet_pT	    = new TH1F ("jet_pT", "jet_pT", 15, 30, 330);
+    jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 10, 30, 330);
+    jet_pT3	    = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
+    jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 7, 30, 100);
     jet_eta	    = new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
     jet_eta2	    = new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
     jet_eta3	    = new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
@@ -310,8 +316,12 @@ Observables::Loop()
 
 	
 	if(jet1_pt>jetThreshold && jet1_pt<350 && jet1_eta>-3 && jet1_eta<3){	
-	  jet_pT  -> Fill(jet1_pt,evWeight);
-	  jet_eta -> Fill(jet1_eta,evWeight);
+	  double evWeight_scalefactors=1.0;
+	  if (activateScaleFactors && i==1) {
+	    if (Jet_multiplicity==1) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet1_pt);
+	  }
+	  jet_pT  -> Fill(jet1_pt,evWeight*evWeight_scalefactors);
+	  jet_eta -> Fill(jet1_eta,evWeight*evWeight_scalefactors);
 	}
 	
 	if (Jet_multiplicity > 1 && jet2_pt > jetThreshold && jet2_pt <350 && TMath::Abs(jet2_eta)<2.5){

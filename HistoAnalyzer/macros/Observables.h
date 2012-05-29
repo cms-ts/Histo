@@ -80,6 +80,7 @@ public :
    TBranch	  *b_jet2_mass; 
    TBranch	  *b_evWeight;
 
+ 
    Observables(TTree *tree=0);
    virtual ~Observables();
    virtual Int_t    Cut(Long64_t entry);
