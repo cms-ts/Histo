@@ -1,6 +1,7 @@
 #definizioni
 dir="/afs/infn.it/ts/user/marone/html/ZJets"
-newdir="2011_v2_17pf_pixelLumi"
+#newdir="2011_v2_24_pixelLumi/"
+newdir="Observables_v2_24_pixelLumi/" 
 actdir=`pwd`
 
 #azioni

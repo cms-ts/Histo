@@ -25,11 +25,11 @@
 bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata
 bool useLog             = 1;
 
-string plotpath		="/home/candelis/html/Observables/"; 
+string plotpath		="/afs/infn.it/ts/user/marone/html/ZJets/Observables/"; 
 //string plotpath		="test/"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/users/candelis/CMSSW_4_2_4/src/Histo/HistoAnalyzer/macros/Unfolding/Observables/DATA.root";
-string mcfile		="/gpfs/cms/users/candelis/CMSSW_4_2_4/src/Histo/HistoAnalyzer/macros/Unfolding/Observables/MC_zjets.root"; 
-string back_ttbar	="/gpfs/cms/users/candelis/CMSSW_4_2_4/src/Histo/HistoAnalyzer/macros/Unfolding/Observables/MC_ttbar.root"; 
+string datafile		="DATA.root";
+string mcfile		="MC_zjets.root"; 
+string back_ttbar	="MC_ttbar.root"; 
 string back_w		="/afs/infn.it/ts/project/cms/users/montanin/SPERO/CMSSW_4_4_2/src/Histo/HistoAnalyzer/work/AngDist/angDistW2011A_v12fake.root";
 
 string datafile2       	="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_15.root";
@@ -637,6 +637,7 @@ void comparisonAngMCData(string plot,int rebin){
 
 		tmp=plotpath+plot+".png";
 		Canv->Print(tmp.c_str());
+		cout<<tmp<<endl;
 
 	}
 	else if (flag==2){
@@ -680,7 +681,7 @@ void comparisonAngMCData(string plot,int rebin){
 
 		tmp=plotpath+plot+"mc.png";
 		Canv->Print(tmp.c_str());
-
+		cout<<tmp<<endl;
 		
 		Canv->cd();
 		TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
@@ -735,6 +736,7 @@ void comparisonAngMCData(string plot,int rebin){
 
 		tmp=plotpath+plot+"_py.png";
 		Canv->Print(tmp.c_str());
+		cout<<tmp<<endl;
 		
 	}
 //	else { cout << "You're getting an exception! Most likely there's no histogram here... \n"; }
