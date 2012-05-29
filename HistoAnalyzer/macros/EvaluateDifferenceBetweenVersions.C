@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string.h>
 #include "TObject.h"
-
+#include <TROOT.h>
 
 TH1D* h_itEB_data44;
 TH1D* h_itEB_data42;
@@ -23,12 +23,14 @@ TH1D* h_itEB_data42;
 // Just Select your version that you wonna compare!! And the path in which you'll store it!!!!
 //
 
-TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011B_v2_12.root"); 
-TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_12.root"); 
-std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/RunB_44Vs42"; //put here the path where you want the plots
+TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_24TP.root");
+TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_24wp90.root"); 
+std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/WP90_80/"; //put here the path where you want the plots
 std::string whichdirectory="validationJEC";
-string name1="Run2011B 44X"; // Name on the Plot's Label
-string name2="Run2011A 42X"; // Name on the Plot's Label
+string name1="v24, WP80"; // Name on the Plot's Label
+string name2="v24, WP90"; // Name on the Plot's Label
+
+bool normalizeToEntries=false; //if true it will normalize to entries!
 
 using namespace std;
 
@@ -42,11 +44,14 @@ void DrawDifferences(void){
     }
   };
 
-  for (unsigned int j=0; j<3; j++){
+  for (unsigned int j=0; j<5; j++){
     
     if (j==1) whichdirectory="demo";
     if (j==2) whichdirectory="Selection";
-    
+    if (j==3) whichdirectory="goodEPair";
+    if (j==4) whichdirectory="TAPwp80";
+
+
     CMSSW44->cd(whichdirectory.c_str());
     TDirectory *dir=gDirectory;
     TList *mylist=(TList*)dir->GetListOfKeys();
@@ -78,7 +83,7 @@ void DrawDifferences(void){
 void EvaluateDifferenceBetweenVersions(string plot, string directory){
   TCanvas a;
   //Settings
-  //setTDRStyle();
+
   gPad->SetLogy (1);
   TH1F* obj44;
   TH1F* probe; 
@@ -113,6 +118,7 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   Int_t entries42 = obj42->GetEntries();
   printf("Useful data42:\ndata entries= %d \n",entries42);  
 
+  if (normalizeToEntries) obj42->Scale((double)entries44/(double)entries42);
 
   if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("h_meanPtZVsNjet")) {
     int rebin=5;
