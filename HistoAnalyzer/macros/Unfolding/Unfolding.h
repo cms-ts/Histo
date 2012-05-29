@@ -39,6 +39,19 @@ public :
    Double_t        jet3_pt_gen;
    Double_t        jet4_pt;
    Double_t        jet4_pt_gen;
+   Double_t        jet1_eta;
+   Double_t        jet1_eta_gen;
+   Double_t        jet2_eta;
+   Double_t        jet2_eta_gen;
+   Double_t        jet3_eta;
+   Double_t        jet3_eta_gen;
+   Double_t        jet4_eta;
+   Double_t        jet4_eta_gen;
+   Double_t        e1_eta;
+   Double_t        e2_eta;
+   Double_t        e1_pt;
+   Double_t        e2_pt;
+
 
    // List of branches
    TBranch        *b_Z_pt;   //!
@@ -55,6 +68,20 @@ public :
    TBranch        *b_jet3_pt_gen;
    TBranch        *b_jet4_pt;
    TBranch        *b_jet4_pt_gen;
+   TBranch        *b_jet1_eta;
+   TBranch        *b_jet1_eta_gen;
+   TBranch        *b_jet2_eta;
+   TBranch        *b_jet2_eta_gen;
+   TBranch        *b_jet3_eta;
+   TBranch        *b_jet3_eta_gen;
+   TBranch        *b_jet4_eta;
+   TBranch        *b_jet4_eta_gen;
+   TBranch        *b_e1_eta;
+   TBranch        *b_e2_eta;
+   TBranch        *b_e1_pt;
+   TBranch        *b_e2_pt;
+
+
 
    Unfolding(TTree *tree=0);
    virtual ~Unfolding();
@@ -66,7 +93,9 @@ public :
    virtual void     LoopZpt();
    virtual void     LoopZy();
    virtual void     Loop();
+   virtual void     LoopOneFour();
    virtual void     LoopJetPt(int numbOfJets);
+   virtual void     LoopJetEta(int numbOfJets);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -147,7 +176,21 @@ void Unfolding::Init(TTree *tree)
    fChain->SetBranchAddress("jet3_pt_gen", &jet3_pt_gen, &b_jet3_pt_gen);
    fChain->SetBranchAddress("jet4_pt", &jet4_pt, &b_jet4_pt);
    fChain->SetBranchAddress("jet4_pt_gen", &jet4_pt_gen, &b_jet4_pt_gen);
+   fChain->SetBranchAddress("jet1_eta", &jet1_eta, &b_jet1_eta);
+   fChain->SetBranchAddress("jet1_eta_gen", &jet1_eta_gen, &b_jet1_eta_gen);
+   fChain->SetBranchAddress("jet2_eta", &jet2_eta, &b_jet2_eta);
+   fChain->SetBranchAddress("jet2_eta_gen", &jet2_eta_gen, &b_jet2_eta_gen);
+   fChain->SetBranchAddress("jet3_eta", &jet3_eta, &b_jet3_eta);
+   fChain->SetBranchAddress("jet3_eta_gen", &jet3_eta_gen, &b_jet3_eta_gen);
+   fChain->SetBranchAddress("jet4_eta", &jet4_eta, &b_jet4_eta);
+   fChain->SetBranchAddress("jet4_eta_gen", &jet4_eta_gen, &b_jet4_eta_gen);
+   fChain->SetBranchAddress("e1_eta", &e1_eta, &b_e1_eta);
+   fChain->SetBranchAddress("e2_eta", &e2_eta, &b_e2_eta);
+   fChain->SetBranchAddress("e1_pt", &e1_pt, &b_e1_pt);
+   fChain->SetBranchAddress("e2_pt", &e2_pt, &b_e2_pt);
+
   
+
    Notify();
 }
 
