@@ -59,7 +59,6 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
 {
 
   TH2F* effPt;
-  cout<<"You are asking the eff for ele1_pt->"<<ele1_pt<<" ele1_eta->"<<ele1_eta<<" ele2_pt->"<<ele2_pt<<" ele2_eta->"<<ele2_eta<<endl;
 
   ///////////////////////////////////////////
 
@@ -81,7 +80,6 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
   //Check for the interesting plots, regardless the content..
   while ( (tobj2 = iter2.Next()) ) {
     string name=tobj2->GetName();
-    cout<<name<<endl;
     TString temp = (TString)name;
     if (dataOrMC=="Data"){
       if(temp.Contains("DATA_globalEfficiency")){
@@ -94,7 +92,7 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
       }    
     }
   }
-  cout<<"pippo pippo "<<effPt->GetEntries();
+
   // Get the right pt bins
   int pt1=getPtRangeElectron(ele1_pt);
   int pt2=getPtRangeElectron(ele2_pt);
@@ -105,8 +103,8 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
   double eff_e1=effPt->GetBinContent(eta1,pt1);
   double eff_e2=effPt->GetBinContent(eta2,pt2);
 
-  cout<<"eff1->"<<eff_e1<<" eff2->"<<eff_e2<<" eff1*eff2->"<<eff_e1*eff_e2<<endl;
-  return eff_e1*eff_e2;
+  if (eff_e1*eff_e2>0) return eff_e1*eff_e2;
+  return 1;
 }
 
 ///////////////////

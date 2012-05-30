@@ -133,9 +133,9 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	    else{
-	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e2_pt,e1_eta,e2_eta,"MC");
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
 	      jMatx->Fill (jet1_pt, jet1_pt_gen,effcorrmc);	  
-	      jMCreco->Fill (jet1_pt,effcorrmc);	      
+	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	  }
 	  else {
@@ -237,9 +237,9 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jData2->Fill (jet1_pt,effcorrdata);
 	    }
 	    else{
-	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e2_pt,e1_eta,e2_eta,"Data");
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
 	      jData->Fill (jet1_pt,effcorrdata);
-	      jData2->Fill (jet1_pt,effcorrdata);	      
+	      jData2->Fill (jet1_pt,effcorrdata);
 	    }
 	  }
 	  else {
@@ -301,13 +301,12 @@ void Unfolding::LoopJetPt (int numbOfJets)
       }
     }
 
-
   // SAVE AREA TO EVALUATE DIFFERENTIAL CROSS SECTIONS
   double scaleFactor=jData->GetEntries();
   double Zarea=jData->Integral();
   double ZMCarea=jMCreco->Integral();
   cout<<"#Z->"<<scaleFactor<<" area->"<<Zarea<<endl;
-  
+
   //////////////
   // MC Normalization
   //////////////
