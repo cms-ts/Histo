@@ -1,5 +1,12 @@
-void
-Unfolding::LoopZpt ()
+/* Z boson pT distribution */
+TH1D *PTrue = new TH1D ("pT true", "pT Truth", 20, 0, 200);
+TH1D *PData = new TH1D ("pT data", "pT DATA Measured", 20, 0, 200);
+TH2D *PMatx = new TH2D ("pT hMatx", "Unfolding Matrix Z pT ", 100, 0, 100, 20, 0, 200);
+TH1D *PMCreco = new TH1D ("pT mcreco", "pT mcreco", 20, 0, 200);
+TH1D *PData2 = new TH1D ("pT data2", "pT DATA Measured2", 20, 0, 200);
+TH1D *PRatio_ = new TH1D ("PRatio_", "PRatio_", 20, 0, 200);
+
+void Unfolding::LoopZpt ()
 {
   cout<<"*********************************"<<endl;
   cout<<"This Macro will perform a test   "<<endl;

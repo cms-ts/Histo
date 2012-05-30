@@ -1,5 +1,17 @@
-void
-Unfolding::LoopJetMultiplicity ()
+TH1D *NTrue = new TH1D ("N true", "N Truth", maxNJets-1, 1, maxNJets);
+TH1D *NData = new TH1D ("N data", "N DATA Measured", maxNJets-1, 1, maxNJets);
+TH2D *NMatx = new TH2D ("N hMatx", "Unfolding Matrix in # of jets + Z", maxNJets-1, 1, maxNJets, maxNJets-1, 1, maxNJets);
+TH1D *NMCreco = new TH1D ("N mcreco", "N mcreco", maxNJets-1, 1, maxNJets);
+TH1D *NMCrecoratio_ = new TH1D ("N mcrecoratio_", "N mcreco_", maxNJets-1, 1, maxNJets);
+TH1D *NData2 = new TH1D ("N data2", "N DATA Measured2", maxNJets-1, 1, maxNJets);
+TH1F *relativebkgN = new TH1F("relativebkgN", "relativebkg bin contribution",maxNJets-1,0,maxNJets-1);
+
+TH1F *JetMultiplicityUnfolded;
+int kminN=5;
+int kmaxN=6;
+bool spanKvaluesN=false;
+
+void Unfolding::LoopJetMultiplicity ()
 {
   cout<<endl;
   cout<<"*********************************"<<endl;
@@ -10,6 +22,11 @@ Unfolding::LoopJetMultiplicity ()
   gSystem->Load ("libRooUnfold");
 #endif
 
+  if (spanKvaluesN){
+    kminN=1;
+    kmaxN=maxNJets-1; 
+  }
+  
   string sdatadir=sdata+":/validationJEC";
   string smcdir=smc+":/validationJEC";
   fA->cd (smcdir.c_str());
@@ -24,7 +41,7 @@ Unfolding::LoopJetMultiplicity ()
   NData->Sumw2();
   
   /*costruisco la matrice di unfolding */
-  
+
   fChain = tree_fA;	
   Init (fChain);
   Long64_t nentries = fChain->GetEntriesFast ();
@@ -41,14 +58,24 @@ Unfolding::LoopJetMultiplicity ()
     if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
     
     if (Jet_multiplicity > 0 || Jet_multiplicity_gen > 0){
-      NTrue->Fill (Jet_multiplicity_gen);
-      NMCreco->Fill (Jet_multiplicity);
-      NMCrecoratio_->Fill(Jet_multiplicity);
-      NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen);
+      if (correctForEff){
+	std::vector<double> valuesmc=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"MC");
+	double effcorrmc=1.00/valuesmc[0];	
+	double efferrmc=valuesmc[1]/pow(valuesmc[0],2); 
+	NTrue->Fill (Jet_multiplicity_gen);
+	NMCreco->Fill (Jet_multiplicity,effcorrmc);
+	NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
+	NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen,effcorrmc);
+      }
+      else{
+	NTrue->Fill (Jet_multiplicity_gen);
+	NMCreco->Fill (Jet_multiplicity);
+	NMCrecoratio_->Fill(Jet_multiplicity);
+	NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen);
+      }
     }
   }
-  		
-
+  
   /*Loop on data */
   fChain = tree_fB;	
   Init (fChain);	
@@ -65,9 +92,19 @@ Unfolding::LoopJetMultiplicity ()
     nb2 = fChain->GetEntry (jentry);
     nbytes += nb2;
     if (Jet_multiplicity > 30) continue;
+    
     if (Jet_multiplicity > 0){
-      NData->Fill (Jet_multiplicity);
-      NData2->Fill (Jet_multiplicity);
+      if (correctForEff){
+	std::vector<double> valuesdata=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"Data");
+	double effcorrdata=1.00/valuesdata[0];	
+	double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
+	NData->Fill (Jet_multiplicity,effcorrdata);
+	NData2->Fill (Jet_multiplicity,effcorrdata);
+      }
+      else{
+	NData->Fill (Jet_multiplicity);
+	NData2->Fill (Jet_multiplicity);	
+      }
     }
   }
 
@@ -78,219 +115,29 @@ Unfolding::LoopJetMultiplicity ()
   //////////////
   double ScaleMCData = ((double)NData->GetEntries()/(double)NMCreco->GetEntries());
  
-  /////////////////
-  // Efficiency Correction
-  /////////////////
 
-  double areaRecoVsTruth=1.000;
-  TH1F* DataCorr;
-  TH1F* JetMultiplicityUnfolded;
-  //JetMultiplicityUnfolded->Sumw2();
-
-  if(correctForEff) {
-    TDirectory *dir=(TDirectory*)eff->cd("efficiency_vs_nJets");
-    //dir->cd();
-    TH1F *h1 = (TH1F*)gDirectory->Get("MC_WP80_Tag");
-    TH1F *h2 = (TH1F*)gDirectory->Get("MC_WP80_Probe");
-    TH1F *h3 = (TH1F*)gDirectory->Get("MC_RECO_Probe");
-    TH1F *h4 = (TH1F*)gDirectory->Get("MC_HLTele8_Probe");
-    TH1F *h5 = (TH1F*)gDirectory->Get("MC_HLTele8_Tag");
-    TH1F *h6 = (TH1F*)gDirectory->Get("MC_HLTele17_Probe");
-    TH1F *h7 = (TH1F*)gDirectory->Get("MC_HLTele17_Tag"); 
-   
-    TH1F *k1 = (TH1F*)gDirectory->Get("DATA_WP80_Tag");
-    TH1F *k2 = (TH1F*)gDirectory->Get("DATA_WP80_Probe");
-    TH1F *k3 = (TH1F*)gDirectory->Get("DATA_RECO_Probe");
-    TH1F *k4 = (TH1F*)gDirectory->Get("DATA_HLTele8_Probe");
-    TH1F *k5 = (TH1F*)gDirectory->Get("DATA_HLTele8_Tag");
-    TH1F *k6 = (TH1F*)gDirectory->Get("DATA_HLTele17_Probe");
-    TH1F *k7 = (TH1F*)gDirectory->Get("DATA_HLTele17_Tag");
-    
-    //Draw histos releated to efficinency
-    
-    C->Divide(2,2);
-    C->cd(1);
-    k1->SetMarkerColor(kBlack);
-    k1->SetTitle("WP80 eff");
-    k1->GetXaxis()->SetTitle("# Jets");
-    k1->GetYaxis()->SetRangeUser(0.7, 1);
-    k1->SetLineColor(kBlack);
-    k1->SetMarkerColor(kBlack);
-    k1->Draw("E1");
-    k2->SetLineColor(kBlack);
-    k2->SetMarkerColor(kBlack);
-    k2->SetLineStyle(3);
-    k1->GetYaxis()->SetRangeUser(0.7, 1);
-    k2->Draw("E1 SAMES");
-    h1  ->SetMarkerColor(kRed);
-    h1  ->SetLineColor(kRed);
-    h1->GetYaxis()->SetRangeUser(0.7, 1);
-    h1  ->Draw("E1 SAMES");
-    h2  ->SetMarkerColor(kRed);
-    h2  ->SetLineColor(kRed);
-    h2->SetLineStyle(3);
-    h2->GetYaxis()->SetRangeUser(0.7, 1);
-    h2  ->Draw("E1 SAMES");
-
-    TLegend *legend_1 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-    legend_1->SetFillColor (0);
-    legend_1->SetFillStyle (0);
-    legend_1->SetBorderSize (0);
-    legend_1->AddEntry (k1, "data Tag", "LP20");
-    legend_1->AddEntry (k2, "data Probe", "LP20");
-    legend_1->AddEntry (h1, "MC Tag", "L");
-    legend_1->AddEntry (h2, "MC Probe", "L");
-    legend_1->Draw ("same");
-
-    C->cd(2);
-    k4->SetMarkerColor(kBlack);
-    k4->SetTitle("HLT");
-    k4->GetXaxis()->SetTitle("# Jets");
-    k4->GetYaxis()->SetRangeUser(0.93, 1);
-    k4->SetLineColor(kBlack);
-    k4->SetMarkerColor(kBlack);
-    k4->Draw("E1");
-    k5->SetMarkerColor(kBlack);
-    k5->GetXaxis()->SetTitle("HLT");
-    k5->SetLineColor(kBlack);
-    k5->SetMarkerColor(kBlack);
-    k5->SetLineStyle(3);
-    k5->Draw("E1 SAMES");
-
-    k6->SetMarkerColor(kBlack);
-    k6->SetLineColor(kBlue);
-    k6->SetMarkerColor(kBlue);
-    k6->Draw("E1 SAMES");
-    k7->SetMarkerColor(kBlue);
-    k7->GetXaxis()->SetTitle("HLT");
-    k7->SetLineColor(kBlue);
-    k7->SetMarkerColor(kBlue);
-    k7->SetLineStyle(3);
-    k7->Draw("E1 SAMES");
-
-    h4->SetMarkerColor(kRed);
-    h4->GetXaxis()->SetTitle("HLT");
-    h4->SetLineColor(kRed);
-    h4->SetMarkerColor(kRed);
-    h4->Draw("E1 SAMES");
-    h5->SetMarkerColor(kRed);
-    h5->GetXaxis()->SetTitle("HLT");
-    h5->SetLineColor(kRed);
-    h5->SetMarkerColor(kRed);
-    h5->SetLineStyle(3);
-    h5->Draw("E1 SAMES");
-
-    h6->SetMarkerColor(kOrange);
-    h6->SetLineColor(kOrange);
-    h6->SetMarkerColor(kOrange);
-    h6->Draw("E1 SAMES");
-    h7->SetMarkerColor(kBlack);
-    h7->GetXaxis()->SetTitle("HLT");
-    h7->SetLineColor(kOrange);
-    h7->SetMarkerColor(kOrange);
-    h7->SetLineStyle(3);
-    h7->Draw("E1 SAMES");
-
-    TLegend *legend_2 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-    legend_2->SetFillColor (0);
-    legend_2->SetFillStyle (0);
-    legend_2->SetBorderSize (0);
-    legend_2->AddEntry (k4, "data Ele8 Probe", "LP20");
-    legend_2->AddEntry (k5, "data Ele8 Tag", "LP20");
-    legend_2->AddEntry (k6, "data Ele 17 Probe", "LP20");
-    legend_2->AddEntry (k7, "data Ele 8 Tag", "LP20");
-    legend_2->AddEntry (h4, "MC Ele8 Probe", "LP20");
-    legend_2->AddEntry (h5, "MC Ele8 Tag", "LP20");
-    legend_2->AddEntry (h6, "MC Ele 17 Probe", "LP20");
-    legend_2->AddEntry (h7, "MC Ele 8 Tag", "LP20");
-    legend_2->Draw ("same");
-    
-    C->cd(3);
-    k3->SetMarkerColor(kBlack);
-    k3->SetTitle("RECO");
-    k3->GetXaxis()->SetTitle("# Jets");
-    k3->GetYaxis()->SetRangeUser(0.93, 1);
-    k3->SetLineColor(kBlack);
-    k3->SetMarkerColor(kBlack);
-    k3->Draw("E1");
-    h3->SetMarkerColor(kRed);
-    h3->SetLineColor(kRed);
-    h3->SetMarkerColor(kRed);
-    h3->Draw("E1 SAMES");
-    TLegend *legend_3 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-    legend_3->AddEntry (k3, "data RECO", "LP20");
-    legend_3->AddEntry (h3, "MC RECO", "L");
-    legend_3->Draw ("same");    
-
-
-    /*********************************************************/  
-    //Perform the efficiency correction
-
-    TH1F* NMCrecoNoEffCorr = (TH1F*)  NMCreco -> Clone("NMCreco");
-    NMCrecoNoEffCorr->SetName("NMCrecoNoEffCorr");
-    TH1F* NDataNoEffCorr = (TH1F*)  NData -> Clone("NData");
-    NDataNoEffCorr->SetName("NDataNoEffCorr");
-
-    TH1F* MCCorr = (TH1F*)  h1 -> Clone("h1");    
-    MCCorr->SetName("MCCorr");
-    MCCorr->Multiply(h2);
-    MCCorr->Multiply(h3);
-    MCCorr->Multiply(h4);      
-    MCCorr->Multiply(h5);
-    MCCorr->Multiply(h6); 
-    MCCorr->Multiply(h7);
-
-    //Correct the MC for efficiency
-    NMCreco->Divide(MCCorr);
-
-    // Now NTrue has a huge difference in area...Account for it.
-    areaRecoVsTruth=((double)NMCreco->Integral())/((double)NTrue->Integral());
-    cout<<"NTrue renormalized to the MC eff corrected area! ratio->"<<areaRecoVsTruth<<endl;
-    NTrue->Scale(areaRecoVsTruth); 
-    cout<<"Warning: data unfolded distribution, obtained after matrix re3sponse, is somehow not rescaled to the area after the eff correction...I correct but CHECK!!!!!!!!!!!!!!!"<<endl;
-
-    DataCorr = (TH1F*)  k1 -> Clone("h1");    
-    DataCorr->SetName("DataCorr");
-    DataCorr->Multiply(k2);
-    DataCorr->Multiply(k3);
-    DataCorr->Multiply(k4);      
-    DataCorr->Multiply(k5);
-    DataCorr->Multiply(k6);
-    DataCorr->Multiply(k7);   
-    //Correct Data for efficiency
-    NData->Divide(DataCorr);
-
-    C->cd(4);
-    NMCrecoNoEffCorr->SetMarkerColor(kRed);
-    NMCrecoNoEffCorr->SetTitle("Effect of the correction");
-    NMCrecoNoEffCorr->GetXaxis()->SetTitle("# Jets");
-    NMCrecoNoEffCorr->SetLineColor(kRed);
-    NMCreco->Draw("E1");
-    NMCreco->SetMarkerColor(kRed);
-    NMCreco->SetLineColor(kRed);
-    NMCreco->SetLineStyle(3);
-    NMCrecoNoEffCorr->Draw("E1 SAMES");
-    NDataNoEffCorr->SetMarkerColor(kBlack);
-    NDataNoEffCorr->GetXaxis()->SetTitle("Effect of the correction");
-    NDataNoEffCorr->SetLineColor(kBlack);
-    NDataNoEffCorr->Draw("E1 SAMES");
-    NData->SetMarkerColor(kBlack);
-    NData->SetLineColor(kBlack);
-    NData->SetLineStyle(3);
-    NData->Draw("E1 SAMES");
-    gPad->SetLogy(0);
-    TLegend *legend_4 = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-    legend_4->AddEntry (NMCreco, "MC Corr", "LP20");
-    legend_4->AddEntry (NMCrecoNoEffCorr, "MC No Corr", "L");
-    legend_4->AddEntry (NData, "Data Corr", "LP20");
-    legend_4->AddEntry (NDataNoEffCorr, "Data No Corr", "L");
-    legend_4->Draw ("same");    
-
-    string title3= s+"JETMULTIControlPlot.png";
-    C->Print(title3.c_str());
-    cout<<"PNG file saved (maybe) on "<<title3<<endl;
-
+  /////////////////////////
+  //  Correct for background
+  /////////////////////////
+  
+  if (correctForBkg){
+    std::vector<double> bckcoeff;
+    bckcoeff=getBackgroundContributions(bkgstring,"jet_Multiplicity");
+    for (unsigned int k=0; k< maxNJets; k++){
+      NData->SetBinContent(k+1, NData->GetBinContent(k+1) - bckcoeff[k+1]);  //K+1 perche' c'e' il bkgr a 0 Jets...
+      if (NData->GetBinContent(k+1)>0) {
+	relativebkgN->SetBinContent(k+1,bckcoeff[k+1]/NData->GetBinContent(k+1));
+	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k+1]<<" (coefficient is "<<bckcoeff[k+1]<<"). Relative bin ratio is "<<bckcoeff[k+1]/NData->GetBinContent(k+1)<<endl;	
+      }
+      else {
+	relativebkgN->SetBinContent(k+1,0);
+	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k+1]<<" (coefficient is "<<bckcoeff[k+1]<<"). Relative bin ratio is 0"<<endl;
+      }
+      cout<<"after "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;
+    }
   }
+  
+
   // Fill the matrix response with the MC values, this time as histograms!
   RooUnfoldResponse response_N(NMCreco, NTrue, NMatx); 
   response_N.UseOverflow();
@@ -305,7 +152,7 @@ Unfolding::LoopJetMultiplicity ()
   
 
   //Repeating each algorithm
-  for (int j=0; j<2; j++){
+  for (int j=1; j<2; j++){
     string method;
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
@@ -313,7 +160,7 @@ Unfolding::LoopJetMultiplicity ()
     cout<<"Running "<<method<<" method"<<endl;
     
     //Optimizing the k value
-    for (int k=2; k<=maxNJets; k++){
+    for (int k=kminN; k<kmaxN; k++){
       int myNumber=k;
       stringstream num;
       num<<myNumber;
@@ -331,7 +178,14 @@ Unfolding::LoopJetMultiplicity ()
       }
       
       NReco->Sumw2();
-      if (correctForEff) NReco->Multiply(DataCorr); // Necessary to have same area... Investigate, please
+
+      if (differentialCrossSection){
+	NReco->Scale(1./NReco->Integral());		
+	NTrue->Scale(1./NTrue->Integral());
+	NMCreco->Scale(1./NMCreco->Integral());
+	NData->Scale(1./NData->Integral());
+      }
+
       JetMultiplicityUnfolded=(TH1F*) NReco->Clone("NReco");
       JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
 
@@ -432,9 +286,10 @@ Unfolding::LoopJetMultiplicity ()
       NReco->SetStats(1);
     
       NReco->Draw ("ep");
-
+      
       TH1F *NRecoClone= (TH1F*) NMCreco->Clone("NReco");
       NRecoClone->SetName("NRecoClone");
+      NRecoClone->Sumw2();
 
       NRecoClone->Divide(NTrue);		
       NRecoClone->SetMarkerStyle (20);
@@ -456,7 +311,7 @@ Unfolding::LoopJetMultiplicity ()
       legend_w->AddEntry (NReco, "Data Unfolded / MC truth", "LP20");
       legend_w->AddEntry (NRecoClone, "MC reco / MC truth", "L");
       legend_w->Draw ("same");
-     
+
       pad2->Update();
 
       string title3= s+"JETMULTI"+method+"_"+num.str();
@@ -466,11 +321,12 @@ Unfolding::LoopJetMultiplicity ()
       cmultip->Print(title3.c_str());
       num.str("");
       cout<<"PNG file saved (maybe) on "<<title3<<endl;
+ 
     }
   }
 
   if (saveFile){
-    TFile* w = new TFile(filename.c_str(), "RECREATE");
+    TFile* w = new TFile(filename.c_str(), "UPDATE");
     w->cd();
     JetMultiplicityUnfolded->Write();
     w->Close();

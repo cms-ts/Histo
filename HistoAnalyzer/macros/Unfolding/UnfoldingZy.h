@@ -1,5 +1,12 @@
-void
-Unfolding::LoopZy ()
+/* Z boson rapidity distribution */
+TH1D *yTrue = new TH1D ("y true", "y Truth", 25, -2.5, 2.5);
+TH1D *yData = new TH1D ("y data", "y DATA Measured", 25, -2.5, 2.5);
+TH2D *yMatx = new TH2D ("y hMatx", "Unfolding Matrix y Rapidity ", 25, -2.5, 2.5, 25, -2.5, 2.5);
+TH1D *yMCreco = new TH1D ("y mcreco", "y mcreco", 25, -2.5, 2.5);
+TH1D *yData2 = new TH1D ("y data2", "y DATA Measured2", 25, -2.5, 2.5);
+TH1D *yRatio_ = new TH1D ("yRatio", "yRatio", 25, -2.5, 2.5);
+
+void Unfolding::LoopZy ()
 {
   response_y.UseOverflow();
   cout<<"*********************************"<<endl;

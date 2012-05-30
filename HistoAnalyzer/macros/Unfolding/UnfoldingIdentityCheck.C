@@ -84,13 +84,13 @@ void
 UnfoldingIdentityCheck::Loop()
 {
   LoopJetMultiplicity();
-  LoopZpt();
-  LoopZy();
+  //LoopZpt();
+  //LoopZy();
   LoopJetMultiplicityWithOtherMC();
-  LoopZptWithOtherMC();
-  LoopZyWithOtherMC();
+  //LoopZptWithOtherMC();
+  //LoopZyWithOtherMC();
   LoopJetMultiplicityAandB();
-  //LoopJetMultiplicityBackground();
+  //to be kept out //LoopJetMultiplicityBackground();
 }
 
 void
@@ -189,6 +189,7 @@ UnfoldingIdentityCheck::LoopJetMultiplicityBackground()
       num<<myNumber;
       string title=method+" method with K="+num.str()+" (from MGraph) applied on MC Signal + Background (5 1/fb)";
       std::string title2="Jet multiplicity. "+title;
+
       cout<<title<<endl;
  
       if (method=="Bayesian") {
@@ -374,7 +375,7 @@ UnfoldingIdentityCheck::LoopJetMultiplicityWithOtherMC()
         NReco = (TH1D *) unfold_N.Hreco ();
 	//double chisq=unfold_N.Chi2(NPyGen, 0);
       }
-        
+
       TCanvas *c = new TCanvas ("c", "c", 1000, 700);
       c->cd ();
       TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.3, 1, 1);
