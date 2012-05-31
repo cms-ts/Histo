@@ -60,15 +60,16 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    e2_eta =0;
    e2_phi =0;
    e2_mass=0;
+   z_mass=0;
    
    jet1_pt  =0;
    jet2_pt  =0;
    jet3_pt  =0;
    jet4_pt  =0;
-   jet1_eta =0;
-   jet2_eta =0;
-   jet3_eta =0;
-   jet4_eta =0;
+   jet1_eta =-9999;
+   jet2_eta =-9999;
+   jet3_eta =-9999;
+   jet4_eta =-9999;
    jet1_phi =0;
    jet2_phi =0;
    jet3_phi =0;
@@ -78,6 +79,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    jet3_mass=0; 
    jet4_mass=0;
    jetHt    =0;
+
 
    ///////////////////////
    ///// Vertex Analysis
@@ -525,7 +527,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       totJets = nJetsEB + nJetsEE;
       double zPt = e_pair.Pt();
       double zInvMass = e_pair.M();
-
+      z_mass=zInvMass;
 
       /////////////////////////////////////////////////////////////////////////////////
       //Filling the Unfolding rootuple!
@@ -575,7 +577,22 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet2_pt_gen=-9999;
       jet3_pt_gen=-9999;
       jet4_pt_gen=-9999;
+      jet1_eta_gen=-9999;
+      jet2_eta_gen=-9999;
+      jet3_eta_gen=-9999;
+      jet4_eta_gen=-9999;
 
+
+      ////// Checking also if the Z boson has decayed int taus or muons, and then misreconstructed!
+
+      isMugen=false;
+      isTaugen=false;
+
+      if (usingMC){
+	int response=isTauOrMu(genPart);
+	if (response==1) isTaugen=true; // if response is 1 is a tau, see function isTauOrMu
+	if (response==2) isMugen=true; // if 2 is a muon
+      }
       
       //bUILDING THE Z GEN BOSON
 
@@ -637,10 +654,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (usingMC){
 	// Loop sui RecoGet ordinati in pt
 	std::vector <double> jetpt_gen; 
+	std::vector <double> jeteta_gen;
+
 	for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); jet != JetContainer.end (); jet++) {
 	  // Calcolare il DeltaR verso tutti i GenJet
 	  double deltaRGenReco=9999;
 	  double matchedGJetpt=9999;
+          double matchedGJeteta=9999;
+
+	  //jetPtVector.push_back(jet->Pt());
 	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
 	     deltaPhi = fabs(jet->phi()-gjet->phi());
 	     if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
@@ -648,10 +670,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     if (deltaRswap < deltaRGenReco) {
 		deltaRGenReco=deltaRswap;
 		matchedGJetpt=gjet->Pt();
+		matchedGJeteta=gjet->Eta();
 	     }
 	  }
 	  jetpt_gen.push_back(matchedGJetpt);
-	  if (Debug) cout<<"Gen Jet Matched: pt->"<<matchedGJetpt<<endl;
+          jeteta_gen.push_back(matchedGJeteta);
+	  if (Debug) cout<<"Gen Jet Matched: pt->"<<matchedGJetpt<<" and eta->"<<matchedGJeteta<<endl;
 	}
 	
 	// In the above loop, in jetpt_gen you have the collection of gen jets matched by the detector. Now evaluating the viceversa,
@@ -674,6 +698,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	      if (!matchedalready) {
 		jetpt_gen.push_back(gjet->Pt());
+                jeteta_gen.push_back(gjet->Eta());
 		if (Debug) cout<<"adding JET not reconstructed! pt->"<<gjet->Pt()<<" eta->"<<gjet->Eta()<<endl;
 	      }
 	      else if (Debug) cout<<"gen jet already stored!"<<endl;
@@ -682,10 +707,25 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
 	int gvectorsize=jetpt_gen.size();
-	if (gvectorsize>0) jet1_pt_gen=jetpt_gen[0];
-	if (gvectorsize>1) jet2_pt_gen=jetpt_gen[1];
-	if (gvectorsize>2) jet3_pt_gen=jetpt_gen[2];
-	if (gvectorsize>3) jet4_pt_gen=jetpt_gen[3];
+	
+	//genJetPtVector=jetpt_gen; // If works, cancel th following lines
+
+	if (gvectorsize>0) {
+	  jet1_pt_gen=jetpt_gen[0];
+	  jet1_eta_gen=jeteta_gen[0];
+	}
+	if (gvectorsize>1) {
+	  jet2_pt_gen=jetpt_gen[1];
+	  jet2_eta_gen=jeteta_gen[1];
+	}
+	if (gvectorsize>2) {
+	  jet3_pt_gen=jetpt_gen[2];
+	  jet3_eta_gen=jeteta_gen[2];
+	}
+	if (gvectorsize>3) {
+	  jet4_pt_gen=jetpt_gen[3];
+	  jet4_eta_gen=jeteta_gen[3];
+	}
 	//cout<<"gen jet1 has pt "<<jet1_pt_gen<<" jet2 "<<jet2_pt_gen<<" jet3 "<<jet3_pt_gen<<" jet4_pt_gen "<<jet4_pt_gen<<endl;
       }
       GenJetContainer.clear();
@@ -773,7 +813,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    } else if (Debug){std::cout << "WARNING: More than two electron selected"<< std::endl;}  
 
    //Fill Unfolding rootuple!
-   treeUN_->Fill();
+   if (Jet_multiplicity>0 || Jet_multiplicity_gen>0) treeUN_->Fill();
 }
 
 
@@ -798,6 +838,13 @@ jetValidation::beginJob()
   treeUN_->Branch("jet2_pt_gen",&jet2_pt_gen);
   treeUN_->Branch("jet3_pt_gen",&jet3_pt_gen);
   treeUN_->Branch("jet4_pt_gen",&jet4_pt_gen);
+  treeUN_->Branch("jet1_eta_gen",&jet1_eta_gen);
+  treeUN_->Branch("jet2_eta_gen",&jet2_eta_gen);
+  treeUN_->Branch("jet3_eta_gen",&jet3_eta_gen);
+  treeUN_->Branch("jet4_eta_gen",&jet4_eta_gen);
+
+  //treeUN_->Branch("jetPtVector",&jetPtVector);
+  //treeUN_->Branch("genJetPtVector",&genJetPtVector);
 
   treeUN_->Branch("e1_pt",&e1_pt);
   treeUN_->Branch("e1_eta",&e1_eta);
@@ -824,6 +871,9 @@ jetValidation::beginJob()
   treeUN_->Branch("jet3_mass",&jet3_mass);
   treeUN_->Branch("jet4_mass",&jet4_mass);
   treeUN_->Branch("jetHt",&jetHt);
+  treeUN_->Branch("isMugen",&isMugen);
+  treeUN_->Branch("isTaugen",&isTaugen);
+  treeUN_->Branch("z_mass",&z_mass);
 
   cout<<endl;
   cout<<"##############################"<<endl;
@@ -1184,6 +1234,81 @@ double jetValidation::evaluateJECUncertainties(double jetpt,double jeteta){
   if (fabs(jeteta)<1.3 ) uncert+=0.01;
   else uncert+=0.015;
   return uncert;
+}
+
+int jetValidation::isTauOrMu(edm::Handle<GenParticleCollection> genParticlesCollection)
+{
+   bool theFilter=false;
+   int ntausFromZ(0);
+   int ntaus(0);
+   int nmuFromZ(0);
+   int nmu(0);
+
+   std::vector<std::pair<int,math::XYZTLorentzVectorD> > idAndPTaus;
+   math::XYZTLorentzVectorD pTauPos, pTauNeg, pZTauTau;
+
+   std::vector<std::pair<int,math::XYZTLorentzVectorD> > idAndPMu;
+   math::XYZTLorentzVectorD pMuPos, pMuNeg, pZMuMu;
+   pTauPos.SetXYZT(0,0,0,0);
+   pTauNeg.SetXYZT(0,0,0,0);
+   pZTauTau.SetXYZT(0,0,0,0);   
+   // initialize the gen 4vectors
+   pMuPos.SetXYZT(0,0,0,0);
+   pMuNeg.SetXYZT(0,0,0,0);
+   pZMuMu.SetXYZT(0,0,0,0);
+
+
+   for(GenParticleCollection::const_iterator genp = genParticlesCollection->begin();genp != genParticlesCollection->end(); ++ genp ) {  // loop over GEN particles
+     
+     if(abs(genp->pdgId()==15)){
+       ntaus++;
+     }
+     
+     //------------------------------------------- Z boson -------------------------------------------
+     if(genp->pdgId()==23){   
+       for(UInt_t i=0; i<genp->numberOfDaughters(); i++){
+	 // Loop for taus...
+	 if(abs(genp->daughter(i)->pdgId())==15 && genp->daughter(i)->status()==3){
+	   std::cout<<"found a tau from Z"<<std::endl;
+	   ntausFromZ++;
+	   std::pair<int,math::XYZTLorentzVectorD> theTauInfo;
+	   theTauInfo = make_pair(0,pTauPos);
+	   theTauInfo.first = genp->pdgId();
+	   theTauInfo.second = genp->p4();
+	   idAndPTaus.push_back(theTauInfo);
+	   if(theTauInfo.first > 0) pTauPos = theTauInfo.second;
+	   else pTauNeg = theTauInfo.second; 
+	 }
+	 //Loop for muons
+	 if(abs(genp->daughter(i)->pdgId())==13 && genp->daughter(i)->status()==3){
+	   std::cout<<"found a mu from Z"<<std::endl;
+	   nmuFromZ++;
+	   std::pair<int,math::XYZTLorentzVectorD> theMuInfo;
+	   theMuInfo = make_pair(0,pMuPos);
+	   theMuInfo.first = genp->pdgId();
+	   theMuInfo.second = genp->p4();
+	   idAndPMu.push_back(theMuInfo);
+	   if(theMuInfo.first > 0) pMuPos = theMuInfo.second;
+	   else pMuNeg = theMuInfo.second; 
+	 }
+       }
+     }
+   }//end loop over genParticles
+   
+   if(ntausFromZ==2){
+     theFilter=true;
+     pZTauTau=pTauNeg+pTauPos;
+     return 1;
+   }
+   
+   if(nmuFromZ==2){
+     theFilter=true;
+     pZMuMu=pMuNeg+pMuPos;
+     return 2;
+   }
+   
+   return 0;
+   
 }
 
 // ------------ method called when starting to processes a run  ------------

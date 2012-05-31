@@ -79,6 +79,7 @@ class jetValidation : public edm::EDAnalyzer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       virtual double evaluateJECUncertainties(double jetpt,double jeteta);
+      virtual int isTauOrMu(edm::Handle<GenParticleCollection> genParticlesCollection);
       
       double distR(TLorentzVector ,math::XYZTLorentzVector);
 
@@ -118,7 +119,13 @@ class jetValidation : public edm::EDAnalyzer {
       double jet2_pt_gen;
       double jet3_pt_gen;
       double jet4_pt_gen;
+      double jet1_eta_gen;
+      double jet2_eta_gen;
+      double jet3_eta_gen;
+      double jet4_eta_gen;
 
+      //std::vector<double> jetPtVector;
+      //std::vector<double> genJetPtVector;
 
       // member for angular distributions  
       double e1_pt;
@@ -129,6 +136,7 @@ class jetValidation : public edm::EDAnalyzer {
       double e2_eta;
       double e2_phi;
       double e2_mass;
+      double z_mass;
       
       double jet1_pt;
       double jet2_pt;
@@ -148,6 +156,10 @@ class jetValidation : public edm::EDAnalyzer {
       double jet4_mass;     
       double jetHt;
 
+
+      //taueMuons
+      bool isMugen;
+      bool isTaugen;
 
       // Weight
       TH1F * h_weights;
