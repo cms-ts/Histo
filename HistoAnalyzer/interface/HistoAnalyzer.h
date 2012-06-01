@@ -127,6 +127,9 @@ class HistoAnalyzer : public edm::EDProducer {
       int npv;
       //MC reweight
       edm::Lumi3DReWeighting LumiWeights_;
+      edm::Lumi3DReWeighting LumiWeightsScaleUp_;
+      edm::Lumi3DReWeighting LumiWeightsScaleDown_;
+
       float ScaleFactor; // you can change it to evaluate systematic effects
 
       //EB
@@ -326,6 +329,8 @@ HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
 
 {
   produces<std::vector<float> >("EventWeight");
+  produces<std::vector<float> >("EventWeightScaleUp");
+  produces<std::vector<float> >("EventWeightScaleDown");
 
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   particleCollection_ = conf.getParameter<edm::InputTag>("particleCollection");

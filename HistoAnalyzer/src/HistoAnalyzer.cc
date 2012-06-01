@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.41 2012/04/18 14:03:33 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.43 2012/05/19 13:24:19 montanin Exp $
 //
 //
 
@@ -43,6 +43,9 @@ HistoAnalyzer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // We need the output Muon association collection to fill 
   std::auto_ptr<std::vector<float> > EventWeight( new std::vector<float>);
+  std::auto_ptr<std::vector<float> > EventWeightScaleUp( new std::vector<float>);
+  std::auto_ptr<std::vector<float> > EventWeightScaleDown( new std::vector<float>);
+
   //IMPORTANTE
   clean_vectors();
   nEvents_++;
@@ -263,18 +266,28 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
     if (cold){
       if (WhichRun_=="Run2011B") {
 	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011B_175832-180252.root", "PU_intended", "pileup");
+	LumiWeightsScaleUp_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011B_175832-180252.root", "PU_intended", "pileup");
+	LumiWeightsScaleDown_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011B_175832-180252.root", "PU_intended", "pileup");
 	cout<<"Reweighting using the DATA RUN2011B distribution"<<endl;
       }
       if (WhichRun_=="Run2011A") {
 	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011A_160404-173692.root", "PU_intended", "pileup");
+	LumiWeightsScaleUp_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011A_160404-173692.root", "PU_intended", "pileup");
+	LumiWeightsScaleDown_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011A_160404-173692.root", "PU_intended", "pileup");
 	cout<<"Reweighting using the DATA RUN2011A distribution"<<endl;
       }
       if (WhichRun_=="Run2011AB") {
 	LumiWeights_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011_160404-180252.root", "PU_intended", "pileup");
+	LumiWeightsScaleUp_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011_160404-180252.root", "PU_intended", "pileup");
+	LumiWeightsScaleDown_ = edm::Lumi3DReWeighting("Fall11_truedist.root", "Data2011_160404-180252.root", "PU_intended", "pileup");
 	cout<<"Reweighting using the DATA RUN2011A+Run2011B distribution"<<endl;
       }
       LumiWeights_.weight3D_init( ScaleFactor );
+      LumiWeightsScaleUp_.weight3D_init( ScaleFactor - 0.08 );
+      LumiWeightsScaleDown_.weight3D_init( ScaleFactor + 0.08 );
       cout<<"Initializing weight3D at Factor Scale ->"<<ScaleFactor<<endl;
+      cout<<"Initializing weight3DScaleUp at Factor Scale ->"<<ScaleFactor + 0.08 <<endl;
+      cout<<"Initializing weight3DScaleDown at Factor Scale ->"<<ScaleFactor - 0.08 <<endl;
       cold=false;
     }
     
@@ -297,6 +310,9 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
       }
     }
     double MyWeight3D = LumiWeights_.weight3D( nm1,n0,np1);
+    double MyWeight3DScaleUp = LumiWeightsScaleUp_.weight3D( nm1,n0,np1);
+    double MyWeight3DScaleDown = LumiWeightsScaleDown_.weight3D( nm1,n0,np1);
+
     // end 3D
     /////////
     
@@ -307,11 +323,14 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
     MyWeight3D=1.0;
     }
     EventWeight->push_back(MyWeight3D); 
+    EventWeightScaleUp->push_back(MyWeight3DScaleUp); 
+    EventWeightScaleDown->push_back(MyWeight3DScaleDown); 
   }
   else { 
     EventWeight->push_back(1); 
+    EventWeightScaleUp->push_back(1); 
+    EventWeightScaleDown->push_back(1); 
   }
-  
   
 	///////////////////
 	/// Electrons Study
@@ -631,6 +650,8 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 	//---------Fill del Tree----------//
 	treeVJ_->Fill();
 	iEvent.put( EventWeight,"EventWeight" );
+	iEvent.put( EventWeightScaleUp,"EventWeightScaleUp" );
+	iEvent.put( EventWeightScaleDown,"EventWeightScaleDown" );
 }
 
 
@@ -770,7 +791,7 @@ HistoAnalyzer::endJob()
 HistoAnalyzer::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
-hltispresentH11=true;
+  hltispresentH11=true;
 	//HLT names
 	std::vector<std::string>  hlNames;
 	hlNames.clear();
