@@ -36,7 +36,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   ///////
 
   edm::Handle< std::vector<float> > weight;
-  iEvent.getByLabel("demo","EventWeight",weight);
+  iEvent.getByLabel("demo",WeightName,weight);
   const std::vector<float> & myweight=*weight;
   evWeight = myweight[0];
   

@@ -83,7 +83,7 @@ class jetValidation : public edm::EDAnalyzer {
       
       double distR(TLorentzVector ,math::XYZTLorentzVector);
 
-      std::string tpMapName;
+      std::string WeightName;
       // ----------member data ---------------------------
 
       //Retrieved from the .py
@@ -365,7 +365,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
    pi_ = acos(-1);
    zMassPdg = 91.1876;
 
-  tpMapName = conf.getParameter<std::string>("tpMapName");
+  WeightName = conf.getParameter<std::string>("WeightName");
   //  weightCollection_ = conf.getParameter<std::string>("EventWeight");
   //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
