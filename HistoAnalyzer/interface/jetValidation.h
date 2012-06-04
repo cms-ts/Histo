@@ -51,6 +51,8 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
+#include "Histo/HistoAnalyzer/macros/TemplateForHistograms.h" // skeleton to clone the histograms
+
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -403,40 +405,40 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 
   double maxEnJet=200;
 //EB ========================================================================
-  h_jetPt_EB = fs->make<TH1F>("h_jetPt_EB","jetPt_EB",500,0.,maxEnJet);
+  h_jetPt_EB = fs->make<TH1F>("h_jetPt_EB","jetPt_EB",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
   h_jetEta_EB = fs->make<TH1F>("h_jetEta_EB","jetEta_EB",100,-2.5,2.5);
-  h_jetNum_EB = fs->make<TH1F>("h_jetNum_EB","jetNum_EB",10,0.,10);
-  h_jetPtFirst_EB = fs->make<TH1F>("h_jetPtFirst_EB","jetPtFirst in EB",500,0.,maxEnJet);
-  h_jetPtSecond_EB = fs->make<TH1F>("h_jetPtSecond_EB","jetPtSecond in EB",500,0.,maxEnJet);
-  h_jetPtThird_EB = fs->make<TH1F>("h_jetPtThird_EB","jetPtThird in EB",500,0.,maxEnJet);
-  h_jetPtFourth_EB = fs->make<TH1F>("h_jetPtFourth_EB","jetPtFourth in EB",500,0.,maxEnJet);
-  h_jetPtFirstCk_EB = fs->make<TH1F>("h_jetPtFirstCk_EB","jetPt of the absolute first jet - EB",500,0.,maxEnJet);
-  h_jetPtSecondCk_EB = fs->make<TH1F>("h_jetPtSecondCk_EB","jetPt of the absolute second jet - EB",500,0.,maxEnJet);
-  h_jetPtThirdCk_EB = fs->make<TH1F>("h_jetPtThirdCk_EB","jetPt of the absolute third jet - EB",500,0.,maxEnJet);
-  h_jetPtFourthCk_EB = fs->make<TH1F>("h_jetPtFourthCk_EB","jetPt of the absolute fourth jet - EB",500,0.,maxEnJet);
-  h_jetPtVsEta_EB = fs->make<TH2F>("h_jetPtVsEta_EB","jetPtVsEta_EB",100,-2.5,2.5,500,0.,maxEnJet);
-  h_jetPtNjet1_EB = fs->make<TH1F>("h_jetPtNjet1_EB","jetPtNjet1_EB",500,0.,maxEnJet);
-  h_jetPtNjet2_EB = fs->make<TH1F>("h_jetPtNjet2_EB","jetPtNjet2_EB",500,0.,maxEnJet);
-  h_jetPtNjet3_EB = fs->make<TH1F>("h_jetPtNjet3_EB","jetPtNjet3_EB",500,0.,maxEnJet);
-  h_jetPtNjet4_EB = fs->make<TH1F>("h_jetPtNjet4_EB","jetPtNjet4_EB",500,0.,maxEnJet);
+  h_jetNum_EB = fs->make<TH1F>("h_jetNum_EB","jetNum_EB",10,minPtPlot_leading,10);
+  h_jetPtFirst_EB = fs->make<TH1F>("h_jetPtFirst_EB","jetPtFirst in EB",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtSecond_EB = fs->make<TH1F>("h_jetPtSecond_EB","jetPtSecond in EB",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtThird_EB = fs->make<TH1F>("h_jetPtThird_EB","jetPtThird in EB",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtFourth_EB = fs->make<TH1F>("h_jetPtFourth_EB","jetPtFourth in EB",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
+  h_jetPtFirstCk_EB = fs->make<TH1F>("h_jetPtFirstCk_EB","jetPt of the absolute first jet - EB",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtSecondCk_EB = fs->make<TH1F>("h_jetPtSecondCk_EB","jetPt of the absolute second jet - EB",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtThirdCk_EB = fs->make<TH1F>("h_jetPtThirdCk_EB","jetPt of the absolute third jet - EB",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtFourthCk_EB = fs->make<TH1F>("h_jetPtFourthCk_EB","jetPt of the absolute fourth jet - EB",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
+  h_jetPtVsEta_EB = fs->make<TH2F>("h_jetPtVsEta_EB","jetPtVsEta_EB",100,-2.5,2.5,divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet1_EB = fs->make<TH1F>("h_jetPtNjet1_EB","jetPtNjet1_EB",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet2_EB = fs->make<TH1F>("h_jetPtNjet2_EB","jetPtNjet2_EB",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtNjet3_EB = fs->make<TH1F>("h_jetPtNjet3_EB","jetPtNjet3_EB",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtNjet4_EB = fs->make<TH1F>("h_jetPtNjet4_EB","jetPtNjet4_EB",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
   h_massMinusPdgGsf_EB = fs->make<TH1F>("h_massMinusPdgGsf_EB","massMinusPdgGsf_EB",100,-50,50);
 //EE ========================================================================
-  h_jetPt_EE = fs->make<TH1F>("h_jetPt_EE","jetPt_EE",500,0.,maxEnJet);
+  h_jetPt_EE = fs->make<TH1F>("h_jetPt_EE","jetPt_EE",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
   h_jetEta_EE = fs->make<TH1F>("h_jetEta_EE","jetEta_EE",100,-2.5,2.5);
   h_jetNum_EE = fs->make<TH1F>("h_jetNum_EE","jetNum_EE",10,0.,10);
-  h_jetPtFirst_EE = fs->make<TH1F>("h_jetPtFirst_EE","jetPtFirst in EE",500,0.,maxEnJet);
-  h_jetPtSecond_EE = fs->make<TH1F>("h_jetPtSecond_EE","jetPtSecond in EE",500,0.,maxEnJet);
-  h_jetPtThird_EE = fs->make<TH1F>("h_jetPtThird_EE","jetPtThird in EE",500,0.,maxEnJet);
-  h_jetPtFourth_EE = fs->make<TH1F>("h_jetPtFourth_EE","jetPtFourth in EE",500,0.,maxEnJet);
-  h_jetPtFirstCk_EE = fs->make<TH1F>("h_jetPtFirstCk_EE","jetPt of the absolute first jet - EE",500,0.,maxEnJet);
-  h_jetPtSecondCk_EE = fs->make<TH1F>("h_jetPtSecondCk_EE","jetPt of the absolute second jet - EE",500,0.,maxEnJet);
-  h_jetPtThirdCk_EE = fs->make<TH1F>("h_jetPtThirdCk_EE","jetPt of the absolute third jet - EE",500,0.,maxEnJet);
-  h_jetPtFourthCk_EE = fs->make<TH1F>("h_jetPtFourthCk_EE","jetPt of the absolute fourth jet - EE",500,0.,maxEnJet);
-  h_jetPtVsEta_EE = fs->make<TH2F>("h_jetPtVsEta_EE","jetPtVsEta_EE",100,-2.5,2.5,500,0.,maxEnJet);
-  h_jetPtNjet1_EE = fs->make<TH1F>("h_jetPtNjet1_EE","jetPtNjet1_EE",500,0.,maxEnJet);
-  h_jetPtNjet2_EE = fs->make<TH1F>("h_jetPtNjet2_EE","jetPtNjet2_EE",500,0.,maxEnJet);
-  h_jetPtNjet3_EE = fs->make<TH1F>("h_jetPtNjet3_EE","jetPtNjet3_EE",500,0.,maxEnJet);
-  h_jetPtNjet4_EE = fs->make<TH1F>("h_jetPtNjet4_EE","jetPtNjet4_EE",500,0.,maxEnJet);
+  h_jetPtFirst_EE = fs->make<TH1F>("h_jetPtFirst_EE","jetPtFirst in EE",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtSecond_EE = fs->make<TH1F>("h_jetPtSecond_EE","jetPtSecond in EE",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtThird_EE = fs->make<TH1F>("h_jetPtThird_EE","jetPtThird in EE",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtFourth_EE = fs->make<TH1F>("h_jetPtFourth_EE","jetPtFourth in EE",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
+  h_jetPtFirstCk_EE = fs->make<TH1F>("h_jetPtFirstCk_EE","jetPt of the absolute first jet - EE",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtSecondCk_EE = fs->make<TH1F>("h_jetPtSecondCk_EE","jetPt of the absolute second jet - EE",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtThirdCk_EE = fs->make<TH1F>("h_jetPtThirdCk_EE","jetPt of the absolute third jet - EE",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtFourthCk_EE = fs->make<TH1F>("h_jetPtFourthCk_EE","jetPt of the absolute fourth jet - EE",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
+  h_jetPtVsEta_EE = fs->make<TH2F>("h_jetPtVsEta_EE","jetPtVsEta_EE",100,-2.5,2.5,divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet1_EE = fs->make<TH1F>("h_jetPtNjet1_EE","jetPtNjet1_EE",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet2_EE = fs->make<TH1F>("h_jetPtNjet2_EE","jetPtNjet2_EE",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtNjet3_EE = fs->make<TH1F>("h_jetPtNjet3_EE","jetPtNjet3_EE",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtNjet4_EE = fs->make<TH1F>("h_jetPtNjet4_EE","jetPtNjet4_EE",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
   h_massMinusPdgGsf_EE = fs->make<TH1F>("h_massMinusPdgGsf_EE","massMinusPdgGsf_EE",100,-50,50);
 // EB - EE ========================================================================
   h_massMinusPdgGsf_EBEE = fs->make<TH1F>("h_massMinusPdgGsf_EBEE","massMinusPdgGsf_EBEE",100,-50,50);
@@ -528,14 +530,14 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_zYieldVsjets  = fs->make<TH1F>("h_zYieldVsjets","zYieldVsjets",10,0,10);
   h_zYieldVsjetsVtx1  = fs->make<TH1F>("h_zYieldVsjetsVtx1","zYieldVsjetsVtx1",10,0,10);
   h_zYieldVsjetsVtx5  = fs->make<TH1F>("h_zYieldVsjetsVtx5","zYieldVsjetsVtx5",10,0,10);
-  h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",500,0.,maxEnJet);
-  h_jetPtNjet2 = fs->make<TH1F>("h_jetPtNjet2","jetPtNjet2",500,0.,maxEnJet);
-  h_jetPtNjet3 = fs->make<TH1F>("h_jetPtNjet3","jetPtNjet3",500,0.,maxEnJet);
-  h_jetPtNjet4 = fs->make<TH1F>("h_jetPtNjet4","jetPtNjet4",500,0.,maxEnJet);
-  h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",500,0.,maxEnJet);
-  h_jetPtNjet2Incl = fs->make<TH1F>("h_jetPtNjet2Incl","jetPtNjet2Incl",500,0.,maxEnJet);
-  h_jetPtNjet3Incl = fs->make<TH1F>("h_jetPtNjet3Incl","jetPtNjet3Incl",500,0.,maxEnJet);
-  h_jetPtNjet4Incl = fs->make<TH1F>("h_jetPtNjet4Incl","jetPtNjet4Incl",500,0.,maxEnJet);
+  h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet2 = fs->make<TH1F>("h_jetPtNjet2","jetPtNjet2",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtNjet3 = fs->make<TH1F>("h_jetPtNjet3","jetPtNjet3",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtNjet4 = fs->make<TH1F>("h_jetPtNjet4","jetPtNjet4",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
+  h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet2Incl = fs->make<TH1F>("h_jetPtNjet2Incl","jetPtNjet2Incl",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
+  h_jetPtNjet3Incl = fs->make<TH1F>("h_jetPtNjet3Incl","jetPtNjet3Incl",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
+  h_jetPtNjet4Incl = fs->make<TH1F>("h_jetPtNjet4Incl","jetPtNjet4Incl",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
   h_zEta      = fs->make<TH1F>("h_zEta","zEta",100,-2.5,2.5);
   h_zRapidity = fs->make<TH1F>("h_zRapidity","zRapidity",100,-2.5,2.5);
   h_zEtaNjet0 = fs->make<TH1F>("h_zEtaNjet0","zEtaNjet0",100,-2.5,2.5);
