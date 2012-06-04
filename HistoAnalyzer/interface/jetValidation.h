@@ -307,6 +307,15 @@ class jetValidation : public edm::EDAnalyzer {
       TH1F * h_jetPtNjet2Incl;
       TH1F * h_jetPtNjet3Incl;
       TH1F * h_jetPtNjet4Incl;
+      TH1F * h_jetEtaNjet1;
+      TH1F * h_jetEtaNjet2;
+      TH1F * h_jetEtaNjet3;
+      TH1F * h_jetEtaNjet4;
+      TH1F * h_jetEtaNjet1Incl;
+      TH1F * h_jetEtaNjet2Incl;
+      TH1F * h_jetEtaNjet3Incl;
+      TH1F * h_jetEtaNjet4Incl;
+
       TH1F * h_zEta;
       TH1F * h_zRapidity;
       TH1F * h_zEtaNjet0;
@@ -538,6 +547,16 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_jetPtNjet2Incl = fs->make<TH1F>("h_jetPtNjet2Incl","jetPtNjet2Incl",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
   h_jetPtNjet3Incl = fs->make<TH1F>("h_jetPtNjet3Incl","jetPtNjet3Incl",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
   h_jetPtNjet4Incl = fs->make<TH1F>("h_jetPtNjet4Incl","jetPtNjet4Incl",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
+
+  h_jetEtaNjet1 = fs->make<TH1F>("h_jetEtaNjet1","jetEtaNjet1",divPlot_leadingeta,minEtaPlot_leading,maxEtaPlot_leading);
+  h_jetEtaNjet2 = fs->make<TH1F>("h_jetEtaNjet2","jetEtaNjet2",divPlot_subleadingeta,minEtaPlot_subleading,maxEtaPlot_subleading);
+  h_jetEtaNjet3 = fs->make<TH1F>("h_jetEtaNjet3","jetEtaNjet3",divPlot_subsubleadingeta,minEtaPlot_subsubleading,maxEtaPlot_subsubleading);
+  h_jetEtaNjet4 = fs->make<TH1F>("h_jetEtaNjet4","jetEtaNjet4",divPlot_subsubsubleadingeta,minEtaPlot_subsubsubleading,maxEtaPlot_subsubsubleading);
+  h_jetEtaNjet1Incl = fs->make<TH1F>("h_jetEtaNjet1Incl","jetEtaNjet1Incl",divPlot_leadingeta,minEtaPlot_leading,maxEtaPlot_leading);
+  h_jetEtaNjet2Incl = fs->make<TH1F>("h_jetEtaNjet2Incl","jetEtaNjet2Incl",divPlot_subleadingeta,minEtaPlot_subleading,maxEtaPlot_subleading);
+  h_jetEtaNjet3Incl = fs->make<TH1F>("h_jetEtaNjet3Incl","jetEtaNjet3Incl",divPlot_subsubleadingeta,minEtaPlot_subsubleading,maxEtaPlot_subsubleading);
+  h_jetEtaNjet4Incl = fs->make<TH1F>("h_jetEtaNjet4Incl","jetEtaNjet4Incl",divPlot_subsubsubleadingeta,minEtaPlot_subsubsubleading,maxEtaPlot_subsubsubleading);
+
   h_zEta      = fs->make<TH1F>("h_zEta","zEta",100,-2.5,2.5);
   h_zRapidity = fs->make<TH1F>("h_zRapidity","zRapidity",100,-2.5,2.5);
   h_zEtaNjet0 = fs->make<TH1F>("h_zEtaNjet0","zEtaNjet0",100,-2.5,2.5);

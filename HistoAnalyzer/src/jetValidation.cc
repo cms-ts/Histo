@@ -802,10 +802,20 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (totJets == 3) h_jetPtNjet3->Fill(jet->Pt(),myweight[0]);
 	    if (totJets == 4) h_jetPtNjet4->Fill(jet->Pt(),myweight[0]);
 
+	    if (totJets == 1) h_jetEtaNjet1->Fill(jet->Eta(),myweight[0]);
+	    if (totJets == 2) h_jetEtaNjet2->Fill(jet->Eta(),myweight[0]);
+	    if (totJets == 3) h_jetEtaNjet3->Fill(jet->Eta(),myweight[0]);
+	    if (totJets == 4) h_jetEtaNjet4->Fill(jet->Eta(),myweight[0]);
+
 	    if (totJets >= 1) h_jetPtNjet1Incl->Fill(jet->Pt(),myweight[0]);
 	    if (totJets >= 2) h_jetPtNjet2Incl->Fill(jet->Pt(),myweight[0]);
 	    if (totJets >= 3) h_jetPtNjet3Incl->Fill(jet->Pt(),myweight[0]);
 	    if (totJets >= 4) h_jetPtNjet4Incl->Fill(jet->Pt(),myweight[0]);
+
+	    if (totJets >= 1) h_jetEtaNjet1Incl->Fill(jet->Eta(),myweight[0]);
+	    if (totJets >= 2) h_jetEtaNjet2Incl->Fill(jet->Eta(),myweight[0]);
+	    if (totJets >= 3) h_jetEtaNjet3Incl->Fill(jet->Eta(),myweight[0]);
+	    if (totJets >= 4) h_jetEtaNjet4Incl->Fill(jet->Eta(),myweight[0]);
 	 }
       }
       
@@ -936,6 +946,7 @@ jetValidation::endJob()
  h_jetPtNjet3_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
  h_jetPtNjet4_EB->GetYaxis()->SetTitle("N_{jets}");
  h_jetPtNjet4_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
+
  h_massMinusPdgGsf_EB->GetYaxis()->SetTitle("N_{Z}");
  h_massMinusPdgGsf_EB->GetXaxis()->SetTitle("mass_{Z} - mass_{pdg}");
 
@@ -1144,6 +1155,16 @@ jetValidation::endJob()
  h_jetPtNjet3->GetXaxis()->SetTitle("p{T}^{jets}");
  h_jetPtNjet4->GetYaxis()->SetTitle("N_{jets}");
  h_jetPtNjet4->GetXaxis()->SetTitle("p{T}^{jets}");
+
+ h_jetEtaNjet1->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet1->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet2->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet2->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet3->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet3->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet4->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet4->GetXaxis()->SetTitle("#eta^{jets}");
+
  h_jetPtNjet1Incl->GetYaxis()->SetTitle("N_{jets}");
  h_jetPtNjet1Incl->GetXaxis()->SetTitle("p{T}^{jets}");
  h_jetPtNjet2Incl->GetYaxis()->SetTitle("N_{jets}");
@@ -1152,6 +1173,16 @@ jetValidation::endJob()
  h_jetPtNjet3Incl->GetXaxis()->SetTitle("p{T}^{jets}");
  h_jetPtNjet4Incl->GetYaxis()->SetTitle("N_{jets}");
  h_jetPtNjet4Incl->GetXaxis()->SetTitle("p{T}^{jets}");
+
+ h_jetEtaNjet1Incl->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet1Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet2Incl->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet2Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet3Incl->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet3Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet4Incl->GetYaxis()->SetTitle("N_{jets}");
+ h_jetEtaNjet4Incl->GetXaxis()->SetTitle("#eta^{jets}");
+
  h_zRapidity->GetYaxis()->SetTitle("N_{Z}");
  h_zRapidity->GetXaxis()->SetTitle("rapidity_{Z}");
  h_zEta->GetYaxis()->SetTitle("N_{Z}");

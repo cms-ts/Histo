@@ -18,3 +18,23 @@ int minPtPlot_subsubsubleading=30;
 int maxPtPlot_subsubsubleading=100;
 int divPlot_subsubsubleading=7;
 
+/////////////////////////////////////
+/// Jet Eta 
+/////////////////////////////////////
+
+int minEtaPlot_leading=-2.4;
+int maxEtaPlot_leading=2.4;
+int divPlot_leadingeta=48;
+
+int minEtaPlot_subleading=-2.4;
+int maxEtaPlot_subleading=2.4;
+int divPlot_subleadingeta=48;
+
+int minEtaPlot_subsubleading=-2.4;
+int maxEtaPlot_subsubleading=2.4;
+int divPlot_subsubleadingeta=48;
+
+int minEtaPlot_subsubsubleading=-2.4;
+int maxEtaPlot_subsubsubleading=2.4;
+int divPlot_subsubsubleadingeta=48;
+
