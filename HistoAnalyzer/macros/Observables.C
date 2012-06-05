@@ -55,8 +55,9 @@ std::endl;
 
 #endif
 
-bool activateScaleFactors=false;
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_23.root";
+bool activateScaleFactors=true;  // Correct for the difference MC/Data in the background
+
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_2523mixmex.root";
 
 //Open MC and data files to retrieve effciencies
 TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -74,7 +75,7 @@ bool evalDiffCS=true; // if false it does not divide for # of Zs
 
 // Files to be saved
 string dir="/gpfs/cms/data/2011/Observables/";
-string version="_v2_22.root";
+string version="_v2_25.root";
 
 string szj=dir+"MC_zjets"+version;
 string swj=dir+"MC_wjets"+version;
@@ -314,29 +315,48 @@ Observables::Loop()
 	///  jet pt/eta spectra, up to 4
 	/////////////////// 
 
+	double evWeight_scalefactors=1.0;
 	
 	if(jet1_pt>jetThreshold && jet1_pt<350 && jet1_eta>-3 && jet1_eta<3){	
-	  double evWeight_scalefactors=1.0;
-	  if (activateScaleFactors && i==1) {
+	  
+	  if (activateScaleFactors && i!=0) {
 	    if (Jet_multiplicity==1) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet1_pt);
 	  }
 	  jet_pT  -> Fill(jet1_pt,evWeight*evWeight_scalefactors);
-	  jet_eta -> Fill(jet1_eta,evWeight*evWeight_scalefactors);
+	  jet_eta -> Fill(jet1_eta,evWeight);
 	}
-	
+
+	///////
+
 	if (Jet_multiplicity > 1 && jet2_pt > jetThreshold && jet2_pt <350 && TMath::Abs(jet2_eta)<2.5){
-	  jet_pT2 -> Fill(jet2_pt,evWeight);
-	  jet_eta2 -> Fill(jet2_eta,evWeight);
 	  
+	  if (activateScaleFactors && i!=0) {
+	    if (Jet_multiplicity==2) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet2_pt);
+	  }
+	  jet_pT2 -> Fill(jet2_pt,evWeight*evWeight_scalefactors);
+	  jet_eta2 -> Fill(jet2_eta,evWeight);
 	}
+
+	///////
 	
 	if (Jet_multiplicity > 2 && jet3_pt > jetThreshold && jet3_pt <350 && TMath::Abs(jet3_eta)<2.5){
-	  jet_pT3 -> Fill(jet3_pt,evWeight);
+	  
+	  if (activateScaleFactors && i!=0) {
+	    if (Jet_multiplicity==3) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet3_pt);
+	  }
+	  jet_pT3 -> Fill(jet3_pt,evWeight*evWeight_scalefactors);
 	  jet_eta3 -> Fill(jet3_eta,evWeight);
 	}
 
+	///////
+
+	
 	if (Jet_multiplicity > 3 && jet4_pt > jetThreshold && jet4_pt <350 && TMath::Abs(jet4_eta)<2.5){
-	  jet_pT4 -> Fill(jet4_pt,evWeight);
+	  
+	  //if (activateScaleFactors && i!=0) {
+	  //if (Jet_multiplicity==4) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet4_pt);
+	  //}
+	  jet_pT4 -> Fill(jet4_pt,evWeight*evWeight_scalefactors);
 	  jet_eta4 -> Fill(jet4_eta,evWeight);
 	}
 
