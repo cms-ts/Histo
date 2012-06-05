@@ -71,7 +71,7 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(500),
  )
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = readFiles,
@@ -345,7 +345,7 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        WeightName = cms.string('EventWeight'),
-                                       genJets = cms.InputTag("ak5GenJets"),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
                                        deltaRConeJet        = cms.double(0.3),
@@ -367,7 +367,7 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        WeightName = cms.string('EventWeight'),
-                                       genJets = cms.InputTag("ak5GenJets"),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
                                        deltaRConeJet        = cms.double(0.3),
@@ -389,7 +389,7 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        WeightName = cms.string('EventWeight'),
-                                       genJets = cms.InputTag("ak5GenJets"),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
                                        deltaRConeJet           = cms.double(0.3),
@@ -412,11 +412,13 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        WeightName = cms.string('EventWeight'),
-                                       genJets = cms.InputTag("ak5GenJets"),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
-                                       deltaRConeJet           = cms.double(0.3),
-                                       deltaRCone           = cms.double(0.3),
+                                       #deltaRConeJet           = cms.double(0.3),
+                                       #deltaRCone           = cms.double(0.3),
+                                       deltaRConeJet           = cms.double(-1),
+                                       deltaRCone           = cms.double(-1),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),
                                        minPtJets            = cms.double(30.0),
@@ -434,7 +436,7 @@ process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        WeightName = cms.string('EventWeight'),
-                                       genJets = cms.InputTag("ak5GenJets"),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
                                        deltaRConeJet          = cms.double(0.3),
@@ -456,7 +458,7 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
                                     goodEPair = cms.InputTag("goodEPair"),
                                     WeightName = cms.string('EventWeight'),
-                                    genJets = cms.InputTag("ak5GenJets"),
+                                    genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                     usingMC = cms.untracked.bool(True),
                                     usingPF = cms.untracked.bool(True),
                                     deltaRConeJet           = cms.double(0.3),
@@ -479,11 +481,13 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     VertexCollection = cms.InputTag("offlinePrimaryVertices"), 
                                     goodEPair = cms.InputTag("goodEPair"),
                                     WeightName = cms.string('EventWeight'),
-                                    genJets = cms.InputTag("ak5GenJets"),
+                                    genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                     usingMC = cms.untracked.bool(True),
                                     usingPF = cms.untracked.bool(True),
-                                    deltaRConeJet           = cms.double(0.3),
-                                    deltaRCone           = cms.double(0.3),
+                                    #deltaRConeJet           = cms.double(0.3),
+                                    #deltaRCone           = cms.double(0.3),
+                                    deltaRConeJet           = cms.double(-1),
+                                    deltaRCone           = cms.double(-1),
                                     deltaRConeGen         = cms.double(0.1),
                                     maxEtaJets           = cms.double(2.4),
                                     minPtJets            = cms.double(30.0),
@@ -505,7 +509,7 @@ process.reclusValidation = cms.EDAnalyzer('reclusVal',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        tpMapName = cms.string('EventWeight'),
-                                       genJets = cms.InputTag("ak5GenJets"),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
                                        deltaRCone           = cms.double(0.3),
@@ -518,6 +522,55 @@ process.reclusValidation = cms.EDAnalyzer('reclusVal',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                        )
+
+process.validationJECXSScaleUp = cms.EDAnalyzer('jetValidation',
+                                       electronCollection = cms.InputTag("particleFlow:electrons"),
+                                       jetCollection = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
+                                       VertexCollection = cms.InputTag("offlinePrimaryVertices"),
+                                       goodEPair = cms.InputTag("goodEPair"),
+                                       WeightName = cms.string('EventWeightScaleUp'),
+                                       genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
+                                       usingMC = cms.untracked.bool(True),
+                                       usingPF = cms.untracked.bool(True),
+                                       #deltaRConeJet           = cms.double(0.3),
+                                       #deltaRCone           = cms.double(0.3),
+                                       deltaRConeJet           = cms.double(-1),
+                                       deltaRCone           = cms.double(-1),
+                                       deltaRConeGen         = cms.double(0.1),
+                                       maxEtaJets           = cms.double(2.4),
+                                       minPtJets            = cms.double(30.0),
+                                       chargedEmEnergyFraction = cms.double(0.99),
+                                       neutralHadronEnergyFraction= cms.double(0.99),
+                                       neutralEmEnergyFraction= cms.double(0.99),
+                                       chargedHadronEnergyFraction= cms.double(0.0),
+                                       chargedMultiplicity= cms.int32(0),
+                                       JECUncertainties= cms.double(0),
+                                       )
+
+process.validationJECXSScaleDown = cms.EDAnalyzer('jetValidation',
+                                                  electronCollection = cms.InputTag("particleFlow:electrons"),
+                                                  jetCollection = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
+                                                  VertexCollection = cms.InputTag("offlinePrimaryVertices"),
+                                                  goodEPair = cms.InputTag("goodEPair"),
+                                                  WeightName = cms.string('EventWeightScaleDown'),
+                                                  genJets = cms.InputTag("ak5GenJetsNoGammaCone"),
+                                                  usingMC = cms.untracked.bool(True),
+                                                  usingPF = cms.untracked.bool(True),
+                                                  #deltaRConeJet           = cms.double(0.3),
+                                                  #deltaRCone           = cms.double(0.3),
+                                                  deltaRConeJet           = cms.double(-1),
+                                                  deltaRCone           = cms.double(-1),
+                                                  deltaRConeGen         = cms.double(0.1),
+                                                  maxEtaJets           = cms.double(2.4),
+                                                  minPtJets            = cms.double(30.0),
+                                                  chargedEmEnergyFraction = cms.double(0.99),
+                                                  neutralHadronEnergyFraction= cms.double(0.99),
+                                                  neutralEmEnergyFraction= cms.double(0.99),
+                                                  chargedHadronEnergyFraction= cms.double(0.0),
+                                                  chargedMultiplicity= cms.int32(0),
+                                                  JECUncertainties= cms.double(0),
+                                                  )
+
 
 
 ####################
@@ -802,12 +855,18 @@ process.trgmatchPatElectronsReco = cms.EDProducer("trgMatchedPatElectronProducer
 #                   #
 #####################
 
-genParticlesForJetsNoNu = process.genParticlesForJets.clone()
-process.genParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
+#genParticlesForJetsNoNu = process.genParticlesForJets.clone()
+#process.genParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
 
+process.genParticlesForJetsNoNuNoGammaCone = cms.EDProducer("photonRemoval",
+    bottomCollection = cms.InputTag("genParticlesForJetsNoNu"),
+    particleCollection = cms.InputTag("genParticles"),
+    barrelRCone = cms.untracked.double(0.05),
+    endcapRCone = cms.untracked.double(0.07)
+       )
 
 GenJetParameters = cms.PSet(
-    src            = cms.InputTag("genParticlesForJets"),
+    src            = cms.InputTag("genParticlesForJetsNoNuNoGammaCone"),
     srcPVs         = cms.InputTag(''),
     jetType        = cms.string('GenJet'),
     jetPtMin       = cms.double(3.0),
@@ -831,7 +890,7 @@ GenJetParameters = cms.PSet(
     minSeed             = cms.uint32( 14327 )
     )
 
-process.ak5GenJets = cms.EDProducer(
+process.ak5GenJetsNoGammaCone = cms.EDProducer(
     "FastjetJetProducer",
      GenJetParameters,
     AnomalousCellParameters,
@@ -902,11 +961,11 @@ process.ToolInizialization = cms.Path(
     process.goodElec*
     process.pfNoElectron*
     process.ak5PFJetsRC*
-    process.ak5PFchsJetsRCL1FastL2L3*
-    process.ak5PFJetsOLD*
-    process.ak5PFJetsOLDL1FastL2L3*
-    process.ak5PFJetsPU*
-    process.ak5PFchsJetsPUL1FastL2L3
+    process.ak5PFchsJetsRCL1FastL2L3
+    #*process.ak5PFJetsOLD*
+    #process.ak5PFJetsOLDL1FastL2L3*
+    #process.ak5PFJetsPU*
+    #process.ak5PFchsJetsPUL1FastL2L3
     )
 
 process.TAPAnalysisWP80 = cms.Path(
@@ -975,10 +1034,15 @@ process.JetValidation = cms.Path(
     process.Selection*
     process.goodEPair*
     process.demo*
-    process.reclusValidation*
-    process.validationOldJEC*
-    process.validationPUJEC*
-    process.validationJEC
+    process.genParticlesForJetsNoNu*
+    process.genParticlesForJetsNoNuNoGammaCone*
+    process.ak5GenJetsNoGammaCone*
+    #process.reclusValidation*
+    #process.validationOldJEC*
+    #process.validationPUJEC*
+    process.validationJEC*
+    process.validationJECXSScaleUp*
+    process.validationJECXSScaleDown
     )
 
 #####################
