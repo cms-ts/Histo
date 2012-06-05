@@ -78,7 +78,7 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(500),
  )
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = readFiles,
@@ -423,8 +423,10 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        genJets = cms.InputTag("ak5GenJets"),
                                        usingMC = cms.untracked.bool(False),
                                        usingPF = cms.untracked.bool(True),
-                                       deltaRConeJet           = cms.double(0.3),
-                                       deltaRCone           = cms.double(0.3),
+                                       #deltaRConeJet           = cms.double(0.3),
+                                       #deltaRCone           = cms.double(0.3),
+                                       deltaRConeJet           = cms.double(-1),
+                                       deltaRCone           = cms.double(-1),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),
                                        minPtJets            = cms.double(30.0),
@@ -490,8 +492,10 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(False),
                                     usingPF = cms.untracked.bool(True),
-                                    deltaRConeJet           = cms.double(0.3),
-                                    deltaRCone           = cms.double(0.3),
+                                    #deltaRConeJet           = cms.double(0.3),
+                                    #deltaRCone           = cms.double(0.3),
+                                    deltaRConeJet           = cms.double(-1),
+                                    deltaRCone           = cms.double(-1),
                                     deltaRConeGen         = cms.double(0.1),
                                     maxEtaJets           = cms.double(2.4),
                                     minPtJets            = cms.double(30.0),
@@ -513,8 +517,10 @@ process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(False),
                                     usingPF = cms.untracked.bool(True),
-                                    deltaRConeJet           = cms.double(0.3),
-                                    deltaRCone           = cms.double(0.3),
+                                    #deltaRConeJet           = cms.double(0.3),
+                                    #deltaRCone           = cms.double(0.3),
+                                    deltaRConeJet           = cms.double(-1),
+                                    deltaRCone           = cms.double(-1),
                                     deltaRConeGen         = cms.double(0.1),
                                     maxEtaJets           = cms.double(2.4),
                                     minPtJets            = cms.double(30.0),
@@ -535,8 +541,10 @@ process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
                                     genJets = cms.InputTag("ak5GenJets"),
                                     usingMC = cms.untracked.bool(False),
                                     usingPF = cms.untracked.bool(True),
-                                    deltaRConeJet           = cms.double(0.3),
-                                    deltaRCone           = cms.double(0.3),
+                                    #deltaRConeJet           = cms.double(0.3),
+                                    #deltaRCone           = cms.double(0.3),
+                                    deltaRConeJet           = cms.double(-1),
+                                    deltaRCone           = cms.double(-1),
                                     deltaRConeGen         = cms.double(0.1),
                                     maxEtaJets           = cms.double(2.4),
                                     minPtJets            = cms.double(30.0),
@@ -929,11 +937,11 @@ process.ToolInizialization = cms.Path(
     process.goodElec*
     process.pfNoElectron*
     process.ak5PFJetsRC*
-    process.ak5PFchsJetsRCL1FastL2L3Residual*
-    process.ak5PFJetsOLD*
-    process.ak5PFJetsOLDL1FastL2L3Residual*
-    process.ak5PFJetsPU*
-    process.ak5PFchsJetsPUL1FastL2L3Residual
+    process.ak5PFchsJetsRCL1FastL2L3Residual
+    #*process.ak5PFJetsOLD*
+    #process.ak5PFJetsOLDL1FastL2L3Residual*
+    #process.ak5PFJetsPU*
+    #process.ak5PFchsJetsPUL1FastL2L3Residual
     )
 
 process.TAPAnalysisWP80 = cms.Path(
@@ -994,6 +1002,7 @@ process.EPTAnalysisRECO = cms.Path(
     process.EPTreco
     )
 
+
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
     process.eleTriggerMatchHLT*
@@ -1003,9 +1012,9 @@ process.JetValidation = cms.Path(
     process.Selection*
     process.goodEPair*
     process.demo*
-    process.reclusValidation*
-    process.validationOldJEC*
-    process.validationPUJEC*
+    #process.reclusValidation*
+    #process.validationOldJEC*
+    #process.validationPUJEC*
     #process.validationPU*
     process.validationRC*
     process.validationJECScaleUp*
