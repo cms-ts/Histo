@@ -97,7 +97,103 @@ trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 ###################
 
 
-process.TAPwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
+process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
+                               electronCollection = cms.InputTag("patElectrons"),
+                               HLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+                               superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                               superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                               triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                               filename=cms.untracked.string("ZAnalysisFilter.root"),
+                               UseCombinedPrescales = cms.bool(False),
+                               removePU=  cms.bool(False),
+                               WP80_efficiency  =  cms.bool(True),
+                               HLTele17_efficiency  =  cms.bool(False),
+                               HLTele8_efficiency  =  cms.bool(False),
+                               RECO_efficiency  =  cms.bool(False),
+                               New_HE  =  cms.bool(False),
+                               isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
+                                                                     cms.InputTag('elPFIsoValueGamma03PFIso'),
+                                                                     cms.InputTag('elPFIsoValueNeutral03PFIso')),
+                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                               electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                               candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                               JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                               TriggerNames = trigger2011v3
+                               )
+
+process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
+                                          electronCollection = cms.InputTag("patElectrons"),
+                                          HLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),
+                                          superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                                          superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                                          triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                                          filename=cms.untracked.string("ZAnalysisFilter.root"),
+                                          UseCombinedPrescales = cms.bool(False),
+                                          removePU=  cms.bool(False),
+                                          WP80_efficiency  =  cms.bool(False),
+                                          HLTele17_efficiency  =  cms.bool(False),
+                                          HLTele8_efficiency  =  cms.bool(True),
+                                          RECO_efficiency  =  cms.bool(False),
+                                          New_HE  =  cms.bool(False),
+                                          isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
+                                                                                cms.InputTag('elPFIsoValueGamma03PFIso'),
+                                                                                cms.InputTag('elPFIsoValueNeutral03PFIso')),
+                                          VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                                          electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                                          candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                                          JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                                          TriggerNames = trigger2011v3
+                                          )
+
+process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
+                                   electronCollection = cms.InputTag("patElectrons"),
+                                   HLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+                                   superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                                   superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                                   triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                                   filename=cms.untracked.string("ZAnalysisFilter.root"),
+                                   UseCombinedPrescales = cms.bool(False),
+                                   removePU=  cms.bool(False),
+                                   WP80_efficiency  =  cms.bool(False),
+                                   HLTele17_efficiency  =  cms.bool(True),
+                                   HLTele8_efficiency  =  cms.bool(False),
+                                   RECO_efficiency  =  cms.bool(False),
+                                   New_HE  =  cms.bool(False),
+                                   isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
+                                                                         cms.InputTag('elPFIsoValueGamma03PFIso'),
+                                                                         cms.InputTag('elPFIsoValueNeutral03PFIso')),
+                                   VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                                   electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                                   candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                                   JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                                   TriggerNames = trigger2011v3
+                                   )
+
+process.TAPreco = cms.EDFilter('EfficiencyFilter',
+                               electronCollection = cms.InputTag("patElectrons"),
+                               HLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+                               superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+                               superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+                               triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+                               filename=cms.untracked.string("ZAnalysisFilter.root"),
+                               UseCombinedPrescales = cms.bool(False),
+                               removePU=  cms.bool(False),
+                               WP80_efficiency  =  cms.bool(False),
+                               HLTele17_efficiency  =  cms.bool(False),
+                               HLTele8_efficiency  =  cms.bool(False),
+                               RECO_efficiency  =  cms.bool(True),
+                               New_HE  =  cms.bool(False),
+                               isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
+                                                                     cms.InputTag('elPFIsoValueGamma03PFIso'),
+                                                                     cms.InputTag('elPFIsoValueNeutral03PFIso')),
+                               VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+                               electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+                               candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+                               JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+                               TriggerNames = trigger2011v3
+                               )
+
+process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -121,7 +217,7 @@ process.TAPwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                            TriggerNames = trigger2011v3
                            )
 
-process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
+process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -145,7 +241,7 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            TriggerNames = trigger2011v3       
                            )
 
-process.TAPhltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
+process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -169,7 +265,7 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            TriggerNames = trigger2011v3
                            )
 
-process.TAPreco = cms.EDFilter('EfficiencyPtEtaFilter',
+process.EPTreco = cms.EDFilter('EfficiencyPtEtaFilter',
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
@@ -846,32 +942,57 @@ process.ToolInizialization = cms.Path(
     )
 
 process.TAPAnalysisWP80 = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsEle17*
+        process.TAPwp80
+        )
+
+process.TAPAnalysisHLTele8NOTele17 = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsNOTEle17*
+        process.trgmatchPatElectronsEle8NOTEle17*
+        process.TAPhltele8NOTele17
+        )
+
+process.TAPAnalysisHLTele17 = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsEle17*
+        process.TAPhltele17
+        )
+
+process.TAPAnalysisRECO = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsReco*
+        process.TAPreco
+        )
+
+process.EPTAnalysisWP80 = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsEle17*    
     process.trgmatchPatElectronsEle8*
-    process.TAPwp80
+    process.EPTwp80
     )
 
-process.TAPAnalysisHLTele8NOTele17 = cms.Path(
+process.EPTAnalysisHLTele8NOTele17 = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsReco*    
     process.trgmatchPatElectronsNOTEle17*
     process.trgmatchPatElectronsEle8NOTEle17*
-    process.TAPhltele8NOTele17
+    process.EPThltele8NOTele17
     )
 
-process.TAPAnalysisHLTele17 = cms.Path(
+process.EPTAnalysisHLTele17 = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsReco*        
     process.trgmatchPatElectronsEle17*
-    process.TAPhltele17
+    process.EPThltele17
     )
 
-process.TAPAnalysisRECO = cms.Path(
+process.EPTAnalysisRECO = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsReco*
     process.trgmatchPatElectronsEle8*        
-    process.TAPreco
+    process.EPTreco
     )
 
 process.JetValidation = cms.Path(
