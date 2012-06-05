@@ -1,4 +1,5 @@
 #include "tdrStyle.C"
+#include "TLatex.h"
 
 #include <TROOT.h>
 #include "TStyle.h"
@@ -21,19 +22,21 @@
 #include <string.h>
 
 #include "lumi_scale_factors.h"
+#include "Unfolding/MakePlotLumiLabel.C"
 
-
-bool isAngularAnalysis= true;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
+bool isAngularAnalysis= false;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
 
 bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata//
 bool WholeStat= true;                // if true, reweing on RunA lumi, if false, on the whole stat. if true, the other variabs are uneffective, except lumipixel 
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
+string version="_v2_25.root";  // which version you wonna analize
+
 string plotpath		="/tmp/marone/"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_25WP90.root";
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_25WP90.root"; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011_v2_25WP90.root"; 
+string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
+string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+version;
 string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
 string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
@@ -43,9 +46,9 @@ string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v
 string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
-string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011_v2_25WP90.root";
-string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011_v2_25WP90.root";
-string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011_v2_25WP90.root";
+string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011"+version;
+string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011"+version;
+string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
 
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
@@ -65,7 +68,6 @@ double wwEvents=-999;
 
 //storing background infos in:
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
-string version="_v2_25WP90.root";
 string bkg=dir+"Backgrounds"+version;
 TFile* fzj = new TFile(bkg.c_str(), "RECREATE");
 //Tree to store vthe values
@@ -121,7 +123,6 @@ void DrawComparisonJetMCData(void){
   // ---------------------------------------------------
 
   string direc="/gpfs/cms/data/2011/Observables/";
-  string version="_v2_22.root";
 
   if (isAngularAnalysis){
     mcfile=direc+"MC_zjets"+version;
@@ -291,7 +292,6 @@ void comparisonJetMCData(string plot,int rebin){
   string tmp;
 
   string dir="/gpfs/cms/data/2011/Observables/";
-  string version="_v2_22.root";
 	
   if (isAngularAnalysis){
     mcfile=dir+"MC_zjets"+version;
@@ -844,8 +844,11 @@ void comparisonJetMCData(string plot,int rebin){
     lumi->SetFillColor(0);
     lumi->SetFillStyle(0);
     lumi->SetBorderSize(0);
-    lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
+    //lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
     lumi->Draw();
+    TLatex *latexLabel=CMSPrel(4.890,"",0.65,0.9); // make fancy label
+    latexLabel->Draw("same");
+
     CanvPlot->Update();
 
 	
@@ -883,7 +886,7 @@ void comparisonJetMCData(string plot,int rebin){
     OLine->SetLineStyle(2);
     OLine->Draw();
  
-    TLegend* label = new TLegend(0.60,0.9,0.85,0.75);
+    TLegend* label = new TLegend(0.60,0.9,0.50,0.95);
     label->SetFillColor(0);
     label->SetFillStyle(0);
     label->SetBorderSize(0);
