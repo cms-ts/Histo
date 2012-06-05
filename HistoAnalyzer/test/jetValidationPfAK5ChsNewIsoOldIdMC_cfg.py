@@ -109,7 +109,8 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 
 process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                                electronCollection = cms.InputTag("patElectrons"),
-                               HLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+                               TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+                               ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
                                superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                                superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
                                triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
@@ -120,7 +121,6 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                                HLTele17_efficiency  =  cms.bool(False),
                                HLTele8_efficiency  =  cms.bool(False),
                                RECO_efficiency  =  cms.bool(False),
-                               New_HE  =  cms.bool(False),
                                isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                      cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                      cms.InputTag('elPFIsoValueNeutral03PFIso')),
@@ -133,7 +133,8 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
 
 process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
                                           electronCollection = cms.InputTag("patElectrons"),
-                                          HLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),
+                                          TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
+                                          ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
                                           superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                                           superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
                                           triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
@@ -144,7 +145,6 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
                                           HLTele17_efficiency  =  cms.bool(False),
                                           HLTele8_efficiency  =  cms.bool(True),
                                           RECO_efficiency  =  cms.bool(False),
-                                          New_HE  =  cms.bool(False),
                                           isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                                 cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                                 cms.InputTag('elPFIsoValueNeutral03PFIso')),
@@ -157,7 +157,8 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
 
 process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                                    electronCollection = cms.InputTag("patElectrons"),
-                                   HLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+                                   TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
+                                   ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
                                    superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                                    superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
                                    triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
@@ -168,7 +169,6 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                                    HLTele17_efficiency  =  cms.bool(True),
                                    HLTele8_efficiency  =  cms.bool(False),
                                    RECO_efficiency  =  cms.bool(False),
-                                   New_HE  =  cms.bool(False),
                                    isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                          cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                          cms.InputTag('elPFIsoValueNeutral03PFIso')),
@@ -181,7 +181,8 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
 
 process.TAPreco = cms.EDFilter('EfficiencyFilter',
                                electronCollection = cms.InputTag("patElectrons"),
-                               HLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+                               TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+                               ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
                                superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                                superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
                                triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
@@ -192,7 +193,6 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                                HLTele17_efficiency  =  cms.bool(False),
                                HLTele8_efficiency  =  cms.bool(False),
                                RECO_efficiency  =  cms.bool(True),
-                               New_HE  =  cms.bool(False),
                                isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                      cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                      cms.InputTag('elPFIsoValueNeutral03PFIso')),
@@ -971,11 +971,13 @@ process.ToolInizialization = cms.Path(
 process.TAPAnalysisWP80 = cms.Path(
         process.goodOfflinePrimaryVertices*
         process.trgmatchPatElectronsEle17*
+        process.trgmatchPatElectronsEle8*    
         process.TAPwp80
         )
 
 process.TAPAnalysisHLTele8NOTele17 = cms.Path(
         process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsReco*    
         process.trgmatchPatElectronsNOTEle17*
         process.trgmatchPatElectronsEle8NOTEle17*
         process.TAPhltele8NOTele17
@@ -983,6 +985,7 @@ process.TAPAnalysisHLTele8NOTele17 = cms.Path(
 
 process.TAPAnalysisHLTele17 = cms.Path(
         process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsReco*    
         process.trgmatchPatElectronsEle17*
         process.TAPhltele17
         )
@@ -990,6 +993,7 @@ process.TAPAnalysisHLTele17 = cms.Path(
 process.TAPAnalysisRECO = cms.Path(
         process.goodOfflinePrimaryVertices*
         process.trgmatchPatElectronsReco*
+        process.trgmatchPatElectronsEle8*    
         process.TAPreco
         )
 
