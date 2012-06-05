@@ -426,7 +426,7 @@ double getScaleFactorsSubSubLeadingJet(double jetPt_MC,  TH1F* effPtData,  TH1F*
     effPtJet=effPtData->GetBinContent(2)/effPtMC->GetBinContent(2);
   }
   if (jetPt_MC>=150) {
-    effPtJet=effPtData->GetBinContent(9)/effPtMC->GetBinContent(9);
+    effPtJet=effPtData->GetBinContent(3)/effPtMC->GetBinContent(3);
   }
   cout<<"scale factor Data/MC is "<<effPtJet<<endl;
   return effPtJet;
