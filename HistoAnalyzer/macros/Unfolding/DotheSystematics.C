@@ -27,13 +27,17 @@ string stringsyst= "/afs/infn.it/ts/user/marone/html/ZJets/Systematics/";
 std::vector<double> DotheSystematics(){
   gROOT->LoadMacro("plotsHistsAndRatio.C");
   std::vector<double> vec;
-  //vec=DotheSystematicsJECMultiplicity();
+  vec=DotheSystematicsJECMultiplicity();
   vec=DotheSystematicsPUMultiplicity();
   int whichjet=1;
-  //DotheSystematicsJECJetPt(whichjet);
+  DotheSystematicsJECJetPt(whichjet);
   //DotheSystematicsUnfoldingPythia();
   //DotheSystematicsJECJetEta(whichjet);
-  //DotheSystematicsPUJetPt(whichjet);
+  DotheSystematicsPUJetPt(whichjet);
+  DotheSystematicsUnfMethodJetPt(whichjet);
+  //To be added by Andrea
+  //DotheSystematicsEfficiencyJetPt(whichjet);
+  //DotheSystematicsEfficiencyJetMultiplicity(whichjet);
   return vec;
 }
 
@@ -401,7 +405,7 @@ void DotheSystematicsJECJetPt(int whichjet){
   legend_1->AddEntry (DownJEC, "jet multiplicity - errror", "L");
   legend_1->Draw ("same");
 
-  cout<<"Saving systematics in a file"<<endl;
+  cout<<"Saving Jet PT JEC systematics in a file"<<endl;
   string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJetPt.txt";
   ofstream syste;
   syste.open(filename.c_str());
@@ -711,6 +715,72 @@ void DotheSystematicsJECJetEta(int whichjet){
   return systs;
 }
 
+///////////////////
+//// Unfolding Method For JetPt
+//////////////////
+
+DotheSystematicsUnfMethodJetPt(whichjet){
+  
+  bool kparsystematics=true;
+
+  setTDRStyle();
+  using	std::cout;
+  using	std::endl;
+  Double_t systerr;
+  std::vector<double> systs;
+
+  string namejet="";
+  if (whichjet==1) namejet="Leading"; 
+  if (whichjet==2) namejet="Second leading"; 
+  if (whichjet==3) namejet="Third leading"; 
+  if (whichjet==4) namejet="Fourth leading"; 
+
+  TFile *f = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_25SVD.root");
+
+  f->cd(); //wrong one!!! need to have the dir. w/o JEC
+  TH1F *MD;
+  if (whichjet==1) MD = (TH1F*)gDirectory->Get("jReco_leading");
+  if (whichjet==2) MD = (TH1F*)gDirectory->Get("jReco_subleading");
+  if (whichjet==3) MD = (TH1F*)gDirectory->Get("jReco_subsubleading");
+  if (whichjet==4) MD = (TH1F*)gDirectory->Get("jReco_subsubsubleading");
+
+ 
+  TFile *f2;
+  if (!kparsystematics) f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_25Bayes.root");
+  else f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_25Kmoved.root");
+    
+  f2->cd(); //wrong one!!! need to have the dir. w/o JEC
+  TH1F *P;
+
+  if (whichjet==1) P = (TH1F*)gDirectory->Get("jReco_leading");  
+  if (whichjet==2) P = (TH1F*)gDirectory->Get("jReco_subleading");  
+  if (whichjet==3) P = (TH1F*)gDirectory->Get("jReco_subsubleading");  
+  if (whichjet==4) P = (TH1F*)gDirectory->Get("jReco_subsubsubleading");  
+
+
+  TCanvas *d = new TCanvas ("d", "d", 1000, 700);
+  d->cd ();
+ 
+  string title;
+  if (!kparsystematics) title="Unfolding Method Systematics "+namejet+" Jet Pt";
+  else title="Unfolding K Parameter Systematics "+namejet+" Jet Pt";
+
+  plotHistsAndRatio(MD,P,title.c_str(),"Jet Pt [GeV]","# Events"); 
+  TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+  legend_1->SetFillColor (0);
+  legend_1->SetFillStyle (0);
+  legend_1->SetBorderSize (0);
+  legend_1->SetTextFont(62);
+  legend_1->AddEntry (MD, "SVD Method", "L");
+  legend_1->AddEntry (P, "Bayes Method", "L");
+  legend_1->Draw ("same");
+
+  if (!kparsystematics) stringsystPU=stringsyst+"/UnfoldingMethod_"+namejet+".png";
+  else stringsystPU=stringsyst+"/UnfoldingKParam_"+namejet+".png";
+  c1->Print(stringsystPU.c_str()); 
+ 
+}
+
 
 ////////////////
 ///// Systematcs for MD-Pythia in Unfolding...
@@ -780,7 +850,7 @@ void DotheSystematicsUnfoldingPythia(){
   fu->SetLineColor(kBlack);
   fu->Draw("SAMES");
 
-  //stringsystPU=stringsyst+"/MDPythia_"+namejet+".png";
-  //d->Print(stringsystPU.c_str()); 
+  stringsystPU=stringsyst+"/MDPythia_"+namejet+".png";
+  d->Print(stringsystPU.c_str()); 
  
 }
