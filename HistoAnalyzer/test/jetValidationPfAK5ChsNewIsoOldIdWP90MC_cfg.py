@@ -71,7 +71,7 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(500),
  )
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(2500) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = readFiles,
@@ -1040,9 +1040,9 @@ process.JetValidation = cms.Path(
     #process.reclusValidation*
     #process.validationOldJEC*
     #process.validationPUJEC*
-    process.validationJEC*
     process.validationJECXSScaleUp*
     process.validationJECXSScaleDown
+    process.validationJEC*
     )
 
 #####################
