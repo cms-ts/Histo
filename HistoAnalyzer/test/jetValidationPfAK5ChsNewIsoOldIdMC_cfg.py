@@ -1058,7 +1058,7 @@ process.JetValidation = cms.Path(
     #process.validationPUJEC*
     process.validationJECXSScaleUp*
     process.validationJECXSScaleDown*
-    process.validationJEC*
+    process.validationJEC
     )
 
 #####################
