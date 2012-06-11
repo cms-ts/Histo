@@ -375,7 +375,8 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                          JECUncertainties= cms.double(0),   
+                                          JECUncertainties= cms.double(0),
+                                       RootuplaName = cms.string("treeOLDJEC_")   
                                        )
                                  
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -397,7 +398,8 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),   
+                                      JECUncertainties= cms.double(0),
+                                       RootuplaName = cms.string("treeTESTJEC_")   
                                        )
                                  
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -419,7 +421,8 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),   
+                                      JECUncertainties= cms.double(0),
+                                       RootuplaName = cms.string("treePUJEC_")   
                                        )
 
 
@@ -444,7 +447,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),   
+                                      JECUncertainties= cms.double(0), 
+                                       RootuplaName = cms.string("treeValidationJEC_")  
                                        )
                                    
 process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
@@ -466,7 +470,8 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0),                                                 
+                                      JECUncertainties= cms.double(0), 
+                                       RootuplaName = cms.string("treeL2L3_")                                                
                                        )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -488,7 +493,8 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0),                                      
+                                      JECUncertainties= cms.double(0),
+                                       RootuplaName = cms.string("treePU_")                                      
                                     )
 
 
@@ -513,7 +519,8 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),                                        
+                                      JECUncertainties= cms.double(0), 
+                                       RootuplaName = cms.string("treeRC_")                                       
                                     )
 
 
@@ -538,7 +545,8 @@ process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(1),   
+                                      JECUncertainties= cms.double(1), 
+                                       RootuplaName = cms.string("treeJECScaleUp_")  
                                     )
 
 process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
@@ -562,7 +570,8 @@ process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(-1),   
+                                      JECUncertainties= cms.double(-1),
+                                       RootuplaName = cms.string("treeJECScaleDown_")   
                                     )
                                   
 process.reclusValidation = cms.EDAnalyzer('reclusVal',

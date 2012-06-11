@@ -852,7 +852,8 @@ jetValidation::beginJob()
 {
 
   //TFile and TTree initialization
-  treeUN_= new TTree("treeUN_","treeUN_");
+   
+   treeUN_= new TTree(rootuplaname.c_str(),rootuplaname.c_str());
   
   //EB PileUp REMOVED
 

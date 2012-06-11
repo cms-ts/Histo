@@ -97,6 +97,7 @@ class jetValidation : public edm::EDAnalyzer {
       edm::InputTag goodEPairTag;
       std::string weightCollection_;
       edm::InputTag genJetsCollection;
+      std::string rootuplaname;
       bool usingMC;
       bool usingPF;
       bool useCkElInJet;
@@ -423,6 +424,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   chargedHadronEnergyFraction= conf.getParameter<double>("chargedHadronEnergyFraction");
   chargedMultiplicity= conf.getParameter<int>("chargedMultiplicity");
   param                = conf.getParameter<double>("JECUncertainties");
+  rootuplaname          = conf.getParameter< std::string > ("RootuplaName");
 
   double maxEnJet=200;
 //EB ========================================================================
