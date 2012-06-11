@@ -121,10 +121,16 @@ class jetValidation : public edm::EDAnalyzer {
       double jet2_pt_gen;
       double jet3_pt_gen;
       double jet4_pt_gen;
+      double jet5_pt_gen;
+      double jet6_pt_gen;
+
+
       double jet1_eta_gen;
       double jet2_eta_gen;
       double jet3_eta_gen;
       double jet4_eta_gen;
+      double jet5_eta_gen;
+      double jet6_eta_gen;
 
       //std::vector<double> jetPtVector;
       //std::vector<double> genJetPtVector;
@@ -144,10 +150,16 @@ class jetValidation : public edm::EDAnalyzer {
       double jet2_pt;
       double jet3_pt;
       double jet4_pt;
+      double jet5_pt;
+      double jet6_pt;
+
       double jet1_eta;
       double jet2_eta;
       double jet3_eta;
       double jet4_eta;
+      double jet5_eta;
+      double jet6_eta;
+
       double jet1_phi;
       double jet2_phi;
       double jet3_phi;

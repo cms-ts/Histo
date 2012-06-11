@@ -66,10 +66,16 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    jet2_pt  =0;
    jet3_pt  =0;
    jet4_pt  =0;
+   jet5_pt  =0;
+   jet6_pt  =0;
+
    jet1_eta =-9999;
    jet2_eta =-9999;
    jet3_eta =-9999;
    jet4_eta =-9999;
+   jet5_eta =-9999;
+   jet6_eta =-9999;
+
    jet1_phi =0;
    jet2_phi =0;
    jet3_phi =0;
@@ -577,11 +583,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet2_pt_gen=-9999;
       jet3_pt_gen=-9999;
       jet4_pt_gen=-9999;
+      jet5_pt_gen=-9999;
+      jet6_pt_gen=-9999;
+
       jet1_eta_gen=-9999;
       jet2_eta_gen=-9999;
       jet3_eta_gen=-9999;
       jet4_eta_gen=-9999;
-
+      jet5_eta_gen=-9999;
+      jet6_eta_gen=-9999;
 
       ////// Checking also if the Z boson has decayed int taus or muons, and then misreconstructed!
 
@@ -726,6 +736,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  jet4_pt_gen=jetpt_gen[3];
 	  jet4_eta_gen=jeteta_gen[3];
 	}
+	if (gvectorsize>4) {
+	  jet5_pt_gen=jetpt_gen[4];
+	  jet5_eta_gen=jeteta_gen[4];
+	}
+	if (gvectorsize>5) {
+	  jet6_pt_gen=jetpt_gen[5];
+	  jet6_eta_gen=jeteta_gen[5];
+	}
+
 	//cout<<"gen jet1 has pt "<<jet1_pt_gen<<" jet2 "<<jet2_pt_gen<<" jet3 "<<jet3_pt_gen<<" jet4_pt_gen "<<jet4_pt_gen<<endl;
       }
       GenJetContainer.clear();
@@ -848,10 +867,15 @@ jetValidation::beginJob()
   treeUN_->Branch("jet2_pt_gen",&jet2_pt_gen);
   treeUN_->Branch("jet3_pt_gen",&jet3_pt_gen);
   treeUN_->Branch("jet4_pt_gen",&jet4_pt_gen);
+  treeUN_->Branch("jet5_pt_gen",&jet5_pt_gen);
+  treeUN_->Branch("jet6_pt_gen",&jet6_pt_gen);
+
   treeUN_->Branch("jet1_eta_gen",&jet1_eta_gen);
   treeUN_->Branch("jet2_eta_gen",&jet2_eta_gen);
   treeUN_->Branch("jet3_eta_gen",&jet3_eta_gen);
   treeUN_->Branch("jet4_eta_gen",&jet4_eta_gen);
+  treeUN_->Branch("jet5_eta_gen",&jet5_eta_gen);
+  treeUN_->Branch("jet6_eta_gen",&jet6_eta_gen);
 
   //treeUN_->Branch("jetPtVector",&jetPtVector);
   //treeUN_->Branch("genJetPtVector",&genJetPtVector);
@@ -868,10 +892,16 @@ jetValidation::beginJob()
   treeUN_->Branch("jet2_pt",&jet2_pt);
   treeUN_->Branch("jet3_pt",&jet3_pt);
   treeUN_->Branch("jet4_pt",&jet4_pt);
+  treeUN_->Branch("jet5_pt",&jet5_pt);
+  treeUN_->Branch("jet6_pt",&jet6_pt);
+
   treeUN_->Branch("jet1_eta",&jet1_eta);
   treeUN_->Branch("jet2_eta",&jet2_eta);
   treeUN_->Branch("jet3_eta",&jet3_eta);
   treeUN_->Branch("jet4_eta",&jet4_eta);
+  treeUN_->Branch("jet5_eta",&jet5_eta);
+  treeUN_->Branch("jet6_eta",&jet6_eta);
+
   treeUN_->Branch("jet1_phi",&jet1_phi);
   treeUN_->Branch("jet2_phi",&jet2_phi);
   treeUN_->Branch("jet3_phi",&jet3_phi);
