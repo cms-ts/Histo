@@ -71,7 +71,7 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
      reportEvery = cms.untracked.int32(500),
  )
 
-process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(2500) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2500) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = readFiles,
@@ -91,6 +91,7 @@ trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 
 
 process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
+                               matchMC = cms.bool(False),
                                electronCollection = cms.InputTag("patElectrons"),
                                TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                                ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -114,7 +115,10 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                                TriggerNames = trigger2011v3
                                )
 
+process.TAPwp80_MC = process.TAPwp80.clone( matchMC = True )
+
 process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
+                                          matchMC = cms.bool(False),
                                           electronCollection = cms.InputTag("patElectrons"),
                                           TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                                           ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -137,8 +141,10 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
                                           JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                                           TriggerNames = trigger2011v3
                                           )
+process.TAPhltele8NOTele17_MC = process.TAPhltele8NOTele17.clone( matchMC = True )
 
 process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
+                                   matchMC = cms.bool(False),
                                    electronCollection = cms.InputTag("patElectrons"),
                                    TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                                    ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -161,8 +167,10 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                                    JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                                    TriggerNames = trigger2011v3
                                    )
+process.TAPhltele17_MC = process.TAPhltele17.clone( matchMC = True )
 
 process.TAPreco = cms.EDFilter('EfficiencyFilter',
+                               matchMC = cms.bool(False),
                                electronCollection = cms.InputTag("patElectrons"),
                                TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                                ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
@@ -186,7 +194,10 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                                TriggerNames = trigger2011v3
                                )
 
+process.TAPreco_MC = process.TAPreco.clone( matchMC = True )
+
 process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -210,7 +221,10 @@ process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                            TriggerNames = trigger2011v3
                            )
 
+process.EPTwp80_MC = process.EPTwp80.clone( matchMC = True )
+
 process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -234,7 +248,10 @@ process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            TriggerNames = trigger2011v3       
                            )
 
+process.EPThltele8NOTele17_MC = process.EPThltele8NOTele17.clone( matchMC = True )
+
 process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -258,7 +275,10 @@ process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            TriggerNames = trigger2011v3
                            )
 
+process.EPThltele17_MC = process.EPThltele17.clone( matchMC = True )
+
 process.EPTreco = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
@@ -281,6 +301,8 @@ process.EPTreco = cms.EDFilter('EfficiencyPtEtaFilter',
                            JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                            TriggerNames = trigger2011v3
                            )
+
+process.EPTreco_MC = process.EPTreco.clone( matchMC = True )
 
 ####################
 ###
@@ -975,12 +997,27 @@ process.TAPAnalysisWP80 = cms.Path(
         process.TAPwp80
         )
 
+process.TAPAnalysisWP80_MC = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsEle17*
+        process.trgmatchPatElectronsEle8*
+        process.TAPwp80_MC
+        )
+
 process.TAPAnalysisHLTele8NOTele17 = cms.Path(
         process.goodOfflinePrimaryVertices*
         process.trgmatchPatElectronsReco*
         process.trgmatchPatElectronsNOTEle17*
         process.trgmatchPatElectronsEle8NOTEle17*
         process.TAPhltele8NOTele17
+        )
+
+process.TAPAnalysisHLTele8NOTele17_MC = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsReco*
+        process.trgmatchPatElectronsNOTEle17*
+        process.trgmatchPatElectronsEle8NOTEle17*
+        process.TAPhltele8NOTele17_MC
         )
 
 process.TAPAnalysisHLTele17 = cms.Path(
@@ -990,6 +1027,13 @@ process.TAPAnalysisHLTele17 = cms.Path(
         process.TAPhltele17
         )
 
+process.TAPAnalysisHLTele17_MC = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsReco*
+        process.trgmatchPatElectronsEle17*
+        process.TAPhltele17_MC
+        )
+
 process.TAPAnalysisRECO = cms.Path(
         process.goodOfflinePrimaryVertices*
         process.trgmatchPatElectronsReco*
@@ -997,11 +1041,25 @@ process.TAPAnalysisRECO = cms.Path(
         process.TAPreco
         )
 
+process.TAPAnalysisRECO_MC = cms.Path(
+        process.goodOfflinePrimaryVertices*
+        process.trgmatchPatElectronsReco*
+        process.trgmatchPatElectronsEle8*
+        process.TAPreco_MC
+        )
+
 process.EPTAnalysisWP80 = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsEle17*    
     process.trgmatchPatElectronsEle8*
     process.EPTwp80
+    )
+
+process.EPTAnalysisWP80_MC = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsEle17*
+    process.trgmatchPatElectronsEle8*
+    process.EPTwp80_MC
     )
 
 process.EPTAnalysisHLTele8NOTele17 = cms.Path(
@@ -1012,6 +1070,14 @@ process.EPTAnalysisHLTele8NOTele17 = cms.Path(
     process.EPThltele8NOTele17
     )
 
+process.EPTAnalysisHLTele8NOTele17_MC = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsReco*
+    process.trgmatchPatElectronsNOTEle17*
+    process.trgmatchPatElectronsEle8NOTEle17*
+    process.EPThltele8NOTele17_MC
+    )
+
 process.EPTAnalysisHLTele17 = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsReco*        
@@ -1019,11 +1085,25 @@ process.EPTAnalysisHLTele17 = cms.Path(
     process.EPThltele17
     )
 
+process.EPTAnalysisHLTele17_MC = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsReco*
+    process.trgmatchPatElectronsEle17*
+    process.EPThltele17_MC
+    )
+
 process.EPTAnalysisRECO = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchPatElectronsReco*
     process.trgmatchPatElectronsEle8*        
     process.EPTreco
+    )
+
+process.EPTAnalysisRECO_MC = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchPatElectronsReco*
+    process.trgmatchPatElectronsEle8*
+    process.EPTreco_MC
     )
 
 process.JetValidation = cms.Path(

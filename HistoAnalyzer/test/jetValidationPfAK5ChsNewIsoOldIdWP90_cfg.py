@@ -98,6 +98,7 @@ trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 
 
 process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
+                               matchMC = cms.bool(False),
                                electronCollection = cms.InputTag("patElectrons"),
                                TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                                ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -122,6 +123,7 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                                )
 
 process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
+                                          matchMC = cms.bool(False),
                                           electronCollection = cms.InputTag("patElectrons"),
                                           TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                                           ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -146,6 +148,7 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
                                           )
 
 process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
+                                   matchMC = cms.bool(False),
                                    electronCollection = cms.InputTag("patElectrons"),
                                    TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                                    ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -170,6 +173,7 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                                    )
 
 process.TAPreco = cms.EDFilter('EfficiencyFilter',
+                               matchMC = cms.bool(False),
                                electronCollection = cms.InputTag("patElectrons"),
                                TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                                ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
@@ -194,6 +198,7 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                                )
 
 process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -218,6 +223,7 @@ process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                            )
 
 process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -242,6 +248,7 @@ process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            )
 
 process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -266,6 +273,7 @@ process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            )
 
 process.EPTreco = cms.EDFilter('EfficiencyPtEtaFilter',
+                           matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
