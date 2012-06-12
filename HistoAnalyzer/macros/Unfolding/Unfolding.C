@@ -1,5 +1,5 @@
 /**********************************
- * Unfolding Z+jet distributions  *
+ * Unfolding Z+jt distributions  *
  *                                *
  * Matteo Marone 2012             *
  **********************************
@@ -38,6 +38,8 @@
 #include "TH2.h"
 #include "THStack.h"
 #include "TLatex.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 #include <string.h>
 #include "getEfficiencyCorrection.C"
 #include "tdrstyle.C"
@@ -49,12 +51,14 @@ using
 std::endl;
 #endif
 
+string version="_v2_25.root";
+
 //string smc="/gpfs/cms/data/2011/jet/jetValidation_dytoee_pythia_2011_v2_22.root";
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_25.root";
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version;
 //string smc="/gpfs/cms/users/marone/jet44X/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/Unfolding/MCeta.root";
 
 //string sdata="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_22.root";
-string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011B_v2_24TP.root";
+string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 
 TFile *fA = new TFile (smc.c_str());
 TFile *fB = new TFile (sdata.c_str());
@@ -65,20 +69,25 @@ string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 //Save histos to be used afterward
 bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UnfoldedDistributions_v2_24.root";
+string filename=direct+"UnfoldedDistributions"+version;
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
-bool useElectronsToCorrect=true;
+bool useElectronsToCorrect=false;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
 bool differentialCrossSection=true;
 
-// Correct for backgrounds: leading jet Pt
+// Correct for backgrounds: 
 bool correctForBkg=true;
+// name of the root file containing background evaluation
+string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
+
+string bkgstring=dir+"Backgrounds"+version;
+
 
 //File with efficiency coefficients
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_25.root";
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_2523mixmex.root";//+version;
 TFile *eff = TFile::Open(efffile.c_str()); 
 
 //Open MC and data files to retrieve effciencies
@@ -97,11 +106,6 @@ TH1D *yReco;
 bool cold=true;
 std::vector<std::vector<double> > kcontainer;
 TH1D *PRatio;
-
-// name of the root file containing background evaluation
-string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
-string version="_v2_22.root";
-string bkgstring=dir+"Backgrounds"+version;
 
 string supplabel="";
 
@@ -134,11 +138,11 @@ Unfolding::LoopOneFour()
 {
   setTDRStyle();
   for (int i=1; i<=3; i++){
-    //LoopJetMultiplicity();
+    LoopJetMultiplicity();
     //LoopZpt();
     //LoopZy();
-    //LoopJetPt(i);
-    LoopJetEta(i);
+    LoopJetPt(i);
+    //LoopJetEta(i);
   }
 }
 
