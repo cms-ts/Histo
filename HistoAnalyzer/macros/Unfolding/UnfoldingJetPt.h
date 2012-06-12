@@ -5,8 +5,32 @@ int divPlot=15;
 int kmin=1;
 int kmax=1;
 bool spanKvalues=false;
+  TCanvas cc;
 
 TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPlot,0,divPlot);
+
+int getNumberOfValidGenJetsPt(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen){
+  int counter=0;
+  for (int i=1;i<=Jet_multiplicity_gen; i++){
+    if (i==1){
+      if (jet1_pt_gen<thresh || fabs(jet1_eta_gen)>2.4 ) counter++;
+    }
+    
+    if (i==2){
+      if (jet2_pt_gen<thresh || fabs(jet2_eta_gen)>2.4 ) counter++;
+    }
+
+    if (i==3){
+      if (jet3_pt_gen<thresh || fabs(jet3_eta_gen)>2.4 ) counter++;
+    }
+
+    if (i==4){
+      if (jet4_pt_gen<thresh || fabs(jet4_eta_gen)>2.4 ) counter++;
+    }
+  }// for
+  return counter;
+}// end
+
 
 void Unfolding::LoopJetPt (int numbOfJets)
 {
@@ -64,6 +88,12 @@ void Unfolding::LoopJetPt (int numbOfJets)
   TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2",divPlot,minPtPlot,maxPtPlot);
   TH1D *jRatio_ = new TH1D ("jRatio_", "jetpTRatio",divPlot,minPtPlot,maxPtPlot);
+
+  // Efficinency tests
+  TProfile *effAndrea = new TProfile ("effAndrea", "efficiency as a function of the leading jet pt",divPlot,minPtPlot,maxPtPlot);
+  TProfile *effAnne = new TProfile ("effAnne", "efficiency as a function of the leading jet pt",divPlot,minPtPlot,maxPtPlot);
+  effAndrea->Sumw2();
+  effAnne->Sumw2();  
   
   //To compute errors
   TH1F *staterror = new TH1F ("staterror", "staterror",divPlot,0,divPlot);
@@ -109,7 +139,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
   if (fChain == 0)
     return;
-  
+  int counter=0;  
   for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
       
@@ -120,9 +150,19 @@ void Unfolding::LoopJetPt (int numbOfJets)
       nbytes += nb;
 
       //if (ientry>80000) continue;
-
+      double thresh=15.0;
+      
+      // To control and exclude jets having energy below "thresh"
+      int offsetJetMultiplicity=0;
+      offsetJetMultiplicity=getNumberOfValidGenJetsPt(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+      
+      if (offsetJetMultiplicity>0) {
+	counter++;
+	//continue;
+      }
       if (numbOfJets<=1){
-	if((jet1_pt>0 && jet1_pt<7000) || (jet1_pt_gen>=15 && jet1_pt_gen<7000) ){   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
+	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (jet1_pt_gen>=15 && jet1_pt_gen<7000 && fabs(jet1_eta_gen)<=2.4 ) ){   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
+	  //if (fabs(jet1_eta)>2.4 || fabs(jet1_eta_gen)>2.4 ) continue;
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
@@ -146,16 +186,23 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  supplabel="_jet1";
 	}
       }
-
+      
       if (numbOfJets==2){
 	if((jet2_pt>0 && jet2_pt<7000) || (jet2_pt_gen>=15 && jet2_pt_gen<7000) ){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
-	    std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet2_pt,"MC");
-	    double effcorrmc=1.00/valuesmc[0];	
-	    double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	    jMatx->Fill (jet2_pt, jet2_pt_gen,effcorrmc);	  
-	    jMCreco->Fill (jet2_pt,effcorrmc);  
+	    if (!useElectronsToCorrect){
+	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet2_pt,"MC");
+	      double effcorrmc=1.00/valuesmc[0];	
+	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
+	      jMatx->Fill (jet2_pt, jet2_pt_gen,effcorrmc);	  
+	      jMCreco->Fill (jet2_pt,effcorrmc);  
+	    }
+	    else{
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
+	      jMatx->Fill (jet2_pt, jet2_pt_gen,effcorrmc);	  
+	      jMCreco->Fill (jet2_pt,effcorrmc);	      
+	    }
 	  }
 	  else {
 	    jMatx->Fill (jet2_pt, jet2_pt_gen);
@@ -170,11 +217,18 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	if((jet3_pt>0 && jet3_pt<7000) || (jet3_pt_gen>=15 && jet3_pt_gen<7000) ){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
-	    std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet3_pt,"MC");
-	    double effcorrmc=1.00/valuesmc[0];	
-	    double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	    jMatx->Fill (jet3_pt, jet3_pt_gen,effcorrmc);	  
-	    jMCreco->Fill (jet3_pt,effcorrmc);  
+	    if (!useElectronsToCorrect){
+	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet3_pt,"MC");
+	      double effcorrmc=1.00/valuesmc[0];	
+	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
+	      jMatx->Fill (jet3_pt, jet3_pt_gen,effcorrmc);	  
+	      jMCreco->Fill (jet3_pt,effcorrmc);  
+	    }
+	    else{
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
+	      jMatx->Fill (jet3_pt, jet3_pt_gen,effcorrmc);	  
+	      jMCreco->Fill (jet3_pt,effcorrmc);
+	    }
 	  }
 	  else {
 	    jMatx->Fill (jet3_pt, jet3_pt_gen);
@@ -189,11 +243,18 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	if((jet4_pt>0 && jet4_pt<7000) || (jet4_pt_gen>=15 && jet4_pt_gen<7000) ){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
-	    std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet4_pt,"MC");
-	    double effcorrmc=1.00/valuesmc[0];	
-	    double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	    jMatx->Fill (jet4_pt, jet4_pt_gen,effcorrmc);	  
-	    jMCreco->Fill (jet4_pt,effcorrmc);  
+	    if (!useElectronsToCorrect){
+	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet4_pt,"MC");
+	      double effcorrmc=1.00/valuesmc[0];	
+	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
+	      jMatx->Fill (jet4_pt, jet4_pt_gen,effcorrmc);	  
+	      jMCreco->Fill (jet4_pt,effcorrmc);  
+	    }
+	    else{
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
+	      jMatx->Fill (jet4_pt, jet4_pt_gen,effcorrmc);	  
+	      jMCreco->Fill (jet4_pt,effcorrmc);	      
+	    }
 	  }
 	  else {
 	    jMatx->Fill (jet4_pt, jet4_pt_gen);
@@ -207,7 +268,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
   jTrue->Sumw2();
   jMCreco->Sumw2();
   
-
+  cout<<"I missed "<<counter<<" events"<<endl;
   fChain = tree_fB;		/* Loop Data */
   Init (fChain);	
   Long64_t nentries2 = fChain->GetEntriesFast ();
@@ -235,11 +296,13 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
 	      jData->Fill (jet1_pt,effcorrdata);
 	      jData2->Fill (jet1_pt,effcorrdata);
+	      effAndrea->Fill(jet1_pt,effcorrdata);
 	    }
 	    else{
 	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
 	      jData->Fill (jet1_pt,effcorrdata);
 	      jData2->Fill (jet1_pt,effcorrdata);
+	      effAnne->Fill(jet1_pt,effcorrdata);
 	    }
 	  }
 	  else {
@@ -253,11 +316,18 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	if(jet2_pt>jetPtthreshold && jet2_pt<7000){
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    std::vector<double> valuesdata=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet2_pt,"Data");
-	    double effcorrdata=1.00/valuesdata[0];	
-	    double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
-	    jData->Fill (jet2_pt,effcorrdata);
-	    jData2->Fill (jet2_pt,effcorrdata);
+	    if (!useElectronsToCorrect){
+	      std::vector<double> valuesdata=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet2_pt,"Data");
+	      double effcorrdata=1.00/valuesdata[0];	
+	      double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
+	      jData->Fill (jet2_pt,effcorrdata);
+	      jData2->Fill (jet2_pt,effcorrdata);
+	    }
+	    else{
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
+	      jData->Fill (jet2_pt,effcorrdata);
+	      jData2->Fill (jet2_pt,effcorrdata);	      
+	    }
 	  }
 	  else {
 	    jData->Fill (jet2_pt);
@@ -270,11 +340,18 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	if(jet3_pt>jetPtthreshold && jet3_pt<7000){
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    std::vector<double> valuesdata=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet3_pt,"Data");
-	    double effcorrdata=1.00/valuesdata[0];	
-	    double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
-	    jData->Fill (jet3_pt,effcorrdata);
-	    jData2->Fill (jet3_pt,effcorrdata);
+	    if (!useElectronsToCorrect){
+	      std::vector<double> valuesdata=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet3_pt,"Data");
+	      double effcorrdata=1.00/valuesdata[0];	
+	      double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
+	      jData->Fill (jet3_pt,effcorrdata);
+	      jData2->Fill (jet3_pt,effcorrdata);
+	    }
+	    else{
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
+	      jData->Fill (jet3_pt,effcorrdata);
+	      jData2->Fill (jet3_pt,effcorrdata);
+	    }
 	  }
 	  else {
 	    jData->Fill (jet3_pt);
@@ -282,16 +359,23 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  }
 	}
       }
-
+      
       if (numbOfJets==4){      
 	if(jet4_pt>jetPtthreshold && jet4_pt<7000){
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    std::vector<double> valuesdata=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet4_pt,"Data");
-	    double effcorrdata=1.00/valuesdata[0];	
-	    double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
-	    jData->Fill (jet4_pt,effcorrdata);
-	    jData2->Fill (jet4_pt,effcorrdata);
+	    if (!useElectronsToCorrect){
+	      std::vector<double> valuesdata=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet4_pt,"Data");
+	      double effcorrdata=1.00/valuesdata[0];	
+	      double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
+	      jData->Fill (jet4_pt,effcorrdata);
+	      jData2->Fill (jet4_pt,effcorrdata);
+	    }
+	    else{
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
+	      jData->Fill (jet4_pt,effcorrdata);
+	      jData2->Fill (jet4_pt,effcorrdata);	      
+	    }
 	  }
 	  else {
 	    jData->Fill (jet4_pt);
@@ -300,18 +384,18 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	}
       }
     }
-
+  
   // SAVE AREA TO EVALUATE DIFFERENTIAL CROSS SECTIONS
   double scaleFactor=jData->GetEntries();
   double Zarea=jData->Integral();
   double ZMCarea=jMCreco->Integral();
   cout<<"#Z->"<<scaleFactor<<" area->"<<Zarea<<endl;
-
+  
   //////////////
   // MC Normalization
   //////////////
   double ScaleMCData = ((double)jData->Integral()/(double)jMCreco->Integral());
-
+  
   /*      
   /////////////////
   // Efficiency Correction
@@ -398,6 +482,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
     cout<<"Running "<<method<<" method"<<endl;
     for (int k=kmin; k< kmax; k++){
       int myNumber=k;
+      if (j==0) myNumber=1;
       stringstream num;
       if (myNumber>=divPlot) myNumber=divPlot-1;
       num<<myNumber;
@@ -497,10 +582,15 @@ void Unfolding::LoopJetPt (int numbOfJets)
       
       TCanvas *c = new TCanvas ("c", "c", 1000, 700);
       c->cd ();
-      TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.2, 1, 1);
+      TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
       pad1->Draw ();
       pad1->cd ();
       gPad->SetLogy (1);
+      pad1->SetTopMargin(0.1);
+      pad1->SetBottomMargin(0.01);
+      pad1->SetRightMargin(0.1);
+      pad1->SetFillStyle(0);
+
       string whichjet="";
       if (numbOfJets==1) whichjet="Leading "; 
       if (numbOfJets==2) whichjet="Second leading "; 
@@ -537,6 +627,13 @@ void Unfolding::LoopJetPt (int numbOfJets)
       jReco->SetStats(0);
       jReco->GetXaxis()->SetTitle("jet pT [GeV/c]");
       jReco->SetLineColor (kBlack); 
+
+      jReco->SetLabelSize(0.0);
+      jReco->GetXaxis()->SetTitleSize(0.00);
+      jReco->GetYaxis()->SetLabelSize(0.07);
+      jReco->GetYaxis()->SetTitleSize(0.08);
+      jReco->GetYaxis()->SetTitleOffset(0.76);
+      
       jReco->Draw("EP");	//risultato dell'unfolding
 
       jMCreco->SetLineColor (kBlue + 1);
@@ -553,7 +650,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
       jData->SetStats(0);
       jData->Draw("EPSAME");
    
-      pad1->SetBottomMargin (0.1);
+      //pad1->SetBottomMargin (0.1);
       
       TLegend *legend_d = new TLegend (0.73494, 0.63, 0.931727, 0.83);
       legend_d->SetFillColor (0);
@@ -570,10 +667,15 @@ void Unfolding::LoopJetPt (int numbOfJets)
       pad1->Update();      
       c->cd ();
 
-      TPad *pad2 = new TPad ("pad2", "pad2", 0, 0, 1, 0.2);
+      TPad *pad2 = new TPad ("pad2", "pad2",0.01,0.01,0.99,0.32);
       pad2->SetTopMargin (0);
       pad2->Draw ();
       pad2->cd ();
+      pad2->SetTopMargin(0.01);
+      pad2->SetBottomMargin(0.3);
+      pad2->SetRightMargin(0.1);
+      pad2->SetFillStyle(0);
+
       TH1F *jRecoClone= (TH1F*) jReco->Clone("jReco");
       jRecoClone->SetName("jRecoClone");      
       jRecoClone->SetStats(0);
@@ -597,6 +699,13 @@ void Unfolding::LoopJetPt (int numbOfJets)
       double max=jRecoClone->GetMaximum();
       double min=jRecoClone->GetMinimum();
       jRecoClone->GetYaxis()->SetRangeUser(min,max);
+      jRecoClone->GetYaxis()->SetNdivisions(5);
+      jRecoClone->GetXaxis()->SetTitleSize(0.14);
+      jRecoClone->GetXaxis()->SetLabelSize(0.14);
+      jRecoClone->GetYaxis()->SetLabelSize(0.11);
+      jRecoClone->GetYaxis()->SetTitleSize(0.11);
+      jRecoClone->GetYaxis()->SetTitleOffset(0.28);
+      jRecoClone->GetYaxis()->SetTitle("ratio data/MC");
       jRecoClone->Draw("ep");
       
       TH1F *jDataClone= (TH1F*) jReco->Clone("jReco");
@@ -617,7 +726,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
       legend_w->SetFillColor (0);
       legend_w->SetFillStyle (0);
       legend_w->SetBorderSize (0);
-      legend_w->AddEntry (jRecoClone, "Data unfolded / MC truth", "P20");
+      legend_w->AddEntry (jRecoClone, "Data Unfolded / MC truth", "P20");
       //legend_w->AddEntry (jMCRecoClone, "MC reco / MC truth", "L");
       legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
       legend_w->Draw ("same");
