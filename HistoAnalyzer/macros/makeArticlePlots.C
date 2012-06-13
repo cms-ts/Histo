@@ -138,7 +138,7 @@ void makeArticlePlots(){
       legend_d->SetFillStyle (0);
       legend_d->SetBorderSize (0);
       legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Systematic Error", "F");
+      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
       legend_d->Draw ("same");
       
       string title1= s+"DifferentialX"+stringmatch+".pdf";
@@ -196,7 +196,7 @@ void makeArticlePlots(){
       legend_d->SetFillStyle (0);
       legend_d->SetBorderSize (0);
       legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Systematic Error", "F");
+      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
       legend_d->Draw ("same");
       
       string title1= s+"DifferentialXSJetMultiplicity.pdf";
@@ -291,7 +291,7 @@ void makeArticlePlots(){
       legend_d->SetFillStyle (0);
       legend_d->SetBorderSize (0);
       legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Systematic Error", "F");
+      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
       legend_d->Draw ("same");
       
       string title1= s+"DifferentialXSEta"+stringmatch+".pdf";
