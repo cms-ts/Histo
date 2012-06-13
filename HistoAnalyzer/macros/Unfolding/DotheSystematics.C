@@ -18,7 +18,9 @@
 #include "tdrstyle.C"
 #include "plotsHistsAndRatio.C"
 
-string stringsyst= "/afs/infn.it/ts/user/marone/html/ZJets/Systematics/";
+//string stringsyst= "/afs/infn.it/ts/user/marone/html/ZJets/Systematics/";
+string version="_v2_27";
+string stringsyst= "plot"+version+"/";
 
 /////////////////////////////////
 ///////// Main Loop
@@ -29,12 +31,13 @@ std::vector<double> DotheSystematics(){
   std::vector<double> vec;
   vec=DotheSystematicsJECMultiplicity();
   vec=DotheSystematicsPUMultiplicity();
+  //DotheSystematicsUnfoldingPythia();
   int whichjet=1;
   DotheSystematicsJECJetPt(whichjet);
-  //DotheSystematicsUnfoldingPythia();
-  //DotheSystematicsJECJetEta(whichjet);
   DotheSystematicsPUJetPt(whichjet);
-  DotheSystematicsUnfMethodJetPt(whichjet);
+  DotheSystematicsJECJetEta(whichjet);
+  DotheSystematicsPUJetEta(whichjet);
+  //DotheSystematicsUnfMethodJetPt(whichjet);
   //To be added by Andrea
   //DotheSystematicsEfficiencyJetPt(whichjet);
   //DotheSystematicsEfficiencyJetMultiplicity(whichjet);
@@ -54,8 +57,8 @@ std::vector<double> DotheSystematicsJECMultiplicity(){
   using	std::endl;
   Double_t systerr;
   std::vector<double> systs;
-
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_22.root");
+  string pathFile="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version+".root";
+  TFile *f = TFile::Open(pathFile.c_str());
   f->cd("validationJECScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
@@ -134,7 +137,7 @@ std::vector<double> DotheSystematicsJECMultiplicity(){
   legend_1->Draw ("same");
 
   cout<<"Saving JEC Jet Multiplicity systematics in a file"<<endl;
-  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJetMultiplicity.txt";
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJetMultiplicity"+version+".txt";
   ofstream syste;
   syste.open(filename.c_str());
   for (int i=0;i<systs.size();i++){
@@ -172,8 +175,8 @@ std::vector<double> DotheSystematicsPUMultiplicity(){
   using	std::endl;
   Double_t systerr;
   std::vector<double> systs;
-
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_26matteo.root");
+  string pathFile="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version+".root";
+  TFile *f = TFile::Open(pathFile.c_str());
   f->cd("validationJECXSScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
@@ -252,7 +255,7 @@ std::vector<double> DotheSystematicsPUMultiplicity(){
   legend_1->Draw ("same");
 
   cout<<"Saving PU Jet Multiplicity systematics in a file"<<endl;
-  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsPUJetMultiplicity.txt";
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsPUJetMultiplicity"+version+".txt";
   ofstream syste;
   syste.open(filename.c_str());
   for (int i=0;i<systs.size();i++){
@@ -288,17 +291,19 @@ void DotheSystematicsJECJetPt(int whichjet){
   setTDRStyle();
 
  string namejet="";
- if (whichjet==1) namejet="Leading"; 
- if (whichjet==2) namejet="Second leading"; 
- if (whichjet==3) namejet="Third leading"; 
- if (whichjet==4) namejet="Fourth leading"; 
+ string namejet2="";
+ if (whichjet==1) {namejet="Leading"; namejet2 = "1";}
+ if (whichjet==2) {namejet="Second leading"; namejet2 = "2";}
+ if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
+ if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
  
   using	std::cout;
   using	std::endl;
   Double_t systerr;
   std::vector<double> systs;
 
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_22.root");
+  string pathFile="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version+".root";
+  TFile *f = TFile::Open(pathFile.c_str());
   f->cd("validationJECScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC;
@@ -406,7 +411,7 @@ void DotheSystematicsJECJetPt(int whichjet){
   legend_1->Draw ("same");
 
   cout<<"Saving Jet PT JEC systematics in a file"<<endl;
-  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJetPt.txt";
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJet"+namejet2+"Pt"+version+".txt";
   ofstream syste;
   syste.open(filename.c_str());
   for (int i=0;i<systs.size();i++){
@@ -439,39 +444,47 @@ void DotheSystematicsJECJetPt(int whichjet){
 
 void DotheSystematicsJECJetEta(int whichjet){
   
+   string namejet="";
+   string namejet2="";
+   if (whichjet==1) {namejet="Leading"; namejet2 = "1";}
+   if (whichjet==2) {namejet="Second leading"; namejet2 = "2";}
+   if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
+   if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
+
   setTDRStyle();
   using	std::cout;
   using	std::endl;
   Double_t systerr;
   std::vector<double> systs;
 
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_22.root");
+  string pathFile="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version+".root";
+  TFile *f = TFile::Open(pathFile.c_str());
   f->cd("validationJECScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC;
 
-  if (whichjet==1) DownJEC= (TH1F*)gDirectory->Get("h_jetPtNjet1");
-  if (whichjet==2) DownJEC= (TH1F*)gDirectory->Get("h_jetPtNjet2");
-  if (whichjet==3) DownJEC= (TH1F*)gDirectory->Get("h_jetPtNjet3");
-  if (whichjet==4) DownJEC= (TH1F*)gDirectory->Get("h_jetPtNjet4");
+  if (whichjet==1) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet1");
+  if (whichjet==2) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet2");
+  if (whichjet==3) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet3");
+  if (whichjet==4) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet4");
   
   f->cd("validationJEC/");
 
   TH1F *JEC;
-  if (whichjet==1) JEC= (TH1F*)gDirectory->Get("h_jetPtNjet1");
-  if (whichjet==2) JEC= (TH1F*)gDirectory->Get("h_jetPtNjet2");
-  if (whichjet==3) JEC= (TH1F*)gDirectory->Get("h_jetPtNjet3");
-  if (whichjet==4) JEC= (TH1F*)gDirectory->Get("h_jetPtNjet4");
+  if (whichjet==1) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet1");
+  if (whichjet==2) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet2");
+  if (whichjet==3) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet3");
+  if (whichjet==4) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet4");
 
   TH1F *hnew = (TH1F*)JEC->Clone("hnew");
 
   f->cd("validationJECScaleUp");
 
   TH1F *UpJEC;
-  if (whichjet==1) UpJEC= (TH1F*)gDirectory->Get("h_jetPtNjet1");
-  if (whichjet==2) UpJEC= (TH1F*)gDirectory->Get("h_jetPtNjet2");
-  if (whichjet==3) UpJEC= (TH1F*)gDirectory->Get("h_jetPtNjet3");
-  if (whichjet==4) UpJEC= (TH1F*)gDirectory->Get("h_jetPtNjet4");
+  if (whichjet==1) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet1");
+  if (whichjet==2) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet2");
+  if (whichjet==3) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet3");
+  if (whichjet==4) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet4");
 
   int rebin=50; //500 bin... Ma che cazzo! da 0 a 200 GeV... 190 Gev
   JEC->Rebin(rebin);
@@ -480,10 +493,10 @@ void DotheSystematicsJECJetEta(int whichjet){
   hnew->Rebin(rebin);
 
   int numbbins=0;
-  if (whichjet==1) numbbins=h_jetPtNjet1->GetNbinsX();
-  if (whichjet==2) numbbins=h_jetPtNjet2->GetNbinsX();
-  if (whichjet==3) numbbins=h_jetPtNjet3->GetNbinsX();
-  if (whichjet==4) numbbins=h_jetPtNjet4->GetNbinsX();
+  if (whichjet==1) numbbins=h_jetEtaNjet1->GetNbinsX();
+  if (whichjet==2) numbbins=h_jetEtaNjet2->GetNbinsX();
+  if (whichjet==3) numbbins=h_jetEtaNjet3->GetNbinsX();
+  if (whichjet==4) numbbins=h_jetEtaNjet4->GetNbinsX();
 
   for(int i=1; i<=numbbins; i++){		
     double contentdown = DownJEC->GetBinContent(i);
@@ -493,7 +506,7 @@ void DotheSystematicsJECJetEta(int whichjet){
     if (content>0) cout<<"Difference in bin "<<i<<" for the JEC-No JEC is "<<systerr<<" ("<<100*systerr/content<<"%)"<<" scaleUp->"<<contentup<<" scaleDown->"<<contentdown<<" and central value "<<content<<endl;
     hnew->SetBinError(i, systerr);
     if (content>0) systs.push_back(fabs(systerr/content));
-    else systs.push_back(fabs(0));
+    else systs.push_back(fabs(0.));
   }
   TCanvas *d = new TCanvas ("d", "d", 1000, 700);
   d->cd ();
@@ -553,7 +566,7 @@ void DotheSystematicsJECJetEta(int whichjet){
   legend_1->Draw ("same");
 
   cout<<"Saving systematics in a file"<<endl;
-  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJetEta.txt";
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsJECJet"+namejet2+"Eta"+version+".txt";
   ofstream syste;
   syste.open(filename.c_str());
   for (int i=0;i<systs.size();i++){
@@ -572,17 +585,19 @@ void DotheSystematicsJECJetEta(int whichjet){
   setTDRStyle();
 
  string namejet="";
- if (whichjet==1) namejet="Leading"; 
- if (whichjet==2) namejet="Second leading"; 
- if (whichjet==3) namejet="Third leading"; 
- if (whichjet==4) namejet="Fourth leading"; 
- 
+   string namejet2="";
+   if (whichjet==1) {namejet="Leading"; namejet2 = "1";}
+   if (whichjet==2) {namejet="Second leading"; namejet2 = "2";}
+   if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
+   if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
+
  using	std::cout;
   using	std::endl;
   Double_t systerr;
   std::vector<double> systs;
 
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_26matteo.root");
+  string pathFile="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version+".root";
+  TFile *f = TFile::Open(pathFile.c_str());
   f->cd("validationJECXSScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC;
@@ -688,7 +703,7 @@ void DotheSystematicsJECJetEta(int whichjet){
   legend_1->Draw ("same");
 
   cout<<"Saving systematics in a file"<<endl;
-  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsPU.txt";
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsPUJet"+namejet2+"Pt"+version+".txt";
   ofstream syste;
   syste.open(filename.c_str());
   for (int i=0;i<systs.size();i++){
@@ -709,7 +724,163 @@ void DotheSystematicsJECJetEta(int whichjet){
   legend_1->AddEntry (DownJEC, "Scale Down", "L");
   legend_1->Draw ("same");
   
-  stringsystPU=stringsyst+"/PU_"+namejet+".png";
+  stringsystPU=stringsyst+"/PU_Jet"+namejet2+"Pt.png";
+  c1->Print(stringsystPU.c_str()); 
+
+  return systs;
+}
+
+
+
+////////////////////////
+///// PU for Jet Eta
+/////////////////////////
+
+ std::vector<double> DotheSystematicsPUJetEta(int whichjet){
+  
+  setTDRStyle();
+
+ string namejet="";
+   string namejet2="";
+   if (whichjet==1) {namejet="Leading"; namejet2 = "1";}
+   if (whichjet==2) {namejet="Second leading"; namejet2 = "2";}
+   if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
+   if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
+
+ using	std::cout;
+  using	std::endl;
+  Double_t systerr;
+  std::vector<double> systs;
+
+  string pathFile="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version+".root";
+  TFile *f = TFile::Open(pathFile.c_str());
+  f->cd("validationJECXSScaleDown"); //wrong one!!! need to have the dir. w/o JEC
+  
+  TH1F *DownJEC;
+
+  if (whichjet==1) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet1");
+  if (whichjet==2) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet2");
+  if (whichjet==3) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet3");
+  if (whichjet==4) DownJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet4");
+  
+  f->cd("validationJEC/");
+
+  TH1F *JEC;
+  if (whichjet==1) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet1");
+  if (whichjet==2) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet2");
+  if (whichjet==3) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet3");
+  if (whichjet==4) JEC= (TH1F*)gDirectory->Get("h_jetEtaNjet4");
+
+  TH1F *hnew = (TH1F*)JEC->Clone("hnew");
+
+  f->cd("validationJECXSScaleUp");
+
+  TH1F *UpJEC;
+  if (whichjet==1) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet1");
+  if (whichjet==2) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet2");
+  if (whichjet==3) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet3");
+  if (whichjet==4) UpJEC= (TH1F*)gDirectory->Get("h_jetEtaNjet4");
+
+  int rebin=50; //500 bin... Ma che cazzo! da 0 a 200 GeV... 190 Gev
+  JEC->Rebin(rebin);
+  DownJEC->Rebin(rebin);
+  UpJEC->Rebin(rebin);
+  hnew->Rebin(rebin);
+
+  int numbbins=0;
+  if (whichjet==1) numbbins=h_jetEtaNjet1->GetNbinsX();
+  if (whichjet==2) numbbins=h_jetEtaNjet2->GetNbinsX();
+  if (whichjet==3) numbbins=h_jetEtaNjet3->GetNbinsX();
+  if (whichjet==4) numbbins=h_jetEtaNjet4->GetNbinsX();
+
+  for(int i=1; i<=numbbins; i++){		
+    double contentdown = DownJEC->GetBinContent(i);
+    double content = JEC->GetBinContent(i);
+    double contentup = UpJEC->GetBinContent(i);
+    systerr = max(fabs(contentdown - content),fabs(contentup-content));
+    if (content>0) cout<<"Difference in bin "<<i<<" for the PU is "<<systerr<<" ("<<100*systerr/content<<"%)"<<" scaleXSUp->"<<contentup<<" scaleXSDown->"<<contentdown<<" and central value "<<content<<endl;
+    hnew->SetBinError(i, systerr);
+    if (content>0) systs.push_back(fabs(systerr/content));
+    else systs.push_back(fabs(0.));
+  }
+  TCanvas *d = new TCanvas ("d", "d", 1000, 700);
+  d->cd ();
+  
+  d->SetLogy();
+  JEC->SetLineColor(kBlack);
+  JEC->SetMarkerStyle(20);
+  JEC->SetMarkerColor(kBlack);
+  JEC->GetXaxis()->SetTitle("# of Jets");
+  JEC->GetYaxis()->SetTitle("Number of Z+jet events");
+  hnew->SetLineColor(kBlack);
+  hnew->SetMarkerStyle(20);
+  hnew->SetFillColor(5); 
+  hnew->SetMarkerColor(kBlack);
+  
+  hnew->Draw("E2");
+  JEC->Draw("e1same");
+
+  TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+  legend_1->SetFillColor (0);
+  legend_1->SetFillStyle (0);
+  legend_1->SetBorderSize (0);
+  legend_1->SetTextFont(62);
+  legend_1->AddEntry (JEC, "DATA Unfolded", "LP20");
+  legend_1->AddEntry (hnew, "JEC systematic uncertanties", "F");
+  legend_1->Draw ("same"); 
+
+  TCanvas *JECp = new TCanvas ("JECp", "JECp", 1000, 700);
+  JECp->cd ();
+  JECp->SetLogy();
+
+  JEC->SetLineColor(kBlack);
+  JEC->SetMarkerStyle(20);
+  JEC->SetMarkerColor(kBlack);  
+  JEC->Draw("e2");
+
+  UpJEC->SetLineColor(kBlue);
+  UpJEC->SetMarkerStyle(20);
+  UpJEC->SetMarkerColor(kBlue);
+  UpJEC->Draw("e1same");
+  
+  DownJEC->SetLineColor(kRed);
+  DownJEC->SetMarkerStyle(20);
+  DownJEC->SetMarkerColor(kRed);
+  DownJEC->Draw("e1same");
+  
+  TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+  legend_1->SetFillColor (0);
+  legend_1->SetFillStyle (0);
+  legend_1->SetBorderSize (0);
+  legend_1->SetTextFont(62);
+  legend_1->AddEntry (JEC, "jet multiplicity", "L");
+  legend_1->AddEntry (UpJEC, "jet multiplicity + error", "L");
+  legend_1->AddEntry (DownJEC, "jet multiplicity - errror", "L");
+  legend_1->Draw ("same");
+
+  cout<<"Saving systematics in a file"<<endl;
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsPUJet"+namejet2+"Eta"+version+".txt";
+  ofstream syste;
+  syste.open(filename.c_str());
+  for (int i=0;i<systs.size();i++){
+    syste<<systs[i]<<endl;
+  }
+  
+  TCanvas *ratio= new TCanvas ("ratio", "ratio", 1000, 700);
+  ratio->cd();
+  string title="Pile-Up systematics "+namejet+" Jet Eta";
+  plotHistsAndRatio(DownJEC,UpJEC,JEC,title.c_str(),"Jet Eta","# Events"); 
+  TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+  legend_1->SetFillColor (0);
+  legend_1->SetFillStyle (0);
+  legend_1->SetBorderSize (0);
+  legend_1->SetTextFont(62);
+  legend_1->AddEntry (JEC, "Original Distribution", "L");
+  legend_1->AddEntry (UpJEC, "Scale Up", "L");
+  legend_1->AddEntry (DownJEC, "Scale Down", "L");
+  legend_1->Draw ("same");
+  
+  stringsystPU=stringsyst+"/PUJet_"+namejet2+"Eta.png";
   c1->Print(stringsystPU.c_str()); 
 
   return systs;
@@ -730,12 +901,14 @@ DotheSystematicsUnfMethodJetPt(whichjet){
   std::vector<double> systs;
 
   string namejet="";
-  if (whichjet==1) namejet="Leading"; 
-  if (whichjet==2) namejet="Second leading"; 
-  if (whichjet==3) namejet="Third leading"; 
-  if (whichjet==4) namejet="Fourth leading"; 
+   string namejet2="";
+   if (whichjet==1) {namejet="Leading"; namejet2 = "1";}
+   if (whichjet==2) {namejet="Second leading"; namejet2 = "2";}
+   if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
+   if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
 
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_25SVD.root");
+   string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"SVD.root";
+   TFile *f = TFile::Open(pathFile.c_str());
 
   f->cd(); //wrong one!!! need to have the dir. w/o JEC
   TH1F *MD;
@@ -746,8 +919,8 @@ DotheSystematicsUnfMethodJetPt(whichjet){
 
  
   TFile *f2;
-  if (!kparsystematics) f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_25Bayes.root");
-  else f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_25Kmoved.root");
+  if (!kparsystematics) f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"Bayes.root");
+  else f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"Kmoved.root");
     
   f2->cd(); //wrong one!!! need to have the dir. w/o JEC
   TH1F *P;
@@ -788,6 +961,13 @@ DotheSystematicsUnfMethodJetPt(whichjet){
 
 
 void DotheSystematicsUnfoldingPythia(){
+
+   string namejet="";
+   string namejet2="";
+   if (whichjet==1) {namejet="Leading"; namejet2 = "1";}
+   if (whichjet==2) {namejet="Second leading"; namejet2 = "2";}
+   if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
+   if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
   
   setTDRStyle();
   using	std::cout;
@@ -795,11 +975,13 @@ void DotheSystematicsUnfoldingPythia(){
   Double_t systerr;
   std::vector<double> systs;
 
-  TFile *f = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_22.root");
+  string path1="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+".root";
+  TFile *f = TFile::Open(path1.c_str());
   f->cd(); //wrong one!!! need to have the dir. w/o JEC
   TH1F *MD = (TH1F*)gDirectory->Get("jReco");
  
-  TFile *f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_22pythia.root");
+  string path2="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"pythia.root";
+  TFile *f2 = TFile::Open(path2.c_str());
   f2->cd(); //wrong one!!! need to have the dir. w/o JEC
   TH1F *P = (TH1F*)gDirectory->Get("jReco");  
 

@@ -33,25 +33,27 @@ void systFinalSum() {
    gStyle->SetLabelColor(1);
    
    
-   string version="_v2_25";
-   string plotpath="finalSyst"+version+"/";
+   string version="_v2_27";
+   string plotpathOut="/gpfs/cms/data/2011/Uncertainties/";
+   string plotpathIn="./";
 
    std::vector<string> variablesName;
    variablesName.clear();
    variablesName.push_back("jetMult");
    variablesName.push_back("jet1Pt");
-   //variablesName.push_back("jet2Pt");
-   //variablesName.push_back("jet3Pt");
-   //variablesName.push_back("jet4Pt");
-   //variablesName.push_back("jet1Eta");
-   //variablesName.push_back("jet2Eta");
-   //variablesName.push_back("jet3Eta");
-   //variablesName.push_back("jet4Eta");
+   variablesName.push_back("jet2Pt");
+   variablesName.push_back("jet3Pt");
+   variablesName.push_back("jet4Pt");
+   variablesName.push_back("jet1Eta");
+   variablesName.push_back("jet2Eta");
+   variablesName.push_back("jet3Eta");
+   variablesName.push_back("jet4Eta");
    
    for (int var=0; var<variablesName.size(); var++){
-      string nameFile = variablesName[var]+"SystFile.dat";
-      std::vector<double> jetSyst = systSum(nameFile);
-      string output=plotpath+variablesName[var]+"FinalSyst.txt";
+      string nameFile = plotpathIn+variablesName[var]+"SystFile.dat";
+      std::vector<double> jetSyst = systSum(nameFile);   
+      cout << "writing ...   "<<endl;
+      string output=plotpathOut+variablesName[var]+"FinalSyst"+version+".txt";
       ofstream syste;
       syste.open(output.c_str());
       for (int i=0;i<jetSyst.size();i++){
@@ -110,7 +112,7 @@ std::vector<double> systSum(string nameFile){
 	 l2++;  
       }
       
-      in.close();
+      in.close();      
       l1++;
    }
    
