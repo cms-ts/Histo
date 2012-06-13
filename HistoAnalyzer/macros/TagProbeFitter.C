@@ -21,8 +21,6 @@
 #include <TROOT.h>
 #include <TFile.h>
 #include <TH1.h>
-#include <TH2.h>
-#include <THStack.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <iostream>
@@ -44,7 +42,6 @@
 #include "/afs/infn.it/ts/project/cms/software/slc5_amd64_gcc434/lcg/roofit/5.28.00a-cms10/include/RooExtendPdf.h"
 #include "/afs/infn.it/ts/project/cms/software/slc5_amd64_gcc434/lcg/roofit/5.28.00a-cms10/include/RooMinimizer.h"
 #include "/afs/infn.it/ts/project/cms/software/slc5_amd64_gcc434/lcg/roofit/5.28.00a-cms10/include/RooAbsReal.h"
-#include "/afs/infn.it/ts/project/cms/software/slc5_amd64_gcc434/lcg/roofit/5.28.00a-cms10/include/RooMath.h"
 
 using namespace RooFit ;
 using namespace std ;
@@ -59,20 +56,10 @@ public:
   void eff_vs_eta_MC();
   void eff_vs_leadjetpt();
   void eff_vs_leadjetpt_MC();
-  void eff_vs_subleadjetpt();
-  void eff_vs_subleadjetpt_MC();
-  void eff_vs_subsubleadjetpt();
-  void eff_vs_subsubleadjetpt_MC();
   void eff_vs_nVertex();
   void eff_vs_nVertex_MC();
-  void eff_vs_PtEta();
-  void eff_vs_PtEta_MC();
-  void signal_yields();
   void validate_BWCB();
   int doFit_BWCB(string, string, string);
-  int doFit_BWCB_FixedFailSig(string, string, string);
-  int doFit_BWCB_WP80(string, string, string);
-  int doFit_BWCB_FixedPassSig(string, string, string);
   void toy_BWCB();
   void doFit_DATA_cruijff(string, string, string);
   void doFit_MC_cruijff(string, string, string);
@@ -101,54 +88,26 @@ void TagProbeFitter::eff_vs_nJets() {
 
   // WP80 2st LEG Efficiency (DATA):
 
-  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","2nd leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","DATA_WP80_Probe;# Jets;efficiency",6,0,6);
   DATA_WP80_Probe.Sumw2();
-  DATA_WP80_Probe.SetLineColor(1);
-  DATA_WP80_Probe.SetMarkerColor(1);
-  DATA_WP80_Probe.SetFillColor(1);
-  DATA_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","1st leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","DATA_WP80_Tag;# Jets;efficiency",6,0,6);
   DATA_WP80_Tag.Sumw2();
-  DATA_WP80_Tag.SetLineColor(1);
-  DATA_WP80_Tag.SetMarkerColor(1);
-  DATA_WP80_Tag.SetFillColor(1);
-  DATA_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","2nd leg efficiency;# Jets;efficiency",6,0,6);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-  DATA_HLTele8NOTele17_Probe.SetLineColor(2);
-  DATA_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Probe("DATA_HLTele8_Probe","DATA_HLTele8_Probe;# Jets;efficiency",6,0,6);
+  DATA_HLTele8_Probe.Sumw2();
 
-  TH1F  DATA_HLTele8NOTele17_Tag("DATA_HLTele8NOTele17_Tag","1st leg efficiency;# Jets;efficiency",6,0,6);
-  DATA_HLTele8NOTele17_Tag.Sumw2();
-  DATA_HLTele8NOTele17_Tag.SetLineColor(2);
-  DATA_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Tag("DATA_HLTele8_Tag","DATA_HLTele8_Tag;# Jets;efficiency",6,0,6);
+  DATA_HLTele8_Tag.Sumw2();
 
-  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","2nd leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","DATA_HLTele17_Probe;# Jets;efficiency",6,0,6);
   DATA_HLTele17_Probe.Sumw2();
-  DATA_HLTele17_Probe.SetLineColor(3);
-  DATA_HLTele17_Probe.SetMarkerColor(3);
-  DATA_HLTele17_Probe.SetFillColor(3);
-  DATA_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","1st leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","DATA_HLTele17_Tag;# Jets;efficiency",6,0,6);
   DATA_HLTele17_Tag.Sumw2();
-  DATA_HLTele17_Tag.SetLineColor(3);
-  DATA_HLTele17_Tag.SetMarkerColor(3);
-  DATA_HLTele17_Tag.SetFillColor(3);
-  DATA_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;# Jets;efficiency",6,0,6);
+  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","DATA_RECO_Probe;# Jets;efficiency",6,0,6);
   DATA_RECO_Probe.Sumw2();
-  DATA_RECO_Probe.SetLineColor(4);
-  DATA_RECO_Probe.SetMarkerColor(4);
-  DATA_RECO_Probe.SetFillColor(4);
-  DATA_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -161,7 +120,7 @@ void TagProbeFitter::eff_vs_nJets() {
     sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Probe_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_WP80(pass_data_, fail_data_, output_name_);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
     DATA_WP80_Probe.SetBinContent(nj+1,TAP_efficiency);
     DATA_WP80_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
@@ -172,31 +131,31 @@ void TagProbeFitter::eff_vs_nJets() {
     sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Tag_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_WP80(pass_data_, fail_data_, output_name_);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
     DATA_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     DATA_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dJet", nj);
+    sprintf (dummy, "TAPhltele8/probepass%dJet", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dJet", nj);
+    sprintf (dummy, "TAPhltele8/probefail%dJet", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%dJet.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Probe_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_FixedPassSig(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
+    DATA_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dJet", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%dJet", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dJet", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%dJet", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Tag_%dJet.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Tag_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_FixedPassSig(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
+    DATA_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%dJet", nj);
     pass_data_ = dummy;
@@ -205,7 +164,7 @@ void TagProbeFitter::eff_vs_nJets() {
     sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Probe_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
     DATA_HLTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
     DATA_HLTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
@@ -216,7 +175,7 @@ void TagProbeFitter::eff_vs_nJets() {
     sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Tag_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
     DATA_HLTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
     DATA_HLTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
@@ -227,62 +186,12 @@ void TagProbeFitter::eff_vs_nJets() {
     sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_RECO_Probe_%dJet.png", nj);
     output_name_ = dummy;
 
-    doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
+    doFit_BWCB(pass_data_, fail_data_, output_name_);
     DATA_RECO_Probe.SetBinContent(nj+1,TAP_efficiency);
     DATA_RECO_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
   }
 
   input_file_DATA.Close();
-
-  //Compute global efficiencies:
-
-  TH1F DATA_triggerEfficiency_ele17("DATA_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;# Jets;efficiency",6,0,6);
-  DATA_triggerEfficiency_ele17.Sumw2();
-  DATA_triggerEfficiency_ele17.SetLineColor(1);
-  DATA_triggerEfficiency_ele17.SetMarkerColor(1);
-  DATA_triggerEfficiency_ele17.SetFillColor(1);
-  DATA_triggerEfficiency_ele17.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele17.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele17.Multiply(&DATA_HLTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Probe("DATA_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);# Jets;efficiency",6,0,6);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Multiply(&DATA_HLTele8NOTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Tag("DATA_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);# Jets;efficiency",6,0,6);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Add(&DATA_HLTele17_Tag);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Multiply(&DATA_HLTele8NOTele17_Probe);
-
-  TH1F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;# Jets;efficiency",6,0,6);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.SetLineColor(2);
-  DATA_triggerEfficiency.SetMarkerColor(2);
-  DATA_triggerEfficiency.SetFillColor(2);
-  DATA_triggerEfficiency.SetFillStyle(3001);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Tag);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele17);
-
-  TH1F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;# Jets;efficiency",6,0,6);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.SetLineColor(6);
-  DATA_globalEfficiency.SetMarkerColor(6);
-  DATA_globalEfficiency.SetFillColor(6);
-  DATA_globalEfficiency.SetFillStyle(3001);
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Tag);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
 
   // Write histos to file:
 
@@ -292,19 +201,14 @@ void TagProbeFitter::eff_vs_nJets() {
 
   DATA_WP80_Probe.Write();
   DATA_WP80_Tag.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele8NOTele17_Tag.Write();
+  DATA_HLTele8_Probe.Write();
+  DATA_HLTele8_Tag.Write();
   DATA_HLTele17_Probe.Write();
   DATA_HLTele17_Tag.Write();
   DATA_RECO_Probe.Write();
 
-  DATA_triggerEfficiency_ele17.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Write();
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
-
   output_file.Close();
+
 }
 
 
@@ -327,54 +231,26 @@ void TagProbeFitter::eff_vs_nJets_MC() {
 
   // WP80 2st LEG Efficiency (MC):
 
-  TH1F  MC_WP80_Probe("MC_WP80_Probe","2nd leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  MC_WP80_Probe("MC_WP80_Probe","MC_WP80_Probe;# Jets;efficiency",6,0,6);
   MC_WP80_Probe.Sumw2();
-  MC_WP80_Probe.SetLineColor(1);
-  MC_WP80_Probe.SetMarkerColor(1);
-  MC_WP80_Probe.SetFillColor(1);
-  MC_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  MC_WP80_Tag("MC_WP80_Tag","1st leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  MC_WP80_Tag("MC_WP80_Tag","MC_WP80_Tag;# Jets;efficiency",6,0,6);
   MC_WP80_Tag.Sumw2();
-  MC_WP80_Tag.SetLineColor(1);
-  MC_WP80_Tag.SetMarkerColor(1);
-  MC_WP80_Tag.SetFillColor(1);
-  MC_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","2nd leg efficiency;# Jets;efficiency",6,0,6);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-  MC_HLTele8NOTele17_Probe.SetLineColor(2);
-  MC_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Probe("MC_HLTele8_Probe","MC_HLTele8_Probe;# Jets;efficiency",6,0,6);
+  MC_HLTele8_Probe.Sumw2();
 
-  TH1F  MC_HLTele8NOTele17_Tag("MC_HLTele8NOTele17_Tag","1st leg efficiency;# Jets;efficiency",6,0,6);
-  MC_HLTele8NOTele17_Tag.Sumw2();
-  MC_HLTele8NOTele17_Tag.SetLineColor(2);
-  MC_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Tag("MC_HLTele8_Tag","MC_HLTele8_Tag;# Jets;efficiency",6,0,6);
+  MC_HLTele8_Tag.Sumw2();
 
-  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","2nd leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","MC_HLTele17_Probe;# Jets;efficiency",6,0,6);
   MC_HLTele17_Probe.Sumw2();
-  MC_HLTele17_Probe.SetLineColor(3);
-  MC_HLTele17_Probe.SetMarkerColor(3);
-  MC_HLTele17_Probe.SetFillColor(3);
-  MC_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","1st leg efficiency;# Jets;efficiency",6,0,6);
+  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","MC_HLTele17_Tag;# Jets;efficiency",6,0,6);
   MC_HLTele17_Tag.Sumw2();
-  MC_HLTele17_Tag.SetLineColor(3);
-  MC_HLTele17_Tag.SetMarkerColor(3);
-  MC_HLTele17_Tag.SetFillColor(3);
-  MC_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;# Jets;efficiency",6,0,6);
+  TH1F  MC_RECO_Probe("MC_RECO_Probe","MC_RECO_Probe;# Jets;efficiency",6,0,6);
   MC_RECO_Probe.Sumw2();
-  MC_RECO_Probe.SetLineColor(4);
-  MC_RECO_Probe.SetMarkerColor(4);
-  MC_RECO_Probe.SetFillColor(4);
-  MC_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -402,27 +278,27 @@ void TagProbeFitter::eff_vs_nJets_MC() {
     MC_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     MC_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dJet", nj);
+    sprintf (dummy, "TAPhltele8/probepass%dJet", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dJet", nj);
+    sprintf (dummy, "TAPhltele8/probefail%dJet", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%dJet.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Probe_%dJet.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dJet", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%dJet", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dJet", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%dJet", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Tag_%dJet.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Tag_%dJet.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%dJet", nj);
     pass_data_ = dummy;
@@ -460,56 +336,6 @@ void TagProbeFitter::eff_vs_nJets_MC() {
 
   input_file_MC.Close();
 
-  //Compute global efficiencies:
-
-  TH1F MC_triggerEfficiency_ele17("MC_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;# Jets;efficiency",6,0,6);
-  MC_triggerEfficiency_ele17.Sumw2();
-  MC_triggerEfficiency_ele17.SetLineColor(1);
-  MC_triggerEfficiency_ele17.SetMarkerColor(1);
-  MC_triggerEfficiency_ele17.SetFillColor(1);
-  MC_triggerEfficiency_ele17.SetFillStyle(3001);
-  MC_triggerEfficiency_ele17.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele17.Multiply(&MC_HLTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Probe("MC_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);# Jets;efficiency",6,0,6);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Multiply(&MC_HLTele8NOTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Tag("MC_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);# Jets;efficiency",6,0,6);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Add(&MC_HLTele17_Tag);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Multiply(&MC_HLTele8NOTele17_Probe);
-
-  TH1F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;# Jets;efficiency",6,0,6);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.SetLineColor(2);
-  MC_triggerEfficiency.SetMarkerColor(2);
-  MC_triggerEfficiency.SetFillColor(2);
-  MC_triggerEfficiency.SetFillStyle(3001);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Tag);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele17);
-
-  TH1F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;# Jets;efficiency",6,0,6);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.SetLineColor(6);
-  MC_globalEfficiency.SetMarkerColor(6);
-  MC_globalEfficiency.SetFillColor(6);
-  MC_globalEfficiency.SetFillStyle(3001);
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_WP80_Tag);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -517,17 +343,11 @@ void TagProbeFitter::eff_vs_nJets_MC() {
 
   MC_WP80_Probe.Write();
   MC_WP80_Tag.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele8NOTele17_Tag.Write();
+  MC_HLTele8_Probe.Write();
+  MC_HLTele8_Tag.Write();
   MC_HLTele17_Probe.Write();
   MC_HLTele17_Tag.Write();
   MC_RECO_Probe.Write();
-
-  MC_triggerEfficiency_ele17.Write();
-  MC_triggerEfficiency_ele8NOTele17_Probe.Write();
-  MC_triggerEfficiency_ele8NOTele17_Tag.Write();
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
 
   output_file.Close();
 
@@ -555,54 +375,26 @@ void TagProbeFitter::eff_vs_leadjetpt() {
 
   // WP80 2st LEG Efficiency (DATA):
 
-  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","2nd leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","DATA_WP80_Probe;leading Jet pt;efficiency",9,0,9);
   DATA_WP80_Probe.Sumw2();
-  DATA_WP80_Probe.SetLineColor(1);
-  DATA_WP80_Probe.SetMarkerColor(1);
-  DATA_WP80_Probe.SetFillColor(1);
-  DATA_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","1st leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","DATA_WP80_Tag;leading Jet pt;efficiency",9,0,9);
   DATA_WP80_Tag.Sumw2();
-  DATA_WP80_Tag.SetLineColor(1);
-  DATA_WP80_Tag.SetMarkerColor(1);
-  DATA_WP80_Tag.SetFillColor(1);
-  DATA_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","2nd leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-  DATA_HLTele8NOTele17_Probe.SetLineColor(2);
-  DATA_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Probe("DATA_HLTele8_Probe","DATA_HLTele8_Probe;leading Jet pt;efficiency",9,0,9);
+  DATA_HLTele8_Probe.Sumw2();
 
-  TH1F  DATA_HLTele8NOTele17_Tag("DATA_HLTele8NOTele17_Tag","1st leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  DATA_HLTele8NOTele17_Tag.Sumw2();
-  DATA_HLTele8NOTele17_Tag.SetLineColor(2);
-  DATA_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Tag("DATA_HLTele8_Tag","DATA_HLTele8_Tag;leading Jet pt;efficiency",9,0,9);
+  DATA_HLTele8_Tag.Sumw2();
 
-  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","2nd leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","DATA_HLTele17_Probe;leading Jet pt;efficiency",9,0,9);
   DATA_HLTele17_Probe.Sumw2();
-  DATA_HLTele17_Probe.SetLineColor(3);
-  DATA_HLTele17_Probe.SetMarkerColor(3);
-  DATA_HLTele17_Probe.SetFillColor(3);
-  DATA_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","1st leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","DATA_HLTele17_Tag;leading Jet pt;efficiency",9,0,9);
   DATA_HLTele17_Tag.Sumw2();
-  DATA_HLTele17_Tag.SetLineColor(3);
-  DATA_HLTele17_Tag.SetMarkerColor(3);
-  DATA_HLTele17_Tag.SetFillColor(3);
-  DATA_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","DATA_RECO_Probe;leading Jet pt;efficiency",9,0,9);
   DATA_RECO_Probe.Sumw2();
-  DATA_RECO_Probe.SetLineColor(4);
-  DATA_RECO_Probe.SetMarkerColor(4);
-  DATA_RECO_Probe.SetFillColor(4);
-  DATA_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -630,27 +422,27 @@ void TagProbeFitter::eff_vs_leadjetpt() {
     DATA_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     DATA_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/probepass%dleadjetpt", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/probefail%dleadjetpt", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%dleadjetpt.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Probe_%dleadjetpt.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    DATA_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%dleadjetpt", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%dleadjetpt", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Tag_%dleadjetpt.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Tag_%dleadjetpt.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    DATA_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%dleadjetpt", nj);
     pass_data_ = dummy;
@@ -688,56 +480,6 @@ void TagProbeFitter::eff_vs_leadjetpt() {
 
   input_file_DATA.Close();
 
-  //Compute global efficiencies:
-
-  TH1F DATA_triggerEfficiency_ele17("DATA_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;leading Jet pt BINS;efficiency",9,0,9);
-  DATA_triggerEfficiency_ele17.Sumw2();
-  DATA_triggerEfficiency_ele17.SetLineColor(1);
-  DATA_triggerEfficiency_ele17.SetMarkerColor(1);
-  DATA_triggerEfficiency_ele17.SetFillColor(1);
-  DATA_triggerEfficiency_ele17.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele17.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele17.Multiply(&DATA_HLTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Probe("DATA_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);leading Jet pt BINS;efficiency",9,0,9);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Multiply(&DATA_HLTele8NOTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Tag("DATA_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);leading Jet pt BINS;efficiency",9,0,9);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Add(&DATA_HLTele17_Tag);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Multiply(&DATA_HLTele8NOTele17_Probe);
-
-  TH1F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.SetLineColor(2);
-  DATA_triggerEfficiency.SetMarkerColor(2);
-  DATA_triggerEfficiency.SetFillColor(2);
-  DATA_triggerEfficiency.SetFillStyle(3001);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Tag);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele17);
-
-  TH1F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.SetLineColor(6);
-  DATA_globalEfficiency.SetMarkerColor(6);
-  DATA_globalEfficiency.SetFillColor(6);
-  DATA_globalEfficiency.SetFillStyle(3001);
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Tag);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -746,17 +488,11 @@ void TagProbeFitter::eff_vs_leadjetpt() {
 
   DATA_WP80_Probe.Write();
   DATA_WP80_Tag.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele8NOTele17_Tag.Write();
+  DATA_HLTele8_Probe.Write();
+  DATA_HLTele8_Tag.Write();
   DATA_HLTele17_Probe.Write();
   DATA_HLTele17_Tag.Write();
   DATA_RECO_Probe.Write();
-
-  DATA_triggerEfficiency_ele17.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Write();
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
 
   output_file.Close();
 
@@ -784,54 +520,26 @@ void TagProbeFitter::eff_vs_leadjetpt_MC() {
 
   // WP80 2st LEG Efficiency (MC):
 
-  TH1F  MC_WP80_Probe("MC_WP80_Probe","2nd leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  MC_WP80_Probe("MC_WP80_Probe","MC_WP80_Probe;leading Jet pt;efficiency",9,0,9);
   MC_WP80_Probe.Sumw2();
-  MC_WP80_Probe.SetLineColor(1);
-  MC_WP80_Probe.SetMarkerColor(1);
-  MC_WP80_Probe.SetFillColor(1);
-  MC_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  MC_WP80_Tag("MC_WP80_Tag","1st leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  MC_WP80_Tag("MC_WP80_Tag","MC_WP80_Tag;leading Jet pt;efficiency",9,0,9);
   MC_WP80_Tag.Sumw2();
-  MC_WP80_Tag.SetLineColor(1);
-  MC_WP80_Tag.SetMarkerColor(1);
-  MC_WP80_Tag.SetFillColor(1);
-  MC_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","2nd leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-  MC_HLTele8NOTele17_Probe.SetLineColor(2);
-  MC_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Probe("MC_HLTele8_Probe","MC_HLTele8_Probe;leading Jet pt;efficiency",9,0,9);
+  MC_HLTele8_Probe.Sumw2();
 
-  TH1F  MC_HLTele8NOTele17_Tag("MC_HLTele8NOTele17_Tag","1st leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  MC_HLTele8NOTele17_Tag.Sumw2();
-  MC_HLTele8NOTele17_Tag.SetLineColor(2);
-  MC_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Tag("MC_HLTele8_Tag","MC_HLTele8_Tag;leading Jet pt;efficiency",9,0,9);
+  MC_HLTele8_Tag.Sumw2();
 
-  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","2nd leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","MC_HLTele17_Probe;leading Jet pt;efficiency",9,0,9);
   MC_HLTele17_Probe.Sumw2();
-  MC_HLTele17_Probe.SetLineColor(3);
-  MC_HLTele17_Probe.SetMarkerColor(3);
-  MC_HLTele17_Probe.SetFillColor(3);
-  MC_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","1st leg efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","MC_HLTele17_Tag;leading Jet pt;efficiency",9,0,9);
   MC_HLTele17_Tag.Sumw2();
-  MC_HLTele17_Tag.SetLineColor(3);
-  MC_HLTele17_Tag.SetMarkerColor(3);
-  MC_HLTele17_Tag.SetFillColor(3);
-  MC_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;leading Jet pt BINS;efficiency",9,0,9);
+  TH1F  MC_RECO_Probe("MC_RECO_Probe","MC_RECO_Probe;leading Jet pt;efficiency",9,0,9);
   MC_RECO_Probe.Sumw2();
-  MC_RECO_Probe.SetLineColor(4);
-  MC_RECO_Probe.SetMarkerColor(4);
-  MC_RECO_Probe.SetFillColor(4);
-  MC_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -859,27 +567,27 @@ void TagProbeFitter::eff_vs_leadjetpt_MC() {
     MC_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     MC_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/probepass%dleadjetpt", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/probefail%dleadjetpt", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%dleadjetpt.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Probe_%dleadjetpt.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%dleadjetpt", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dleadjetpt", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%dleadjetpt", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Tag_%dleadjetpt.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Tag_%dleadjetpt.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%dleadjetpt", nj);
     pass_data_ = dummy;
@@ -917,54 +625,6 @@ void TagProbeFitter::eff_vs_leadjetpt_MC() {
 
   input_file_MC.Close();
 
-  TH1F MC_triggerEfficiency_ele17("MC_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;leading Jet pt BINS;efficiency",9,0,9);
-  MC_triggerEfficiency_ele17.Sumw2();
-  MC_triggerEfficiency_ele17.SetLineColor(1);
-  MC_triggerEfficiency_ele17.SetMarkerColor(1);
-  MC_triggerEfficiency_ele17.SetFillColor(1);
-  MC_triggerEfficiency_ele17.SetFillStyle(3001);
-  MC_triggerEfficiency_ele17.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele17.Multiply(&MC_HLTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Probe("MC_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);leading Jet pt BINS;efficiency",9,0,9);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Multiply(&MC_HLTele8NOTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Tag("MC_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);leading Jet pt BINS;efficiency",9,0,9);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Add(&MC_HLTele17_Tag);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Multiply(&MC_HLTele8NOTele17_Probe);
-
-  TH1F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.SetLineColor(2);
-  MC_triggerEfficiency.SetMarkerColor(2);
-  MC_triggerEfficiency.SetFillColor(2);
-  MC_triggerEfficiency.SetFillStyle(3001);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Tag);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele17);
-
-  TH1F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;leading Jet pt BINS;efficiency",9,0,9);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.SetLineColor(6);
-  MC_globalEfficiency.SetMarkerColor(6);
-  MC_globalEfficiency.SetFillColor(6);
-  MC_globalEfficiency.SetFillStyle(3001);
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_WP80_Tag);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -972,928 +632,11 @@ void TagProbeFitter::eff_vs_leadjetpt_MC() {
 
   MC_WP80_Probe.Write();
   MC_WP80_Tag.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele8NOTele17_Tag.Write();
+  MC_HLTele8_Probe.Write();
+  MC_HLTele8_Tag.Write();
   MC_HLTele17_Probe.Write();
   MC_HLTele17_Tag.Write();
   MC_RECO_Probe.Write();
-
-  MC_triggerEfficiency_ele17.Write();
-  MC_triggerEfficiency_ele8NOTele17_Probe.Write();
-  MC_triggerEfficiency_ele8NOTele17_Tag.Write();
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
-
-  output_file.Close();
-
-}
-
-
-// Efficiency as a function of SUBleading Jet pT:
-
-void TagProbeFitter::eff_vs_subleadjetpt() {
-  
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("TAPfitter_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-
-  //DATA efficiencies:
-
-  TFile input_file_DATA(DATA_filename.c_str(),"READ");
-
-  // WP80 2st LEG Efficiency (DATA):
-
-  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","2nd leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_WP80_Probe.Sumw2();
-  DATA_WP80_Probe.SetLineColor(1);
-  DATA_WP80_Probe.SetMarkerColor(1);
-  DATA_WP80_Probe.SetFillColor(1);
-  DATA_WP80_Probe.SetFillStyle(3001);
-
-  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","1st leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_WP80_Tag.Sumw2();
-  DATA_WP80_Tag.SetLineColor(1);
-  DATA_WP80_Tag.SetMarkerColor(1);
-  DATA_WP80_Tag.SetFillColor(1);
-  DATA_WP80_Tag.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","2nd leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-  DATA_HLTele8NOTele17_Probe.SetLineColor(2);
-  DATA_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele8NOTele17_Tag("DATA_HLTele8NOTele17_Tag","1st leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_HLTele8NOTele17_Tag.Sumw2();
-  DATA_HLTele8NOTele17_Tag.SetLineColor(2);
-  DATA_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","2nd leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_HLTele17_Probe.Sumw2();
-  DATA_HLTele17_Probe.SetLineColor(3);
-  DATA_HLTele17_Probe.SetMarkerColor(3);
-  DATA_HLTele17_Probe.SetFillColor(3);
-  DATA_HLTele17_Probe.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","1st leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_HLTele17_Tag.Sumw2();
-  DATA_HLTele17_Tag.SetLineColor(3);
-  DATA_HLTele17_Tag.SetMarkerColor(3);
-  DATA_HLTele17_Tag.SetFillColor(3);
-  DATA_HLTele17_Tag.SetFillStyle(3001);
-
-  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_RECO_Probe.Sumw2();
-  DATA_RECO_Probe.SetLineColor(4);
-  DATA_RECO_Probe.SetMarkerColor(4);
-  DATA_RECO_Probe.SetFillColor(4);
-  DATA_RECO_Probe.SetFillStyle(3001);
-
-  char dummy[100];
-
-  for (int nj=0;nj<6;nj++) {
-
-    sprintf (dummy, "TAPwp80/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_WP80_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_WP80_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPwp80/tagpass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/tagfail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Tag_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Tag_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/tagpass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/tagfail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Tag_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPreco/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPreco/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_RECO_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_RECO_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_RECO_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-  }
-
-  input_file_DATA.Close();
-
-  //Compute global efficiencies:
-
-  TH1F DATA_triggerEfficiency_ele17("DATA_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_triggerEfficiency_ele17.Sumw2();
-  DATA_triggerEfficiency_ele17.SetLineColor(1);
-  DATA_triggerEfficiency_ele17.SetMarkerColor(1);
-  DATA_triggerEfficiency_ele17.SetFillColor(1);
-  DATA_triggerEfficiency_ele17.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele17.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele17.Multiply(&DATA_HLTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Probe("DATA_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Multiply(&DATA_HLTele8NOTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Tag("DATA_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Add(&DATA_HLTele17_Tag);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Multiply(&DATA_HLTele8NOTele17_Probe);
-
-  TH1F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.SetLineColor(2);
-  DATA_triggerEfficiency.SetMarkerColor(2);
-  DATA_triggerEfficiency.SetFillColor(2);
-  DATA_triggerEfficiency.SetFillStyle(3001);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Tag);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele17);
-
-  TH1F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.SetLineColor(6);
-  DATA_globalEfficiency.SetMarkerColor(6);
-  DATA_globalEfficiency.SetFillColor(6);
-  DATA_globalEfficiency.SetFillStyle(3001);
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Tag);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
-
-  // Write histos to file:
-
-  TFile output_file(output_rootuple.c_str(),"UPDATE");
-  output_file.mkdir("efficiency_vs_subleadjetpt");
-  output_file.cd("efficiency_vs_subleadjetpt");
-
-  DATA_WP80_Probe.Write();
-  DATA_WP80_Tag.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele8NOTele17_Tag.Write();
-  DATA_HLTele17_Probe.Write();
-  DATA_HLTele17_Tag.Write();
-  DATA_RECO_Probe.Write();
-
-  DATA_triggerEfficiency_ele17.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Write();
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
-
-  output_file.Close();
-
-}
-
-
-// Efficiency as a function of SUBleading Jet pT:
-
-void TagProbeFitter::eff_vs_subleadjetpt_MC() {
-  
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("TAPfitter_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-
-  //MC efficiencies:
-
-  TFile input_file_MC(MC_filename.c_str(),"READ");
-
-  // WP80 2st LEG Efficiency (MC):
-
-  TH1F  MC_WP80_Probe("MC_WP80_Probe","2nd leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_WP80_Probe.Sumw2();
-  MC_WP80_Probe.SetLineColor(1);
-  MC_WP80_Probe.SetMarkerColor(1);
-  MC_WP80_Probe.SetFillColor(1);
-  MC_WP80_Probe.SetFillStyle(3001);
-
-  TH1F  MC_WP80_Tag("MC_WP80_Tag","1st leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_WP80_Tag.Sumw2();
-  MC_WP80_Tag.SetLineColor(1);
-  MC_WP80_Tag.SetMarkerColor(1);
-  MC_WP80_Tag.SetFillColor(1);
-  MC_WP80_Tag.SetFillStyle(3001);
-
-  TH1F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","2nd leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-  MC_HLTele8NOTele17_Probe.SetLineColor(2);
-  MC_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillStyle(3001);
-
-  TH1F  MC_HLTele8NOTele17_Tag("MC_HLTele8NOTele17_Tag","1st leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_HLTele8NOTele17_Tag.Sumw2();
-  MC_HLTele8NOTele17_Tag.SetLineColor(2);
-  MC_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillStyle(3001);
-
-  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","2nd leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_HLTele17_Probe.Sumw2();
-  MC_HLTele17_Probe.SetLineColor(3);
-  MC_HLTele17_Probe.SetMarkerColor(3);
-  MC_HLTele17_Probe.SetFillColor(3);
-  MC_HLTele17_Probe.SetFillStyle(3001);
-
-  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","1st leg efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_HLTele17_Tag.Sumw2();
-  MC_HLTele17_Tag.SetLineColor(3);
-  MC_HLTele17_Tag.SetMarkerColor(3);
-  MC_HLTele17_Tag.SetFillColor(3);
-  MC_HLTele17_Tag.SetFillStyle(3001);
-
-  TH1F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_RECO_Probe.Sumw2();
-  MC_RECO_Probe.SetLineColor(4);
-  MC_RECO_Probe.SetMarkerColor(4);
-  MC_RECO_Probe.SetFillColor(4);
-  MC_RECO_Probe.SetFillStyle(3001);
-
-  char dummy[100];
-
-  for (int nj=0;nj<6;nj++) {
-
-    sprintf (dummy, "TAPwp80/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_WP80_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_WP80_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_WP80_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPwp80/tagpass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/tagfail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_WP80_Tag_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Tag_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele17_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/tagpass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/tagfail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele17_Tag_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPreco/probepass%dsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPreco/probefail%dsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_RECO_Probe_%dsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_RECO_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_RECO_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-  }
-
-  input_file_MC.Close();
-
-  TH1F MC_triggerEfficiency_ele17("MC_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_triggerEfficiency_ele17.Sumw2();
-  MC_triggerEfficiency_ele17.SetLineColor(1);
-  MC_triggerEfficiency_ele17.SetMarkerColor(1);
-  MC_triggerEfficiency_ele17.SetFillColor(1);
-  MC_triggerEfficiency_ele17.SetFillStyle(3001);
-  MC_triggerEfficiency_ele17.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele17.Multiply(&MC_HLTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Probe("MC_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Multiply(&MC_HLTele8NOTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Tag("MC_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Add(&MC_HLTele17_Tag);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Multiply(&MC_HLTele8NOTele17_Probe);
-
-  TH1F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.SetLineColor(2);
-  MC_triggerEfficiency.SetMarkerColor(2);
-  MC_triggerEfficiency.SetFillColor(2);
-  MC_triggerEfficiency.SetFillStyle(3001);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Tag);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele17);
-
-  TH1F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;sub-leading Jet pt BINS;efficiency",6,0,6);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.SetLineColor(6);
-  MC_globalEfficiency.SetMarkerColor(6);
-  MC_globalEfficiency.SetFillColor(6);
-  MC_globalEfficiency.SetFillStyle(3001);
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_WP80_Tag);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
-  // Write histos to file:
-
-  TFile output_file(output_rootuple.c_str(),"UPDATE");
-  output_file.cd("efficiency_vs_subleadjetpt");
-
-  MC_WP80_Probe.Write();
-  MC_WP80_Tag.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele8NOTele17_Tag.Write();
-  MC_HLTele17_Probe.Write();
-  MC_HLTele17_Tag.Write();
-  MC_RECO_Probe.Write();
-
-  MC_triggerEfficiency_ele17.Write();
-  MC_triggerEfficiency_ele8NOTele17_Probe.Write();
-  MC_triggerEfficiency_ele8NOTele17_Tag.Write();
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
-
-  output_file.Close();
-
-}
-
-
-
-// Efficiency as a function of SUBSUBleading Jet pT:
-
-void TagProbeFitter::eff_vs_subsubleadjetpt() {
-  
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("TAPfitter_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-
-  //DATA efficiencies:
-
-  TFile input_file_DATA(DATA_filename.c_str(),"READ");
-
-  // WP80 2st LEG Efficiency (DATA):
-
-  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","2nd leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_WP80_Probe.Sumw2();
-  DATA_WP80_Probe.SetLineColor(1);
-  DATA_WP80_Probe.SetMarkerColor(1);
-  DATA_WP80_Probe.SetFillColor(1);
-  DATA_WP80_Probe.SetFillStyle(3001);
-
-  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","1st leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_WP80_Tag.Sumw2();
-  DATA_WP80_Tag.SetLineColor(1);
-  DATA_WP80_Tag.SetMarkerColor(1);
-  DATA_WP80_Tag.SetFillColor(1);
-  DATA_WP80_Tag.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","2nd leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-  DATA_HLTele8NOTele17_Probe.SetLineColor(2);
-  DATA_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele8NOTele17_Tag("DATA_HLTele8NOTele17_Tag","1st leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_HLTele8NOTele17_Tag.Sumw2();
-  DATA_HLTele8NOTele17_Tag.SetLineColor(2);
-  DATA_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","2nd leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_HLTele17_Probe.Sumw2();
-  DATA_HLTele17_Probe.SetLineColor(3);
-  DATA_HLTele17_Probe.SetMarkerColor(3);
-  DATA_HLTele17_Probe.SetFillColor(3);
-  DATA_HLTele17_Probe.SetFillStyle(3001);
-
-  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","1st leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_HLTele17_Tag.Sumw2();
-  DATA_HLTele17_Tag.SetLineColor(3);
-  DATA_HLTele17_Tag.SetMarkerColor(3);
-  DATA_HLTele17_Tag.SetFillColor(3);
-  DATA_HLTele17_Tag.SetFillStyle(3001);
-
-  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_RECO_Probe.Sumw2();
-  DATA_RECO_Probe.SetLineColor(4);
-  DATA_RECO_Probe.SetMarkerColor(4);
-  DATA_RECO_Probe.SetFillColor(4);
-  DATA_RECO_Probe.SetFillStyle(3001);
-
-  char dummy[100];
-
-  for (int nj=0;nj<3;nj++) {
-
-    sprintf (dummy, "TAPwp80/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_WP80_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_WP80_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPwp80/tagpass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/tagfail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Tag_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Tag_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/tagpass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/tagfail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Tag_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPreco/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPreco/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_RECO_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_RECO_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_RECO_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-  }
-
-  input_file_DATA.Close();
-
-  //Compute global efficiencies:
-
-  TH1F DATA_triggerEfficiency_ele17("DATA_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_triggerEfficiency_ele17.Sumw2();
-  DATA_triggerEfficiency_ele17.SetLineColor(1);
-  DATA_triggerEfficiency_ele17.SetMarkerColor(1);
-  DATA_triggerEfficiency_ele17.SetFillColor(1);
-  DATA_triggerEfficiency_ele17.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele17.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele17.Multiply(&DATA_HLTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Probe("DATA_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Multiply(&DATA_HLTele8NOTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Tag("DATA_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Add(&DATA_HLTele17_Tag);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Multiply(&DATA_HLTele8NOTele17_Probe);
-
-  TH1F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.SetLineColor(2);
-  DATA_triggerEfficiency.SetMarkerColor(2);
-  DATA_triggerEfficiency.SetFillColor(2);
-  DATA_triggerEfficiency.SetFillStyle(3001);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Tag);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele17);
-
-  TH1F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.SetLineColor(6);
-  DATA_globalEfficiency.SetMarkerColor(6);
-  DATA_globalEfficiency.SetFillColor(6);
-  DATA_globalEfficiency.SetFillStyle(3001);
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Tag);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
-
-  // Write histos to file:
-
-  TFile output_file(output_rootuple.c_str(),"UPDATE");
-  output_file.mkdir("efficiency_vs_subsubleadjetpt");
-  output_file.cd("efficiency_vs_subsubleadjetpt");
-
-  DATA_WP80_Probe.Write();
-  DATA_WP80_Tag.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele8NOTele17_Tag.Write();
-  DATA_HLTele17_Probe.Write();
-  DATA_HLTele17_Tag.Write();
-  DATA_RECO_Probe.Write();
-
-  DATA_triggerEfficiency_ele17.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Write();
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
-
-  output_file.Close();
-
-}
-
-
-// Efficiency as a function of SUBSUBleading Jet pT:
-
-void TagProbeFitter::eff_vs_subsubleadjetpt_MC() {
-  
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("TAPfitter_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-
-  //MC efficiencies:
-
-  TFile input_file_MC(MC_filename.c_str(),"READ");
-
-  // WP80 2st LEG Efficiency (MC):
-
-  TH1F  MC_WP80_Probe("MC_WP80_Probe","2nd leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_WP80_Probe.Sumw2();
-  MC_WP80_Probe.SetLineColor(1);
-  MC_WP80_Probe.SetMarkerColor(1);
-  MC_WP80_Probe.SetFillColor(1);
-  MC_WP80_Probe.SetFillStyle(3001);
-
-  TH1F  MC_WP80_Tag("MC_WP80_Tag","1st leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_WP80_Tag.Sumw2();
-  MC_WP80_Tag.SetLineColor(1);
-  MC_WP80_Tag.SetMarkerColor(1);
-  MC_WP80_Tag.SetFillColor(1);
-  MC_WP80_Tag.SetFillStyle(3001);
-
-  TH1F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","2nd leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-  MC_HLTele8NOTele17_Probe.SetLineColor(2);
-  MC_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillStyle(3001);
-
-  TH1F  MC_HLTele8NOTele17_Tag("MC_HLTele8NOTele17_Tag","1st leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_HLTele8NOTele17_Tag.Sumw2();
-  MC_HLTele8NOTele17_Tag.SetLineColor(2);
-  MC_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillStyle(3001);
-
-  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","2nd leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_HLTele17_Probe.Sumw2();
-  MC_HLTele17_Probe.SetLineColor(3);
-  MC_HLTele17_Probe.SetMarkerColor(3);
-  MC_HLTele17_Probe.SetFillColor(3);
-  MC_HLTele17_Probe.SetFillStyle(3001);
-
-  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","1st leg efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_HLTele17_Tag.Sumw2();
-  MC_HLTele17_Tag.SetLineColor(3);
-  MC_HLTele17_Tag.SetMarkerColor(3);
-  MC_HLTele17_Tag.SetFillColor(3);
-  MC_HLTele17_Tag.SetFillStyle(3001);
-
-  TH1F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_RECO_Probe.Sumw2();
-  MC_RECO_Probe.SetLineColor(4);
-  MC_RECO_Probe.SetMarkerColor(4);
-  MC_RECO_Probe.SetFillColor(4);
-  MC_RECO_Probe.SetFillStyle(3001);
-
-  char dummy[100];
-
-  for (int nj=0;nj<3;nj++) {
-
-    sprintf (dummy, "TAPwp80/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_WP80_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_WP80_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_WP80_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPwp80/tagpass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPwp80/tagfail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_WP80_Tag_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Tag_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele17_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPhltele17/tagpass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele17/tagfail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele17_Tag_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
-
-    sprintf (dummy, "TAPreco/probepass%dsubsubleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "TAPreco/probefail%dsubsubleadjetpt", nj);
-    fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_RECO_Probe_%dsubsubleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_RECO_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_RECO_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
-  }
-
-  input_file_MC.Close();
-
-  TH1F MC_triggerEfficiency_ele17("MC_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_triggerEfficiency_ele17.Sumw2();
-  MC_triggerEfficiency_ele17.SetLineColor(1);
-  MC_triggerEfficiency_ele17.SetMarkerColor(1);
-  MC_triggerEfficiency_ele17.SetFillColor(1);
-  MC_triggerEfficiency_ele17.SetFillStyle(3001);
-  MC_triggerEfficiency_ele17.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele17.Multiply(&MC_HLTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Probe("MC_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Multiply(&MC_HLTele8NOTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Tag("MC_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Add(&MC_HLTele17_Tag);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Multiply(&MC_HLTele8NOTele17_Probe);
-
-  TH1F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.SetLineColor(2);
-  MC_triggerEfficiency.SetMarkerColor(2);
-  MC_triggerEfficiency.SetFillColor(2);
-  MC_triggerEfficiency.SetFillStyle(3001);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Tag);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele17);
-
-  TH1F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;sub-sub-leading Jet pt BINS;efficiency",3,0,3);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.SetLineColor(6);
-  MC_globalEfficiency.SetMarkerColor(6);
-  MC_globalEfficiency.SetFillColor(6);
-  MC_globalEfficiency.SetFillStyle(3001);
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_WP80_Tag);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
-  // Write histos to file:
-
-  TFile output_file(output_rootuple.c_str(),"UPDATE");
-  output_file.cd("efficiency_vs_subsubleadjetpt");
-
-  MC_WP80_Probe.Write();
-  MC_WP80_Tag.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele8NOTele17_Tag.Write();
-  MC_HLTele17_Probe.Write();
-  MC_HLTele17_Tag.Write();
-  MC_RECO_Probe.Write();
-
-  MC_triggerEfficiency_ele17.Write();
-  MC_triggerEfficiency_ele8NOTele17_Probe.Write();
-  MC_triggerEfficiency_ele8NOTele17_Tag.Write();
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
 
   output_file.Close();
 
@@ -1921,54 +664,26 @@ void TagProbeFitter::eff_vs_eta() {
 
   // WP80 2st LEG Efficiency (DATA):
 
-  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","2nd leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","DATA_WP80_Probe;eta;efficiency",5,0,5);
   DATA_WP80_Probe.Sumw2();
-  DATA_WP80_Probe.SetLineColor(1);
-  DATA_WP80_Probe.SetMarkerColor(1);
-  DATA_WP80_Probe.SetFillColor(1);
-  DATA_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","1st leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","DATA_WP80_Tag;eta;efficiency",5,0,5);
   DATA_WP80_Tag.Sumw2();
-  DATA_WP80_Tag.SetLineColor(1);
-  DATA_WP80_Tag.SetMarkerColor(1);
-  DATA_WP80_Tag.SetFillColor(1);
-  DATA_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","2nd leg efficiency;eta BINS;efficiency",5,0,5);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-  DATA_HLTele8NOTele17_Probe.SetLineColor(2);
-  DATA_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Probe("DATA_HLTele8_Probe","DATA_HLTele8_Probe;eta;efficiency",5,0,5);
+  DATA_HLTele8_Probe.Sumw2();
 
-  TH1F  DATA_HLTele8NOTele17_Tag("DATA_HLTele8NOTele17_Tag","1st leg efficiency;eta BINS;efficiency",5,0,5);
-  DATA_HLTele8NOTele17_Tag.Sumw2();
-  DATA_HLTele8NOTele17_Tag.SetLineColor(2);
-  DATA_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Tag("DATA_HLTele8_Tag","DATA_HLTele8_Tag;eta;efficiency",5,0,5);
+  DATA_HLTele8_Tag.Sumw2();
 
-  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","2nd leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","DATA_HLTele17_Probe;eta;efficiency",5,0,5);
   DATA_HLTele17_Probe.Sumw2();
-  DATA_HLTele17_Probe.SetLineColor(3);
-  DATA_HLTele17_Probe.SetMarkerColor(3);
-  DATA_HLTele17_Probe.SetFillColor(3);
-  DATA_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","1st leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","DATA_HLTele17_Tag;eta;efficiency",5,0,5);
   DATA_HLTele17_Tag.Sumw2();
-  DATA_HLTele17_Tag.SetLineColor(3);
-  DATA_HLTele17_Tag.SetMarkerColor(3);
-  DATA_HLTele17_Tag.SetFillColor(3);
-  DATA_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","DATA_RECO_Probe;eta;efficiency",5,0,5);
   DATA_RECO_Probe.Sumw2();
-  DATA_RECO_Probe.SetLineColor(4);
-  DATA_RECO_Probe.SetMarkerColor(4);
-  DATA_RECO_Probe.SetFillColor(4);
-  DATA_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -1996,27 +711,27 @@ void TagProbeFitter::eff_vs_eta() {
     DATA_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     DATA_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%deta", nj);
+    sprintf (dummy, "TAPhltele8/probepass%deta", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%deta", nj);
+    sprintf (dummy, "TAPhltele8/probefail%deta", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%deta.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Probe_%deta.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    DATA_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%deta", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%deta", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%deta", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%deta", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Tag_%deta.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Tag_%deta.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    DATA_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%deta", nj);
     pass_data_ = dummy;
@@ -2054,56 +769,6 @@ void TagProbeFitter::eff_vs_eta() {
 
   input_file_DATA.Close();
 
-  //Compute global efficiencies:
-
-  TH1F DATA_triggerEfficiency_ele17("DATA_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;eta BINS;efficiency",5,0,5);
-  DATA_triggerEfficiency_ele17.Sumw2();
-  DATA_triggerEfficiency_ele17.SetLineColor(1);
-  DATA_triggerEfficiency_ele17.SetMarkerColor(1);
-  DATA_triggerEfficiency_ele17.SetFillColor(1);
-  DATA_triggerEfficiency_ele17.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele17.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele17.Multiply(&DATA_HLTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Probe("DATA_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);eta BINS;efficiency",5,0,5);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Multiply(&DATA_HLTele8NOTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Tag("DATA_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);eta BINS;efficiency",5,0,5);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Add(&DATA_HLTele17_Tag);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Multiply(&DATA_HLTele8NOTele17_Probe);
-
-  TH1F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;eta BINS;efficiency",5,0,5);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.SetLineColor(2);
-  DATA_triggerEfficiency.SetMarkerColor(2);
-  DATA_triggerEfficiency.SetFillColor(2);
-  DATA_triggerEfficiency.SetFillStyle(3001);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Tag);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele17);
-
-  TH1F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;eta BINS;efficiency",5,0,5);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.SetLineColor(6);
-  DATA_globalEfficiency.SetMarkerColor(6);
-  DATA_globalEfficiency.SetFillColor(6);
-  DATA_globalEfficiency.SetFillStyle(3001);
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Tag);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -2112,17 +777,11 @@ void TagProbeFitter::eff_vs_eta() {
 
   DATA_WP80_Probe.Write();
   DATA_WP80_Tag.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele8NOTele17_Tag.Write();
+  DATA_HLTele8_Probe.Write();
+  DATA_HLTele8_Tag.Write();
   DATA_HLTele17_Probe.Write();
   DATA_HLTele17_Tag.Write();
   DATA_RECO_Probe.Write();
-
-  DATA_triggerEfficiency_ele17.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Write();
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
 
   output_file.Close();
 
@@ -2150,54 +809,26 @@ void TagProbeFitter::eff_vs_eta_MC() {
 
   // WP80 2st LEG Efficiency (MC):
 
-  TH1F  MC_WP80_Probe("MC_WP80_Probe","2nd leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  MC_WP80_Probe("MC_WP80_Probe","MC_WP80_Probe;eta;efficiency",5,0,5);
   MC_WP80_Probe.Sumw2();
-  MC_WP80_Probe.SetLineColor(1);
-  MC_WP80_Probe.SetMarkerColor(1);
-  MC_WP80_Probe.SetFillColor(1);
-  MC_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  MC_WP80_Tag("MC_WP80_Tag","1st leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  MC_WP80_Tag("MC_WP80_Tag","MC_WP80_Tag;eta;efficiency",5,0,5);
   MC_WP80_Tag.Sumw2();
-  MC_WP80_Tag.SetLineColor(1);
-  MC_WP80_Tag.SetMarkerColor(1);
-  MC_WP80_Tag.SetFillColor(1);
-  MC_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","2nd leg efficiency;eta BINS;efficiency",5,0,5);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-  MC_HLTele8NOTele17_Probe.SetLineColor(2);
-  MC_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Probe("MC_HLTele8_Probe","MC_HLTele8_Probe;eta;efficiency",5,0,5);
+  MC_HLTele8_Probe.Sumw2();
 
-  TH1F  MC_HLTele8NOTele17_Tag("MC_HLTele8NOTele17_Tag","1st leg efficiency;eta BINS;efficiency",5,0,5);
-  MC_HLTele8NOTele17_Tag.Sumw2();
-  MC_HLTele8NOTele17_Tag.SetLineColor(2);
-  MC_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Tag("MC_HLTele8_Tag","MC_HLTele8_Tag;eta;efficiency",5,0,5);
+  MC_HLTele8_Tag.Sumw2();
 
-  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","2nd leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","MC_HLTele17_Probe;eta;efficiency",5,0,5);
   MC_HLTele17_Probe.Sumw2();
-  MC_HLTele17_Probe.SetLineColor(3);
-  MC_HLTele17_Probe.SetMarkerColor(3);
-  MC_HLTele17_Probe.SetFillColor(3);
-  MC_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","1st leg efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","MC_HLTele17_Tag;eta;efficiency",5,0,5);
   MC_HLTele17_Tag.Sumw2();
-  MC_HLTele17_Tag.SetLineColor(3);
-  MC_HLTele17_Tag.SetMarkerColor(3);
-  MC_HLTele17_Tag.SetFillColor(3);
-  MC_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;eta BINS;efficiency",5,0,5);
+  TH1F  MC_RECO_Probe("MC_RECO_Probe","MC_RECO_Probe;eta;efficiency",5,0,5);
   MC_RECO_Probe.Sumw2();
-  MC_RECO_Probe.SetLineColor(4);
-  MC_RECO_Probe.SetMarkerColor(4);
-  MC_RECO_Probe.SetFillColor(4);
-  MC_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -2225,27 +856,27 @@ void TagProbeFitter::eff_vs_eta_MC() {
     MC_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     MC_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%deta", nj);
+    sprintf (dummy, "TAPhltele8/probepass%deta", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%deta", nj);
+    sprintf (dummy, "TAPhltele8/probefail%deta", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%deta.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Probe_%deta.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%deta", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%deta", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%deta", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%deta", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Tag_%deta.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Tag_%deta.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%deta", nj);
     pass_data_ = dummy;
@@ -2283,54 +914,6 @@ void TagProbeFitter::eff_vs_eta_MC() {
 
   input_file_MC.Close();
 
-  TH1F MC_triggerEfficiency_ele17("MC_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;eta BINS;efficiency",5,0,5);
-  MC_triggerEfficiency_ele17.Sumw2();
-  MC_triggerEfficiency_ele17.SetLineColor(1);
-  MC_triggerEfficiency_ele17.SetMarkerColor(1);
-  MC_triggerEfficiency_ele17.SetFillColor(1);
-  MC_triggerEfficiency_ele17.SetFillStyle(3001);
-  MC_triggerEfficiency_ele17.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele17.Multiply(&MC_HLTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Probe("MC_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);eta BINS;efficiency",5,0,5);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Multiply(&MC_HLTele8NOTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Tag("MC_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);eta BINS;efficiency",5,0,5);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Add(&MC_HLTele17_Tag);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Multiply(&MC_HLTele8NOTele17_Probe);
-
-  TH1F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;eta BINS;efficiency",5,0,5);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.SetLineColor(2);
-  MC_triggerEfficiency.SetMarkerColor(2);
-  MC_triggerEfficiency.SetFillColor(2);
-  MC_triggerEfficiency.SetFillStyle(3001);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Tag);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele17);
-
-  TH1F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;eta BINS;efficiency",5,0,5);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.SetLineColor(6);
-  MC_globalEfficiency.SetMarkerColor(6);
-  MC_globalEfficiency.SetFillColor(6);
-  MC_globalEfficiency.SetFillStyle(3001);
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_WP80_Tag);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -2338,17 +921,11 @@ void TagProbeFitter::eff_vs_eta_MC() {
 
   MC_WP80_Probe.Write();
   MC_WP80_Tag.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele8NOTele17_Tag.Write();
+  MC_HLTele8_Probe.Write();
+  MC_HLTele8_Tag.Write();
   MC_HLTele17_Probe.Write();
   MC_HLTele17_Tag.Write();
   MC_RECO_Probe.Write();
-
-  MC_triggerEfficiency_ele17.Write();
-  MC_triggerEfficiency_ele8NOTele17_Probe.Write();
-  MC_triggerEfficiency_ele8NOTele17_Tag.Write();
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
 
   output_file.Close();
 
@@ -2376,54 +953,26 @@ void TagProbeFitter::eff_vs_nVertex() {
 
   // WP80 2st LEG Efficiency (DATA):
 
-  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","2nd leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  DATA_WP80_Probe("DATA_WP80_Probe","DATA_WP80_Probe;Pile-UP;efficiency",5,0,5);
   DATA_WP80_Probe.Sumw2();
-  DATA_WP80_Probe.SetLineColor(1);
-  DATA_WP80_Probe.SetMarkerColor(1);
-  DATA_WP80_Probe.SetFillColor(1);
-  DATA_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","1st leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  DATA_WP80_Tag("DATA_WP80_Tag","DATA_WP80_Tag;Pile-UP;efficiency",5,0,5);
   DATA_WP80_Tag.Sumw2();
-  DATA_WP80_Tag.SetLineColor(1);
-  DATA_WP80_Tag.SetMarkerColor(1);
-  DATA_WP80_Tag.SetFillColor(1);
-  DATA_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","2nd leg efficiency;Pile-UP;efficiency",5,0,5);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-  DATA_HLTele8NOTele17_Probe.SetLineColor(2);
-  DATA_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillColor(2);
-  DATA_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Probe("DATA_HLTele8_Probe","DATA_HLTele8_Probe;Pile-UP;efficiency",5,0,5);
+  DATA_HLTele8_Probe.Sumw2();
 
-  TH1F  DATA_HLTele8NOTele17_Tag("DATA_HLTele8NOTele17_Tag","1st leg efficiency;Pile-UP;efficiency",5,0,5);
-  DATA_HLTele8NOTele17_Tag.Sumw2();
-  DATA_HLTele8NOTele17_Tag.SetLineColor(2);
-  DATA_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillColor(2);
-  DATA_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  DATA_HLTele8_Tag("DATA_HLTele8_Tag","DATA_HLTele8_Tag;Pile-UP;efficiency",5,0,5);
+  DATA_HLTele8_Tag.Sumw2();
 
-  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","2nd leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","DATA_HLTele17_Probe;Pile-UP;efficiency",5,0,5);
   DATA_HLTele17_Probe.Sumw2();
-  DATA_HLTele17_Probe.SetLineColor(3);
-  DATA_HLTele17_Probe.SetMarkerColor(3);
-  DATA_HLTele17_Probe.SetFillColor(3);
-  DATA_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","1st leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  DATA_HLTele17_Tag("DATA_HLTele17_Tag","DATA_HLTele17_Tag;Pile-UP;efficiency",5,0,5);
   DATA_HLTele17_Tag.Sumw2();
-  DATA_HLTele17_Tag.SetLineColor(3);
-  DATA_HLTele17_Tag.SetMarkerColor(3);
-  DATA_HLTele17_Tag.SetFillColor(3);
-  DATA_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  DATA_RECO_Probe("DATA_RECO_Probe","DATA_RECO_Probe;Pile-UP;efficiency",5,0,5);
   DATA_RECO_Probe.Sumw2();
-  DATA_RECO_Probe.SetLineColor(4);
-  DATA_RECO_Probe.SetMarkerColor(4);
-  DATA_RECO_Probe.SetFillColor(4);
-  DATA_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -2451,27 +1000,27 @@ void TagProbeFitter::eff_vs_nVertex() {
     DATA_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     DATA_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dpu", nj);
+    sprintf (dummy, "TAPhltele8/probepass%dpu", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dpu", nj);
+    sprintf (dummy, "TAPhltele8/probefail%dpu", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%dpu.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Probe_%dpu.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    DATA_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dpu", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%dpu", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dpu", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%dpu", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Tag_%dpu.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8_Tag_%dpu.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    DATA_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    DATA_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    DATA_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    DATA_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%dpu", nj);
     pass_data_ = dummy;
@@ -2509,56 +1058,6 @@ void TagProbeFitter::eff_vs_nVertex() {
 
   input_file_DATA.Close();
 
-  //Compute global efficiencies:
-
-  TH1F DATA_triggerEfficiency_ele17("DATA_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;Pile-UP;efficiency",5,0,5);
-  DATA_triggerEfficiency_ele17.Sumw2();
-  DATA_triggerEfficiency_ele17.SetLineColor(1);
-  DATA_triggerEfficiency_ele17.SetMarkerColor(1);
-  DATA_triggerEfficiency_ele17.SetFillColor(1);
-  DATA_triggerEfficiency_ele17.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele17.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele17.Multiply(&DATA_HLTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Probe("DATA_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);Pile-UP;efficiency",5,0,5);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Add(&DATA_HLTele17_Probe);
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Multiply(&DATA_HLTele8NOTele17_Tag);
-
-  TH1F DATA_triggerEfficiency_ele8NOTele17_Tag("DATA_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);Pile-UP;efficiency",5,0,5);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Add(&DATA_HLTele17_Tag);
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Multiply(&DATA_HLTele8NOTele17_Probe);
-
-  TH1F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;Pile-UP;efficiency",5,0,5);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.SetLineColor(2);
-  DATA_triggerEfficiency.SetMarkerColor(2);
-  DATA_triggerEfficiency.SetFillColor(2);
-  DATA_triggerEfficiency.SetFillStyle(3001);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Tag);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_triggerEfficiency_ele17);
-
-  TH1F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;Pile-UP;efficiency",5,0,5);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.SetLineColor(6);
-  DATA_globalEfficiency.SetMarkerColor(6);
-  DATA_globalEfficiency.SetFillColor(6);
-  DATA_globalEfficiency.SetFillStyle(3001);
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Tag);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -2567,17 +1066,11 @@ void TagProbeFitter::eff_vs_nVertex() {
 
   DATA_WP80_Probe.Write();
   DATA_WP80_Tag.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele8NOTele17_Tag.Write();
+  DATA_HLTele8_Probe.Write();
+  DATA_HLTele8_Tag.Write();
   DATA_HLTele17_Probe.Write();
   DATA_HLTele17_Tag.Write();
   DATA_RECO_Probe.Write();
-
-  DATA_triggerEfficiency_ele17.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Probe.Write();
-  DATA_triggerEfficiency_ele8NOTele17_Tag.Write();
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
 
   output_file.Close();
 
@@ -2605,54 +1098,26 @@ void TagProbeFitter::eff_vs_nVertex_MC() {
 
   // WP80 2st LEG Efficiency (MC):
 
-  TH1F  MC_WP80_Probe("MC_WP80_Probe","2nd leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  MC_WP80_Probe("MC_WP80_Probe","MC_WP80_Probe;Pile-UP;efficiency",5,0,5);
   MC_WP80_Probe.Sumw2();
-  MC_WP80_Probe.SetLineColor(1);
-  MC_WP80_Probe.SetMarkerColor(1);
-  MC_WP80_Probe.SetFillColor(1);
-  MC_WP80_Probe.SetFillStyle(3001);
 
-  TH1F  MC_WP80_Tag("MC_WP80_Tag","1st leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  MC_WP80_Tag("MC_WP80_Tag","MC_WP80_Tag;Pile-UP;efficiency",5,0,5);
   MC_WP80_Tag.Sumw2();
-  MC_WP80_Tag.SetLineColor(1);
-  MC_WP80_Tag.SetMarkerColor(1);
-  MC_WP80_Tag.SetFillColor(1);
-  MC_WP80_Tag.SetFillStyle(3001);
 
-  TH1F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","2nd leg efficiency;Pile-UP;efficiency",5,0,5);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-  MC_HLTele8NOTele17_Probe.SetLineColor(2);
-  MC_HLTele8NOTele17_Probe.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillColor(2);
-  MC_HLTele8NOTele17_Probe.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Probe("MC_HLTele8_Probe","MC_HLTele8_Probe;Pile-UP;efficiency",5,0,5);
+  MC_HLTele8_Probe.Sumw2();
 
-  TH1F  MC_HLTele8NOTele17_Tag("MC_HLTele8NOTele17_Tag","1st leg efficiency;Pile-UP;efficiency",5,0,5);
-  MC_HLTele8NOTele17_Tag.Sumw2();
-  MC_HLTele8NOTele17_Tag.SetLineColor(2);
-  MC_HLTele8NOTele17_Tag.SetMarkerColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillColor(2);
-  MC_HLTele8NOTele17_Tag.SetFillStyle(3001);
+  TH1F  MC_HLTele8_Tag("MC_HLTele8_Tag","MC_HLTele8_Tag;Pile-UP;efficiency",5,0,5);
+  MC_HLTele8_Tag.Sumw2();
 
-  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","2nd leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  MC_HLTele17_Probe("MC_HLTele17_Probe","MC_HLTele17_Probe;Pile-UP;efficiency",5,0,5);
   MC_HLTele17_Probe.Sumw2();
-  MC_HLTele17_Probe.SetLineColor(3);
-  MC_HLTele17_Probe.SetMarkerColor(3);
-  MC_HLTele17_Probe.SetFillColor(3);
-  MC_HLTele17_Probe.SetFillStyle(3001);
 
-  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","1st leg efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  MC_HLTele17_Tag("MC_HLTele17_Tag","MC_HLTele17_Tag;Pile-UP;efficiency",5,0,5);
   MC_HLTele17_Tag.Sumw2();
-  MC_HLTele17_Tag.SetLineColor(3);
-  MC_HLTele17_Tag.SetMarkerColor(3);
-  MC_HLTele17_Tag.SetFillColor(3);
-  MC_HLTele17_Tag.SetFillStyle(3001);
 
-  TH1F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;Pile-UP;efficiency",5,0,5);
+  TH1F  MC_RECO_Probe("MC_RECO_Probe","MC_RECO_Probe;Pile-UP;efficiency",5,0,5);
   MC_RECO_Probe.Sumw2();
-  MC_RECO_Probe.SetLineColor(4);
-  MC_RECO_Probe.SetMarkerColor(4);
-  MC_RECO_Probe.SetFillColor(4);
-  MC_RECO_Probe.SetFillStyle(3001);
 
   char dummy[100];
 
@@ -2680,27 +1145,27 @@ void TagProbeFitter::eff_vs_nVertex_MC() {
     MC_WP80_Tag.SetBinContent(nj+1,TAP_efficiency);
     MC_WP80_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/probepass%dpu", nj);
+    sprintf (dummy, "TAPhltele8/probepass%dpu", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/probefail%dpu", nj);
+    sprintf (dummy, "TAPhltele8/probefail%dpu", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%dpu.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Probe_%dpu.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Probe.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Probe.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
-    sprintf (dummy, "TAPhltele8NOTele17/tagpass%dpu", nj);
+    sprintf (dummy, "TAPhltele8/tagpass%dpu", nj);
     pass_data_ = dummy;
-    sprintf (dummy, "TAPhltele8NOTele17/tagfail%dpu", nj);
+    sprintf (dummy, "TAPhltele8/tagfail%dpu", nj);
     fail_data_ = dummy;
-    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Tag_%dpu.png", nj);
+    sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8_Tag_%dpu.png", nj);
     output_name_ = dummy;
 
     doFit_BWCB(pass_data_, fail_data_, output_name_);
-    MC_HLTele8NOTele17_Tag.SetBinContent(nj+1,TAP_efficiency);
-    MC_HLTele8NOTele17_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
+    MC_HLTele8_Tag.SetBinContent(nj+1,TAP_efficiency);
+    MC_HLTele8_Tag.SetBinError(nj+1,TAP_efficiency_uncertainty);
 
     sprintf (dummy, "TAPhltele17/probepass%dpu", nj);
     pass_data_ = dummy;
@@ -2738,54 +1203,6 @@ void TagProbeFitter::eff_vs_nVertex_MC() {
 
   input_file_MC.Close();
 
-  TH1F MC_triggerEfficiency_ele17("MC_triggerEfficiency_ele17","Trigger efficiency ele17 ele17;Pile-UP;efficiency",5,0,5);
-  MC_triggerEfficiency_ele17.Sumw2();
-  MC_triggerEfficiency_ele17.SetLineColor(1);
-  MC_triggerEfficiency_ele17.SetMarkerColor(1);
-  MC_triggerEfficiency_ele17.SetFillColor(1);
-  MC_triggerEfficiency_ele17.SetFillStyle(3001);
-  MC_triggerEfficiency_ele17.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele17.Multiply(&MC_HLTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Probe("MC_triggerEfficiency_ele17_Probe","Trigger efficiency ele8NOTele17(1st) ele17(2nd);Pile-UP;efficiency",5,0,5);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetLineColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetMarkerColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillColor(4);
-  MC_triggerEfficiency_ele8NOTele17_Probe.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Add(&MC_HLTele17_Probe);
-  MC_triggerEfficiency_ele8NOTele17_Probe.Multiply(&MC_HLTele8NOTele17_Tag);
-
-  TH1F MC_triggerEfficiency_ele8NOTele17_Tag("MC_triggerEfficiency_ele17_Tag","Trigger efficiency ele17(1st) ele8NOTele17(2nd);Pile-UP;efficiency",5,0,5);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Sumw2();
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetLineColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetMarkerColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillColor(3);
-  MC_triggerEfficiency_ele8NOTele17_Tag.SetFillStyle(3001);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Add(&MC_HLTele17_Tag);
-  MC_triggerEfficiency_ele8NOTele17_Tag.Multiply(&MC_HLTele8NOTele17_Probe);
-
-  TH1F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;Pile-UP;efficiency",5,0,5);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.SetLineColor(2);
-  MC_triggerEfficiency.SetMarkerColor(2);
-  MC_triggerEfficiency.SetFillColor(2);
-  MC_triggerEfficiency.SetFillStyle(3001);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Tag);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_triggerEfficiency_ele17);
-
-  TH1F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;Pile-UP;efficiency",5,0,5);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.SetLineColor(6);
-  MC_globalEfficiency.SetMarkerColor(6);
-  MC_globalEfficiency.SetFillColor(6);
-  MC_globalEfficiency.SetFillStyle(3001);
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_WP80_Tag);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
   // Write histos to file:
 
   TFile output_file(output_rootuple.c_str(),"UPDATE");
@@ -2793,257 +1210,15 @@ void TagProbeFitter::eff_vs_nVertex_MC() {
 
   MC_WP80_Probe.Write();
   MC_WP80_Tag.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele8NOTele17_Tag.Write();
+  MC_HLTele8_Probe.Write();
+  MC_HLTele8_Tag.Write();
   MC_HLTele17_Probe.Write();
   MC_HLTele17_Tag.Write();
   MC_RECO_Probe.Write();
 
-  MC_triggerEfficiency_ele17.Write();
-  MC_triggerEfficiency_ele8NOTele17_Probe.Write();
-  MC_triggerEfficiency_ele8NOTele17_Tag.Write();
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
-
   output_file.Close();
 
 }
-
-
-// Efficiency as a function of electron pseudorapidity (eta) and transverse momentum (pt):
-
-void TagProbeFitter::eff_vs_PtEta() {
-  
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("TAPfitter_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-
-  //DATA efficiencies:
-
-  TFile input_file_DATA(DATA_filename.c_str(),"READ");
-
-  // WP80 2st LEG Efficiency (DATA):
-
-  TH2F DATA_WP80_Probe("DATA_WP80_Probe","Electron efficieny;eta BINS;pt BINS",4,0,4,4,0,4);
-  DATA_WP80_Probe.Sumw2();
-
-  TH2F  DATA_HLTele8NOTele17_Probe("DATA_HLTele8NOTele17_Probe","Electron efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  DATA_HLTele8NOTele17_Probe.Sumw2();
-
-  TH2F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","Electron efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  DATA_HLTele17_Probe.Sumw2();
-
-  TH2F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  DATA_RECO_Probe.Sumw2();
-
-  char dummy[100];
-
-  for (int nj=0;nj<4;nj++) {
-    for (int mj=0;mj<4;mj++) {
-
-      sprintf (dummy, "EPTwp80/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPTwp80/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_WP80(pass_data_, fail_data_, output_name_);
-      DATA_WP80_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      DATA_WP80_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-
-      sprintf (dummy, "EPThltele8NOTele17/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPThltele8NOTele17/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele8NOTele17_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedPassSig(pass_data_, fail_data_, output_name_);
-      DATA_HLTele8NOTele17_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      DATA_HLTele8NOTele17_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-
-      sprintf (dummy, "EPThltele17/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPThltele17/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
-      DATA_HLTele17_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      DATA_HLTele17_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-
-      sprintf (dummy, "EPTreco/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPTreco/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_RECO_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
-      DATA_RECO_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      DATA_RECO_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-    }
-  }
-
-  input_file_DATA.Close();
-
-  //Compute global efficiencies:
-
-  TH2F DATA_triggerEfficiency("DATA_triggerEfficiency","Trigger efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  DATA_triggerEfficiency.Sumw2();
-  DATA_triggerEfficiency.Add(&DATA_HLTele8NOTele17_Probe);
-  DATA_triggerEfficiency.Add(&DATA_HLTele17_Probe);
-
-  TH2F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  DATA_globalEfficiency.Sumw2();
-  DATA_globalEfficiency.Add(&DATA_triggerEfficiency);
-  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
-  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
-
-  // Write histos to file:
-  
-  TFile output_file(output_rootuple.c_str(),"UPDATE");
-  output_file.mkdir("efficiency_vs_PtEta");
-  output_file.cd("efficiency_vs_PtEta");
-
-  DATA_WP80_Probe.Write();
-  DATA_HLTele8NOTele17_Probe.Write();
-  DATA_HLTele17_Probe.Write();
-  DATA_RECO_Probe.Write();
-
-  DATA_triggerEfficiency.Write();
-  DATA_globalEfficiency.Write();
-
-  output_file.Close();
-
-}
-
-
-// Efficiency as a function of electron pseudorapidity (eta) and transverse momentum (pt) - MC:
-
-void TagProbeFitter::eff_vs_PtEta_MC() {
-
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("TAPfitter_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-
-  //MC efficiencies:
-
-  TFile input_file_MC(MC_filename.c_str(),"READ");
-
-  // WP80 2st LEG Efficiency (MC):
-
-  TH2F MC_WP80_Probe("MC_WP80_Probe","Electron efficieny;eta BINS;pt BINS",4,0,4,4,0,4);
-  MC_WP80_Probe.Sumw2();
-
-  TH2F  MC_HLTele8NOTele17_Probe("MC_HLTele8NOTele17_Probe","Electron efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  MC_HLTele8NOTele17_Probe.Sumw2();
-
-  TH2F  MC_HLTele17_Probe("MC_HLTele17_Probe","Electron efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  MC_HLTele17_Probe.Sumw2();
-
-  TH2F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  MC_RECO_Probe.Sumw2();
-
-  char dummy[100];
-
-  for (int nj=0;nj<4;nj++) {
-    for (int mj=0;mj<4;mj++) {
-
-      sprintf (dummy, "EPTwp80/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPTwp80/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_WP80_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
-      MC_WP80_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      MC_WP80_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-
-      sprintf (dummy, "EPThltele8NOTele17/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPThltele8NOTele17/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele8NOTele17_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedPassSig(pass_data_, fail_data_, output_name_);
-      MC_HLTele8NOTele17_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      MC_HLTele8NOTele17_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-
-      sprintf (dummy, "EPThltele17/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPThltele17/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele17_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
-      MC_HLTele17_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      MC_HLTele17_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-
-      sprintf (dummy, "EPTreco/probepass%deta%dpt", nj+1, mj+1);
-      pass_data_ = dummy;
-      sprintf (dummy, "EPTreco/probefail%deta%dpt", nj+1, mj+1);
-      fail_data_ = dummy;
-      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_RECO_Probe_%deta%dpt.png", nj+1, mj+1);
-      output_name_ = dummy;
-
-      doFit_BWCB_FixedFailSig(pass_data_, fail_data_, output_name_);
-      MC_RECO_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
-      MC_RECO_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
-    }
-  }
-
-  input_file_MC.Close();
-
-  //Compute global efficiencies:
-
-  TH2F MC_triggerEfficiency("MC_triggerEfficiency","Trigger efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  MC_triggerEfficiency.Sumw2();
-  MC_triggerEfficiency.Add(&MC_HLTele8NOTele17_Probe);
-  MC_triggerEfficiency.Add(&MC_HLTele17_Probe);
-
-  TH2F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
-  MC_globalEfficiency.Sumw2();
-  MC_globalEfficiency.Add(&MC_triggerEfficiency);
-  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
-  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
-
-  // Write histos to file:
-
-  TFile output_file(output_rootuple.c_str(),"UPDATE");
-  //  output_file.mkdir("efficiency_vs_PtEta");
-  output_file.cd("efficiency_vs_PtEta");
-
-  MC_WP80_Probe.Write();
-  MC_HLTele8NOTele17_Probe.Write();
-  MC_HLTele17_Probe.Write();
-  MC_RECO_Probe.Write();
-
-  MC_triggerEfficiency.Write();
-  MC_globalEfficiency.Write();
-
-  output_file.Close();
-}
-
 
 
 //////////////////////////////////////
@@ -3067,216 +1242,6 @@ void TagProbeFitter::validate_BWCB() {
 }
 
 
-
-////////////////////////////////////
-// Ztoee signal extraction        //
-////////////////////////////////////
-
-void TagProbeFitter::signal_yields() {
-  
-  // Load file names from config.txt
-  string stupid, DATA_filename, MC_filename, pass_data_, pass_data_hs_, output_name_, output_rootuple;
-
-  ifstream in;
-  in.open("signalYield_config.txt");
-  in >> stupid >> DATA_filename;
-  in >> stupid >> MC_filename;
-  in >> stupid >> output_rootuple;
-  in.close();
-
-  //DATA yields:
-
-  TFile input_file_DATA(MC_filename.c_str(),"READ");
-
-  // Histogram with results:
-
-  TH1F  SigYields_vs_nJets("SigYields_vs_nJets","Signal yields vs # Jets;# Jets;signal events",6,0,6);
-  SigYields_vs_nJets.Sumw2();
-  SigYields_vs_nJets.SetLineColor(1);
-  SigYields_vs_nJets.SetMarkerColor(1);
-  SigYields_vs_nJets.SetFillColor(1);
-  SigYields_vs_nJets.SetFillStyle(3001);
-
-  TH1F  BkgYields_vs_nJets("BkgYields_vs_nJets","Background yields vs leading Jet pt;# Jets;bkg events",6,0,6);
-  BkgYields_vs_nJets.Sumw2();
-  BkgYields_vs_nJets.SetLineColor(1);
-  BkgYields_vs_nJets.SetMarkerColor(1);
-  BkgYields_vs_nJets.SetFillColor(1);
-  BkgYields_vs_nJets.SetFillStyle(3001);
-
-  TH1F  SigYields_vs_leadjetpt("SigYields_vs_leadjetpt","Signal yields vs leading Jet pt;Jet pt BINS;signal events",9,0,9);
-  SigYields_vs_leadjetpt.Sumw2();
-  SigYields_vs_leadjetpt.SetLineColor(1);
-  SigYields_vs_leadjetpt.SetMarkerColor(1);
-  SigYields_vs_leadjetpt.SetFillColor(1);
-  SigYields_vs_leadjetpt.SetFillStyle(3001);
-
-  TH1F  BkgYields_vs_leadjetpt("BkgYields_vs_leadjetpt","Background yields vs leading Jet pt;Jet pt BINS;bkg events",9,0,9);
-  BkgYields_vs_leadjetpt.Sumw2();
-  BkgYields_vs_leadjetpt.SetLineColor(1);
-  BkgYields_vs_leadjetpt.SetMarkerColor(1);
-  BkgYields_vs_leadjetpt.SetFillColor(1);
-  BkgYields_vs_leadjetpt.SetFillStyle(3001);
-
-  input_file_DATA.cd("TAPwp80");
-
-  char dummy[100];
-
-  double sigyield_value, sigyield_error;
-  double bkgyield_value, bkgyield_error;
-
-  // JET MULTIPLICITY:
-  //  for (int nj=0;nj<6;nj++) {
-  for (int nj=0;nj<1;nj++) {
-    /*
-    sprintf (dummy, "probepass%dJet", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "probepass%dJet_hs", nj);
-    pass_data_hs_ = dummy;
-    sprintf (dummy, "/afs/infn.it/ts/user/schizzi/html/yields/MC/SignalYields_%dJet.png", nj);
-    output_name_ = dummy;
-    */
-    sprintf (dummy, "probepass_mee");
-    pass_data_ = dummy;
-    sprintf (dummy, "probepass_mee_hs");
-    pass_data_hs_ = dummy;
-    sprintf (dummy, "/afs/infn.it/ts/user/schizzi/html/yields/MC/SignalYields_INCLUSIVE.png");
-    output_name_ = dummy;
-
-    TH1D *pass_data; 
-    gDirectory->GetObject(pass_data_.c_str(),pass_data);
-    THStack *pass_data_hs; 
-    gDirectory->GetObject(pass_data_hs_.c_str(),pass_data_hs);
-
-    RooWorkspace w("w",kTRUE);
-
-    // Definition of disjoint pdf's:
-    // Passing PDF:
-    w.factory("RooBreitWigner::bwgauss(mass[71.0,111.0], bwmean[91.1876], bwsigma[2.4952])");
-    w.factory("RooCBShape::cball(mass, cbmean[0.0,-2.0,2.0], cbsigma[2.1,0.5,10.0], alpha[1.4,0.1,4.0], cbn[2.6,1.0,5.0])");
-    w.factory("FCONV::signal(mass,bwgauss,cball)");
-    //    w.factory("RooExponential::background(mass, cExp[-0.01,-0.08,0.0])");
-    w.factory("RooExponential::background(mass, cExp[0.0])");
-    w.factory("SUM::model(signalNorm[10000.0,0.0,10000000.0]*signal,backgroundNorm[100.0,0.0,1000000.0]*background)");
-    //    w.factory("SUM::model(signalNorm[10000.0,0.0,10000000.0]*signal,backgroundNorm[120.0]*background)");
-
-    // Definition of datasets:
-    RooArgSet obs(*w.fundArg("mass"),"obs");
-    
-    RooDataHist binnedData("binnedData","my data",obs,pass_data) ;
-
-    w.pdf("model")->fitTo(binnedData);
-
-    TCanvas* cx2 = (TCanvas*)gDirectory->GetList()->FindObject("cx2");
-    if (cx2) delete cx2;
-    cx2 = new TCanvas("cx2","cx2",0,0,800,600);
-
-    cx2->cd();
-
-    pass_data_hs->Draw("HISTO");
-
-    RooPlot* passFrame = w.var("mass")->frame(Title("Signal Yields")) ;
-    binnedData.plotOn(passFrame);
-    w.pdf("model")->plotOn(passFrame,LineColor(kGreen)) ;
-    w.pdf("model")->plotOn(passFrame,LineColor(kGreen),Components("background"),LineStyle(kDashed)) ; //,ProjWData(*dataPass)
-    passFrame->Draw("SAME") ;
-
-    cx2->Print(output_name_.c_str());
-    //    sleep(2);
-
-    sigyield_value = w.var("signalNorm")->getVal();
-    sigyield_error = w.var("signalNorm")->getError();
-    bkgyield_value = w.var("backgroundNorm")->getVal();
-    bkgyield_error = w.var("backgroundNorm")->getError();
-
-    SigYields_vs_nJets.SetBinContent(nj+1,sigyield_value);
-    SigYields_vs_nJets.SetBinError(nj+1,sigyield_error);
-    BkgYields_vs_nJets.SetBinContent(nj+1,bkgyield_value);
-    BkgYields_vs_nJets.SetBinError(nj+1,bkgyield_error);
-
-  }
-
-  // LEADING JET PT:
-
-  for (int nj=0;nj<9;nj++) {
-
-    sprintf (dummy, "probepass%dleadjetpt", nj);
-    pass_data_ = dummy;
-    sprintf (dummy, "probepass%dleadjetpt_hs", nj);
-    pass_data_hs_ = dummy;
-    sprintf (dummy, "/afs/infn.it/ts/user/schizzi/html/yields/MC/SignalYields_%dleadjetpt.png", nj);
-    output_name_ = dummy;
-
-    TH1D *pass_data; 
-    gDirectory->GetObject(pass_data_.c_str(),pass_data);
-    THStack *pass_data_hs; 
-    gDirectory->GetObject(pass_data_hs_.c_str(),pass_data_hs);
-
-    RooWorkspace w("w",kTRUE);
-
-    // Definition of disjoint pdf's:
-    // Passing PDF:
-    w.factory("RooBreitWigner::bwgauss(mass[71.0,111.0], bwmean[91.1876], bwsigma[2.4952])");
-    w.factory("RooCBShape::cball(mass, cbmean[0.0,-2.0,2.0], cbsigma[2.1,0.5,10.0], alpha[1.4,0.1,4.0], cbn[2.6,1.0,5.0])");
-    w.factory("FCONV::signal(mass,bwgauss,cball)");
-    //    w.factory("RooExponential::background(mass, cExp[-0.01,-0.08,0.0])");
-    w.factory("RooExponential::background(mass, cExp[0.0])");
-    //    w.factory("SUM::model(signalNorm[10000.0,0.0,10000000.0]*signal,backgroundNorm[100.0,0.0,1000000.0]*background)");
-    w.factory("SUM::model(signalNorm[10000.0,0.0,10000000.0]*signal,backgroundNorm[120.0]*background)");
-
-    // Definition of datasets:
-    RooArgSet obs(*w.fundArg("mass"),"obs");
-    
-    RooDataHist binnedData("binnedData","my data",obs,pass_data) ;
-
-    w.pdf("model")->fitTo(binnedData);
-
-    TCanvas* cx2 = (TCanvas*)gDirectory->GetList()->FindObject("cx2");
-    if (cx2) delete cx2;
-    cx2 = new TCanvas("cx2","cx2",0,0,800,600);
-
-    cx2->cd();
-
-    pass_data_hs->Draw("HISTO");
-
-    RooPlot* passFrame = w.var("mass")->frame(Title("Signal Yields")) ;
-    binnedData.plotOn(passFrame);
-    w.pdf("model")->plotOn(passFrame,LineColor(kGreen)) ;
-    w.pdf("model")->plotOn(passFrame,LineColor(kGreen),Components("background"),LineStyle(kDashed)) ; //,ProjWData(*dataPass)
-    passFrame->Draw("SAME") ;
-
-    cx2->Print(output_name_.c_str());
-    //    sleep(2);
-
-    sigyield_value = w.var("signalNorm")->getVal();
-    sigyield_error = w.var("signalNorm")->getError();
-    bkgyield_value = w.var("backgroundNorm")->getVal();
-    bkgyield_error = w.var("backgroundNorm")->getError();
-
-    SigYields_vs_leadjetpt.SetBinContent(nj+1,sigyield_value);
-    SigYields_vs_leadjetpt.SetBinError(nj+1,sigyield_error);
-    BkgYields_vs_leadjetpt.SetBinContent(nj+1,bkgyield_value);
-    BkgYields_vs_leadjetpt.SetBinError(nj+1,bkgyield_error);
-
-    //    delete fit_data;
-  }
-
-  input_file_DATA.Close();
-
-  TFile output_file(output_rootuple.c_str(),"RECREATE");
-  output_file.cd("");
-
-  SigYields_vs_leadjetpt.Write();
-  BkgYields_vs_leadjetpt.Write();
-  SigYields_vs_nJets.Write();
-  BkgYields_vs_nJets.Write();
-
-  output_file.Close();
-
-}
-
-
-
 ////////////////////////////////////
 // Efficiency measurement (BW+CB) //
 ////////////////////////////////////
@@ -3286,8 +1251,6 @@ int TagProbeFitter::doFit_BWCB(string pass_data, string fail_data, string output
   TH1F* hist_passing = (TH1F*) gDirectory->Get(pass_data.c_str());
   TH1F* hist_failing = (TH1F*) gDirectory->Get(fail_data.c_str());
 
-  double ntot_events = hist_passing->Integral() + hist_failing->Integral();
-
   RooWorkspace w("w",kTRUE);
 
   // Definition of disjoint pdf's:
@@ -3295,16 +1258,15 @@ int TagProbeFitter::doFit_BWCB(string pass_data, string fail_data, string output
   w.factory("RooBreitWigner::bwgauss(mass[60.0,120.0], pass_bwmean[91.1876], pass_bwsigma[2.4952])");
   w.factory("RooCBShape::pass_cball(mass, pass_cbmean[0.0,-2.0,2.0], pass_cbsigma[2.1,0.5,10.0], pass_alpha[1.4,0.1,4.0], pass_n[2.6,1.0,5.0])");
   w.factory("FCONV::signalPass(mass,bwgauss,pass_cball)");
-  //  w.factory("RooExponential::backgroundPass(mass, cPass[-0.01,-0.08,0.0])");
-  w.factory("RooExponential::backgroundPass(mass, cPass[-0.01,-0.1,0.1])");
+  w.factory("RooExponential::backgroundPass(mass, cPass[-0.01,-0.08,0.0])");
   w.factory("SUM::passing_model(signalPassNorm[0.9,0.0,1.0]*signalPass,backgroundPass)");
 
   // Failing PDF:
   w.factory("RooCBShape::fail_cball(mass, fail_cbmean[0.0,-2.0,2.0], fail_cbsigma[2.0,0.5,10.0], fail_alpha[1.4,0.1,4.0], fail_n[2.6,1.0,5.0])");
-  //w.var("fail_n")->setConstant(kTRUE);
+  //  w.var("fail_cbmean")->setVal(w.var("pass_cbmean")->getVal());
+  //  w.var("fail_cbmean")->setConstant(kTRUE);
   w.factory("FCONV::signalFail(mass,bwgauss,fail_cball)");
-  //  w.factory("RooExponential::backgroundFail(mass, cFail[-0.01,-0.08,0.0])");
-  w.factory("RooExponential::backgroundFail(mass, cFail[-0.01,-0.1,0.1])");
+  w.factory("RooExponential::backgroundFail(mass, cFail[-0.01,-0.08,0.0])");
   w.factory("SUM::failing_model(signalFailNorm[0.5,0.0,1.0]*signalFail,backgroundFail)");
 
 
@@ -3319,404 +1281,13 @@ int TagProbeFitter::doFit_BWCB(string pass_data, string fail_data, string output
   w.pdf("failing_model")->fitTo(binnedData_failing);
 
   // Definition of the simultaneous pdf for global fit:
-  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.9,0.0,1.0], fSigAll[0.9,0.0,1.0],numTot[10000,0.0,1000000000.0])");
+  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.9,0.0,1.0], fSigAll[0.9,0.0,1.0],numTot[10000.0,0.0,10000000000000.0])");
   w.factory("expr::nSignalFail('(1.0-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");  
   w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.1,0.0,1.0],fSigAll,numTot)");
   w.factory("expr::nBkgFail('(1.0-effBkg)*(1.0-fSigAll)*numTot', effBkg,fSigAll,numTot)");  
-
-  w.var("numTot")->setVal(ntot_events);
 
   w.factory("SUM::pdf_pass(nSignalPass*signalPass,nBkgPass*backgroundPass)");
   //  w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
-  w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
-
-  RooCategory efficiencyCategory("efficiencyCategory","efficiencyCategory") ;
-
-  efficiencyCategory.defineType("Passed") ;
-  efficiencyCategory.defineType("Failed") ;
-
-  w.factory("SIMUL::pdf_global(efficiencyCategory[Passed,Failed],Passed=pdf_pass,Failed=pdf_fail)");
-
-  // Definition of global datasets:
-  RooDataHist binnedData_PassFailJoined("binnedData_PassFailJoined","binnedData_PassFailJoined",obs,Weight(0.5),Index(efficiencyCategory),Import("Passed", *hist_passing),Import("Failed", *hist_failing)) ;
-
-
-  // And... "Let the sunshine in"!
-  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE));
-
-  // Plot the results:
-  RooAbsData* dataPass = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed")); 
-  RooAbsData* dataFail = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Failed")); 
-  RooAbsData* dataAll = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed || efficiencyCategory==efficiencyCategory::Failed")); 
-
-  TCanvas* cx2 = (TCanvas*)gDirectory->GetList()->FindObject("cx2");
-  if (cx2) delete cx2;
-  cx2 = new TCanvas("cx2","cx2",0,0,800,600);
-  cx2->Divide(2,2);
-
-  cx2->cd(1);
-  RooPlot* passFrame = w.var("mass")->frame(Title("Passing probes")) ;
-  dataPass->plotOn(passFrame);
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen)) ;
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen),Components("backgroundPass"),LineStyle(kDashed)) ;
-  passFrame->Draw() ;
-
-  cx2->cd(2);
-  RooPlot* failFrame = w.var("mass")->frame(Title("Failing probes")) ;
-  dataFail->plotOn(failFrame);
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed)) ;
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed),Components("backgroundFail"),LineStyle(kDashed)) ;
-  failFrame->Draw() ;
-
-  cx2->cd(3);
-  RooPlot* globalFrame = w.var("mass")->frame(Title("Passing + failing probes")) ;
-  dataAll->plotOn(globalFrame);
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue)) ;
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue),Components("backgroundPass,backgroundFail"),LineStyle(kDashed)) ;
-  globalFrame->Draw() ;
-
-  cx2->cd(4);
-  RooPlot* parFrame = w.var("mass")->frame(Title("Fit results")) ;
-  w.pdf("pdf_global")->paramOn(parFrame, dataAll, "", 2, "NELU", 0.2, 0.9, 0.9);
-  parFrame->findObject(Form("%s_paramBox","pdf_global"))->Draw() ;
-
-  cx2->Print(output_name.c_str());
-
-  TAP_efficiency = w.var("efficiency")->getVal();
-  TAP_efficiency_uncertainty = w.var("efficiency")->getError();
-
-  cout << "---><---" << endl;
-  cout << output_name << endl;
-  cout << "---><---" << endl;
-
-  sleep(2);
-
-  return 0;
-}
-
-
-
-////////////////////////////////////
-// Efficiency measurement (BW+CB) // !!! Fixed Fail-Signal SHAPE VERSION !!!
-////////////////////////////////////
-
-int TagProbeFitter::doFit_BWCB_FixedFailSig(string pass_data, string fail_data, string output_name) {
-
-  TH1F* hist_passing = (TH1F*) gDirectory->Get(pass_data.c_str());
-  TH1F* hist_failing = (TH1F*) gDirectory->Get(fail_data.c_str());
-
-  double ntot_events = hist_passing->Integral() + hist_failing->Integral();
-
-  RooWorkspace w("w",kTRUE);
-
-  // Definition of disjoint pdf's:
-
-  // Physics PDF:
-  w.factory("RooBreitWigner::bwgauss(mass[71.0,111.0], pass_bwmean[91.1876], pass_bwsigma[2.4952])");
-
-  // Passing PDF:
-  w.factory("RooCBShape::pass_cball(mass, pass_cbmean[0.0,-2.0,2.0], pass_cbsigma[2.1,0.5,10.0], pass_alpha[1.4,0.1,4.0], pass_n[2.6,1.0,5.0])");
-  w.factory("FCONV::signalPass(mass,bwgauss,pass_cball)");
-  w.factory("EXPR::backgroundPass('exp(@0*@1)*RooMath::erfc((@2-@0)*@3)',mass,cPass[0.0,-0.08,0.08],alphaPass[70.0,50.0,80.0],betaPass[0.01,0.0,0.05])");
-  w.factory("SUM::passing_model(signalPassNorm[0.9,0.0,1.0]*signalPass,backgroundPass)");
-
-  // Failing PDF:
-  w.factory("RooCBShape::fail_cball(mass, fail_cbmean[0.0,-1.0,1.0], fail_cbsigma[2.1,0.5,10.0], fail_alpha[1.4,0.1,4.0], fail_n[2.6,1.0,5.0])");
-  w.factory("FCONV::signalFail(mass,bwgauss,fail_cball)");
-  w.factory("EXPR::backgroundFail('exp(@0*@1)*RooMath::erfc((@2-@0)*@3)',mass,cFail[0.0,-0.1,0.08],alphaFail[80.0,50.0,90.0],betaFail[0.01,0.0,0.2])");
-  w.factory("SUM::failing_model(signalFailNorm[0.5,0.0,1.0]*signalFail,backgroundFail)");
-
-
-  // Definition of datasets:
-  RooArgSet obs(*w.fundArg("mass"),"obs");
-
-  RooDataHist binnedData_passing("binnedData_passing","my data",obs,hist_passing) ;
-  RooDataHist binnedData_failing("binnedData_failing","my data",obs,hist_failing) ;
-
-  // Everything ready for the disjoint fits!
-
-  w.pdf("passing_model")->fitTo(binnedData_passing);
-
-  // Take parameters of signal shape in passing dist and put into failing dist:
-  w.var("fail_cbmean")->setVal(w.var("pass_cbmean")->getVal());
-  w.var("fail_cbmean")->setConstant(kTRUE);
-  w.var("fail_cbsigma")->setVal(w.var("pass_cbsigma")->getVal());
-  w.var("fail_cbsigma")->setConstant(kTRUE);
-  w.var("fail_alpha")->setVal(w.var("pass_alpha")->getVal());
-  w.var("fail_alpha")->setConstant(kTRUE);
-  w.var("fail_n")->setVal(w.var("pass_n")->getVal());
-  w.var("fail_n")->setConstant(kTRUE);
-
-  w.pdf("failing_model")->fitTo(binnedData_failing);
-
-  // Definition of the simultaneous pdf for global fit:
-  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.95,0.0,1.0], fSigAll[0.9,0.0,1.0],numTot[10000,0.0,10000000.0])");
-  w.factory("expr::nSignalFail('(1.0-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");  
-  w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.1,0.0,1.0],fSigAll,numTot)");
-  w.factory("expr::nBkgFail('(1.0-effBkg)*(1.0-fSigAll)*numTot', effBkg,fSigAll,numTot)");  
-
-  w.var("numTot")->setVal(ntot_events);
-
-  w.factory("SUM::pdf_pass(nSignalPass*signalPass,nBkgPass*backgroundPass)");
-  w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
-
-  RooCategory efficiencyCategory("efficiencyCategory","efficiencyCategory") ;
-
-  efficiencyCategory.defineType("Passed") ;
-  efficiencyCategory.defineType("Failed") ;
-
-  w.factory("SIMUL::pdf_global(efficiencyCategory[Passed,Failed],Passed=pdf_pass,Failed=pdf_fail)");
-
-  // Definition of global datasets:
-  RooDataHist binnedData_PassFailJoined("binnedData_PassFailJoined","binnedData_PassFailJoined",obs,Weight(0.5),Index(efficiencyCategory),Import("Passed", *hist_passing),Import("Failed", *hist_failing)) ;
-
-
-  // And... "Let the sunshine in"!
-  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE));
-
-  // Plot the results:
-  RooAbsData* dataPass = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed")); 
-  RooAbsData* dataFail = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Failed")); 
-  RooAbsData* dataAll = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed || efficiencyCategory==efficiencyCategory::Failed")); 
-
-  TCanvas* cx2 = (TCanvas*)gDirectory->GetList()->FindObject("cx2");
-  if (cx2) delete cx2;
-  cx2 = new TCanvas("cx2","cx2",0,0,800,600);
-  cx2->Divide(2,2);
-
-  cx2->cd(1);
-  RooPlot* passFrame = w.var("mass")->frame(Title("Passing probes")) ;
-  dataPass->plotOn(passFrame);
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen)) ;
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen),Components("backgroundPass"),LineStyle(kDashed)) ;
-  passFrame->Draw() ;
-
-  cx2->cd(2);
-  RooPlot* failFrame = w.var("mass")->frame(Title("Failing probes")) ;
-  dataFail->plotOn(failFrame);
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed)) ;
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed),Components("backgroundFail"),LineStyle(kDashed)) ;
-  failFrame->Draw() ;
-
-  cx2->cd(3);
-  RooPlot* globalFrame = w.var("mass")->frame(Title("Passing + failing probes")) ;
-  dataAll->plotOn(globalFrame);
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue)) ;
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue),Components("backgroundPass,backgroundFail"),LineStyle(kDashed)) ;
-  globalFrame->Draw() ;
-
-  cx2->cd(4);
-  RooPlot* parFrame = w.var("mass")->frame(Title("Fit results")) ;
-  w.pdf("pdf_global")->paramOn(parFrame, dataAll, "", 2, "NELU", 0.2, 0.9, 0.9);
-  parFrame->findObject(Form("%s_paramBox","pdf_global"))->Draw() ;
-
-  cx2->Print(output_name.c_str());
-
-  TAP_efficiency = w.var("efficiency")->getVal();
-  TAP_efficiency_uncertainty = w.var("efficiency")->getError();
-
-  cout << "---><---" << endl;
-  cout << output_name << endl;
-  cout << "---><---" << endl;
-
-  sleep(2);
-
-  return 0;
-}
-
-
-////////////////////////////////////
-// Efficiency measurement (BW+CB) // !!! WP80 Optimized version !!!
-////////////////////////////////////
-
-int TagProbeFitter::doFit_BWCB_WP80(string pass_data, string fail_data, string output_name) {
-
-  TH1F* hist_passing = (TH1F*) gDirectory->Get(pass_data.c_str());
-  TH1F* hist_failing = (TH1F*) gDirectory->Get(fail_data.c_str());
-
-  double ntot_events = hist_passing->Integral() + hist_failing->Integral();
-
-  RooWorkspace w("w",kTRUE);
-
-  // Definition of disjoint pdf's:
-
-  // Physics PDF:
-  w.factory("RooBreitWigner::bwgauss(mass[71.0,111.0], pass_bwmean[91.1876], pass_bwsigma[2.4952])");
-
-  // Passing PDF:
-  w.factory("RooCBShape::pass_cball(mass, pass_cbmean[0.0,-2.0,2.0], pass_cbsigma[2.1,0.5,10.0], pass_alpha[1.4,0.1,4.0], pass_n[2.6,1.0,5.0])");
-  w.factory("FCONV::signalPass(mass,bwgauss,pass_cball)");
-  w.factory("EXPR::backgroundPass('exp(@0*@1)*RooMath::erfc((@2-@0)*@3)',mass,cPass[0.0,-0.08,0.08],alphaPass[70.0,50.0,80.0],betaPass[0.01,0.0,0.05])");
-  w.factory("SUM::passing_model(signalPassNorm[0.9,0.0,1.0]*signalPass,backgroundPass)");
-
-  // Failing PDF:
-  w.factory("RooCBShape::fail_cball(mass, fail_cbmean[0.0,-2.0,2.0], fail_cbsigma[2.1,0.5,10.0], fail_alpha[1.4,0.1,4.0], fail_n[2.6,1.0,5.0])");
-  w.factory("FCONV::signalFail(mass,bwgauss,fail_cball)");
-  w.factory("EXPR::backgroundFail('exp(@0*@1)*RooMath::erfc((@2-@0)*@3)',mass,cFail[0.0,-0.1,0.08],alphaFail[80.0,50.0,90.0],betaFail[0.01,0.0,0.2])");
-  w.factory("SUM::failing_model(signalFailNorm[0.5,0.0,1.0]*signalFail,backgroundFail)");
-
-
-  // Definition of datasets:
-  RooArgSet obs(*w.fundArg("mass"),"obs");
-
-  RooDataHist binnedData_passing("binnedData_passing","my data",obs,hist_passing) ;
-  RooDataHist binnedData_failing("binnedData_failing","my data",obs,hist_failing) ;
-
-  // Everything ready for the disjoint fits!
-
-  w.pdf("passing_model")->fitTo(binnedData_passing);
-
-  // Take parameters of signal shape in passing dist and put into failing dist:
-  w.var("fail_cbmean")->setVal(w.var("pass_cbmean")->getVal());
-  //  w.var("fail_cbmean")->setConstant(kTRUE);
-  w.var("fail_cbsigma")->setVal(w.var("pass_cbsigma")->getVal());
-  //  w.var("fail_cbsigma")->setConstant(kTRUE);
-  w.var("fail_alpha")->setVal(w.var("pass_alpha")->getVal());
-  //  w.var("fail_alpha")->setConstant(kTRUE);
-  w.var("fail_n")->setVal(w.var("pass_n")->getVal());
-  //  w.var("fail_n")->setConstant(kTRUE);
-
-  w.pdf("failing_model")->fitTo(binnedData_failing);
-
-  // Definition of the simultaneous pdf for global fit:
-  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.95,0.0,1.0], fSigAll[0.9,0.0,1.0],numTot[10000,0.0,10000000.0])");
-  w.factory("expr::nSignalFail('(1.0-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");  
-  w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.1,0.0,1.0],fSigAll,numTot)");
-  w.factory("expr::nBkgFail('(1.0-effBkg)*(1.0-fSigAll)*numTot', effBkg,fSigAll,numTot)");  
-
-  w.var("numTot")->setVal(ntot_events);
-
-  w.factory("SUM::pdf_pass(nSignalPass*signalPass,nBkgPass*backgroundPass)");
-  w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
-
-  RooCategory efficiencyCategory("efficiencyCategory","efficiencyCategory") ;
-
-  efficiencyCategory.defineType("Passed") ;
-  efficiencyCategory.defineType("Failed") ;
-
-  w.factory("SIMUL::pdf_global(efficiencyCategory[Passed,Failed],Passed=pdf_pass,Failed=pdf_fail)");
-
-  // Definition of global datasets:
-  RooDataHist binnedData_PassFailJoined("binnedData_PassFailJoined","binnedData_PassFailJoined",obs,Weight(0.5),Index(efficiencyCategory),Import("Passed", *hist_passing),Import("Failed", *hist_failing)) ;
-
-
-  // And... "Let the sunshine in"!
-  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE));
-
-  // Plot the results:
-  RooAbsData* dataPass = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed")); 
-  RooAbsData* dataFail = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Failed")); 
-  RooAbsData* dataAll = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed || efficiencyCategory==efficiencyCategory::Failed")); 
-
-  TCanvas* cx2 = (TCanvas*)gDirectory->GetList()->FindObject("cx2");
-  if (cx2) delete cx2;
-  cx2 = new TCanvas("cx2","cx2",0,0,800,600);
-  cx2->Divide(2,2);
-
-  cx2->cd(1);
-  RooPlot* passFrame = w.var("mass")->frame(Title("Passing probes")) ;
-  dataPass->plotOn(passFrame);
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen)) ;
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen),Components("backgroundPass"),LineStyle(kDashed)) ;
-  passFrame->Draw() ;
-
-  cx2->cd(2);
-  RooPlot* failFrame = w.var("mass")->frame(Title("Failing probes")) ;
-  dataFail->plotOn(failFrame);
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed)) ;
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed),Components("backgroundFail"),LineStyle(kDashed)) ;
-  failFrame->Draw() ;
-
-  cx2->cd(3);
-  RooPlot* globalFrame = w.var("mass")->frame(Title("Passing + failing probes")) ;
-  dataAll->plotOn(globalFrame);
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue)) ;
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue),Components("backgroundPass,backgroundFail"),LineStyle(kDashed)) ;
-  globalFrame->Draw() ;
-
-  cx2->cd(4);
-  RooPlot* parFrame = w.var("mass")->frame(Title("Fit results")) ;
-  w.pdf("pdf_global")->paramOn(parFrame, dataAll, "", 2, "NELU", 0.2, 0.9, 0.9);
-  parFrame->findObject(Form("%s_paramBox","pdf_global"))->Draw() ;
-
-  cx2->Print(output_name.c_str());
-
-  TAP_efficiency = w.var("efficiency")->getVal();
-  TAP_efficiency_uncertainty = w.var("efficiency")->getError();
-
-  cout << "---><---" << endl;
-  cout << output_name << endl;
-  cout << "---><---" << endl;
-
-  sleep(2);
-
-  return 0;
-}
-
-
-
-////////////////////////////////////
-// Efficiency measurement (BW+CB) // !!! Fixed Fail-Signal SHAPE VERSION !!!
-////////////////////////////////////
-
-int TagProbeFitter::doFit_BWCB_FixedPassSig(string pass_data, string fail_data, string output_name) {
-
-  TH1F* hist_passing = (TH1F*) gDirectory->Get(pass_data.c_str());
-  TH1F* hist_failing = (TH1F*) gDirectory->Get(fail_data.c_str());
-
-  double ntot_events = hist_passing->Integral() + hist_failing->Integral();
-
-  RooWorkspace w("w",kTRUE);
-
-  // Definition of disjoint pdf's:
-
-  // Physics PDF:
-  w.factory("RooBreitWigner::bwgauss(mass[60.0,120.0], pass_bwmean[91.1876], pass_bwsigma[2.4952])");
-
-  // Passing PDF:
-  w.factory("RooCBShape::pass_cball(mass, pass_cbmean[0.0,-2.0,2.0], pass_cbsigma[2.1,0.5,10.0], pass_alpha[1.4,0.1,4.0], pass_n[2.6,1.0,5.0])");
-  w.factory("FCONV::signalPass(mass,bwgauss,pass_cball)");
-  w.factory("EXPR::backgroundPass('exp(@0*@1)*RooMath::erfc((@2-@0)*@3)',mass,cPass[0.0,-0.08,0.08],alphaPass[70.0,50.0,100.0],betaPass[0.01,0.0,0.2])");
-  w.factory("SUM::passing_model(signalPassNorm[0.5,0.0,1.0]*signalPass,backgroundPass)");
-
-  // Failing PDF:
-  w.factory("RooCBShape::fail_cball(mass, fail_cbmean[0.0,-2.0,2.0], fail_cbsigma[2.1,0.5,10.0], fail_alpha[1.4,0.1,4.0], fail_n[2.6,1.0,5.0])");
-  w.factory("FCONV::signalFail(mass,bwgauss,fail_cball)");
-  w.factory("EXPR::backgroundFail('exp(@0*@1)*RooMath::erfc((@2-@0)*@3)',mass,cFail[0.0,-0.08,0.04],alphaFail[70.0,50.0,90.0],betaFail[0.01,0.0,0.2])");
-  w.factory("SUM::failing_model(signalFailNorm[0.9,0.0,1.0]*signalFail,backgroundFail)");
-
-
-  // Definition of datasets:
-  RooArgSet obs(*w.fundArg("mass"),"obs");
-
-  RooDataHist binnedData_passing("binnedData_passing","my data",obs,hist_passing) ;
-  RooDataHist binnedData_failing("binnedData_failing","my data",obs,hist_failing) ;
-
-  // Everything ready for the disjoint fits!
-
-  w.pdf("failing_model")->fitTo(binnedData_failing);
-
-  // Take parameters of signal shape in failing dist and put into passing dist:
-  w.var("pass_cbmean")->setVal(w.var("fail_cbmean")->getVal());
-  w.var("pass_cbmean")->setConstant(kTRUE);
-  w.var("pass_cbsigma")->setVal(w.var("fail_cbsigma")->getVal());
-  w.var("pass_cbsigma")->setConstant(kTRUE);
-  w.var("pass_alpha")->setVal(w.var("fail_alpha")->getVal());
-  w.var("pass_alpha")->setConstant(kTRUE);
-  w.var("pass_n")->setVal(w.var("fail_n")->getVal());
-  w.var("pass_n")->setConstant(kTRUE);
-
-  w.pdf("passing_model")->fitTo(binnedData_passing);
-
-  // Definition of the simultaneous pdf for global fit:
-  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.1,0.0,1.0], fSigAll[0.5,0.0,1.0],numTot[10000,0.0,1000000000.0])");
-  w.factory("expr::nSignalFail('(1.0-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");  
-  w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.1,0.0,1.0],fSigAll,numTot)");
-  w.factory("expr::nBkgFail('(1.0-effBkg)*(1.0-fSigAll)*numTot', effBkg,fSigAll,numTot)");  
-
-  w.var("numTot")->setVal(ntot_events);
-
-  w.factory("SUM::pdf_pass(nSignalPass*signalPass,nBkgPass*backgroundPass)");
   w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
 
   RooCategory efficiencyCategory("efficiencyCategory","efficiencyCategory") ;
@@ -4037,34 +1608,29 @@ void TagProbeFitter::toy_BWCB() {
   w.factory("RooCBShape::pass_cball(mass, pass_cbmean[0.0,-2.0,2.0], pass_cbsigma[2.1,0.5,10.0], pass_alpha[1.4,0.1,4.0], pass_n[2.6,1.0,5.0])");
   w.factory("FCONV::signalPass(mass,bwgauss,pass_cball)");
   w.factory("RooExponential::backgroundPass(mass, cPass[-0.01,-0.08,0.0])");
-  w.factory("SUM::passing_model(signalPassNorm[0.92,0.0,1.0]*signalPass,backgroundPass)");
+  w.factory("SUM::passing_model(signalPassNorm[0.99,0.0,1.0]*signalPass,backgroundPass)");
 
   // Failing PDF:
   w.factory("RooCBShape::fail_cball(mass, fail_cbmean[0.0,-2.0,2.0], fail_cbsigma[2.0,0.5,10.0], fail_alpha[1.4,0.1,4.0], fail_n[2.6,1.0,5.0])");
-  //w.var("fail_n")->setConstant(kTRUE);
   w.factory("FCONV::signalFail(mass,bwgauss,fail_cball)");
   w.factory("RooExponential::backgroundFail(mass, cFail[-0.01,-0.08,0.0])");
-  w.factory("SUM::failing_model(signalFailNorm[0.4,0.0,1.0]*signalFail,backgroundFail)");
+  w.factory("SUM::failing_model(signalFailNorm[0.5,0.0,1.0]*signalFail,backgroundFail)");
 
   RooArgSet obs(*w.fundArg("mass"),"obs");
 
   RooDataHist *binnedData_passing = w.pdf("passing_model")->generateBinned(obs,10000);
-  RooDataHist *binnedData_failing = w.pdf("failing_model")->generateBinned(obs,5750);
+  RooDataHist *binnedData_failing = w.pdf("failing_model")->generateBinned(obs,4950);
 
   // Everything ready for the disjoint fits!
   w.pdf("passing_model")->fitTo(*binnedData_passing);
   w.pdf("failing_model")->fitTo(*binnedData_failing);
 
-  // Definition of the simultaneous pdf for global fit:
-  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.8,0.0,1.0], fSigAll[0.73,0.0,1.0],numTot[10000,0.0,1000000000.0])");
+  w.factory("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency[0.8,0.0,1.0], fSigAll[0.827759197,0.0,1.0],numTot[14950.0,0.0,10000000000.0])");
   w.factory("expr::nSignalFail('(1.0-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");  
-  w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.18824,0.0,1.0],fSigAll,numTot)");
+  w.factory("expr::nBkgPass('effBkg*(1.0-fSigAll)*numTot', effBkg[0.038834951,0.0,1.0],fSigAll,numTot)");
   w.factory("expr::nBkgFail('(1.0-effBkg)*(1.0-fSigAll)*numTot', effBkg,fSigAll,numTot)");  
 
-  w.var("numTot")->setVal(15750);
-
   w.factory("SUM::pdf_pass(nSignalPass*signalPass,nBkgPass*backgroundPass)");
-  //  w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
   w.factory("SUM::pdf_fail(nSignalFail*signalFail,nBkgFail*backgroundFail)");
 
   RooCategory efficiencyCategory("efficiencyCategory","efficiencyCategory") ;
@@ -4086,46 +1652,4 @@ void TagProbeFitter::toy_BWCB() {
 
   TAP_efficiency = w.var("efficiency")->getVal();
   TAP_efficiency_uncertainty = w.var("efficiency")->getError();
-
-  /*
-  // Plot the results:
-  RooAbsData* dataPass = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed")); 
-  RooAbsData* dataFail = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Failed")); 
-  RooAbsData* dataAll = binnedData_PassFailJoined.reduce(Cut("efficiencyCategory==efficiencyCategory::Passed || efficiencyCategory==efficiencyCategory::Failed")); 
-
-  TCanvas* cx2 = (TCanvas*)gDirectory->GetList()->FindObject("cx2");
-  if (cx2) delete cx2;
-  cx2 = new TCanvas("cx2","cx2",0,0,800,600);
-  cx2->Divide(2,2);
-
-  cx2->cd(1);
-  RooPlot* passFrame = w.var("mass")->frame(Title("Passing probes")) ;
-  dataPass->plotOn(passFrame);
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen)) ;
-  w.pdf("pdf_global")->plotOn(passFrame,ProjWData(*dataPass),LineColor(kGreen),Components("backgroundPass"),LineStyle(kDashed)) ;
-  passFrame->Draw() ;
-
-  cx2->cd(2);
-  RooPlot* failFrame = w.var("mass")->frame(Title("Failing probes")) ;
-  dataFail->plotOn(failFrame);
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed)) ;
-  w.pdf("pdf_global")->plotOn(failFrame,ProjWData(*dataFail),LineColor(kRed),Components("backgroundFail"),LineStyle(kDashed)) ;
-  failFrame->Draw() ;
-
-  cx2->cd(3);
-  RooPlot* globalFrame = w.var("mass")->frame(Title("Passing + failing probes")) ;
-  dataAll->plotOn(globalFrame);
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue)) ;
-  w.pdf("pdf_global")->plotOn(globalFrame,ProjWData(*dataAll),LineColor(kBlue),Components("backgroundPass,backgroundFail"),LineStyle(kDashed)) ;
-  globalFrame->Draw() ;
-
-  cx2->cd(4);
-  RooPlot* parFrame = w.var("mass")->frame(Title("Fit results")) ;
-  w.pdf("pdf_global")->paramOn(parFrame, dataAll, "", 2, "NELU", 0.2, 0.9, 0.9);
-  parFrame->findObject(Form("%s_paramBox","pdf_global"))->Draw() ;
-
-  cx2->Print("cacca.png");
-
-  sleep(2);
-  */
 }

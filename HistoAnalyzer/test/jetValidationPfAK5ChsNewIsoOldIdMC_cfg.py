@@ -108,7 +108,6 @@ triggersOct03 = cms.vstring("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_C
 
 
 process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
-                               matchMC = cms.bool(False),
                                electronCollection = cms.InputTag("patElectrons"),
                                TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                                ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -133,7 +132,6 @@ process.TAPwp80 = cms.EDFilter('EfficiencyFilter',
                                )
 
 process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
-                                          matchMC = cms.bool(False),
                                           electronCollection = cms.InputTag("patElectrons"),
                                           TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                                           ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -158,7 +156,6 @@ process.TAPhltele8NOTele17 = cms.EDFilter('EfficiencyFilter',
                                           )
 
 process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
-                                   matchMC = cms.bool(False),
                                    electronCollection = cms.InputTag("patElectrons"),
                                    TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                                    ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -183,7 +180,6 @@ process.TAPhltele17 = cms.EDFilter('EfficiencyFilter',
                                    )
 
 process.TAPreco = cms.EDFilter('EfficiencyFilter',
-                               matchMC = cms.bool(False),
                                electronCollection = cms.InputTag("patElectrons"),
                                TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                                ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
@@ -208,7 +204,6 @@ process.TAPreco = cms.EDFilter('EfficiencyFilter',
                                )
 
 process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
-                               matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
@@ -233,7 +228,6 @@ process.EPTwp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                            )
 
 process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
-                                          matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                          
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),                                  
@@ -258,7 +252,6 @@ process.EPThltele8NOTele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            )
 
 process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
-                                   matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
@@ -283,7 +276,6 @@ process.EPThltele17 = cms.EDFilter('EfficiencyPtEtaFilter',
                            )
 
 process.EPTreco = cms.EDFilter('EfficiencyPtEtaFilter',
-                               matchMC = cms.bool(False),
                            electronCollection = cms.InputTag("patElectrons"),
                            TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
                            ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
@@ -387,8 +379,7 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                          JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeOLDJEC_")  
+                                          JECUncertainties= cms.double(0),   
                                        )
                                  
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -410,8 +401,7 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),  
-                                       RootuplaName = cms.string("treeTESTJEC_") 
+                                      JECUncertainties= cms.double(0),   
                                        )
                                  
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -433,8 +423,7 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treePUJEC_")  
+                                      JECUncertainties= cms.double(0),   
                                        )
 
 
@@ -459,8 +448,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeValidationJEC_")  
+                                      JECUncertainties= cms.double(0),   
                                        )
                                    
 process.validationL2L3 = cms.EDAnalyzer('jetValidation',
@@ -482,8 +470,7 @@ process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeL2L3_")                                                
+                                      JECUncertainties= cms.double(0),                                                 
                                        )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -505,8 +492,7 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treePU_")                                     
+                                      JECUncertainties= cms.double(0),                                      
                                     )
 
 
@@ -531,8 +517,7 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treeRC_")                                        
+                                      JECUncertainties= cms.double(0),                                        
                                     )
 
 
@@ -581,7 +566,6 @@ process.validationJECXSScaleUp = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treeXSScaleUp_")
                                        )
 
 process.validationJECXSScaleDown = cms.EDAnalyzer('jetValidation',
@@ -606,7 +590,6 @@ process.validationJECXSScaleDown = cms.EDAnalyzer('jetValidation',
                                                   chargedHadronEnergyFraction= cms.double(0.0),
                                                   chargedMultiplicity= cms.int32(0),
                                                   JECUncertainties= cms.double(0),
-                                                  RootuplaName = cms.string("treeXSScaleDown_")
                                                   )
 
 
