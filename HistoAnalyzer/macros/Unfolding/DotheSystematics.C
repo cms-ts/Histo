@@ -18,9 +18,9 @@
 #include "tdrstyle.C"
 #include "plotsHistsAndRatio.C"
 
-//string stringsyst= "/afs/infn.it/ts/user/marone/html/ZJets/Systematics/";
-string version="_v2_27";
-string stringsyst= "plot"+version+"/";
+string stringsyst= "/afs/infn.it/ts/user/marone/html/ZJets/Systematics/";
+string version="_v2_28";
+//string stringsyst= "plot"+version+"/";
 
 /////////////////////////////////
 ///////// Main Loop
@@ -29,15 +29,37 @@ string stringsyst= "plot"+version+"/";
 std::vector<double> DotheSystematics(){
   gROOT->LoadMacro("plotsHistsAndRatio.C");
   std::vector<double> vec;
+  int whichjet=1;
+
   vec=DotheSystematicsJECMultiplicity();
   vec=DotheSystematicsPUMultiplicity();
-  //DotheSystematicsUnfoldingPythia();
-  int whichjet=1;
+  //DotheSystematicsUnfoldingPythia(whichjet);
   DotheSystematicsJECJetPt(whichjet);
   DotheSystematicsPUJetPt(whichjet);
   DotheSystematicsJECJetEta(whichjet);
   DotheSystematicsPUJetEta(whichjet);
-  //DotheSystematicsUnfMethodJetPt(whichjet);
+  DotheSystematicsUnfMethodJetPt(whichjet);
+  //To be added by Andrea
+  //DotheSystematicsEfficiencyJetPt(whichjet);
+  //DotheSystematicsEfficiencyJetMultiplicity(whichjet);
+  return vec;
+}
+
+std::vector<double> DotheSystematicsLoop(){
+  gROOT->LoadMacro("plotsHistsAndRatio.C");
+  std::vector<double> vec;
+  vec=DotheSystematicsJECMultiplicity();
+  vec=DotheSystematicsPUMultiplicity();
+
+  for (int i=1;i<=4;i++){
+    int whichjet=i;
+    //DotheSystematicsUnfoldingPythia(whichjet);
+    DotheSystematicsJECJetPt(whichjet);
+    DotheSystematicsPUJetPt(whichjet);
+    DotheSystematicsJECJetEta(whichjet);
+    DotheSystematicsPUJetEta(whichjet);
+    DotheSystematicsUnfMethodJetPt(whichjet);
+  }
   //To be added by Andrea
   //DotheSystematicsEfficiencyJetPt(whichjet);
   //DotheSystematicsEfficiencyJetMultiplicity(whichjet);
@@ -175,8 +197,10 @@ std::vector<double> DotheSystematicsPUMultiplicity(){
   using	std::endl;
   Double_t systerr;
   std::vector<double> systs;
+
   string pathFile="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version+".root";
   TFile *f = TFile::Open(pathFile.c_str());
+
   f->cd("validationJECXSScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC = (TH1F*)gDirectory->Get("h_zYieldVsjets");
@@ -598,6 +622,7 @@ void DotheSystematicsJECJetEta(int whichjet){
 
   string pathFile="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version+".root";
   TFile *f = TFile::Open(pathFile.c_str());
+
   f->cd("validationJECXSScaleDown"); //wrong one!!! need to have the dir. w/o JEC
   
   TH1F *DownJEC;
@@ -892,7 +917,7 @@ void DotheSystematicsJECJetEta(int whichjet){
 
 DotheSystematicsUnfMethodJetPt(whichjet){
   
-  bool kparsystematics=true;
+  bool kparsystematics=false;
 
   setTDRStyle();
   using	std::cout;
@@ -907,7 +932,7 @@ DotheSystematicsUnfMethodJetPt(whichjet){
    if (whichjet==3) {namejet="Third leading"; namejet2 = "3";}
    if (whichjet==4) {namejet="Fourth leading"; namejet2 = "4";}
 
-   string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"SVD.root";
+   string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+".root";
    TFile *f = TFile::Open(pathFile.c_str());
 
   f->cd(); //wrong one!!! need to have the dir. w/o JEC
@@ -917,10 +942,12 @@ DotheSystematicsUnfMethodJetPt(whichjet){
   if (whichjet==3) MD = (TH1F*)gDirectory->Get("jReco_subsubleading");
   if (whichjet==4) MD = (TH1F*)gDirectory->Get("jReco_subsubsubleading");
 
- 
+  string UnfMethod;
   TFile *f2;
-  if (!kparsystematics) f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"Bayes.root");
-  else f2 = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"Kmoved.root");
+  if (!kparsystematics) UnfMethod="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsBayes"+version+".root";
+  else UnfMethod="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"Kmoved.root";
+  cout<<UnfMethod<<endl;
+  f2 = TFile::Open(UnfMethod.c_str());
     
   f2->cd(); //wrong one!!! need to have the dir. w/o JEC
   TH1F *P;
@@ -960,7 +987,7 @@ DotheSystematicsUnfMethodJetPt(whichjet){
 ///////////////
 
 
-void DotheSystematicsUnfoldingPythia(){
+void DotheSystematicsUnfoldingPythia(int whichjet){
 
    string namejet="";
    string namejet2="";
@@ -978,32 +1005,39 @@ void DotheSystematicsUnfoldingPythia(){
   string path1="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+".root";
   TFile *f = TFile::Open(path1.c_str());
   f->cd(); //wrong one!!! need to have the dir. w/o JEC
-  TH1F *MD = (TH1F*)gDirectory->Get("jReco");
  
-  string path2="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+"pythia.root";
+  TH1F *MD;
+  if (whichjet==1) MD = (TH1F*)gDirectory->Get("jReco_leading");
+  if (whichjet==2) MD = (TH1F*)gDirectory->Get("jReco_subleading");
+  if (whichjet==3) MD = (TH1F*)gDirectory->Get("jReco_subsubleading");
+  if (whichjet==4) MD = (TH1F*)gDirectory->Get("jReco_subsubsubleading"); 
+
+  string path2="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsPythia"+version+".root";
   TFile *f2 = TFile::Open(path2.c_str());
   f2->cd(); //wrong one!!! need to have the dir. w/o JEC
   TH1F *P = (TH1F*)gDirectory->Get("jReco");  
 
   TCanvas *d = new TCanvas ("d", "d", 1000, 700);
   d->cd ();
- 
+
   TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.01, 1, 1);
   pad1->Draw ();
   pad1->cd ();
   gPad->SetLogy (1); 
   d->SetLogy();
+
   MD->SetLineColor(kRed);
   MD->SetMarkerStyle(20);
   MD->SetMarkerColor(kRed);
   MD->GetXaxis()->SetTitle("Leading Jet Pt");
   MD->GetYaxis()->SetTitle("# Events");  
 
+
   MD->Draw("E1");
   P->Draw("E1SAMES");
 
   pad1->SetBottomMargin (0.3);
-  return;
+
   TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
   legend_1->SetFillColor (0);
   legend_1->SetFillStyle (0);
@@ -1032,7 +1066,18 @@ void DotheSystematicsUnfoldingPythia(){
   fu->SetLineColor(kBlack);
   fu->Draw("SAMES");
 
+  cout<<"Saving Pythia MD- systematics in a file"<<endl;
+  string filename="/gpfs/cms/data/2011/Uncertainties/systematicsPythiaMD"+namejet2+"Eta"+version+".txt";
+  ofstream syste;
+  syste.open(filename.c_str());
+  for (int i=0;i<systs.size();i++){
+    syste<<systs[i]<<endl;
+  }
+  
+
   stringsystPU=stringsyst+"/MDPythia_"+namejet+".png";
   d->Print(stringsystPU.c_str()); 
+
+
  
 }
