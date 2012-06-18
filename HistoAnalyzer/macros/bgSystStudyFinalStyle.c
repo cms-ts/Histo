@@ -63,8 +63,9 @@ void bgSystStudyFinalStyle(void) {
    
 //_______aprire un file root_________________________________
    
-   string version="_v2_25";
-   string plotpath="plotSigmaRatio"+version+"/"; 
+   string version="_v2_28";
+   string plotpath="plotSigmaRatio"+version+"/";
+   string plotpathTxt="/gpfs/cms/data/2011/Uncertainties/"; 
    string namefile1="../macros/plotXSecUP"+version+"/ratioPlotBgScaleUp"+version+".root";
    string namefile2="../macros/plotXSecDOWN"+version+"/ratioPlotBgScaleDown"+version+".root";
    string namefile3="../macros/plotData"+version+"/ratioPlotBgScale"+version+".root";
@@ -152,7 +153,7 @@ void bgSystStudyFinalStyle(void) {
 	    double binRatio = ratio->GetBinContent(i);
 	    double binUp = scaleUp->GetBinContent(i);
 	    if (binRatio!=0){
-	       double systV = fabs(binDown - binUp)/binRatio;
+	       double systV = fabs(binDown - binUp)/(2.0*binRatio);
 	       systs.push_back(systV);
 	    } else systs.push_back(fabs(0.));
 	 }
@@ -163,7 +164,7 @@ void bgSystStudyFinalStyle(void) {
 	 //string::iterator it;
 	 //it = strstr(plot,"Ratio");
 	 //plot.string::erase (it, plot.end());
-	 string filename=plotpath+"BkgCrossSection_"+plotSave+".txt";
+	 string filename=plotpath+"BkgCrossSection_"+plotSave+version+".txt";
 	 ofstream syste;
 	 syste.open(filename.c_str());
 	 for (int i=0;i<systs.size();i++){
