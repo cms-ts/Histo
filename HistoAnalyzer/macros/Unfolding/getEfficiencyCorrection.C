@@ -58,7 +58,10 @@ int getEtaRangeElectron(double ele_eta){
 double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_pt ,double ele1_eta, double ele2_pt, double ele2_eta, string dataOrMC)
 {
 
-  TH2F* effPt;
+  TH2F* RECO_effPt;
+  TH2F* ele17_effPt;
+  TH2F* ele8NOTele17_effPt;
+  TH2F* WP80_effPt;
 
   ///////////////////////////////////////////
 
@@ -82,13 +85,31 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
     string name=tobj2->GetName();
     TString temp = (TString)name;
     if (dataOrMC=="Data"){
-      if(temp.Contains("DATA_globalEfficiency")){
-	gDirectory->GetObject(name.c_str(),effPt);
+      if(temp.Contains("DATA_WP80_Probe")){
+	gDirectory->GetObject(name.c_str(),WP80_effPt);
+      }    
+      if(temp.Contains("DATA_HLTele17_Probe")){
+	gDirectory->GetObject(name.c_str(),ele17_effPt);
+      }    
+      if(temp.Contains("DATA_HLTele8NOTele17_Probe")){
+	gDirectory->GetObject(name.c_str(),ele8NOTele17_effPt);
+      }    
+      if(temp.Contains("DATA_RECO_Probe")){
+	gDirectory->GetObject(name.c_str(),RECO_effPt);
       }    
     }
     else{
-      if(temp.Contains("MC_globalEfficiency")){
-	gDirectory->GetObject(name.c_str(),effPt);
+      if(temp.Contains("MC_WP80_Probe")){
+	gDirectory->GetObject(name.c_str(),WP80_effPt);
+      }    
+      if(temp.Contains("MC_HLTele17_Probe")){
+	gDirectory->GetObject(name.c_str(),ele17_effPt);
+      }    
+      if(temp.Contains("MC_HLTele8NOTele17_Probe")){
+	gDirectory->GetObject(name.c_str(),ele8NOTele17_effPt);
+      }    
+      if(temp.Contains("MC_RECO_Probe")){
+	gDirectory->GetObject(name.c_str(),RECO_effPt);
       }    
     }
   }
@@ -100,10 +121,15 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
   int eta1=getEtaRangeElectron(ele1_eta);
   int eta2=getEtaRangeElectron(ele2_eta);
 
-  double eff_e1=effPt->GetBinContent(eta1,pt1);
-  double eff_e2=effPt->GetBinContent(eta2,pt2);
+  double eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+    WP80_effPt->GetBinContent(eta2,pt2)*
+    RECO_effPt->GetBinContent(eta1,pt1)*
+    RECO_effPt->GetBinContent(eta2,pt2)*
+    (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
+       ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
+     ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
 
-  if (eff_e1*eff_e2>0) return eff_e1*eff_e2;
+  if (eff_global>0) return eff_global;
   return 1;
 }
 
