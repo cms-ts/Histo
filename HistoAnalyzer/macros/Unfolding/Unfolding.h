@@ -39,6 +39,10 @@ public :
    Double_t        jet3_pt_gen;
    Double_t        jet4_pt;
    Double_t        jet4_pt_gen;
+   Double_t        jet5_pt;
+   Double_t        jet5_pt_gen;
+   Double_t        jet6_pt;
+   Double_t        jet6_pt_gen;
    Double_t        jet1_eta;
    Double_t        jet1_eta_gen;
    Double_t        jet2_eta;
@@ -47,6 +51,10 @@ public :
    Double_t        jet3_eta_gen;
    Double_t        jet4_eta;
    Double_t        jet4_eta_gen;
+   Double_t        jet5_eta;
+   Double_t        jet5_eta_gen;
+   Double_t        jet6_eta;
+   Double_t        jet6_eta_gen;
    Double_t        e1_eta;
    Double_t        e2_eta;
    Double_t        e1_pt;
@@ -68,6 +76,10 @@ public :
    TBranch        *b_jet3_pt_gen;
    TBranch        *b_jet4_pt;
    TBranch        *b_jet4_pt_gen;
+   TBranch        *b_jet5_pt;
+   TBranch        *b_jet5_pt_gen;
+   TBranch        *b_jet6_pt;
+   TBranch        *b_jet6_pt_gen;
    TBranch        *b_jet1_eta;
    TBranch        *b_jet1_eta_gen;
    TBranch        *b_jet2_eta;
@@ -76,6 +88,10 @@ public :
    TBranch        *b_jet3_eta_gen;
    TBranch        *b_jet4_eta;
    TBranch        *b_jet4_eta_gen;
+   TBranch        *b_jet5_eta;
+   TBranch        *b_jet5_eta_gen;
+   TBranch        *b_jet6_eta;
+   TBranch        *b_jet6_eta_gen;
    TBranch        *b_e1_eta;
    TBranch        *b_e2_eta;
    TBranch        *b_e1_pt;
@@ -176,6 +192,11 @@ void Unfolding::Init(TTree *tree)
    fChain->SetBranchAddress("jet3_pt_gen", &jet3_pt_gen, &b_jet3_pt_gen);
    fChain->SetBranchAddress("jet4_pt", &jet4_pt, &b_jet4_pt);
    fChain->SetBranchAddress("jet4_pt_gen", &jet4_pt_gen, &b_jet4_pt_gen);
+   fChain->SetBranchAddress("jet5_pt", &jet5_pt, &b_jet5_pt);
+   fChain->SetBranchAddress("jet5_pt_gen", &jet5_pt_gen, &b_jet5_pt_gen);
+   fChain->SetBranchAddress("jet6_pt", &jet6_pt, &b_jet6_pt);
+   fChain->SetBranchAddress("jet6_pt_gen", &jet6_pt_gen, &b_jet6_pt_gen);
+
    fChain->SetBranchAddress("jet1_eta", &jet1_eta, &b_jet1_eta);
    fChain->SetBranchAddress("jet1_eta_gen", &jet1_eta_gen, &b_jet1_eta_gen);
    fChain->SetBranchAddress("jet2_eta", &jet2_eta, &b_jet2_eta);
@@ -184,6 +205,11 @@ void Unfolding::Init(TTree *tree)
    fChain->SetBranchAddress("jet3_eta_gen", &jet3_eta_gen, &b_jet3_eta_gen);
    fChain->SetBranchAddress("jet4_eta", &jet4_eta, &b_jet4_eta);
    fChain->SetBranchAddress("jet4_eta_gen", &jet4_eta_gen, &b_jet4_eta_gen);
+   fChain->SetBranchAddress("jet5_eta", &jet5_eta, &b_jet5_eta);
+   fChain->SetBranchAddress("jet5_eta_gen", &jet5_eta_gen, &b_jet5_eta_gen);
+   fChain->SetBranchAddress("jet6_eta", &jet6_eta, &b_jet6_eta);
+   fChain->SetBranchAddress("jet6_eta_gen", &jet6_eta_gen, &b_jet6_eta_gen);
+
    fChain->SetBranchAddress("e1_eta", &e1_eta, &b_e1_eta);
    fChain->SetBranchAddress("e2_eta", &e2_eta, &b_e2_eta);
    fChain->SetBranchAddress("e1_pt", &e1_pt, &b_e1_pt);
