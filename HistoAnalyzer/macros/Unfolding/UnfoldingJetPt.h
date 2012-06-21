@@ -1,3 +1,7 @@
+#include <vector>
+#include <iostream>
+#include <algorithm>
+
 /*Leading jet pt*/
 double minPtPlot=30;
 double maxPtPlot=330;
@@ -31,6 +35,56 @@ int getNumberOfValidGenJetsPt(int Jet_multiplicity_gen, double thresh, double je
   return counter;
 }// end
 
+bool myfunction (int i,int j) { return (i>j); }
+
+double getGenJetPtOfAGivenOrder(int Jet_multiplicity_gen, int whichjet, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen){
+
+  double jetPt=0.0;
+  //Stabilisci chi e' il piu' grande e l'ordine in pt, togliendo jet fuori l'accettanza o a pt sotto treshold
+  //cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<endl;
+
+  if (Jet_multiplicity_gen==0 && jet1_pt_gen<thresh) return 0;
+
+  //Immagazzino le info di pt e eta in un vettore di vettori
+  std::vector<double> pt;
+
+  if (Jet_multiplicity_gen==0 && fabs(jet1_eta_gen)<=2.4) pt.push_back(jet1_pt_gen);  
+   
+  for (int i=1;i<=4; i++){
+    if (i==1){
+      if (jet1_pt_gen>thresh && fabs(jet1_eta_gen)<=2.4 ) {
+	pt.push_back(jet1_pt_gen);
+      }
+    } 
+    if (i==2){
+      if (jet2_pt_gen>thresh && fabs(jet2_eta_gen)<=2.4 ) {
+	pt.push_back(jet2_pt_gen);
+      }
+    } 
+    if (i==3){
+      if (jet3_pt_gen>thresh && fabs(jet3_eta_gen)<=2.4 ) {
+	pt.push_back(jet3_pt_gen);
+      }
+    } 
+    if (i==4){
+      if (jet4_pt_gen>thresh && fabs(jet4_eta_gen)<=2.4 ) {
+	pt.push_back(jet4_pt_gen);
+      }
+    } 
+  }// for
+  
+  if (pt.size()>0) sort( pt.begin(), pt.end(), myfunction);
+  for(int i=0;i<pt.size();i++){
+    //cout<<pt[i]<<endl;
+  }
+
+  if (whichjet<=pt.size()) jetPt=pt[whichjet-1];
+  //restituisci il pt (se valido) del get che ti chiede corrispondene all'oridne che chiedsi
+
+  //if (jetPt != jet1_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<jetPt<<")"<<endl;
+  
+  return jetPt;
+}
 
 void Unfolding::LoopJetPt (int numbOfJets)
 {
@@ -85,6 +139,9 @@ void Unfolding::LoopJetPt (int numbOfJets)
   TH1D *jData = new TH1D ("jData", "jetpT DATA Measured",divPlot,minPtPlot,maxPtPlot);
   TH1D *jReco = new TH1D ("jReco", "jetpT Unfolded DATA",divPlot,minPtPlot,maxPtPlot);
   TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jetpT Rapidity ",divPlot,minPtPlot,maxPtPlot,divPlot,minPtPlot,maxPtPlot);
+  TH2D *jCorr = new TH2D ("jCorr", "Unfolding Matrix jetpT Rapidity ",4,0,4,4,0,4);
+
+  TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jetpT Rapidity ",22,0,330,22,0,330);
   TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2",divPlot,minPtPlot,maxPtPlot);
   TH1D *jRatio_ = new TH1D ("jRatio_", "jetpTRatio",divPlot,minPtPlot,maxPtPlot);
@@ -115,10 +172,10 @@ void Unfolding::LoopJetPt (int numbOfJets)
   
   //Enter the files
   fA->cd (smcdir.c_str());
-  TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
+  TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
   //DATA
   fB->cd (sdatadir.c_str());
-  TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+  TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
 
   //Setting the errors
   jTrue->Sumw2();
@@ -155,112 +212,128 @@ void Unfolding::LoopJetPt (int numbOfJets)
       // To control and exclude jets having energy below "thresh"
       int offsetJetMultiplicity=0;
       offsetJetMultiplicity=getNumberOfValidGenJetsPt(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-      
-      if (offsetJetMultiplicity>0) {
+
+      //Case that were Z+0 Jets and not properly addressed!
+      if ((offsetJetMultiplicity-Jet_multiplicity_gen)==0 && Jet_multiplicity==0) {
 	counter++;
-	//continue;
+	continue;
       }
+
       if (numbOfJets<=1){
-	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (jet1_pt_gen>=15 && jet1_pt_gen<7000 && fabs(jet1_eta_gen)<=2.4 ) ){   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
+	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+
+	//correctGenJetPt=jet1_pt_gen;
+	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
+	  //if (correctGenJetPt<20) cout<<"correctGen->"<<correctGenJetPt<<" ("<<jet1_pt_gen<<" % "<<jet1_eta_gen<<") jet1_pt->"<<jet1_pt<<endl;
+	  //if (jet1_pt<1) cout<<jet1_pt<<endl;
 	  //if (fabs(jet1_eta)>2.4 || fabs(jet1_eta_gen)>2.4 ) continue;
+	  if (offsetJetMultiplicity>=2) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<correctGenJetPt<<")"<<endl;
+
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
 	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet1_pt,"MC");
+
 	      double effcorrmc=1.00/valuesmc[0];	
 	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	      jMatx->Fill (jet1_pt, jet1_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
+ 	      jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
 	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	    else{
 	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
-	      jMatx->Fill (jet1_pt, jet1_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
+	      jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
 	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	  }
 	  else {
-	    jMatx->Fill (jet1_pt, jet1_pt_gen);
+	    jMatx->Fill (jet1_pt, correctGenJetPt);
+	    jMatxlong->Fill (jet1_pt, correctGenJetPt);
 	    jMCreco->Fill (jet1_pt);
 	  }
-	  jTrue->Fill (jet1_pt_gen);
+	  jTrue->Fill (correctGenJetPt);
 	  supplabel="_jet1";
 	}
       }
       
       if (numbOfJets==2){
-	if((jet2_pt>0 && jet2_pt<7000) || (jet2_pt_gen>=15 && jet2_pt_gen<7000) ){
+	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+        if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
 	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet2_pt,"MC");
 	      double effcorrmc=1.00/valuesmc[0];	
 	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	      jMatx->Fill (jet2_pt, jet2_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet2_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet2_pt,effcorrmc);  
 	    }
 	    else{
 	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
-	      jMatx->Fill (jet2_pt, jet2_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet2_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet2_pt,effcorrmc);	      
 	    }
 	  }
 	  else {
-	    jMatx->Fill (jet2_pt, jet2_pt_gen);
+	    jMatx->Fill (jet2_pt, correctGenJetPt);
 	    jMCreco->Fill (jet2_pt);
 	  }
-	  jTrue->Fill (jet2_pt_gen);
+	  jTrue->Fill (correctGenJetPt);
 	}
 	supplabel="_jet2";
       }
 
       if (numbOfJets==3){
-	if((jet3_pt>0 && jet3_pt<7000) || (jet3_pt_gen>=15 && jet3_pt_gen<7000) ){
+        double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+        if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
 	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet3_pt,"MC");
 	      double effcorrmc=1.00/valuesmc[0];	
 	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	      jMatx->Fill (jet3_pt, jet3_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet3_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet3_pt,effcorrmc);  
 	    }
 	    else{
 	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
-	      jMatx->Fill (jet3_pt, jet3_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet3_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet3_pt,effcorrmc);
 	    }
 	  }
 	  else {
-	    jMatx->Fill (jet3_pt, jet3_pt_gen);
+	    jMatx->Fill (jet3_pt, correctGenJetPt);
 	    jMCreco->Fill (jet3_pt);
 	  }
-	  jTrue->Fill (jet3_pt_gen);
+	  jTrue->Fill (correctGenJetPt);
 	}
 	supplabel="_jet3";
       }
 
       if (numbOfJets==4){
-	if((jet4_pt>0 && jet4_pt<7000) || (jet4_pt_gen>=15 && jet4_pt_gen<7000) ){
+        double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+        if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
 	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet4_pt,"MC");
 	      double effcorrmc=1.00/valuesmc[0];	
 	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	      jMatx->Fill (jet4_pt, jet4_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet4_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet4_pt,effcorrmc);  
 	    }
 	    else{
 	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
-	      jMatx->Fill (jet4_pt, jet4_pt_gen,effcorrmc);	  
+	      jMatx->Fill (jet4_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet4_pt,effcorrmc);	      
 	    }
 	  }
 	  else {
-	    jMatx->Fill (jet4_pt, jet4_pt_gen);
+	    jMatx->Fill (jet4_pt, correctGenJetPt);
 	    jMCreco->Fill (jet4_pt);
 	  }
-	  jTrue->Fill (jet4_pt_gen);
+	  jTrue->Fill (correctGenJetPt);
 	}
 	supplabel="_jet4";
       }
@@ -269,6 +342,8 @@ void Unfolding::LoopJetPt (int numbOfJets)
   jMCreco->Sumw2();
   
   cout<<"I missed "<<counter<<" events"<<endl;
+
+
   fChain = tree_fB;		/* Loop Data */
   Init (fChain);	
   Long64_t nentries2 = fChain->GetEntriesFast ();
@@ -761,17 +836,17 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
       TCanvas *N =new TCanvas ("jet pT response matrix", "jet pT response matrix", 1000, 700);
       N->cd ();
-      jMatx->SetStats (0);
-      jMatx->GetZaxis()->SetRangeUser(0.002,1);
-      jMatx->GetXaxis()->SetTitle("Reconstructed jet pT [GeV/c]");
-      jMatx->GetYaxis()->SetTitle("Generated jet pT [GeV/c]");
+      jMatxlong->SetStats (0);
+      jMatxlong->GetZaxis()->SetRangeUser(0.002,1);
+      jMatxlong->GetXaxis()->SetTitle("Reconstructed jet pT [GeV/c]");
+      jMatxlong->GetYaxis()->SetTitle("Generated jet pT [GeV/c]");
       gStyle->SetPalette (1);
       gStyle->SetPaintTextFormat ("5.3f");
       gStyle->SetNumberContours (999);
-      jMatx->SetMarkerColor (kBlack);
+      jMatxlong->SetMarkerColor (kBlack);
       double entries=1.000/(double)jMatx->Integral();
-      jMatx->Scale(entries);
-      jMatx->Draw ("COLZ,text");
+      jMatxlong->Scale(entries);
+      jMatxlong->Draw ("COLZ,text");
       string title5= s+"JetPtUnfoMatrix"+method+"_"+num.str()+supplabel+".png";
       N->Print(title5.c_str());      
 
@@ -862,21 +937,32 @@ void Unfolding::LoopJetPt (int numbOfJets)
       TH1F *jReco_leading= (TH1F*) jReco->Clone("jReco");
       jReco_leading->SetName("jReco_leading");
       jReco_leading->Write();
+      TH1F *jTrue_leading= (TH1F*) jTrue->Clone("jTrue");
+      jTrue_leading->Write();
     }
     if (numbOfJets==2) {
       TH1F *jReco_subleading= (TH1F*) jReco->Clone("jReco");
       jReco_subleading->SetName("jReco_subleading");
       jReco_subleading->Write();
+      TH1F *jTrue_subleading= (TH1F*) jTrue->Clone("jTrue");
+      jTrue_subleading->Write();
+
     }
     if (numbOfJets==3) {
       TH1F *jReco_subsubleading= (TH1F*) jReco->Clone("jReco");
       jReco_subsubleading->SetName("jReco_subsubleading");
       jReco_subsubleading->Write();
+      TH1F *jTrue_subsubleading= (TH1F*) jTrue->Clone("jTrue");
+      jTrue_subsubleading->Write();
+
     }
     if (numbOfJets==4) {
       TH1F *jReco_subsubsubleading= (TH1F*) jReco->Clone("jReco");
       jReco_subsubsubleading->SetName("jReco_subsubsubleading");
       jReco_subsubsubleading->Write();
+      TH1F *jTrue_subsubsubleading= (TH1F*) jTrue->Clone("jTrue");
+      jTrue_subsubsubleading->Write();
+
     }
 
     w->Close();
