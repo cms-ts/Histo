@@ -85,10 +85,10 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   
   //Enter the files
   fA->cd (smcdir.c_str());
-  TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
+  TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
   //DATA
   fB->cd (sdatadir.c_str());
-  TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+  TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
 
   //Setting the errors
   jTrue->Sumw2();
@@ -120,7 +120,6 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       nbytes += nb;
 
       //if (ientry>80000) continue;
-      
       if (numbOfJets<=1){
 	if( (fabs(jet1_eta)<2.4 || fabs(jet1_eta_gen)<2.4)  ){   // Old working if((jet1_eta>=0 && jet1_eta<7000) || (jet1_eta_gen>0 && jet1_eta_gen<7000) ){
 	  //Correct for efficiencies event per event
