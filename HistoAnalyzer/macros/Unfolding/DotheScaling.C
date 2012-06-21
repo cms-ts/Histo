@@ -37,16 +37,16 @@ void DotheScaling(){
 
   //JEC
   std::vector<double> systs;
-  systs=DotheSystematics();
+  systs=DotheSystematicsJECMultiplicity();
 
   //Unfolding: handmade on 16 April, see UnfoldingCoefficient file!
   std::vector<double> systsunf;
-  systsunf.push_back(0.0019);
-  systsunf.push_back(0.00680);
-  systsunf.push_back(0.0606);
-  systsunf.push_back(0.1243);
-  systsunf.push_back(0.0722);
-  systsunf.push_back(0.3967);
+  systsunf.push_back(0.017);
+  systsunf.push_back(0.048);
+  systsunf.push_back(0.076);
+  systsunf.push_back(0.092);
+  systsunf.push_back(0.140);
+  systsunf.push_back(0.105);
 
   //Save plots here
   string direc = "/afs/infn.it/ts/user/marone/html/ZJets/ScalingBG/";
@@ -73,7 +73,7 @@ void DotheScaling(){
 
   h2->Sumw2();
 
-  TFile *eff = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_17pf.root");
+  TFile *eff = TFile::Open("/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_27.root");
   //  TH1F *JetMultiplicityUnfolded;
   TH1F *h1 = (TH1F*)gDirectory->Get("JetMultiplicityUnfolded");
 
@@ -155,8 +155,8 @@ void DotheScaling(){
   lumi->AddEntry((TObject*)2,"p^{jet}_{T} #geq 30 GeV/c","");
 
   //Fit the plateau: only > 1 are considered for BG scaling 
-  TF1 *fitBG=new TF1("fitBG","[0]+[1]*x",2.,5.);
-  fitBG->SetRange(1.5,5.5);
+  TF1 *fitBG=new TF1("fitBG","[0]+[1]*x",0.5,5.);
+  fitBG->SetRange(0.5,5.5);
   h2->Fit(fitBG,"R");
   //h2->Draw("SAMES");
   double a=fitBG->GetParameter(0);
