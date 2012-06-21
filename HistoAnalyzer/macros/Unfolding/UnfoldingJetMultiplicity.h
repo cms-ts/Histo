@@ -1,12 +1,11 @@
-
-TH1D *NTrue = new TH1D ("N true", "N Truth", maxNJets-1, 1, maxNJets);
-TH1D *NData = new TH1D ("N data", "N DATA Measured", maxNJets-1, 1, maxNJets);
-TH2D *NMatx = new TH2D ("N hMatx", "Unfolding Matrix in # of jets + Z", maxNJets-1, 1, maxNJets, maxNJets-1, 1, maxNJets);
+TH1D *NTrue = new TH1D ("NTrue", "N Truth", maxNJets-0.5, 0.5, maxNJets-0.5);
+TH1D *NData = new TH1D ("NData", "N DATA Measured", maxNJets-0.5, 0.5, maxNJets-0.5);
+TH2D *NMatx = new TH2D ("N hMatx", "Unfolding Matrix in # of jets + Z", maxNJets-0.5, 0.5, maxNJets-0.5, maxNJets-0.5, 0.5, maxNJets-0.5);
 TH2D *NMatxlong = new TH2D ("N hMatxlong", "Unfolding Matrix in # of jets + Z", maxNJets, 0, maxNJets, maxNJets, 0, maxNJets);
-TH1D *NMCreco = new TH1D ("N mcreco", "N mcreco", maxNJets-1, 1, maxNJets);
-TH1D *NMCrecoratio_ = new TH1D ("N mcrecoratio_", "N mcreco_", maxNJets-1, 1, maxNJets);
-TH1D *NData2 = new TH1D ("N data2", "N DATA Measured2", maxNJets-1, 1, maxNJets);
-TH1F *relativebkgN = new TH1F("relativebkgN", "relativebkg bin contribution",maxNJets-1,0,maxNJets-1);
+TH1D *NMCreco = new TH1D ("N mcreco", "N mcreco", maxNJets-0.5, 0.5, maxNJets-0.5);
+TH1D *NMCrecoratio_ = new TH1D ("N mcrecoratio_", "N mcreco_", maxNJets-0.5, 0.5, maxNJets-0.5);
+TH1D *NData2 = new TH1D ("N data2", "N DATA Measured2", maxNJets-0.5, 0.5, maxNJets-0.5);
+TH1F *relativebkgN = new TH1F("relativebkgN", "relativebkg bin contribution",maxNJets-0.5,0.5,maxNJets-0.5);
 
 TH1F *JetMultiplicityUnfolded;
 int kminN=maxNJets-1;
@@ -14,7 +13,7 @@ int kmaxN=maxNJets;
 bool spanKvaluesN=false;
 
 
-int getNumberOfValidGenJets(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen){
+int getNumberOfValidGenJets(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet5_pt_gen, double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen){
   int counter=0;
   for (int i=1;i<=Jet_multiplicity_gen; i++){
     if (i==1){
@@ -32,6 +31,15 @@ int getNumberOfValidGenJets(int Jet_multiplicity_gen, double thresh, double jet1
     if (i==4){
       if (jet4_pt_gen<thresh || fabs(jet4_eta_gen)>2.4 ) counter++;
     }
+
+    if (i==5){
+      if (jet5_pt_gen<thresh || fabs(jet5_eta_gen)>2.4 ) counter++;
+    }
+
+    if (i==6){
+      if (jet6_pt_gen<thresh || fabs(jet6_eta_gen)>2.4 ) counter++;
+    }
+    
   }// for
   return counter;
 }// end
@@ -52,13 +60,14 @@ void Unfolding::LoopJetMultiplicity ()
     kminN=1;
     kmaxN=maxNJets-2; 
   }
+
   
   string sdatadir=sdata+":/validationJEC";
   string smcdir=smc+":/validationJEC";
   fA->cd (smcdir.c_str());
-  TTree *tree_fA = (TTree *) gDirectory->Get ("treeUN_");
+  TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
   fB->cd (sdatadir.c_str());
-  TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+  TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
   
   //Setting the errors
   NTrue->Sumw2();
@@ -86,22 +95,32 @@ void Unfolding::LoopJetMultiplicity ()
     if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
     
     if (Jet_multiplicity >= 0 || Jet_multiplicity_gen >= 0){
-      
       double thresh=15.0;
       
       // To control and exclude jets having energy below "thresh"
       int offsetJetMultiplicity=0;
-      offsetJetMultiplicity=getNumberOfValidGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+      
+      offsetJetMultiplicity=getNumberOfValidGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
 
       if (correctForEff){
-	std::vector<double> valuesmc=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"MC");
-	double effcorrmc=1.00/valuesmc[0];	
-	double efferrmc=valuesmc[1]/pow(valuesmc[0],2); 
-	NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
+	if (!useElectronsToCorrect){
+	  std::vector<double> valuesmc=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"MC");
+	  double effcorrmc=1.00/valuesmc[0];	
+	  double efferrmc=valuesmc[1]/pow(valuesmc[0],2); 
+	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
 	  NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	}
+	else{
+	  double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
+	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
+	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
+	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
+	  NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	}
       }
       else{
 	NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
@@ -136,11 +155,18 @@ void Unfolding::LoopJetMultiplicity ()
     
     if (Jet_multiplicity >= 0){
       if (correctForEff){
-	std::vector<double> valuesdata=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"Data");
-	double effcorrdata=1.00/valuesdata[0];	
-	double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
-	NData->Fill (Jet_multiplicity,effcorrdata);
-	NData2->Fill (Jet_multiplicity,effcorrdata);
+	if (!useElectronsToCorrect){
+	  std::vector<double> valuesdata=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"Data");
+	  double effcorrdata=1.00/valuesdata[0];	
+	  double efferrdata=valuesdata[1]/pow(valuesdata[0],2);
+	  NData->Fill (Jet_multiplicity,effcorrdata);
+	  NData2->Fill (Jet_multiplicity,effcorrdata);
+	}
+	else{
+	  double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
+	  NData->Fill (Jet_multiplicity,effcorrdata);
+	  NData2->Fill (Jet_multiplicity,effcorrdata);
+	}
       }
       else{
 	NData->Fill (Jet_multiplicity);
@@ -257,6 +283,7 @@ void Unfolding::LoopJetMultiplicity ()
       NReco->GetXaxis()->SetTitle("# of Jets");
       NReco->GetXaxis()->SetTitleSize(0.00);
       NReco->GetYaxis()->SetLabelSize(0.07);
+      NReco->GetXaxis()->SetLabelSize(0.00);
       NReco->GetYaxis()->SetTitleSize(0.08);
       NReco->GetYaxis()->SetTitleOffset(0.76);
       NReco->Draw("EP");		//risultato dell'unfolding
@@ -327,7 +354,7 @@ void Unfolding::LoopJetMultiplicity ()
       NReco->GetYaxis ()->SetTitleOffset (0.5);
 
       NReco->GetYaxis ()->SetRangeUser (0.5, 1.5);
-      NReco->GetXaxis ()->SetRangeUser (0, 7.5);
+      //NReco->GetXaxis ()->SetRangeUser (0, 7.5);
       NReco->SetMarkerStyle (20);
       NReco->SetLineWidth (0);
       NReco->SetTitle ("");
@@ -337,14 +364,14 @@ void Unfolding::LoopJetMultiplicity ()
       NReco->GetYaxis ()->SetTitleSize (0.06);
       NReco->GetYaxis ()->SetTitleOffset (0.5);
 
-      NReco->GetXaxis ()->SetRangeUser (0, 5);
+      //NReco->GetXaxis ()->SetRangeUser (0, 5);
       NReco->GetYaxis ()->SetTitle ("Ratios");
       NReco->GetXaxis ()->SetTitle("jet Multiplicity");
       NReco->SetMarkerStyle (20);
       NReco->SetLineWidth (0);
       NReco->SetTitle ("");
       NReco->SetLineWidth (0.1);
-      NReco->GetYaxis()->SetNdivisions(5);
+      NReco->GetYaxis()->SetNdivisions(7);
       NReco->GetXaxis()->SetTitleSize(0.14);
       NReco->GetXaxis()->SetLabelSize(0.14);
       NReco->GetYaxis()->SetLabelSize(0.11);
@@ -387,6 +414,7 @@ void Unfolding::LoopJetMultiplicity ()
       if (correctForEff) title3= s+"JETMULTI"+method+"_"+num.str()+"_effcorr.png";
       else title3= s+"JETMULTI"+method+"_"+num.str()+".png";
       cmultip->cd ();
+
       cmultip->Print(title3.c_str());
       num.str("");
       cout<<"PNG file saved (maybe) on "<<title3<<endl;
@@ -398,6 +426,7 @@ void Unfolding::LoopJetMultiplicity ()
     TFile* w = new TFile(filename.c_str(), "UPDATE");
     w->cd();
     JetMultiplicityUnfolded->Write();
+    NTrue->Write();
     w->Close();
   }  
 
