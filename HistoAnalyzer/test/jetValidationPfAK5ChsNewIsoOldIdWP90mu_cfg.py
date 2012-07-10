@@ -817,6 +817,7 @@ process.Selection = cms.EDFilter('ZpatFilter2011',
 process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                    pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
+                                   pflowMuCollection = cms.untracked.InputTag("pfIsolatedMuons"),                                   
                                    useNewID=  cms.bool(False),
                                    doWP90 =  cms.untracked.bool(True),
                                    secondEleEnThrhold   = cms.double(20.0),
@@ -879,12 +880,9 @@ process.pfIsolatedElectrons.isolationCut = 999 ### VERY loose, true isolation do
 ### Electron Removal
 ###########################
 process.pfNoElectron.bottomCollection = cms.InputTag("pfNoPileUp")
-#process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
-process.pfNoElectron.topCollection = cms.InputTag("goodElec")   #remove all the electron passing the selections
+process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
+#process.pfNoElectron.topCollection = cms.InputTag("goodElec")   #remove all the electron passing the selections
 
-process.pfNoMuon.bottomCollection = cms.InputTag("pfNoPileUp")
-#process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
-process.pfNoMuon.topCollection = cms.InputTag("goodEP")   #remove all the electron passing the selections
 ######################
 #                    #
 #  TRG MATCHING -ON- #
