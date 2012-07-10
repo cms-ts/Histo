@@ -99,8 +99,13 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    ///// Z Analysis
    ///////////////////////
 
-    edm::Handle<reco::GsfElectronCollection > goodEPair;
    edm::Handle<reco::PFCandidateCollection> goodPfEPair;
+   edm::Handle<reco::GsfElectronCollection > goodEPair;
+
+   if (! iEvent.getByLabel (goodEPairTag, goodPfEPair)) {
+     cout<<"Add a filter to avoid Z->mumu non selected"<<endl;
+     return;
+   }
    int checkGoodEPairSize=0;
    if (!usingPF){
       iEvent.getByLabel (goodEPairTag, goodEPair);
@@ -117,7 +122,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<reco::PFCandidateCollection> pfPart;
    iEvent.getByLabel (pflowCollection_,pfPart);
   
-
+   cout<<" Leptons size->"<<checkGoodEPairSize<<endl;
    if (checkGoodEPairSize==2)
  
    {   
