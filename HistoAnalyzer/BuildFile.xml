@@ -14,8 +14,13 @@
 <use name="JetMETCorrections/Algorithms"/>
 <use name="HLTrigger/HLTcore"/>
 
-<export>
-<lib name="1"/>
-</export>
+<use   name="DataFormats/VertexReco" />
+<use   name="root"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/PatCandidates" />
+<use   name="EGamma/EGammaAnalysisTools" />
 
 <flags EDM_PLUGIN="1"/>
