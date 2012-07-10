@@ -806,6 +806,7 @@ process.Selection = cms.EDFilter('ZpatFilter2011',
 process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                    pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
+                                   pflowMuCollection = cms.untracked.InputTag("pfIsolatedMuons"),                                   
                                    useNewID=  cms.bool(False),
                                    doWP90 =  cms.untracked.bool(True),
                                    secondEleEnThrhold   = cms.double(20.0),
@@ -819,6 +820,8 @@ process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                          cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                          cms.InputTag('elPFIsoValueNeutral03PFIso')),
+                                   ZmumuCandidates = cms.untracked.InputTag("zmuMatchedmuMatched"),
+                                   isElectron= cms.untracked.bool(False)
                                    )
 
 process.goodElec = cms.EDProducer('goodEleProducer2011',
@@ -865,8 +868,7 @@ process.pfIsolatedElectrons.isolationCut = 999 ### VERY loose, true isolation do
 ### Electron Removal
 ###########################
 process.pfNoElectron.bottomCollection = cms.InputTag("pfNoPileUp")
-#process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
-process.pfNoElectron.topCollection = cms.InputTag("goodElec")   #remove all the electron passing the selections
+process.pfNoElectron.topCollection = cms.InputTag("goodEPair")   #remove only the two electron candidates
 
 ######################
 #                    #
@@ -1091,7 +1093,9 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('jetValidation.root')
                                    )
 
-
+process.electronMatch.matched = "genParticles"
+process.muonMatch.matched = "genParticles"
+process.muonMatch.src = "pfMuons"
 
 #####################
 #                   #
@@ -1118,6 +1122,9 @@ process.ToolInizialization = cms.Path(
     process.ak5PFJets*
     process.ak5PFJetsL1FastL2L3*
     process.goodOfflinePrimaryVertices*
+    process.genParticlesForJetsNoNu*
+    process.genParticlesForJetsNoNuNoGammaCone*
+    process.ak5GenJetsNoGammaCone*
     ## isolation sequence
     process.pfNoPileUpSequence*
     process.pfParticleSelectionSequence*
@@ -1125,19 +1132,30 @@ process.ToolInizialization = cms.Path(
     process.muIsoSequence*
     process.pfElectronSequence*
     process.pfMuonSequence*
+    process.muonMatch*
     process.patTrigger*
-    process.patDefaultSequence
-    #process.patElectronsWithTrigger*
-    #process.allMuons*                                          ## our final muon collection: all muons
-    #process.tightMuons*                                        ## our final muon collection: tight muons
-    #process.matchedMuons*                                      ## our final muon collection: matched muons
-    #(process.zmuAllmuAll+                                      ##
-    # process.zmuTightmuTight+                                  ##
-    # process.zmuMatchedmuMatched)* 
-    #process.goodElec*
-    #process.pfNoElectron*
-    #process.ak5PFJetsRC*
-    #process.ak5PFchsJetsRCL1FastL2L3
+    process.patMuons*
+    process.selectedPatMuons+process.selectedMuonsWithIsolationData*
+    process.muonTriggerMatchHLTMuons*
+    process.selectedPatMuonsTriggerMatch *
+    process.patDefaultSequence*
+    process.patElectronsWithTrigger*
+    process.allMuons*                                          ## our final muon collection: all muons
+    process.tightMuons*                                        ## our final muon collection: tight muons
+    process.matchedMuons*                                      ## our final muon collection: matched muons
+    (process.zmuAllmuAll+                                      ##
+    process.zmuTightmuTight+                                  ##
+     process.zmuMatchedmuMatched)*
+    process.goodEPair*
+    process.eleTriggerMatchHLT*
+    process.demo*
+    process.goodElec*
+    process.pfNoElectron*
+    process.pfNoMuon*
+    process.ak5PFJetsRC*
+    process.ak5PFchsJetsRCL1FastL2L3*
+    process.validationJEC
+   
     )
 
 # process.TAPAnalysisWP80 = cms.Path(
@@ -1295,5 +1313,5 @@ process.ToolInizialization = cms.Path(
 #####################
 
 process.outpath = cms.EndPath(
-    process.out
+    #process.out
     )
