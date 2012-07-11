@@ -522,8 +522,9 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                          JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeOLDJEC_")  
+                                       JECUncertainties= cms.double(0), 
+                                       RootuplaName = cms.string("treeOLDJEC_") ,
+                                       isElectron= cms.untracked.bool(False)   
                                        )
                                  
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -546,7 +547,8 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treeTESTJEC_")   
+                                       RootuplaName = cms.string("treeTESTJEC_") ,
+                                       isElectron= cms.untracked.bool(False)     
                                        )
                                  
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -569,7 +571,8 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0),  
-                                       RootuplaName = cms.string("treePUJEC_") 
+                                       RootuplaName = cms.string("treePUJEC_") ,
+                                       isElectron= cms.untracked.bool(False)   
                                        )
 
 
@@ -595,7 +598,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeValidationJEC_")  
+                                       RootuplaName = cms.string("treeValidationJEC_") ,
+                                       isElectron= cms.untracked.bool(False)   
                                        )
                                    
 process.validationL2L3 = cms.EDAnalyzer('jetValidation',
@@ -618,7 +622,8 @@ process.validationL2L3 = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),  
                                       JECUncertainties= cms.double(0),  
-                                       RootuplaName = cms.string("treeL2L3_")                                               
+                                       RootuplaName = cms.string("treeL2L3_") ,
+                                       isElectron= cms.untracked.bool(False)                                                 
                                        )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -640,8 +645,9 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treePU_")                                     
+                                    JECUncertainties= cms.double(0), 
+                                    RootuplaName = cms.string("treePU_"),
+                                    isElectron= cms.untracked.bool(False)                                       
                                     )
 
 
@@ -666,8 +672,9 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeRC_")                                       
+                                    JECUncertainties= cms.double(0), 
+                                    RootuplaName = cms.string("treeRC_"),
+                                    isElectron= cms.untracked.bool(False)                                        
                                     )
 
 
@@ -716,7 +723,8 @@ process.validationJECXSScaleUp = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treeXSScaleUp_")
+                                       RootuplaName = cms.string("treeXSScaleUp_") ,
+                                       isElectron= cms.untracked.bool(False)  
                                        )
 
 process.validationJECXSScaleDown = cms.EDAnalyzer('jetValidation',
@@ -741,7 +749,8 @@ process.validationJECXSScaleDown = cms.EDAnalyzer('jetValidation',
                                                   chargedHadronEnergyFraction= cms.double(0.0),
                                                   chargedMultiplicity= cms.int32(0),
                                                   JECUncertainties= cms.double(0),
-                                                  RootuplaName = cms.string("treeXSScaleDown_"),
+                                                  RootuplaName = cms.string("treeXSScaleDown_") ,
+                                                  isElectron= cms.untracked.bool(False)  
                                                   )
 
 
