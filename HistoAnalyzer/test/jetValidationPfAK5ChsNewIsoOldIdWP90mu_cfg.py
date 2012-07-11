@@ -1347,28 +1347,28 @@ process.EPTAnalysisEleWP80 = cms.Path(
     process.EPTeleWp80
     )
 
-process.EPTAnalysisHLTele8NOTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsNOTEle17*
-    process.trgmatchPatElectronsEle8NOTEle17*
-    process.trgmatchPatElectronsReco*
-    process.EPThltele8NOTele17
-    )
-
-
-process.EPTAnalysisHLTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle17*    
-    process.trgmatchPatElectronsReco*
-    process.EPThltele17
-    )
-
-process.EPTAnalysisEleRECO = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsReco*
-    process.trgmatchPatElectronsEle8*
-    process.EPTeleReco
-    )
+#process.EPTAnalysisHLTele8NOTele17 = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchPatElectronsNOTEle17*
+#    process.trgmatchPatElectronsEle8NOTEle17*
+#    process.trgmatchPatElectronsReco*
+#    process.EPThltele8NOTele17
+#    )
+#
+#
+#process.EPTAnalysisHLTele17 = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchPatElectronsEle17*    
+#    process.trgmatchPatElectronsReco*
+#    process.EPThltele17
+#    )
+#
+#process.EPTAnalysisEleRECO = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchPatElectronsReco*
+#    process.trgmatchPatElectronsEle8*
+#    process.EPTeleReco
+#    )
 
 process.EPTAnalysisMuoWP80 = cms.Path(
     process.goodOfflinePrimaryVertices*
@@ -1377,20 +1377,20 @@ process.EPTAnalysisMuoWP80 = cms.Path(
     process.EPTmuoWp80
     )
 
-process.EPTAnalysishltmuoTight = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsNOTtight*
-    process.trgmatchAsymMuonsLooseNOTtight*
-    process.trgmatchAsymMuonsLoose*
-    process.EPThltmuoTight
-    )
-
-process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsTight*
-    process.trgmatchAsymMuonsLoose*
-    process.EPThltmuoLooseNOTtight
-    )
+#process.EPTAnalysishltmuoTight = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchAsymMuonsNOTtight*
+#    process.trgmatchAsymMuonsLooseNOTtight*
+#    process.trgmatchAsymMuonsLoose*
+#    process.EPThltmuoTight
+#    )
+#
+#process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchAsymMuonsTight*
+#    process.trgmatchAsymMuonsLoose*
+#    process.EPThltmuoLooseNOTtight
+#    )
 
 #process.EPTAnalysisMuoRECO = cms.Path(
 #    process.goodOfflinePrimaryVertices*
