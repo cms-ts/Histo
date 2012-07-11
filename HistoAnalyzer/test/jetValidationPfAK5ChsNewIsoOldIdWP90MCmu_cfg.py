@@ -1043,6 +1043,7 @@ process.trgmatchPatElectronsReco = cms.EDProducer("trgMatchedPatElectronProducer
 #process.genParticlesForJetsNoNu.ignoreParticleIDs += cms.vuint32( 12,14,16)
 
 process.genParticlesForJetsNoNuNoGammaCone = cms.EDProducer("photonRemoval",
+    isElectron = cms.untracked.bool("false"), 
     bottomCollection = cms.InputTag("genParticlesForJetsNoNu"),
     particleCollection = cms.InputTag("genParticles"),
     barrelRCone = cms.untracked.double(0.05),
