@@ -28,7 +28,7 @@
 #include "TLatex.h"
 #include <vector>
 #include <iostream>
-#include "tdrStyle.C"
+//#include "tdrStyle.C"
 #include <TROOT.h>
 #include "TObject.h"
 #include <iostream>
@@ -56,14 +56,14 @@ string version="_v2_28.root";
 //string smc="/gpfs/cms/data/2011/jet/jetValidation_dytoee_pythia_2011_v2_27.root";
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version;
 
-//string sdata="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_22.root";
+//string sdata="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_28.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 
 TFile *fA = new TFile (smc.c_str());
 TFile *fB = new TFile (sdata.c_str());
 
 //Directory and files to start with
-string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
+string s = "/afs/infn.it/ts/user/candelis/html/Unfolding/";
 
 //Save histos to be used afterward
 bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
@@ -102,12 +102,14 @@ TFile *fBeff = new TFile (efffile.c_str());
 /* Number of jet associated to a Z distribution */
 //-------------------------
 double jetPtthreshold=30.0;
-int maxNJets=7;
+int maxNJets=6;
 //------------------------
 
 TH1D *NReco;
 TH1D *PReco;
 TH1D *yReco;
+TH1D *HReco;
+
 bool cold=true;
 std::vector<std::vector<double> > kcontainer;
 TH1D *PRatio;
@@ -117,6 +119,7 @@ string supplabel="";
 TCanvas* C = new TCanvas("C","C",0,0,800,600);
 TCanvas *cmultip = new TCanvas ("cmultip", "cmultip", 1000, 700);
 
+	  double jetPt=0.0;
 
 //Set the Matrixes size!
 
@@ -130,11 +133,12 @@ void
 Unfolding::Loop()
 {
   setTDRStyle();
-  LoopJetMultiplicity();
+  //LoopJetMultiplicity();
   //LoopZpt();
   //LoopZy();
+  LoopHt();
   int numbOfJets=1;
-  LoopJetPt(numbOfJets);
+  //LoopJetPt(numbOfJets);
   //LoopJetEta(numbOfJets);
 }
 
@@ -143,10 +147,11 @@ Unfolding::LoopOneFour()
 {
   setTDRStyle();
   LoopJetMultiplicity();
+  LoopHt();
   for (int i=1; i<=3; i++){
     //LoopZpt();
     //LoopZy();
-    LoopJetPt(i);
+    //LoopJetPt(i);
     //LoopJetEta(i);
   }
 }
@@ -156,6 +161,7 @@ Unfolding::LoopOneFour()
 #include "UnfoldingJetMultiplicity.h"
 #include "UnfoldingZPt.h"
 #include "UnfoldingZy.h"
+#include "UnfoldingHt.h"
 #include "UnfoldingJetPt.h"
 #include "LoopEta.h"
 
@@ -187,7 +193,7 @@ std::vector<double> getBackgroundContributions(string filename, string str){
   TH1F *leadhisto3;
   TH1F *leadhisto4;
   TH1F *multiphisto;
-
+  TH1F *hthisto;
 
   //Check for the interesting plots, regardless the content..
   while ( (tobj = iter.Next()) ) {
@@ -208,8 +214,11 @@ std::vector<double> getBackgroundContributions(string filename, string str){
     if(temp=="multiphisto"){
       gDirectory->GetObject(name.c_str(),multiphisto);
     } 
-  }
   
+    if(temp=="hthisto"){
+      gDirectory->GetObject(name.c_str(),multiphisto);
+    } 
+}
   if (str=="jet_pT"){
     for(int k=0; k<leadhisto->GetNbinsX(); k++){
       value.push_back(leadhisto->GetBinContent(k+1));
@@ -237,6 +246,12 @@ std::vector<double> getBackgroundContributions(string filename, string str){
   if (str=="jet_Multiplicity"){
     for(int k=0; k<multiphisto->GetNbinsX(); k++){
         value.push_back(multiphisto->GetBinContent(k+1));
+    }
+  }
+  
+  if (str=="HT"){
+    for(int k=0; k<hthisto->GetNbinsX(); k++){
+        value.push_back(hthisto->GetBinContent(k+1));
     }
   }
   

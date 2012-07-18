@@ -108,6 +108,7 @@ public :
    virtual void     LoopJetMultiplicity();
    virtual void     LoopZpt();
    virtual void     LoopZy();
+   virtual void     LoopHt();
    virtual void     Loop();
    virtual void     LoopOneFour();
    virtual void     LoopJetPt(int numbOfJets);
