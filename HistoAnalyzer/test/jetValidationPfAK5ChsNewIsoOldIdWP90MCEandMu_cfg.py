@@ -1101,6 +1101,7 @@ process.muonMatch.src = "pfMuons"
 
 
 process.TotalEventCounter = cms.EDProducer("EventCountProducer")
+process.TotalEventCounterMu = cms.EDProducer("EventCountProducer")
 
 
 #####################
@@ -1112,19 +1113,10 @@ process.TotalEventCounter = cms.EDProducer("EventCountProducer")
 process.patDefaultSequence.replace(process.selectedPatMuons,cms.Sequence(process.selectedPatMuons+process.selectedMuonsWithIsolationData))
 
 process.ToolInizialization = cms.Path(
-    process.goodPV*
     process.kt6PFJetsForIsolation*
     process.kt6PFJets*
     process.ak5PFJets*
     process.ak5PFJetsL1FastL2L3*
-    process.goodOfflinePrimaryVertices*
-    process.genParticlesForJetsNoNu*
-    ## gen jets without electrons
-    process.genParticlesForJetsENoNuNoGammaCone*
-    process.ak5GenJetsENoGammaCone*
-    ## gen jets without muons
-    process.genParticlesForJetsMuNoNuNoGammaCone*
-    process.ak5GenJetsMuNoGammaCone*
     ## isolation sequence
     process.pfNoPileUpSequence*
     process.pfParticleSelectionSequence*
@@ -1137,31 +1129,57 @@ process.ToolInizialization = cms.Path(
     process.patMuons*
     process.selectedPatMuons+process.selectedMuonsWithIsolationData*
     process.muonTriggerMatchHLTMuons*
-    process.selectedPatMuonsTriggerMatch *
-    process.patDefaultSequence*
-    process.patElectronsWithTrigger*
+    process.selectedPatMuonsTriggerMatch *    
+    process.patDefaultSequence
+    )
+
+process.JetValidation = cms.Path(
+    process.TotalEventCounter*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger*  
+    process.goodOfflinePrimaryVertices*
+    process.goodElec*
+    process.pfNoElectron*
+    process.Selection*
+    process.goodEPair*
+    process.demo*
+    ## gen jets without electrons
+    process.genParticlesForJetsNoNu*
+    process.genParticlesForJetsENoNuNoGammaCone*
+    process.ak5GenJetsENoGammaCone*
+    ## jets without electrons
+    process.ak5PFJetsRC*
+    process.ak5PFchsJetsRCL1FastL2L3*
+    #process.reclusValidation*
+    #process.validationOldJEC*
+    #process.validationPUJEC*
+    process.validationJECXSScaleUp*
+    process.validationJECXSScaleDown*
+    process.validationJEC
+    )
+
+process.JetValidationMU = cms.Path(
+    process.TotalEventCounterMu*
+    process.goodPV *
+    ## gen jets without muons
+    process.genParticlesForJetsMuNoNuNoGammaCone*
+    process.ak5GenJetsMuNoGammaCone*
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
     process.matchedMuons*                                      ## our final muon collection: matched muons
     (process.zmuAllmuAll+                                      ##
      process.zmuTightmuTight+                                  ##
      process.zmuMatchedmuMatched)*
-    process.goodEPair*
     process.goodMuPair*
-    process.eleTriggerMatchHLT*
-    process.demo*
-    process.goodElec*
-    process.pfNoElectron*
     process.pfNoMuon*
-    ## jets without electrons
-    process.ak5PFJetsRC*
-    process.ak5PFchsJetsRCL1FastL2L3*
     ## jets without muons
     process.ak5PFJetsRCmu*
     process.ak5PFchsJetsRCmuL1FastL2L3*
     ## analysis
-    process.validationJEC*
+    process.validationJECMuXSScaleUp*
+    process.validationJECMuXSScaleDown*
     process.validationJECmu
+    
     )
 
 process.EPTAnalysisEleWP80 = cms.Path(
@@ -1279,38 +1297,6 @@ process.EPTAnalysishltmuoLooseNOTtight_MC = cms.Path(
 #    process.trgmatchAsymMuonsTight*
 #    process.EPTmuoReco_MC
 #    )
-
-# process.JetValidation = cms.Path(
-#     process.TotalEventCounter*
-#     process.eleTriggerMatchHLT*
-#     process.patElectronsWithTrigger*  
-#     process.goodOfflinePrimaryVertices*
-#     process.Selection*
-#     process.goodEPair*
-#     process.demo*
-#     process.genParticlesForJetsNoNu*
-#     process.genParticlesForJetsNoNuNoGammaCone*
-#     process.ak5GenJetsNoGammaCone*
-#     #process.reclusValidation*
-#     #process.validationOldJEC*
-#     #process.validationPUJEC*
-#     process.validationJECXSScaleUp*
-#     process.validationJECXSScaleDown*
-#     process.validationJEC
-#     )
-
-
-#process.JetValidationMU = cms.Path(
- #   process.goodPV *
- #   process.muonTriggerMatchHLTMuons *
- #   process.selectedPatMuonsTriggerMatch *
- #   process.allMuons *
- #   process.tightMuons *
- #   process.matchedMuons *
- #   process.zmuAllmuAll *
- #   process.zmuTightmuTight *
- #   process.zmuMatchedmuMatched
- #   )
 
 #####################
 #                   #
