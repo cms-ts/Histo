@@ -511,6 +511,13 @@ process.demo = cms.EDProducer('HistoAnalyzer',
                               RootuplaName = cms.string("treeVJ_")
 )
 
+process.demoE = process.demo.clone(
+                              RootuplaName = "treeVJe_"
+                              )
+
+process.demoMu = process.demo.clone(
+                              RootuplaName = "treeVJmu_"
+                              )
 
 ####################
 #### Lepton Selection
@@ -1117,7 +1124,9 @@ process.ToolInizialization = cms.Path(
     process.kt6PFJets*
     process.ak5PFJets*
     process.ak5PFJetsL1FastL2L3*
+    process.genParticlesForJetsNoNu*
     ## isolation sequence
+    process.goodOfflinePrimaryVertices*
     process.pfNoPileUpSequence*
     process.pfParticleSelectionSequence*
     process.eleIsoSequence*
@@ -1130,21 +1139,21 @@ process.ToolInizialization = cms.Path(
     process.selectedPatMuons+process.selectedMuonsWithIsolationData*
     process.muonTriggerMatchHLTMuons*
     process.selectedPatMuonsTriggerMatch *    
-    process.patDefaultSequence
+    process.patDefaultSequence*
+    process.eleTriggerMatchHLT*
+    process.patElectronsWithTrigger  
     )
 
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
-    process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger*  
+    process.demo*
     process.goodOfflinePrimaryVertices*
     process.goodElec*
     process.pfNoElectron*
     process.Selection*
     process.goodEPair*
-    process.demo*
+    process.demoE*
     ## gen jets without electrons
-    process.genParticlesForJetsNoNu*
     process.genParticlesForJetsENoNuNoGammaCone*
     process.ak5GenJetsENoGammaCone*
     ## jets without electrons
@@ -1161,9 +1170,6 @@ process.JetValidation = cms.Path(
 process.JetValidationMU = cms.Path(
     process.TotalEventCounterMu*
     process.goodPV *
-    ## gen jets without muons
-    process.genParticlesForJetsMuNoNuNoGammaCone*
-    process.ak5GenJetsMuNoGammaCone*
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
     process.matchedMuons*                                      ## our final muon collection: matched muons
@@ -1172,6 +1178,10 @@ process.JetValidationMU = cms.Path(
      process.zmuMatchedmuMatched)*
     process.goodMuPair*
     process.pfNoMuon*
+    process.demoMu*
+    ## gen jets without muons
+    process.genParticlesForJetsMuNoNuNoGammaCone*
+    process.ak5GenJetsMuNoGammaCone*
     ## jets without muons
     process.ak5PFJetsRCmu*
     process.ak5PFchsJetsRCmuL1FastL2L3*
@@ -1182,121 +1192,121 @@ process.JetValidationMU = cms.Path(
     
     )
 
-process.EPTAnalysisEleWP80 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle8*
-    process.trgmatchPatElectronsEle17*
-    process.EPTeleWp80
-    )
+# process.EPTAnalysisEleWP80 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle8*
+#     process.trgmatchPatElectronsEle17*
+#     process.EPTeleWp80
+#     )
 
-process.EPTAnalysisEleWP80_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle8*
-    process.trgmatchPatElectronsEle17*
-    process.EPTeleWp80_MC
-    )
+# process.EPTAnalysisEleWP80_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle8*
+#     process.trgmatchPatElectronsEle17*
+#     process.EPTeleWp80_MC
+#     )
 
-process.EPTAnalysisHLTele8NOTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsNOTEle17*
-    process.trgmatchPatElectronsEle8NOTEle17*
-    process.trgmatchPatElectronsReco*
-    process.EPThltele8NOTele17
-    )
+# process.EPTAnalysisHLTele8NOTele17 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsNOTEle17*
+#     process.trgmatchPatElectronsEle8NOTEle17*
+#     process.trgmatchPatElectronsReco*
+#     process.EPThltele8NOTele17
+#     )
 
-process.EPTAnalysisHLTele8NOTele17_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsNOTEle17*
-    process.trgmatchPatElectronsEle8NOTEle17*
-    process.trgmatchPatElectronsReco*
-    process.EPThltele8NOTele17_MC
-    )
+# process.EPTAnalysisHLTele8NOTele17_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsNOTEle17*
+#     process.trgmatchPatElectronsEle8NOTEle17*
+#     process.trgmatchPatElectronsReco*
+#     process.EPThltele8NOTele17_MC
+#     )
 
-process.EPTAnalysisHLTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle17*    
-    process.trgmatchPatElectronsReco*
-    process.EPThltele17
-    )
+# process.EPTAnalysisHLTele17 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle17*    
+#     process.trgmatchPatElectronsReco*
+#     process.EPThltele17
+#     )
 
-process.EPTAnalysisHLTele17_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle17*    
-    process.trgmatchPatElectronsReco*
-    process.EPThltele17_MC
-    )
+# process.EPTAnalysisHLTele17_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle17*    
+#     process.trgmatchPatElectronsReco*
+#     process.EPThltele17_MC
+#     )
 
-process.EPTAnalysisEleRECO = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle8*
-    process.trgmatchPatElectronsReco*
-    process.EPTeleReco
-    )
+# process.EPTAnalysisEleRECO = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle8*
+#     process.trgmatchPatElectronsReco*
+#     process.EPTeleReco
+#     )
 
-process.EPTAnalysisEleRECO_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle8*
-    process.trgmatchPatElectronsReco*
-    process.EPTeleReco_MC
-    )
+# process.EPTAnalysisEleRECO_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle8*
+#     process.trgmatchPatElectronsReco*
+#     process.EPTeleReco_MC
+#     )
 
-process.EPTAnalysisMuoWP80 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsLoose*
-    process.trgmatchAsymMuonsTight*
-    process.EPTmuoWp80
-    )
+# process.EPTAnalysisMuoWP80 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchAsymMuonsLoose*
+#     process.trgmatchAsymMuonsTight*
+#     process.EPTmuoWp80
+#     )
 
-process.EPTAnalysisMuoWP80_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsLoose*
-    process.trgmatchAsymMuonsTight*
-    process.EPTmuoWp80_MC
-    )
+# process.EPTAnalysisMuoWP80_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchAsymMuonsLoose*
+#     process.trgmatchAsymMuonsTight*
+#     process.EPTmuoWp80_MC
+#     )
 
-process.EPTAnalysishltmuoTight = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsTight*
-    process.trgmatchSingleMuons*
-    process.EPThltmuoTight
-    )
+# process.EPTAnalysishltmuoTight = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchAsymMuonsTight*
+#     process.trgmatchSingleMuons*
+#     process.EPThltmuoTight
+#     )
 
-process.EPTAnalysishltmuoTight_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsTight*
-    process.trgmatchSingleMuons*
-    process.EPThltmuoTight_MC
-    )
+# process.EPTAnalysishltmuoTight_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchAsymMuonsTight*
+#     process.trgmatchSingleMuons*
+#     process.EPThltmuoTight_MC
+#     )
 
-process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsNOTtight*
-    process.trgmatchAsymMuonsLooseNOTtight*
-    process.trgmatchSingleMuons*
-    process.EPThltmuoLooseNOTtight
-    )
+# process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchAsymMuonsNOTtight*
+#     process.trgmatchAsymMuonsLooseNOTtight*
+#     process.trgmatchSingleMuons*
+#     process.EPThltmuoLooseNOTtight
+#     )
 
-process.EPTAnalysishltmuoLooseNOTtight_MC = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsNOTtight*
-    process.trgmatchAsymMuonsLooseNOTtight*
-    process.trgmatchSingleMuons*
-    process.EPThltmuoLooseNOTtight_MC
-    )
+# process.EPTAnalysishltmuoLooseNOTtight_MC = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchAsymMuonsNOTtight*
+#     process.trgmatchAsymMuonsLooseNOTtight*
+#     process.trgmatchSingleMuons*
+#     process.EPThltmuoLooseNOTtight_MC
+#     )
 
-#process.EPTAnalysisMuoRECO = cms.Path(
-#    process.goodOfflinePrimaryVertices*
-#    process.trgmatchAsymMuonsLoose*
-#    process.trgmatchAsymMuonsTight*
-#    process.EPTmuoReco
-#    )
+# #process.EPTAnalysisMuoRECO = cms.Path(
+# #    process.goodOfflinePrimaryVertices*
+# #    process.trgmatchAsymMuonsLoose*
+# #    process.trgmatchAsymMuonsTight*
+# #    process.EPTmuoReco
+# #    )
 
-#process.EPTAnalysisMuoRECO_MC = cms.Path(
-#    process.goodOfflinePrimaryVertices*
-#    process.trgmatchAsymMuonsLoose*
-#    process.trgmatchAsymMuonsTight*
-#    process.EPTmuoReco_MC
-#    )
+# #process.EPTAnalysisMuoRECO_MC = cms.Path(
+# #    process.goodOfflinePrimaryVertices*
+# #    process.trgmatchAsymMuonsLoose*
+# #    process.trgmatchAsymMuonsTight*
+# #    process.EPTmuoReco_MC
+# #    )
 
 #####################
 #                   #
