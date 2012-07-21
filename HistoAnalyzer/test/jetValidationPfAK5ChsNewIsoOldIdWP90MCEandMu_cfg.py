@@ -1178,7 +1178,7 @@ process.JetValidationMU = cms.Path(
      process.zmuMatchedmuMatched)*
     process.goodMuPair*
     process.pfNoMuon*
-    process.demoMu*
+    #process.demoMu*
     ## gen jets without muons
     process.genParticlesForJetsMuNoNuNoGammaCone*
     process.ak5GenJetsMuNoGammaCone*
