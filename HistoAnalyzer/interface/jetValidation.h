@@ -102,6 +102,7 @@ class jetValidation : public edm::EDAnalyzer {
       bool usingPF;
       bool useCkElInJet;
       bool doPlotsJetComposition;
+      bool isElectron;
       double param;
 
       //JEC
@@ -371,6 +372,8 @@ class jetValidation : public edm::EDAnalyzer {
       double neutralEmEnergyFraction;
       double chargedHadronEnergyFraction;
       int chargedMultiplicity;
+
+      int leptonId;
      
       //vertices
       int numberOfVertices;
@@ -402,6 +405,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   usingMC             = conf.getUntrackedParameter<bool>("usingMC",false);
   useCkElInJet        = conf.getUntrackedParameter<bool>("useCkElInJet",false);
   genJetsCollection   = conf.getParameter<edm::InputTag>("genJets");
+  isElectron          = conf.getUntrackedParameter<bool>("isElectron",true);
 
   // variable to enable the fill of the plots
   doPlotsJetComposition  = conf.getUntrackedParameter<bool>("doPlotsJetComposition",true); 

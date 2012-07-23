@@ -39,6 +39,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel("demo",WeightName,weight);
   const std::vector<float> & myweight=*weight;
   evWeight = myweight[0];
+
+  if (isElectron) leptonId = 11;
+  else leptonId = 13;
   
    //IMPORTANTE  
    numberOfVertices=0;
@@ -619,7 +622,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (Debug) cout<<"(GEN) Z boson"<<endl;
 	    Z_gen.SetPxPyPzE(itgen->px(),itgen->py(),itgen->pz(),itgen->energy()); 
 	  }
-	  if (fabs(itgen->pdgId())==11 && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
+	  if (fabs(itgen->pdgId())==leptonId && itgen->mother()->pdgId()==23){ //itgen->status()==1 && 
 	    ele_gen.SetPxPyPzE(itgen->px(),itgen->py(),itgen->pz(),itgen->energy()); 
 	    ele_gen_vec.push_back(ele_gen);
 	  }
