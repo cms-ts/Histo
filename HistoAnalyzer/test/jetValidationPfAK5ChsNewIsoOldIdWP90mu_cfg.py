@@ -201,21 +201,21 @@ process.matchedMuons = selectedPatMuons.clone(
 
 process.zmuAllmuAll = cms.EDProducer('CandViewShallowCloneCombiner',
                                   decay = cms.string('allMuons@+ allMuons@-'),
-                                  cut   = cms.string('mass > 50.0'),
+                                  cut   = cms.string('mass > 71.0 & mass < 111.0'),
                                   name  = cms.string('Zmuallmuall'),
                                   roles = cms.vstring('all1', 'all2')
                                   )
 
 process.zmuTightmuTight = cms.EDProducer('CandViewShallowCloneCombiner',
                                   decay = cms.string('tightMuons@+ tightMuons@-'),
-                                  cut   = cms.string('mass > 50.0'),
+                                  cut   = cms.string('mass > 71.0 & mass < 111.0'),
                                   name  = cms.string('Zmutightmutight'),
                                   roles = cms.vstring('tight1', 'tight2')
                                   )
 
 process.zmuMatchedmuMatched = cms.EDProducer('CandViewShallowCloneCombiner',
                                   decay = cms.string('matchedMuons@+ matchedMuons@-'),
-                                  cut   = cms.string('mass >50.0'),
+                                  cut   = cms.string('mass > 71.0 & mass < 111.0'),
                                   name  = cms.string('Zmumatchedmumatched'),
                                   roles = cms.vstring('matched1', 'matched2')
                                   )
@@ -1350,6 +1350,7 @@ process.ToolInizialization = cms.Path(
 #         process.trgmatchPatElectronsEle8*
 #         process.TAPreco
 #         )
+####===============================================
 
 process.EPTAnalysisEleWP80 = cms.Path(
     process.goodOfflinePrimaryVertices*
