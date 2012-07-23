@@ -260,7 +260,7 @@ process.TAPeleWp80 = cms.EDFilter('EfficiencyFilter',
                               ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
                               superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                               superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-                              caloMuonCollection = cms.InputTag("crapMuons"),
+                              caloMuonCollection = cms.InputTag("muons"),
                               triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                               filename=cms.untracked.string("ZAnalysisFilter.root"),
                               UseCombinedPrescales = cms.bool(False),
@@ -293,21 +293,20 @@ process.TAPhltele8NOTele17 = process.TAPeleWp80.clone(TagHLTelectronCollection =
 
 process.TAPhltmuoLooseNOTtight = process.TAPhltele8NOTele17.clone(muonEfficiency = cms.bool(True))
 
-process.TAPhltele17 = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),                                   
-                                           ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),                                   
-                                           TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
-                                           ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
-                                           WP80_efficiency  =  cms.bool(False),
-                                           HLTele17_efficiency  =  cms.bool(True),
-                                           HLTele8_efficiency  =  cms.bool(False),
-                                           RECO_efficiency  =  cms.bool(False),
-                                           )
+process.TAPhltele17 = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+                                               ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+                                               TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+                                               ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+                                               WP80_efficiency  =  cms.bool(False),
+                                               HLTele17_efficiency  =  cms.bool(True),
+                                               HLTele8_efficiency  =  cms.bool(False),
+                                               RECO_efficiency  =  cms.bool(False),
+                                               )
 
 process.TAPhltmuoTight = process.TAPhltele17.clone(muonEfficiency = cms.bool(True))
 
 process.TAPeleReco = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
-                                          ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),                               
-                                          TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+                                          ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
                                           ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
                                           WP80_efficiency  =  cms.bool(False),
                                           HLTele17_efficiency  =  cms.bool(False),
@@ -331,7 +330,7 @@ process.EPTeleWp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                                ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
                                superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                                superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-                               caloMuonCollection = cms.InputTag("crapMuons"),
+                               caloMuonCollection = cms.InputTag("muons"),
                                triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                                filename=cms.untracked.string("ZAnalysisFilter.root"),
                                UseCombinedPrescales = cms.bool(False),
@@ -1303,7 +1302,7 @@ process.ToolInizialization = cms.Path(
     process.pfMuonSequence*
     process.patTrigger*
     process.patDefaultSequence*
-    process.crapMuons*
+    #process.crapMuons*
     #process.patElectronsWithTrigger*
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
@@ -1404,12 +1403,12 @@ process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
     process.EPThltmuoLooseNOTtight
     )
 
-process.EPTAnalysisMuoRECO = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchAsymMuonsLoose*
-    process.trgmatchAsymMuonsTight*
-    process.EPTmuoReco
-    )
+#process.EPTAnalysisMuoRECO = cms.Path(
+#    process.goodOfflinePrimaryVertices*
+#    process.trgmatchAsymMuonsLoose*
+#    process.trgmatchAsymMuonsTight*
+#    process.EPTmuoReco
+#    )
 
 
 # process.JetValidation = cms.Path(
