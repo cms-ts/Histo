@@ -96,17 +96,6 @@ trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFMuonIso
 process.muIsoSequence = setupPFMuonIso(process, 'muons')
 
-# crappy muon collection for RECO efficiency measurement:
-from RecoMuon.MuonIdentification.calomuons_cfi import *
-process.crapMuons = cms.EDProducer("CaloMuonMerger",
-                                   muons     = cms.InputTag("muons"),
-                                   caloMuons = cms.InputTag("calomuons"),
-                                   minCaloCompatibility = calomuons.minCaloCompatibility
-                                   )
-
-process.patMuons.pfMuonSource = cms.InputTag("pfMuons")
-process.patMuons.useParticleFlow=True
-
 process.patMuons.pfMuonSource = cms.InputTag("pfMuons")
 process.patMuons.useParticleFlow=True
 
@@ -257,7 +246,7 @@ process.EPTeleWp80 = cms.EDFilter('EfficiencyPtEtaFilter',
                                ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
                                superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
                                superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-                               caloMuonCollection = cms.InputTag("muons"),
+                               caloMuonCollection = cms.InputTag("generalTracks"),
                                triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
                                filename=cms.untracked.string("ZAnalysisFilter.root"),
                                UseCombinedPrescales = cms.bool(False),
@@ -1294,19 +1283,19 @@ process.EPTAnalysishltmuoLooseNOTtight_MC = cms.Path(
     process.EPThltmuoLooseNOTtight_MC
     )
 
-# #process.EPTAnalysisMuoRECO = cms.Path(
-# #    process.goodOfflinePrimaryVertices*
-# #    process.trgmatchAsymMuonsLoose*
-# #    process.trgmatchAsymMuonsTight*
-# #    process.EPTmuoReco
-# #    )
+process.EPTAnalysisMuoRECO = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchAsymMuonsLoose*
+    process.trgmatchAsymMuonsTight*
+    process.EPTmuoReco
+    )
 
-# #process.EPTAnalysisMuoRECO_MC = cms.Path(
-# #    process.goodOfflinePrimaryVertices*
-# #    process.trgmatchAsymMuonsLoose*
-# #    process.trgmatchAsymMuonsTight*
-# #    process.EPTmuoReco_MC
-# #    )
+process.EPTAnalysisMuoRECO_MC = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchAsymMuonsLoose*
+    process.trgmatchAsymMuonsTight*
+    process.EPTmuoReco_MC
+    )
 
 #####################
 #                   #
