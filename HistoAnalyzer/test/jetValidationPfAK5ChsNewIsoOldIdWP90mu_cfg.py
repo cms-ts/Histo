@@ -998,6 +998,7 @@ hltTagsForEleReco = cms.VInputTag(
 process.trgmatchPatElectronsReco = cms.EDProducer("trgMatchedPatElectronProducer",
                                         InputProducer = cms.InputTag("patElectrons"),
                                         isTriggerFilter = cms.untracked.bool(True),
+                                        matchUnprescaledTriggerOnly = cms.untracked.bool(False),
                                         hltTags = hltTagsForEleReco,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
