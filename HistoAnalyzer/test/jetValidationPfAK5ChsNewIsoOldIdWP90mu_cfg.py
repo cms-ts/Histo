@@ -755,7 +755,13 @@ process.demobefore = cms.EDProducer('HistoAnalyzer',
 ####################
 #### Lepton Selection
 ###################
+process.SelectionMu = cms.EDFilter('ZpatFilterMu2011',
+                                   muonCollection = cms.InputTag('matchedMuons'),
+                                   lowZmassLimit  = cms.double(71.0),
+                                   highZmassLimit = cms.double(111.0)
+                                   )
 
+                                   
 process.Selection = cms.EDFilter('ZpatFilter2011',
                                  electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                  triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
@@ -797,7 +803,7 @@ process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                          cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                          cms.InputTag('elPFIsoValueNeutral03PFIso')),
-                                   ZmumuCandidates = cms.untracked.InputTag("zmuMatchedmuMatched"),
+                                   ZmumuCandidates = cms.untracked.InputTag("matchedMuons"),
                                    isElectron= cms.untracked.bool(False)
                                    )
 
@@ -1320,6 +1326,7 @@ process.ToolInizialization = cms.Path(
     (process.zmuAllmuAll+                                      ##
      process.zmuTightmuTight+                                  ##
      process.zmuMatchedmuMatched)*
+    process.SelectionMu*
     process.goodEPair*
     process.eleTriggerMatchHLT*
     process.patElectronsWithTrigger*

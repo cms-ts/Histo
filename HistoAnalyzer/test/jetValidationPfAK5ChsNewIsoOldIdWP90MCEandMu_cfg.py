@@ -441,7 +441,7 @@ process.validationJECmu = process.validationJEC.clone(
                                        jetCollection = "ak5PFchsJetsRCmuL1FastL2L3",
                                        goodEPair     = "goodMuPair",
                                        genJets       = "ak5GenJetsMuNoGammaCone",
-                                       RootuplaName  = "treeValidationJECmu_",
+                                       RootuplaName  = "treeValidationJECMu_",
                                        isElectron    = False
                                        )
 
@@ -512,6 +512,12 @@ process.demoMu = process.demo.clone(
 #### Lepton Selection
 ###################
 
+process.SelectionMu = cms.EDFilter('ZpatFilterMu2011',
+                                   muonCollection = cms.InputTag('matchedMuons'),
+                                   lowZmassLimit  = cms.double(71.0),
+                                   highZmassLimit = cms.double(111.0)
+                                   )
+
 process.Selection = cms.EDFilter('ZpatFilter2011',
                                  electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                  triggerCollectionTag = cms.InputTag("TriggerResults","","HLT"),
@@ -553,7 +559,7 @@ process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                          cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                          cms.InputTag('elPFIsoValueNeutral03PFIso')),
-                                   ZmumuCandidates = cms.untracked.InputTag("zmuMatchedmuMatched"),
+                                   ZmumuCandidates = cms.untracked.InputTag("matchedMuons"),
                                    isElectron= cms.untracked.bool(True)
                                    )
 
@@ -1130,18 +1136,17 @@ process.ToolInizialization = cms.Path(
     process.selectedPatMuonsTriggerMatch *    
     process.patDefaultSequence*
     process.eleTriggerMatchHLT*
-    process.patElectronsWithTrigger  
+    process.patElectronsWithTrigger*
+    process.TotalEventCounter
     )
 
 process.JetValidation = cms.Path(
-    process.TotalEventCounter*
-    process.demo*
     process.goodOfflinePrimaryVertices*
     process.goodElec*
     process.pfNoElectron*
     process.Selection*
+    process.demo*
     process.goodEPair*
-    process.demoE*
     ## gen jets without electrons
     process.genParticlesForJetsENoNuNoGammaCone*
     process.ak5GenJetsENoGammaCone*
@@ -1157,7 +1162,6 @@ process.JetValidation = cms.Path(
     )
 
 process.JetValidationMU = cms.Path(
-    process.TotalEventCounterMu*
     process.goodPV *
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
@@ -1165,9 +1169,10 @@ process.JetValidationMU = cms.Path(
     (process.zmuAllmuAll+                                      ##
      process.zmuTightmuTight+                                  ##
      process.zmuMatchedmuMatched)*
+    process.SelectionMu*
+    process.demo*
     process.goodMuPair*
     process.pfNoMuon*
-    #process.demoMu*
     ## gen jets without muons
     process.genParticlesForJetsMuNoNuNoGammaCone*
     process.ak5GenJetsMuNoGammaCone*
