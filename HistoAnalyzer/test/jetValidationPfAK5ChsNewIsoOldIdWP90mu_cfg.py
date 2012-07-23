@@ -1403,12 +1403,12 @@ process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
     process.EPThltmuoLooseNOTtight
     )
 
-#process.EPTAnalysisMuoRECO = cms.Path(
-#    process.goodOfflinePrimaryVertices*
-#    process.trgmatchAsymMuonsLoose*
-#    process.trgmatchAsymMuonsTight*
-#    process.EPTmuoReco
-#    )
+process.EPTAnalysisMuoRECO = cms.Path(
+    process.goodOfflinePrimaryVertices*
+    process.trgmatchAsymMuonsLoose*
+    process.trgmatchAsymMuonsTight*
+    process.EPTmuoReco
+    )
 
 
 # process.JetValidation = cms.Path(
