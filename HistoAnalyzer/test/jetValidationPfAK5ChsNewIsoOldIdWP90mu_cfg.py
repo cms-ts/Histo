@@ -1400,8 +1400,8 @@ process.EPTAnalysisMuoWP80 = cms.Path(
 
 process.EPTAnalysishltmuoTight = cms.Path(
     process.goodOfflinePrimaryVertices*
+    process.trgmatchAsymMuonsLoose*
     process.trgmatchAsymMuonsTight*
-    process.trgmatchSingleMuons*
     process.EPThltmuoTight
     )
 
@@ -1409,7 +1409,7 @@ process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchAsymMuonsNOTtight*
     process.trgmatchAsymMuonsLooseNOTtight*
-    process.trgmatchSingleMuons*
+    process.trgmatchAsymMuonsLoose*
     process.EPThltmuoLooseNOTtight
     )
 
