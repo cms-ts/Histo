@@ -703,7 +703,6 @@ hltTagsForEle17 = cms.VInputTag(
 process.trgmatchPatElectronsEle8 = cms.EDProducer("trgMatchedPatElectronProducer",
                                         InputProducer = cms.InputTag("patElectrons"),
                                         isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(False),
                                         hltTags = hltTagsForEle8,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
@@ -712,7 +711,6 @@ process.trgmatchPatElectronsEle8 = cms.EDProducer("trgMatchedPatElectronProducer
 process.trgmatchPatElectronsEle17 = cms.EDProducer("trgMatchedPatElectronProducer",
                                         InputProducer = cms.InputTag("patElectrons"),
                                         isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
                                         hltTags = hltTagsForEle17,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
@@ -721,7 +719,6 @@ process.trgmatchPatElectronsEle17 = cms.EDProducer("trgMatchedPatElectronProduce
 process.trgmatchPatElectronsNOTEle17 = cms.EDProducer("trgMatchedPatElectronProducer",
                                         InputProducer = cms.InputTag("patElectrons"),
                                         isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
                                         antiSelect = cms.untracked.bool(True),
                                         hltTags = hltTagsForEle17,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
@@ -731,7 +728,6 @@ process.trgmatchPatElectronsNOTEle17 = cms.EDProducer("trgMatchedPatElectronProd
 process.trgmatchPatElectronsEle8NOTEle17 = cms.EDProducer("trgMatchedPatElectronProducer",
                                         InputProducer = cms.InputTag("trgmatchPatElectronsNOTEle17"),
                                         isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(False),
                                         hltTags = hltTagsForEle8,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
@@ -769,7 +765,6 @@ hltTagsForEleReco = cms.VInputTag(
 process.trgmatchPatElectronsReco = cms.EDProducer("trgMatchedPatElectronProducer",
                                         InputProducer = cms.InputTag("patElectrons"),
                                         isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
                                         matchUnprescaledTriggerOnly = cms.untracked.bool(False),
                                         hltTags = hltTagsForEleReco,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
@@ -794,32 +789,30 @@ HLTsymMuonPath12  = "HLT_DoubleMu8_v6"
 HLTsymMuonFilter6  = "hltDiDiMuonL3PreFiltered6"
 HLTsymMuonFilter7  = "hltDiDiMuonL3PreFiltered7"
 
-hltTagsForSymMuon = cms.VInputTag(
-    cms.InputTag(HLTsymMuonPath1,  HLTsymMuonFilter6 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath2,  HLTsymMuonFilter6 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath3,  HLTsymMuonFilter6 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath4,  HLTsymMuonFilter6 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath5,  HLTsymMuonFilter6 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath6,  HLTsymMuonFilter6 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath7,  HLTsymMuonFilter7 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath8,  HLTsymMuonFilter7 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath9,  HLTsymMuonFilter7 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath10, HLTsymMuonFilter7 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath11, HLTsymMuonFilter7 , HLTProcessName),
-    cms.InputTag(HLTsymMuonPath12, HLTsymMuonFilter7 , HLTProcessName),
-    )
-
-process.trgmatchSymMuons = cms.EDProducer("trgMatchedMuonProducer",
-                                        InputProducer = cms.InputTag("allMuons"),
-                                        isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
-                                        isTriggerOR = cms.untracked.bool(True),
-                                        #matchUnprescaledTriggerOnly = cms.untracked.bool(True),
-                                        hltTags = hltTagsForEleReco,
-                                        triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
-                                        triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
-                                    )
-
+#hltTagsForSymMuon = cms.VInputTag(
+#    cms.InputTag(HLTsymMuonPath1,  HLTsymMuonFilter6 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath2,  HLTsymMuonFilter6 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath3,  HLTsymMuonFilter6 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath4,  HLTsymMuonFilter6 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath5,  HLTsymMuonFilter6 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath6,  HLTsymMuonFilter6 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath7,  HLTsymMuonFilter7 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath8,  HLTsymMuonFilter7 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath9,  HLTsymMuonFilter7 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath10, HLTsymMuonFilter7 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath11, HLTsymMuonFilter7 , HLTProcessName),
+#    cms.InputTag(HLTsymMuonPath12, HLTsymMuonFilter7 , HLTProcessName),
+#    )
+#
+#process.trgmatchSymMuons = cms.EDProducer("trgMatchedMuonProducer",
+#                                        InputProducer = cms.InputTag("allMuons"),
+#                                        isTriggerFilter = cms.untracked.bool(True),
+#                                        isTriggerOR = cms.untracked.bool(True),
+#                                        hltTags = hltTagsForEleReco,
+#                                        triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
+#                                        triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
+#                                    )
+#
 
 HLTasymMuonPath1  = "HLT_Mu13_Mu8_v1"
 HLTasymMuonPath2  = "HLT_Mu13_Mu8_v2"
@@ -871,6 +864,18 @@ hltTagsForAsymMuonL = cms.VInputTag(
     cms.InputTag(HLTasymMuonPath20, HLTasymMuonFilter8 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath21, HLTasymMuonFilter8 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath22, HLTasymMuonFilter8 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath1,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath2,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath3,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath4,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath5,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath6,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath7,  HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath8,  HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath9,  HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath10, HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath11, HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath12, HLTsymMuonFilter7 , HLTProcessName),
     )
 
 
@@ -897,12 +902,23 @@ hltTagsForAsymMuonT = cms.VInputTag(
     cms.InputTag(HLTasymMuonPath20, HLTasymMuonFilter17 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath21, HLTasymMuonFilter17 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath22, HLTasymMuonFilter17 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath1,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath2,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath3,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath4,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath5,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath6,  HLTsymMuonFilter6 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath7,  HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath8,  HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath9,  HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath10, HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath11, HLTsymMuonFilter7 , HLTProcessName),
+    cms.InputTag(HLTsymMuonPath12, HLTsymMuonFilter7 , HLTProcessName),
     )
 
 process.trgmatchAsymMuonsLoose = cms.EDProducer("trgMatchedMuonProducer",
                                         InputProducer = cms.InputTag("allMuons"),
-                                        isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
+                                        #isTriggerFilter = cms.untracked.bool(True),
                                         isTriggerOR = cms.untracked.bool(True),
                                         #matchUnprescaledTriggerOnly = cms.untracked.bool(False),
                                         hltTags = hltTagsForAsymMuonL,
@@ -912,10 +928,8 @@ process.trgmatchAsymMuonsLoose = cms.EDProducer("trgMatchedMuonProducer",
 
 process.trgmatchAsymMuonsTight = cms.EDProducer("trgMatchedMuonProducer",
                                         InputProducer = cms.InputTag("allMuons"),
-                                        isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
+                                        #isTriggerFilter = cms.untracked.bool(True),
                                         isTriggerOR = cms.untracked.bool(True),
-                                        #matchUnprescaledTriggerOnly = cms.untracked.bool(False),
                                         hltTags = hltTagsForAsymMuonT,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
@@ -923,11 +937,9 @@ process.trgmatchAsymMuonsTight = cms.EDProducer("trgMatchedMuonProducer",
 
 process.trgmatchAsymMuonsNOTtight = cms.EDProducer("trgMatchedMuonProducer",
                                         InputProducer = cms.InputTag("allMuons"),
-                                        isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
+                                        #isTriggerFilter = cms.untracked.bool(True),
                                         isTriggerOR = cms.untracked.bool(True),
-                                        antiSelect = cms.untracked.bool(True),
-                                        #matchUnprescaledTriggerOnly = cms.untracked.bool(False),
+                                        #antiSelect = cms.untracked.bool(True),
                                         hltTags = hltTagsForAsymMuonT,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
@@ -935,10 +947,8 @@ process.trgmatchAsymMuonsNOTtight = cms.EDProducer("trgMatchedMuonProducer",
 
 process.trgmatchAsymMuonsLooseNOTtight = cms.EDProducer("trgMatchedMuonProducer",
                                         InputProducer = cms.InputTag("trgmatchAsymMuonsNOTtight"),
-                                        isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
+                                        #isTriggerFilter = cms.untracked.bool(True),
                                         isTriggerOR = cms.untracked.bool(True),
-                                        #matchUnprescaledTriggerOnly = cms.untracked.bool(False),
                                         hltTags = hltTagsForAsymMuonL,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
@@ -1000,15 +1010,13 @@ hltTagsForMuoReco = cms.VInputTag(
 
 process.trgmatchSingleMuons = cms.EDProducer("trgMatchedMuonProducer",
                                         InputProducer = cms.InputTag("allMuons"),
-                                        isTriggerFilter = cms.untracked.bool(True),
-                                        noHltFiring = cms.untracked.bool(True),
-                                        isTriggerOR = cms.untracked.bool(True),
-                                        #matchUnprescaledTriggerOnly = cms.untracked.bool(False),
+                                        #isTriggerFilter = cms.untracked.bool(True),
+                                        #isTriggerOR = cms.untracked.bool(True),
+                                        matchUnprescaledTriggerOnly = cms.untracked.bool(False),
                                         hltTags = hltTagsForMuoReco,
                                         triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
                                         triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)
                                     )
-
 
 
 
@@ -1260,15 +1268,15 @@ process.EPTAnalysisMuoWP80_MC = cms.Path(
 
 process.EPTAnalysishltmuoTight = cms.Path(
     process.goodOfflinePrimaryVertices*
+    process.trgmatchAsymMuonsLoose*
     process.trgmatchAsymMuonsTight*
-    process.trgmatchSingleMuons*
     process.EPThltmuoTight
     )
 
 process.EPTAnalysishltmuoTight_MC = cms.Path(
     process.goodOfflinePrimaryVertices*
+    process.trgmatchAsymMuonsLoose*
     process.trgmatchAsymMuonsTight*
-    process.trgmatchSingleMuons*
     process.EPThltmuoTight_MC
     )
 
@@ -1276,7 +1284,7 @@ process.EPTAnalysishltmuoLooseNOTtight = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchAsymMuonsNOTtight*
     process.trgmatchAsymMuonsLooseNOTtight*
-    process.trgmatchSingleMuons*
+    process.trgmatchAsymMuonsLoose*
     process.EPThltmuoLooseNOTtight
     )
 
@@ -1284,7 +1292,7 @@ process.EPTAnalysishltmuoLooseNOTtight_MC = cms.Path(
     process.goodOfflinePrimaryVertices*
     process.trgmatchAsymMuonsNOTtight*
     process.trgmatchAsymMuonsLooseNOTtight*
-    process.trgmatchSingleMuons*
+    process.trgmatchAsymMuonsLoose*
     process.EPThltmuoLooseNOTtight_MC
     )
 
