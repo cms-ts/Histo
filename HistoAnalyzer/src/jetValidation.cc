@@ -923,6 +923,7 @@ jetValidation::beginJob()
   treeUN_->Branch("isMugen",&isMugen);
   treeUN_->Branch("isTaugen",&isTaugen);
   treeUN_->Branch("z_mass",&z_mass);
+  treeUN_->Branch("isElectron",&isElectron);
 
   cout<<endl;
   cout<<"##############################"<<endl;
