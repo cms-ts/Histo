@@ -1028,7 +1028,7 @@ HLTasymMuonPath2  = "HLT_Mu13_Mu8_v2"
 #HLTasymMuonPath10  = "HLT_Mu13_Mu8_v10"
 #HLTasymMuonPath11  = "HLT_Mu13_Mu8_v11"
 #HLTasymMuonPath12  = "HLT_Mu17_Mu8_v1"
-HLTasymMuonPath13  = "HLT_Mu17_Mu8_v2"
+#HLTasymMuonPath13  = "HLT_Mu17_Mu8_v2"
 HLTasymMuonPath14  = "HLT_Mu17_Mu8_v3"
 HLTasymMuonPath15  = "HLT_Mu17_Mu8_v4"
 HLTasymMuonPath16  = "HLT_Mu17_Mu8_v5"
@@ -1056,7 +1056,7 @@ hltTagsForAsymMuonL = cms.VInputTag(
 #    cms.InputTag(HLTasymMuonPath10, HLTasymMuonFilter8 , HLTProcessName),
 #    cms.InputTag(HLTasymMuonPath11, HLTasymMuonFilter8 , HLTProcessName),
 #    cms.InputTag(HLTasymMuonPath12, HLTasymMuonFilter8 , HLTProcessName),
-    cms.InputTag(HLTasymMuonPath13, HLTasymMuonFilter8 , HLTProcessName),
+#    cms.InputTag(HLTasymMuonPath13, HLTasymMuonFilter8 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath14, HLTasymMuonFilter8 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath15, HLTasymMuonFilter8 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath16, HLTasymMuonFilter8 , HLTProcessName),
@@ -1094,7 +1094,7 @@ hltTagsForAsymMuonT = cms.VInputTag(
 #    cms.InputTag(HLTasymMuonPath10, HLTasymMuonFilter13 , HLTProcessName),
 #    cms.InputTag(HLTasymMuonPath11, HLTasymMuonFilter13 , HLTProcessName),
 #    cms.InputTag(HLTasymMuonPath12, HLTasymMuonFilter17 , HLTProcessName),
-    cms.InputTag(HLTasymMuonPath13, HLTasymMuonFilter17 , HLTProcessName),
+#    cms.InputTag(HLTasymMuonPath13, HLTasymMuonFilter17 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath14, HLTasymMuonFilter17 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath15, HLTasymMuonFilter17 , HLTProcessName),
     cms.InputTag(HLTasymMuonPath16, HLTasymMuonFilter17 , HLTProcessName),
