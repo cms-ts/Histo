@@ -51,16 +51,17 @@ using
 std::endl;
 #endif
 
+//string version="_v2_28.root";
 string version="_v2_28.root";
+bool isMu=false;
 
 //string smc="/gpfs/cms/data/2011/jet/jetValidation_dytoee_pythia_2011_v2_27.root";
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version;
 
-//string sdata="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011_v2_28.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 
 TFile *fA = new TFile (smc.c_str());
-TFile *fB = new TFile (sdata.c_str());
+TFile *fB = new TFile (sdata.c_str()); 
 
 //Directory and files to start with
 string s = "/afs/infn.it/ts/user/candelis/html/Unfolding/";
@@ -68,21 +69,17 @@ string s = "/afs/infn.it/ts/user/candelis/html/Unfolding/";
 //Save histos to be used afterward
 bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-//string filename=direct+"UnfoldedDistributions"+version;
-//string filename=direct+"UnfoldedDistributionsSVD"+version;
-//string filename=direct+"UnfoldedDistributionsBayes"+version;
-//string filename=direct+"UnfoldedDistributionsPythia"+version;
-string filename=direct+"UnfoldedDistributionsWithTruthNoEff"+version;
+string filename=direct+"UnfoldedDistributions"+version;
 
 // Efficiency corrections
-bool correctForEff=true; // If true, it will take the correction factor from outside
+bool correctForEff=false; // If true, it will take the correction factor from outside
 bool useElectronsToCorrect=true;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
-bool differentialCrossSection=true;
+bool differentialCrossSection=false;
 
 // Correct for backgrounds: 
-bool correctForBkg=true;
+bool correctForBkg=false;
 // name of the root file containing background evaluation
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
@@ -90,8 +87,8 @@ string bkgstring=dir+"Backgrounds"+version;
 
 
 //File with efficiency coefficients
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011"+version;
-//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_2523mixmex.root";//+version;
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011"+version;
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";//+version;
 
 TFile *eff = TFile::Open(efffile.c_str()); 
 
@@ -132,6 +129,7 @@ std::vector<double> getBackgroundContributions(string filebkg, string str); // r
 void
 Unfolding::Loop()
 {
+  if (isMu) s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
   setTDRStyle();
   //LoopJetMultiplicity();
   //LoopZpt();
@@ -145,6 +143,7 @@ Unfolding::Loop()
 void
 Unfolding::LoopOneFour()
 {
+  if (isMu) s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
   setTDRStyle();
   LoopJetMultiplicity();
   LoopHt();

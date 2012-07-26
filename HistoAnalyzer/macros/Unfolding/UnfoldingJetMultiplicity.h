@@ -64,11 +64,14 @@ void Unfolding::LoopJetMultiplicity ()
   
   string sdatadir=sdata+":/validationJEC";
   string smcdir=smc+":/validationJEC";
+  if (isMu) {
+    smcdir=smc+":/EPTmuoWp80_MC";
+  }
   fA->cd (smcdir.c_str());
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
   fB->cd (sdatadir.c_str());
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-  
+
   //Setting the errors
   NTrue->Sumw2();
   NMCreco->Sumw2();
@@ -85,7 +88,7 @@ void Unfolding::LoopJetMultiplicity ()
   Long64_t nbytes = 0, nb = 0;
   
   if (fChain == 0) return;
-  
+
   for (Long64_t jentry = 0; jentry < nentries; jentry++){
     Long64_t ientry = LoadTree (jentry);
     if (ientry < 0)
@@ -413,6 +416,7 @@ void Unfolding::LoopJetMultiplicity ()
       string title3= s+"JETMULTI"+method+"_"+num.str();
       if (correctForEff) title3= s+"JETMULTI"+method+"_"+num.str()+"_effcorr.png";
       else title3= s+"JETMULTI"+method+"_"+num.str()+".png";
+      if (isMu) s="Muons:"+s;
       cmultip->cd ();
 
       cmultip->Print(title3.c_str());
@@ -440,10 +444,11 @@ void Unfolding::LoopJetMultiplicity ()
   gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
   NMatxlong->SetMarkerColor (kBlack);
-  //double entries=1.000/(double)NMatx->Integral();
-  //NMatx->Scale(entries);
+  //double entries=1.000/(double)NMatxlong->Integral();
+  //NMatxlong->Scale(entries);
   NMatxlong->Draw ("COLZ,text");
-  //N->Print(s+"/MatrixjetMultiplicity.png");
+  string title3= s+"MatrixjetMultiplicity.png";;
+  N->Print(title3.c_str());
 
 }
 

@@ -137,11 +137,11 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
   TH1D *jTrue = new TH1D ("jTrue", "jetpT Truth",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData = new TH1D ("jData", "jetpT DATA Measured",divPlot,minPtPlot,maxPtPlot);
-  TH1D *jReco = new TH1D ("jReco", "jetpT Unfolded DATA",divPlot,minPtPlot,maxPtPlot);
+  TH1F *jReco = new TH1F ("jReco", "jetpT Unfolded DATA",divPlot,minPtPlot,maxPtPlot);
   TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jetpT Rapidity ",divPlot,minPtPlot,maxPtPlot,divPlot,minPtPlot,maxPtPlot);
   TH2D *jCorr = new TH2D ("jCorr", "Unfolding Matrix jetpT Rapidity ",4,0,4,4,0,4);
 
-  TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jetpT Rapidity ",22,0,330,22,0,330);
+  TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jetpT Rapidity ",divPlot+1,minPtPlot-30,maxPtPlot,divPlot+1,minPtPlot-30,maxPtPlot);
   TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2",divPlot,minPtPlot,maxPtPlot);
   TH1D *jRatio_ = new TH1D ("jRatio_", "jetpTRatio",divPlot,minPtPlot,maxPtPlot);
@@ -169,7 +169,14 @@ void Unfolding::LoopJetPt (int numbOfJets)
   
   string sdatadir=sdata+":/validationJEC";
   string smcdir=smc+":/validationJEC";
-  
+
+  if (isMu) {
+    smcdir=smc+":/EPTmuoWp80_MC";
+  }
+
+  RooUnfoldResponse unfold_jBayes(jMCreco,jTrue);
+ unfold_jBayes.UseOverflow();
+
   //Enter the files
   fA->cd (smcdir.c_str());
   TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
@@ -221,14 +228,16 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
       if (numbOfJets<=1){
 	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-
 	//correctGenJetPt=jet1_pt_gen;
-	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
+	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
+  // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
 	  //if (correctGenJetPt<20) cout<<"correctGen->"<<correctGenJetPt<<" ("<<jet1_pt_gen<<" % "<<jet1_eta_gen<<") jet1_pt->"<<jet1_pt<<endl;
 	  //if (jet1_pt<1) cout<<jet1_pt<<endl;
 	  //if (fabs(jet1_eta)>2.4 || fabs(jet1_eta_gen)>2.4 ) continue;
-	  if (offsetJetMultiplicity>=2) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<correctGenJetPt<<")"<<endl;
+	  //if (offsetJetMultiplicity>=2) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<correctGenJetPt<<")"<<endl;
 
+	  double effcorrmc=1;
+	  double efferrmc=1;
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
@@ -255,6 +264,9 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  jTrue->Fill (correctGenJetPt);
 	  supplabel="_jet1";
 	}
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt, correctGenJetPt);
+	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(jet1_pt, correctGenJetPt);
       }
       
       if (numbOfJets==2){
@@ -470,7 +482,6 @@ void Unfolding::LoopJetPt (int numbOfJets)
   // MC Normalization
   //////////////
   double ScaleMCData = ((double)jData->Integral()/(double)jMCreco->Integral());
-  
   /*      
   /////////////////
   // Efficiency Correction
@@ -550,7 +561,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
   TH1F *vstatistics=new TH1F("vstatistics","vstatistics",divPlot,0,divPlot);
       
-  for (int j=1; j<2; j++){
+  for (int j=0; j<1; j++){
     string method;
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
@@ -566,8 +577,11 @@ void Unfolding::LoopJetPt (int numbOfJets)
       cout<<"ongoing:"<<title<<endl;
       
       if (method=="Bayesian") {
-	RooUnfoldBayes unfold_j(&response_j, jData, myNumber, 1000);
-	jReco = (TH1D *) unfold_j.Hreco ();
+	jReco->Sumw2();
+	RooUnfoldBayes unfold_j (&unfold_jBayes, jData, myNumber, 1000);
+	//RooUnfoldBayes unfold_j (&response_j, jData, myNumber, 1000);
+	jReco = (TH1F *) unfold_j.Hreco ();
+	unfold_j.PrintTable(cout,jTrue);
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
 	TVectorD vunfo= unfold_j.ErecoV(RooUnfold::kCovToy);
@@ -594,24 +608,13 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  //kCovToy	
 	}
 	
-	/////////////////////
-	/// Error treatment
-	/////////////////////
-	
-	std::vector<double> err;
-	for (unsigned int k=0; k<jData->GetNbinsX(); k++){
-	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
-	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
-	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
-	  err.push_back(vunfo[k]);
-	}
-	kcontainer.push_back(err);
       }
 
       if (method=="Svd"){
 	jReco->Sumw2();
 	RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 1000);	// OR
-	jReco = (TH1D *) unfold_j.Hreco ();
+	jReco = (TH1F *) unfold_j.Hreco ();
+	unfold_j.PrintTable(cout,jTrue);
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
 	TVectorD vunfo= unfold_j.ErecoV(RooUnfold::kCovToy);
@@ -641,17 +644,17 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	/////////////////////
 	/// Error treatment
 	/////////////////////
-      
-	std::vector<double> err;
-	for (unsigned int k=0; k<jData->GetNbinsX(); k++){
-	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
-	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
-	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
-	  err.push_back(vunfo[k]);
-	}
-	kcontainer.push_back(err);
+	
+/* 	std::vector<double> err; */
+/* 	for (unsigned int k=0; k<jData->GetNbinsX(); k++){ */
+/* 	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum */
+/* 	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza */
+/* 	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)))); */
+/* 	  err.push_back(vunfo[k]); */
+/* 	} */
+/* 	kcontainer.push_back(err); */
       } 
-        
+	
       cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
       cout<<"Zarea "<<Zarea<<endl;
       
