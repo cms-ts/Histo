@@ -63,22 +63,14 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
   TH2F* ele8NOTele17_effPt;
   TH2F* WP80_effPt;
 
-  ///////////////////////////////////////////
-
-  //////////////
-  // jET pT
-  //////////////
-
   TDirectory *dir2;
 
   fB->cd("efficiency_vs_PtEta");
   dir2=(TDirectory*)fB->Get("efficiency_vs_PtEta");
 
-
   TList *mylist2=(TList*)dir2->GetListOfKeys();
   TIter iter2(mylist2); 
   TObject* tobj2 = 0;
-  
  
   //Check for the interesting plots, regardless the content..
   while ( (tobj2 = iter2.Next()) ) {
@@ -121,17 +113,27 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
   int eta1=getEtaRangeElectron(ele1_eta);
   int eta2=getEtaRangeElectron(ele2_eta);
 
-  double eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
-    WP80_effPt->GetBinContent(eta2,pt2)*
-    RECO_effPt->GetBinContent(eta1,pt1)*
-    RECO_effPt->GetBinContent(eta2,pt2)*
-    (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
+  if (isElectron) {
+    double eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+      WP80_effPt->GetBinContent(eta2,pt2)*
+      RECO_effPt->GetBinContent(eta1,pt1)*
+      RECO_effPt->GetBinContent(eta2,pt2)*
+      (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
        ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
-     ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
+       ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
+  } else {
+    double eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+      WP80_effPt->GetBinContent(eta2,pt2)*
+      RECO_effPt->GetBinContent(eta1,pt1)*
+      RECO_effPt->GetBinContent(eta2,pt2)*
+      ele17_effPt->GetBinContent(eta1,pt1)*
+      ele17_effPt->GetBinContent(eta2,pt2);
+  }
 
   if (eff_global>0) return eff_global;
   return 1;
 }
+
 
 ///////////////////
 // Leading Jet Pt 
