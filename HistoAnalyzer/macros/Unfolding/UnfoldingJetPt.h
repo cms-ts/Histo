@@ -10,7 +10,7 @@ int kmin=1;
 int kmax=1;
 bool spanKvalues=false;
 
-bool indentityCheck=true;
+bool indentityCheck=false;
   TCanvas cc;
 
 TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPlot,0,divPlot);
@@ -244,7 +244,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	//correctGenJetPt=jet1_pt_gen;
 	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
   // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
-	  if (correctGenJetPt<20) cout<<"correctGen->"<<correctGenJetPt<<" ("<<jet1_pt_gen<<" % "<<jet1_eta_gen<<") jet1_pt->"<<jet1_pt<<endl;
+	  //if (correctGenJetPt<20) cout<<"correctGen->"<<correctGenJetPt<<" ("<<jet1_pt_gen<<" % "<<jet1_eta_gen<<") jet1_pt->"<<jet1_pt<<endl;
 	  //if (jet1_pt<1) cout<<jet1_pt<<endl;
 	  //if (fabs(jet1_eta)>2.4 || fabs(jet1_eta_gen)>2.4 ) continue;
 	  //if (offsetJetMultiplicity>=1 && jet1_pt_gen<jet2_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<correctGenJetPt<<")"<<endl;
@@ -277,9 +277,14 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  jTrue->Fill (correctGenJetPt);
 	  supplabel="_jet1";
 	}
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt);
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt, correctGenJetPt);
-	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(jet1_pt, correctGenJetPt);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt);
+	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
+
+	//Old Way
+	//if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt);
+	//if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt, correctGenJetPt);
+	//if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(jet1_pt, correctGenJetPt);
       }
       
       if (numbOfJets==2){
@@ -307,6 +312,10 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  jTrue->Fill (correctGenJetPt);
 	}
 	supplabel="_jet2";
+	if ((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet2_pt, correctGenJetPt);
+	if ((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet2_pt);
+	if (!(jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
+
       }
 
       if (numbOfJets==3){
@@ -334,6 +343,10 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  jTrue->Fill (correctGenJetPt);
 	}
 	supplabel="_jet3";
+	if ((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet3_pt, correctGenJetPt);
+	if ((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet3_pt);
+	if (!(jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
+
       }
 
       if (numbOfJets==4){
@@ -361,6 +374,10 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  jTrue->Fill (correctGenJetPt);
 	}
 	supplabel="_jet4";
+	if ((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet4_pt, correctGenJetPt);
+	if ((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet4_pt);
+	if (!(jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
+
       }
     }
   jTrue->Sumw2();
@@ -625,6 +642,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
       if (method=="Svd"){
 	jReco->Sumw2();
+	//RooUnfoldSvd unfold_j (&unfold_jBayes, jData, myNumber, 1000);
 	RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 1000);	// OR
 	jReco = (TH1F *) unfold_j.Hreco ();
 	unfold_j.PrintTable(cout,jTrue);
