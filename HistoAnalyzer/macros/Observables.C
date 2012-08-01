@@ -1,5 +1,5 @@
 /**********************************
- * Observables for Z+jet analysis *
+* Observables for Z+jet analysis *
  *                                *
  * Vieri Candelise March 2012     *
  * Matteo Marone
@@ -56,8 +56,10 @@ std::endl;
 #endif
 
 bool activateScaleFactors=true;  // Correct for the difference MC/Data in the background
+bool isMu=true;
 
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_2523mixmex.root";
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";
 
 //Open MC and data files to retrieve effciencies
 TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -71,68 +73,14 @@ TLorentzVector J1, J2, JJ;
 
 //Important parameters
 double jetThreshold=30.0;
-bool evalDiffCS=true; // if false it does not divide for # of Zs
+bool evalDiffCS=false; // if false it does not divide for # of Zs
 
 // Files to be saved
 string dir="/gpfs/cms/data/2011/Observables/";
-string version="_v2_25.root";
-
-string szj=dir+"MC_zjets"+version;
-string swj=dir+"MC_wjets"+version;
-string stt=dir+"MC_ttbar"+version;
-string sWW=dir+"MC_diW"+version;
-string sZZ=dir+"MC_siZ"+version;
-string sWZ=dir+"MC_diWZ"+version;
-string sda=dir+"DATA"+version;
-
-
-TFile* fzj = new TFile(szj.c_str(), "RECREATE");
-TFile* fwj = new TFile(swj.c_str(), "RECREATE");
-TFile* ftt = new TFile(stt.c_str(), "RECREATE");
-TFile* fWW = new TFile(sWW.c_str(), "RECREATE");
-TFile* fZZ = new TFile(sZZ.c_str(), "RECREATE");
-TFile* fWZ = new TFile(sWZ.c_str(), "RECREATE");
-TFile* fda = new TFile(sda.c_str(), "RECREATE");
-
-TDirectory *validationJECz=fzj->mkdir("validationJEC");
-TDirectory *validationJECw=fwj->mkdir("validationJEC");
-TDirectory *validationJECtt=ftt->mkdir("validationJEC");
-TDirectory *validationJECWW=fWW->mkdir("validationJEC");
-TDirectory *validationJECZZ=fZZ->mkdir("validationJEC");
-TDirectory *validationJECWZ=fWZ->mkdir("validationJEC");
-TDirectory *validationJECda=fda->mkdir("validationJEC");
-
-//FIles do be opened
-
-string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
-string sozj=diropen+"zjets_magd_2011"+version;
-string sowj=diropen+"w_2011"+"_v2_22.root";//+version;
-string sott=diropen+"ttbar_2011"+version;
-string soWW=diropen+"ww_2011"+version;
-string soZZ=diropen+"zz_2011"+version;
-string soWZ=diropen+"wz_2011"+version;
-string soda=diropen+"DATA_2011"+version;
-
-string folderdir="validationJEC";
-string sodzj=sozj+":/"+folderdir;
-string sodwj=sowj+":/"+folderdir;
-string sodtt=sott+":/"+folderdir;
-string sodWW=soWW+":/"+folderdir;
-string sodZZ=soZZ+":/"+folderdir;
-string sodWZ=soWZ+":/"+folderdir;
-string sodda=soda+":/"+folderdir;
-
-TFile *Fzj = new TFile (sozj.c_str());
-TFile *Fwj = new TFile (sowj.c_str());
-TFile *Ftt = new TFile (sott.c_str());
-TFile *Fda = new TFile (soda.c_str());
-TFile *FWW = new TFile (soWW.c_str());
-TFile *FWZ = new TFile (soWZ.c_str());
-TFile *FZZ = new TFile (soZZ.c_str());
 
 TFile *w;
 //List of observables to show
-TH1F *NData             = new TH1F ("Jet_multi", "Jet_multi", 6, 0, 6);
+TH1F *NData             = new TH1F ("Jet_multi", "Jet_multi", 5, 1, 6);
 TH1F *Ht                = new TH1F ("HT", "HT", 47, 30, 500);
 TH1F *Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
 TH1F *Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
@@ -175,6 +123,83 @@ Observables::Loop()
   double numbOfZPlus3 = 0;
   double numbOfZPlus4 = 0;
 
+string version="_v2_30.root";
+if (isMu) version="Mu"+version;
+
+string szj=dir+"MC_zjets"+version;
+string swj=dir+"MC_wjets"+version;
+string stt=dir+"MC_ttbar"+version;
+string sWW=dir+"MC_diW"+version;
+string sZZ=dir+"MC_siZ"+version;
+string sWZ=dir+"MC_diWZ"+version;
+string sda=dir+"DATA"+version;
+
+
+TFile* fzj = new TFile(szj.c_str(), "RECREATE");
+TFile* fwj = new TFile(swj.c_str(), "RECREATE");
+TFile* ftt = new TFile(stt.c_str(), "RECREATE");
+TFile* fWW = new TFile(sWW.c_str(), "RECREATE");
+TFile* fZZ = new TFile(sZZ.c_str(), "RECREATE");
+TFile* fWZ = new TFile(sWZ.c_str(), "RECREATE");
+TFile* fda = new TFile(sda.c_str(), "RECREATE");
+
+ string dirvalidation="validationJEC";
+ if (isMu) dirvalidation="validationJECmu";
+
+ 
+ TDirectory *validationJECz=fzj->mkdir(dirvalidation.c_str());
+TDirectory *validationJECw=fwj->mkdir(dirvalidation.c_str());
+TDirectory *validationJECtt=ftt->mkdir(dirvalidation.c_str());
+TDirectory *validationJECWW=fWW->mkdir(dirvalidation.c_str());
+TDirectory *validationJECZZ=fZZ->mkdir(dirvalidation.c_str());
+TDirectory *validationJECWZ=fWZ->mkdir(dirvalidation.c_str());
+TDirectory *validationJECda=fda->mkdir(dirvalidation.c_str());
+
+//FIles do be opened
+
+string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
+string sozj=diropen+"zjets_magd_2011"+version;
+string sowj=diropen+"w_2011"+"_v2_27.root";//+version;
+string sott=diropen+"ttbar_2011"+version;
+string soWW=diropen+"ww_2011"+version;
+string soZZ=diropen+"zz_2011"+version;
+string soWZ=diropen+"wz_2011"+version;
+string soda=diropen+"DATA_2011"+version;
+
+string folderdir="validationJEC";
+string folderdir2="validationJECXSScaleDown";
+ if (isMu){
+   string folderdir="validationJECmu";
+   string folderdir2="validationJECXSScaleDownmu";
+ }
+
+string sodzj=sozj+":/"+folderdir;
+ if (isMu) sodzj=sozj+":/EPTmuoReco_MC";
+string sodwj=sowj+":/"+folderdir;
+string sodtt=sott+":/"+folderdir2;
+ if (isMu) sodtt=sott+":/EPTmuoReco_MC";
+string sodWW=soWW+":/"+folderdir2;
+ if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
+string sodZZ=soZZ+":/"+folderdir2;
+ if (isMu) sodZZ=soZZ+":/EPTmuoReco_MC";
+ if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
+ cout<<sodZZ<<endl;
+ cout<<sodwj<<endl;
+string sodWZ=soWZ+":/"+folderdir2;
+ if (isMu) sodWZ=soWZ+":/EPTmuoReco_MC";
+string sodda=soda+":/"+folderdir;
+ if (isMu) sodda=soda+":/EPTmuoReco";
+
+TFile *Fzj = new TFile (sozj.c_str());
+TFile *Fwj = new TFile (sowj.c_str());
+TFile *Ftt = new TFile (sott.c_str());
+TFile *Fda = new TFile (soda.c_str());
+TFile *FWW = new TFile (soWW.c_str());
+TFile *FWZ = new TFile (soWZ.c_str());
+TFile *FZZ = new TFile (soZZ.c_str());
+
+
+  cout<<"If you see an unexpected crash, control in which gDyrectory the tree treeUN has been stored.."<<endl;
   //DATA
   for(int i=0; i<7; i++){
     if (i==0) Fda->cd (sodda.c_str());
@@ -184,18 +209,44 @@ Observables::Loop()
     if (i==4) FWZ->cd (sodWZ.c_str());
     if (i==5) FZZ->cd (sodZZ.c_str());
     if (i==6) Fwj->cd (sodwj.c_str());
-    
-    TTree *tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-    
+
+    cout<<"Act #"<<i<<endl;
+
+    TTree *tree_fB;
+    if (!isMu){
+      if (i==0 || i==1)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      
+      if (i>1) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==2 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==3 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==4 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==5 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==6 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+
+    }
+    else{
+      if (i==0)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");     
+      if (i==1)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
+      //if (i>=1) tree_fB = (TTree *) gDirectory->Get ("treeUNmu_");
+      if (i==2 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
+      if (i==3 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
+      if (i==4 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
+      if (i==5 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
+      if (i==6 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+    }
+
     fChain = tree_fB;		/* Loop RunA */
     Init (fChain);
+    
     Long64_t nentries = fChain->GetEntriesFast ();
+
     Long64_t nbytes = 0, nb = 0;
     
     if (fChain == 0)  return;
     
     //List of observables to show
-    NData             = new TH1F ("Jet_multi", "Jet_multi", 6, 0, 6);
+    NData             = new TH1F ("Jet_multi", "Jet_multi", 5, 1, 6);
     Ht                = new TH1F ("HT", "HT", 47, 30, 500);
     Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
     Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
@@ -228,11 +279,10 @@ Observables::Loop()
     NZy		    = new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
     h_weights       = new TH1F ("h_weights","h_weights",500,0.,5);
     
-    
+
     //Making the plots
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
       {
-	
 	Long64_t ientry = LoadTree (jentry);
 	if (ientry < 0)
 	  break;
@@ -296,8 +346,10 @@ Observables::Loop()
 	if(Z_pt != 0 && Jet_multiplicity > 0){
 	  Theta_JZ->Fill(TMath::Cos(theta_JZ),evWeight);  
 	}
-	
-	NData->Fill(Jet_multiplicity,evWeight);
+
+	double multiweight=1.0;
+	if (i>0) multiweight=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	NData->Fill(Jet_multiplicity,multiweight);
 	
 
 	///////////////////
@@ -305,10 +357,16 @@ Observables::Loop()
 	/////////////////// 
 
 
-	if(Jet_multiplicity>0) Ht->Fill(jetHt,evWeight);
-	ele_pT   ->Fill(e1_pt,evWeight);
-	ele_eta  ->Fill(e1_eta,evWeight);
-	ele_phi  ->Fill(e1_phi,evWeight);
+	if(Jet_multiplicity>0) {
+	  double Weight=1.0;
+	  if (i>0) Weight=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	  Ht->Fill(jetHt,Weight);
+	}
+	
+	//NON APPLICO ANCORA I SCALE FACTORS
+	ele_pT   ->Fill(e1_pt);
+	ele_eta  ->Fill(e1_eta);
+	ele_phi  ->Fill(e1_phi);
 
 
 	///////////////////
@@ -316,48 +374,62 @@ Observables::Loop()
 	/////////////////// 
 
 	double evWeight_scalefactors=1.0;
-	
+	//NB!!!!!!!!!!!!!!!!!!!!!! -> Non considero il weight perche' lo considero poi in DrawComparison!!!!!!!!!!!!!!!!!!!!!
+
 	if(jet1_pt>jetThreshold && jet1_pt<350 && jet1_eta>-3 && jet1_eta<3){	
-	  
-	  if (activateScaleFactors && i!=0) {
-	    if (Jet_multiplicity==1) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet1_pt);
+	  evWeight_scalefactors=1.0;
+	  if (activateScaleFactors && i>0) {
+	    if (Jet_multiplicity>=1) {
+	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet1_pt);
+	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	    }
 	  }
-	  jet_pT  -> Fill(jet1_pt,evWeight*evWeight_scalefactors);
-	  jet_eta -> Fill(jet1_eta,evWeight);
+	  //evWeight_scalefactors=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",!isMu);
+	  jet_pT  -> Fill(jet1_pt,evWeight_scalefactors);
+	  jet_eta -> Fill(jet1_eta,evWeight_scalefactors);
 	}
 
 	///////
 
 	if (Jet_multiplicity > 1 && jet2_pt > jetThreshold && jet2_pt <350 && TMath::Abs(jet2_eta)<2.5){
-	  
-	  if (activateScaleFactors && i!=0) {
-	    if (Jet_multiplicity==2) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet2_pt);
+	  evWeight_scalefactors=1.0;
+	  if (activateScaleFactors && i>0) {
+	    if (Jet_multiplicity>=2) {
+	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet2_pt);
+	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	    }
 	  }
-	  jet_pT2 -> Fill(jet2_pt,evWeight*evWeight_scalefactors);
-	  jet_eta2 -> Fill(jet2_eta,evWeight);
+	  jet_pT2 -> Fill(jet2_pt,evWeight_scalefactors);
+	  jet_eta2 -> Fill(jet2_eta,evWeight_scalefactors);
 	}
 
 	///////
 	
 	if (Jet_multiplicity > 2 && jet3_pt > jetThreshold && jet3_pt <350 && TMath::Abs(jet3_eta)<2.5){
-	  
-	  if (activateScaleFactors && i!=0) {
-	    if (Jet_multiplicity==3) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet3_pt);
+	  evWeight_scalefactors=1.0;
+	  if (activateScaleFactors && i>0) {
+	    if (Jet_multiplicity>=3){
+	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet3_pt);
+	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	    }
 	  }
-	  jet_pT3 -> Fill(jet3_pt,evWeight*evWeight_scalefactors);
-	  jet_eta3 -> Fill(jet3_eta,evWeight);
+	  jet_pT3 -> Fill(jet3_pt,evWeight_scalefactors);
+	  jet_eta3 -> Fill(jet3_eta,evWeight_scalefactors);
 	}
 
 	///////
 
 	
 	if (Jet_multiplicity > 3 && jet4_pt > jetThreshold && jet4_pt <350 && TMath::Abs(jet4_eta)<2.5){
-	  
-	  //if (activateScaleFactors && i!=0) {
-	  //if (Jet_multiplicity==4) evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet4_pt);
-	  //}
-	  jet_pT4 -> Fill(jet4_pt,evWeight*evWeight_scalefactors);
-	  jet_eta4 -> Fill(jet4_eta,evWeight);
+	  evWeight_scalefactors=1.0;
+	  if (activateScaleFactors && i>0) {
+	    if (Jet_multiplicity>=4) {
+	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet4_pt);
+	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	    }
+	  }
+	  jet_pT4 -> Fill(jet4_pt,evWeight_scalefactors);
+	  jet_eta4 -> Fill(jet4_eta,evWeight_scalefactors);
 	}
 
 	///////////////////

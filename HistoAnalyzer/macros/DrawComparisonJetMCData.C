@@ -22,34 +22,39 @@
 #include <string.h>
 
 #include "lumi_scale_factors.h"
+//#include "lumi_scale_factorsLO.h"
+
 #include "Unfolding/MakePlotLumiLabel.C"
 
-bool isAngularAnalysis= false;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
+bool isAngularAnalysis= true;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
+//NB: Backgrounds are ONLY estimated when this flag is true!!!
 
 bool lumiweights 	= 1;	//se 0 scala sull'integrale dell'area, se 1 scala sulla luminosita' integrata//
 bool WholeStat= true;                // if true, reweing on RunA lumi, if false, on the whole stat. if true, the other variabs are uneffective, except lumipixel 
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-string version="_v2_25.root";  // which version you wonna analize
+bool isMu=true;
 
-string plotpath		="/tmp/marone/"; //put here the path where you want the plots
-string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
-string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+version;
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string plotpath;
+string datafile;
+string mcfile;
 
-string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string back_ttbar;
+string back_w;
 
-string WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011"+version;
-string ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011"+version;
-string WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
+string qcd23bc;
+string qcd38bc;
+string qcd817bc;
+string qcd23em;
+string qcd38em;
+string qcd817em;
 
+string WZ;      
+string ZZ;     
+string WW;    
+
+string version;  
 
 double zwemean=12.; //le inizializzo a valori molto sbagliati, cosÃ¬ se non vengono modificate me ne accorgo
 double wwemean=130.;
@@ -66,10 +71,7 @@ double wzEvents=-999;
 double zzEvents=-999; 
 double wwEvents=-999; 
 
-//storing background infos in:
-string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
-string bkg=dir+"Backgrounds"+version;
-TFile* fzj = new TFile(bkg.c_str(), "RECREATE");
+TFile *fzj;
 //Tree to store vthe values
 TTree *treeBKG_= new TTree("treeBKG_","treeBKG_");
 
@@ -79,6 +81,8 @@ std::vector<double> bckg_3leadingJetPt;
 std::vector<double> bckg_4leadingJetPt;
 
 std::vector<double> bckg_JetMultiplicity;
+std::vector<double> bckg_HT;
+
 
 TCanvas * CanvPlot;
 bool cold=true;
@@ -101,11 +105,47 @@ void DrawComparisonJetMCData(void){
   };
 
 
+
+  version="_v2_30.root";  // which version you wonna analize
+  if (!isMu) version="_v2_28.root"; 
+  if (isMu) version="Mu"+version;
+  if (isMu) dataLumi2011Apix=2136.00; 
+  //storing background infos in:
+  string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
+  string bkg=dir+"Backgrounds"+version;
+
+  fzj = new TFile(bkg.c_str(), "RECREATE");
+  
+plotpath		="/tmp/marone/"; //put here the path where you want the plots
+datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
+ mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version;
+
+back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+version;
+back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_27.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+
+qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+
+WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011"+version;
+ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011"+version;
+WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
+
+// if (isMu) datafile      ="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu_v2_28.root";
+//if (isMu) mcfile        ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_28.root";
+ //  if (isMu) version="Mu"+version;
+
+
   treeBKG_->Branch("bckg_leadingJetPt",&bckg_leadingJetPt);
   treeBKG_->Branch("bckg_2leadingJetPt",&bckg_2leadingJetPt);
   treeBKG_->Branch("bckg_3leadingJetPt",&bckg_3leadingJetPt);
   treeBKG_->Branch("bckg_4leadingJetPt",&bckg_4leadingJetPt);
   treeBKG_->Branch("bckg_JetMultiplicity",&bckg_JetMultiplicity);
+  treeBKG_->Branch("bckg_HT",&bckg_HT);
+
 
   gROOT->Reset();
   gROOT->ForceStyle();
@@ -133,11 +173,21 @@ void DrawComparisonJetMCData(void){
     WZ=direc+"MC_diWZ"+version;
     datafile=direc+"DATA"+version;
   }
-
+  
   TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
-  mcf->cd("validationJEC/");
-  TDirectory *dir=gDirectory;
-  TList *mylist=(TList*)dir->GetListOfKeys();
+  cout<<"correct in line 138 the right directroy, when we move to v28!!!"<<endl;
+
+  if (isAngularAnalysis) {
+    if (!isMu) mcf->cd("validationJEC/");
+    if (isMu) mcf->cd("validationJECmu/");
+  }
+  else {
+    mcf->cd("validationJEC/");
+    if (isMu) mcf->cd("validationJECmu/");
+  }
+
+  TDirectory *dir2=gDirectory;
+  TList *mylist=(TList*)dir2->GetListOfKeys();
   TIter iter(mylist);	
   // Use TIter::Next() to get each TObject mom owns.
   TObject* tobj = 0;
@@ -172,6 +222,16 @@ void DrawComparisonJetMCData(void){
 	
       //---- weights
       mcf->cd("validationJEC");
+
+      if (isAngularAnalysis) {
+	if (!isMu) mcf->cd("validationJEC/");
+	if (isMu) mcf->cd("validationJECmu/");
+      }
+      else {
+	mcf->cd("validationJEC/");
+	if (isMu) mcf->cd("validationJECmu/");
+      }
+
       TH1F* mc;
       gDirectory->GetObject(name.c_str(),mc);
       if(mc){
@@ -186,12 +246,19 @@ void DrawComparisonJetMCData(void){
 
       //---- weights
       ttbarf->cd("validationJEC");
+      if (isMu) ttbarf->cd("validationJECmu/");
+
+      if (isAngularAnalysis) {
+        if (!isMu) ttbarf->cd("validationJEC/");
+	if (isMu) ttbarf->cd("validationJECmu/");
+      }
+     
       TH1F* ttbar;
       gDirectory->GetObject(name.c_str(),ttbar);
 	
       if(ttbar){
 	ttbar->SetFillColor(kBlue);
-	ttbar->GetXaxis()->SetRangeUser(0.,2.);
+	ttbar->GetXaxis()->SetRangeUser(0.,12.);
 	ttbar->Draw();
 	ttwemean = ttbar->GetMean();
 	tmpname=plotpath+name+"-ttbar.png";
@@ -200,11 +267,18 @@ void DrawComparisonJetMCData(void){
 
       //---- weights
       wf->cd("validationJEC");
+      if (isMu) wf->cd("validationJECmu/");
+      
+      if (isAngularAnalysis) {
+        wf->cd("validationJEC/");
+	if (isMu) wf->cd("validationJECmu/");
+      }
+
       TH1F* w;
       gDirectory->GetObject(name.c_str(),w);
       if(w){
 	w->SetFillColor(kViolet+2);
-	w->GetXaxis()->SetRangeUser(0.,2.);
+	w->GetXaxis()->SetRangeUser(0.,12.);
 	w->Draw();
 	wwemean = w->GetMean();
 	tmpname=plotpath+name+"-wjets.png";
@@ -213,11 +287,18 @@ void DrawComparisonJetMCData(void){
 
       //---- weights
       wzf->cd("validationJEC");
+      if (isMu) wzf->cd("validationJECmu/");
+      
+      if (isAngularAnalysis) {
+        wzf->cd("validationJEC/");
+	if (isMu) wzf->cd("validationJECmu/");
+      }
+
       TH1F* wz;
       gDirectory->GetObject(name.c_str(),wz);
       if(wz){
 	wz->SetFillColor(kYellow+2);
-	wz->GetXaxis()->SetRangeUser(0.,2.);
+	wz->GetXaxis()->SetRangeUser(0.,12.);
 	wz->Draw();
 	wzwemean = w->GetMean();
 	tmpname=plotpath+name+"-wzjets.png";
@@ -226,11 +307,18 @@ void DrawComparisonJetMCData(void){
 
       //---- weights
       zzf->cd("validationJEC");
+      if (isMu) zzf->cd("validationJECmu/");
+
+      if (isAngularAnalysis) {
+        zzf->cd("validationJEC/");
+	if (isMu) zzf->cd("validationJECmu/");
+      }
+
       TH1F* zz;
       gDirectory->GetObject(name.c_str(),zz);
       if(zz){
 	zz->SetFillColor(kOrange+2);
-	zz->GetXaxis()->SetRangeUser(0.,2.);
+	zz->GetXaxis()->SetRangeUser(0.,12.);
 	zz->Draw();
 	zzwemean = w->GetMean();
 	tmpname=plotpath+name+"-zzjets.png";
@@ -239,11 +327,18 @@ void DrawComparisonJetMCData(void){
 
       //---- weights
       wwf->cd("validationJEC");
+      if (isMu) wwf->cd("validationJECmu/");
+
+      if (isAngularAnalysis) {
+        wwf->cd("validationJEC/");
+	if (isMu) wwf->cd("validationJECmu/");
+      }
+
       TH1F* www;
       gDirectory->GetObject(name.c_str(),www);
       if(www){
 	www->SetFillColor(kBlack);
-	www->GetXaxis()->SetRangeUser(0.,2.);
+	www->GetXaxis()->SetRangeUser(0.,12.);
 	www->Draw();
 	wwwemean = www->GetMean();
 	tmpname=plotpath+name+"-wwwjets.png";
@@ -329,6 +424,7 @@ void comparisonJetMCData(string plot,int rebin){
 
   // Getting, defining ...
   dataf->cd("validationJEC");
+  if (isMu && isAngularAnalysis) dataf->cd("validationJECmu");
 	
   TObject * obj;
   gDirectory->GetObject(plot.c_str(),obj);
@@ -363,13 +459,18 @@ void comparisonJetMCData(string plot,int rebin){
   // Dirty jobs :)
   if (flag==1){
     CanvPlot->cd();
-    TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
+    TPad *pad1 = new TPad("pad1","pad1",0.01,0.33,0.99,0.99);
     pad1->Draw();
     pad1->cd();
+    pad1->SetTopMargin(0.1);
+    pad1->SetBottomMargin(0.01);
+    pad1->SetRightMargin(0.1);
+    pad1->SetFillStyle(0);
+
     pad1->SetLogy(1);
     TString str=data->GetTitle();
     if (str.Contains("jet") && !str.Contains("zMass") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("meanPtZVsNjet")) {
-      if (!isAngularAnalysis) rebin=5;
+      if (!isAngularAnalysis) rebin=1;
     }
 
     //======================
@@ -381,12 +482,21 @@ void comparisonJetMCData(string plot,int rebin){
     if(str.Contains("zMass")) data->GetXaxis()->SetRangeUser(70,110);	
     data->SetMinimum(1.);
     data->Sumw2();
+
+    //Canvas style copied from plotsHistsRatio.C
+    data->SetLabelSize(0.0);
+    data->GetXaxis()->SetTitleSize(0.00);
+    data->GetYaxis()->SetLabelSize(0.07);
+    data->GetYaxis()->SetTitleSize(0.08);
+    data->GetYaxis()->SetTitleOffset(0.76);
+    data->SetTitle("");
     data->Draw("E1");
 
-    TLegend* legend = new TLegend(0.825,0.57,0.95,0.72);
+    TLegend* legend = new TLegend(0.725,0.37,0.85,0.62);
     legend->SetFillColor(0);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
+    legend->SetTextSize(0.024);
     legend->AddEntry(data,"data","p");
 
     // hack to calculate some yields in restricted regions...
@@ -419,6 +529,13 @@ void comparisonJetMCData(string plot,int rebin){
     //======================
     // Z + jets signal
     mcf->cd("validationJEC");
+    if (isMu) mcf->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      mcf->cd("validationJEC/");
+      if (isMu) mcf->cd("validationJECmu/");
+    }
+
     TH1F* mc;
     gDirectory->GetObject(plot.c_str(),mc);
     TH1F * hsum;
@@ -455,6 +572,7 @@ void comparisonJetMCData(string plot,int rebin){
       else {
 	if(lumiweights==1) mc->Scale(zjetsScale);
       }
+
       // fin qui
       if(lumiweights==1) mc->Scale(1./zwemean);  // perche' i Weights non fanno 1...
       mc->Rebin(rebin);
@@ -467,6 +585,13 @@ void comparisonJetMCData(string plot,int rebin){
     //======================
     // ttbar
     ttbarf->cd("validationJEC");
+    if (isMu) ttbarf->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      ttbarf->cd("validationJEC/");
+      if (isMu) ttbarf->cd("validationJECmu/");
+    }
+
     TH1F* ttbar;
     gDirectory->GetObject(plot.c_str(),ttbar);
 	
@@ -507,18 +632,27 @@ void comparisonJetMCData(string plot,int rebin){
       //////////
       //Storing the bckgrounds!
       //////////
-      
+
+      if (isAngularAnalysis){
       if(str=="jet_pT") evaluateAndFillBackgrounds(ttbar,"jet_pT");
       if(str=="jet_pT2") evaluateAndFillBackgrounds(ttbar,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(ttbar,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(ttbar,"jet_pT4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(ttbar,"jet_Multiplicity");
-      
+      if(str=="HT") evaluateAndFillBackgrounds(ttbar,"HT");
+
+      }
     }
 
     //======================
     // w+jets
     wf->cd("validationJEC");
+    if (isMu) wf->cd("validationJECmu/");
+    if (isAngularAnalysis) {
+      wf->cd("validationJEC/");
+      if (isMu) wf->cd("validationJECmu/");      
+    }
+
     TH1F* w;
     gDirectory->GetObject(plot.c_str(),w);
     if(w){
@@ -560,6 +694,13 @@ void comparisonJetMCData(string plot,int rebin){
     //======================
     // wz+jets
     WZf->cd("validationJEC");
+    if (isMu) WZf->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      WZf->cd("validationJEC/");
+      if (isMu) WZf->cd("validationJECmu/");
+    }
+
     TH1F* wz;
     gDirectory->GetObject(plot.c_str(),wz);
     if(wz){
@@ -600,19 +741,27 @@ void comparisonJetMCData(string plot,int rebin){
       //////////
       //Storing the bckgrounds!
       //////////
-
+     if (isAngularAnalysis){
       if(str=="jet_pT") evaluateAndFillBackgrounds(wz,"jet_pT");
       if(str=="jet_pT2") evaluateAndFillBackgrounds(wz,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(wz,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(wz,"jet_pT4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(wz,"jet_Multiplicity");
-      
+      if(str=="HT") evaluateAndFillBackgrounds(wz,"HT");
+     }
     }
     
 		
     //======================
     // zz+jets
     ZZf->cd("validationJEC");
+    if (isMu) ZZf->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      ZZf->cd("validationJEC/");
+      if (isMu) ZZf->cd("validationJECmu/");
+    }
+
     TH1F* zz;
     gDirectory->GetObject(plot.c_str(),zz);
     if(zz){
@@ -652,17 +801,26 @@ void comparisonJetMCData(string plot,int rebin){
       //////////
       //Storing the bckgrounds!
       //////////
-
+     if (isAngularAnalysis){
       if(str=="jet_pT") evaluateAndFillBackgrounds(zz,"jet_pT");
       if(str=="jet_pT2") evaluateAndFillBackgrounds(zz,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(zz,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(zz,"jet_pT4");
-      if(str=="Jet_multi") evaluateAndFillBackgrounds(zz,"jet_Multiplicity");  
+      if(str=="Jet_multi") evaluateAndFillBackgrounds(zz,"jet_Multiplicity");
+      if(str=="HT") evaluateAndFillBackgrounds(zz,"HT");
+     }  
     }
     
     //======================
     // ww+jets
     WWf->cd("validationJEC");
+    if (isMu) WWf->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      WWf->cd("validationJEC/");
+      if (isMu) WWf->cd("validationJECmu/");
+    }
+
     TH1F* ww;
     gDirectory->GetObject(plot.c_str(),ww);
     if(ww){
@@ -702,13 +860,14 @@ void comparisonJetMCData(string plot,int rebin){
       //////////
       //Storing the bckgrounds!
       //////////
-
+     if (isAngularAnalysis){
       if(str=="jet_pT") evaluateAndFillBackgrounds(ww,"jet_pT");
       if(str=="jet_pT2") evaluateAndFillBackgrounds(ww,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(ww,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(ww,"jet_pT4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(ww,"jet_Multiplicity");
-
+      if(str=="HT") evaluateAndFillBackgrounds(ww,"HT");
+     }
     }
 
     /////////
@@ -758,7 +917,7 @@ void comparisonJetMCData(string plot,int rebin){
 
       hsum->Add(qcdTotEM);
 
-      if(lumiweights==1)legend->AddEntry(qcdTotEM,"QCD em","f");
+      //if(lumiweights==1)legend->AddEntry(qcdTotEM,"QCD em","f");
     }
 
     //======================
@@ -802,7 +961,7 @@ void comparisonJetMCData(string plot,int rebin){
       hsum->Add(qcdTotBC);
       if (qcdTotBC->GetEntries()>0) qcdbcempty=false; 
 
-      if(lumiweights==1)legend->AddEntry(qcdTotBC,"QCD bc","f");
+      //if(lumiweights==1)legend->AddEntry(qcdTotBC,"QCD bc","f");
     }
 
     //======================
@@ -831,9 +990,9 @@ void comparisonJetMCData(string plot,int rebin){
     TPaveStats *r2;
     if(lumiweights==0) r2 = (TPaveStats*)mc->FindObject("stats");
     if(lumiweights==1) r2 = (TPaveStats*)hsum->FindObject("stats");
-    r2->SetY1NDC(0.875);
-    r2->SetY2NDC(0.75); 
-    r2->SetTextColor(kRed);
+    //r2->SetY1NDC(0.875);     //Uncomment if you wonna add your statistics in the top right corner
+    //r2->SetY2NDC(0.75); 
+    //r2->SetTextColor(kRed);
 		
     if(lumiweights==1) hs->Draw("HISTO SAME");
     gPad->RedrawAxis();
@@ -846,7 +1005,7 @@ void comparisonJetMCData(string plot,int rebin){
     lumi->SetBorderSize(0);
     //lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
     lumi->Draw();
-    TLatex *latexLabel=CMSPrel(4.890,"",0.65,0.9); // make fancy label
+    TLatex *latexLabel=CMSPrel(4.890,"",0.65,0.85); // make fancy label
     latexLabel->Draw("same");
 
     CanvPlot->Update();
@@ -858,11 +1017,16 @@ void comparisonJetMCData(string plot,int rebin){
     // RATIO DATA MC //
     //===============//
     CanvPlot->cd();
-    TPad *pad2 = new TPad("pad2","pad2",0,0,1,0.3);
+    TPad *pad2 = new TPad("pad2","pad2",0.01,0.01,0.99,0.32);
     pad2->Draw();
     pad2->cd();
+    pad2->SetTopMargin(0.01);
+    pad2->SetBottomMargin(0.3);
+    pad2->SetRightMargin(0.1);
+    pad2->SetFillStyle(0);
+
     TH1D * ratio =  (TH1D*) data->Clone();
-    ratio->SetTitle("ratio");
+    ratio->SetTitle("");
     ratio->SetName("ratio");
     ratio->Reset();
 
@@ -876,9 +1040,20 @@ void comparisonJetMCData(string plot,int rebin){
     TH1F* sumMC;
     hs->Draw("nostack");
     sumMC=(TH1F*) hs->GetHistogram();
-    ratio->Divide(data,mc,1.,1.);
+    cout<<sumMC->GetEntries()<<endl;
+    ratio->Divide(data,hsum,1.,1.);
     ratio->GetYaxis()->SetRangeUser(0,2);	
-    pad2->SetTopMargin(1);
+    //pad2->SetTopMargin(1);
+
+   //Canvas style copied from plotsHistsRatio.C
+    ratio->GetYaxis()->SetNdivisions(5);
+    ratio->GetXaxis()->SetTitleSize(0.14);
+    ratio->GetXaxis()->SetLabelSize(0.14);
+    ratio->GetYaxis()->SetLabelSize(0.11);
+    ratio->GetYaxis()->SetTitleSize(0.11);
+    ratio->GetYaxis()->SetTitleOffset(0.28);
+    ratio->GetYaxis()->SetTitle("ratio data/MC");   
+
     ratio->Draw("E1");
 		
     TLine *OLine = new TLine(ratio->GetXaxis()->GetXmin(),1.,ratio->GetXaxis()->GetXmax(),1.);
@@ -933,14 +1108,16 @@ void comparisonJetMCData(string plot,int rebin){
 
     // data
     dataf->cd("validationJEC");
+    if (isMu && isAngularAnalysis) dataf->cd("validationJECmu");
+
     gDirectory->GetObject(plot.c_str(),data2);
     data2->Draw("COLZ");
 
     gPad->Update(); // altrimenti non becchi la stat
     TPaveStats *r1 = (TPaveStats*)data2->FindObject("stats");
-    r1->SetX1NDC(0.70);
-    r1->SetX2NDC(0.85); 
-    r1->Draw();
+    //r1->SetX1NDC(0.70); Uncomment if you wonna draw your stat in the top right corner
+    //r1->SetX2NDC(0.85); 
+    //r1->Draw();
     CanvPlot->Update();
 
     tmp=plotpath+plot+"data.png";
@@ -950,6 +1127,13 @@ void comparisonJetMCData(string plot,int rebin){
     //CanvPlot.cd(2);
     // montecarlo
     mcf->cd("validationJEC");
+    if (isMu) mcf->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      mcf->cd("validationJEC/");
+      if (isMu) mcf->cd("validationJECmu/");
+    }
+
     gDirectory->GetObject(plot.c_str(),data2);
 
     data2->SetMinimum(1);
@@ -985,38 +1169,49 @@ void comparisonJetMCData(string plot,int rebin){
   WZf->Close();
   ZZf->Close();
   
-  if (bckg_leadingJetPt.size()>0 && bckg_2leadingJetPt.size()>0 && bckg_3leadingJetPt.size()>0 && bckg_4leadingJetPt.size()>0  && bckg_JetMultiplicity.size()>0 && cold){
-    fzj->cd();
-    treeBKG_->Fill();
-    treeBKG_->Write();
-    TH1F *leadhisto=new TH1F("leadhisto","leading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
-    TH1F *leadhisto2=new TH1F("leadhisto2","subleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
-    TH1F *leadhisto3=new TH1F("leadhisto3","subsubleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
-    TH1F *leadhisto4=new TH1F("leadhisto4","subsubsubleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
-    TH1F *multiphisto=new TH1F("multiphisto","jet multiplicity background contribution",bckg_JetMultiplicity.size(),0,bckg_JetMultiplicity.size());
+  if (isAngularAnalysis){
+    if (bckg_leadingJetPt.size()>0 && bckg_2leadingJetPt.size()>0 && bckg_3leadingJetPt.size()>0 && bckg_4leadingJetPt.size()>0  && bckg_JetMultiplicity.size()>0 && bckg_HT.size()>0 && cold){
+      fzj->cd();
+      treeBKG_->Fill();
+      treeBKG_->Write();
+      TH1F *leadhisto=new TH1F("leadhisto","leading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
+      TH1F *leadhisto2=new TH1F("leadhisto2","subleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
+      TH1F *leadhisto3=new TH1F("leadhisto3","subsubleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
+      TH1F *leadhisto4=new TH1F("leadhisto4","subsubsubleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
+      TH1F *multiphisto=new TH1F("multiphisto","jet multiplicity background contribution",bckg_JetMultiplicity.size(),0,bckg_JetMultiplicity.size());
+      TH1F *HT=new TH1F("HT","HT background contribution",bckg_HT.size(),0,bckg_HT.size());
 
-    for (int i=0; i< bckg_leadingJetPt.size(); i++){
-      leadhisto->Fill(i,bckg_leadingJetPt[i]);
-      leadhisto2->Fill(i,bckg_2leadingJetPt[i]);
-      leadhisto3->Fill(i,bckg_3leadingJetPt[i]);
-      leadhisto4->Fill(i,bckg_4leadingJetPt[i]);
-    }
-    leadhisto->Write();
-    leadhisto2->Write();
-    leadhisto3->Write();
-    leadhisto4->Write();
-    //fzj->Close();
-    for (int i=0; i< bckg_JetMultiplicity.size(); i++){
-      multiphisto->Fill(i,bckg_JetMultiplicity[i]);
-    }
+
+      for (int i=0; i< bckg_leadingJetPt.size(); i++){
+	leadhisto->Fill(i,bckg_leadingJetPt[i]);
+	leadhisto2->Fill(i,bckg_2leadingJetPt[i]);
+	leadhisto3->Fill(i,bckg_3leadingJetPt[i]);
+	leadhisto4->Fill(i,bckg_4leadingJetPt[i]);
+      }
+      leadhisto->Write();
+      leadhisto2->Write();
+      leadhisto3->Write();
+      leadhisto4->Write();
+      //fzj->Close();
+      for (int i=0; i< bckg_JetMultiplicity.size(); i++){
+	multiphisto->Fill(i,bckg_JetMultiplicity[i]);
+      }
     multiphisto->Write();
+
+    for (int i=0; i< bckg_HT.size(); i++){
+      HT->Fill(i,bckg_HT[i]);
+    }
+    HT->Write();
+
     cold=false;
+    }
   }
   return;
 }
 
 
 void evaluateAndFillBackgrounds(TH1* histo, string str){
+    
   if(str=="jet_pT"){
     if (bckg_leadingJetPt.size()==0){
       for(int j=0;j<histo->GetNbinsX();j++){
@@ -1081,6 +1276,21 @@ void evaluateAndFillBackgrounds(TH1* histo, string str){
       for(int j=0;j<histo->GetNbinsX();j++){
 	bckg_JetMultiplicity[j]+=histo->GetBinContent(j+1);
 	
+      }
+    }
+  }
+
+  //HT
+  if(str=="HT"){
+    if (bckg_HT.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT[j]+=histo->GetBinContent(j+1);
+
       }
     }
   }
