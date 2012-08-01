@@ -55,7 +55,7 @@ int getEtaRangeElectron(double ele_eta){
 
 
 
-double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_pt ,double ele1_eta, double ele2_pt, double ele2_eta, string dataOrMC)
+double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_pt ,double ele1_eta, double ele2_pt, double ele2_eta, string dataOrMC, bool isElectron)
 {
 
   TH2F* RECO_effPt;
@@ -113,8 +113,10 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
   int eta1=getEtaRangeElectron(ele1_eta);
   int eta2=getEtaRangeElectron(ele2_eta);
 
+  double eff_global=0;
+
   if (isElectron) {
-    double eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+    eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
       WP80_effPt->GetBinContent(eta2,pt2)*
       RECO_effPt->GetBinContent(eta1,pt1)*
       RECO_effPt->GetBinContent(eta2,pt2)*
@@ -122,7 +124,7 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
        ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
        ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
   } else {
-    double eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+    eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
       WP80_effPt->GetBinContent(eta2,pt2)*
       RECO_effPt->GetBinContent(eta1,pt1)*
       RECO_effPt->GetBinContent(eta2,pt2)*
@@ -222,7 +224,7 @@ std::vector<double> getEfficiencySubLeadingJet(double jetPt,  TH1F* effPt){
   values.push_back(effPtJet);
   values.push_back(effPtJeterror);
 
-  cout<<"2nd Jet ---------- input: jetPt -> "<<jetPt<<" ; output effPtJet -> "<<values[0]<<" ( error = "<< values[1] <<" )"<<endl;
+  //cout<<"2nd Jet ---------- input: jetPt -> "<<jetPt<<" ; output effPtJet -> "<<values[0]<<" ( error = "<< values[1] <<" )"<<endl;
   return values;
 }
 
@@ -439,7 +441,7 @@ double getScaleFactorsSubLeadingJet(double jetPt_MC,  TH1F* effPtData,  TH1F* ef
     effPtJet=effPtData->GetBinContent(5)/effPtMC->GetBinContent(5);
   }
 
-  cout<<"2nd Jet scale factor Data/MC is "<<effPtJet<<endl;
+  //cout<<"2nd Jet scale factor Data/MC is "<<effPtJet<<endl;
   return effPtJet;
 }
 
@@ -456,7 +458,7 @@ double getScaleFactorsSubSubLeadingJet(double jetPt_MC,  TH1F* effPtData,  TH1F*
   if (jetPt_MC>=150) {
     effPtJet=effPtData->GetBinContent(3)/effPtMC->GetBinContent(3);
   }
-  cout<<"scale factor Data/MC is "<<effPtJet<<endl;
+  //cout<<"scale factor Data/MC is "<<effPtJet<<endl;
   return effPtJet;
 }
 
