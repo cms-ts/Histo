@@ -572,17 +572,17 @@ void Unfolding::LoopJetPt (int numbOfJets)
     if (numbOfJets==4) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT4");
 
     for (unsigned int k=0; k<divPlot; k++){
-      jData->SetBinContent(k+1, jData->GetBinContent(k+1) - bckcoeff[k]*Zarea);
-      jData2->SetBinContent(k+1, jData2->GetBinContent(k+1) - bckcoeff[k]*Zarea);	
+      jData->SetBinContent(k+1, jData->GetBinContent(k+1) - bckcoeff[k]);
+      jData2->SetBinContent(k+1, jData2->GetBinContent(k+1) - bckcoeff[k]);	
       if (jData->GetBinContent(k+1)>0) {
-	relativebkg->SetBinContent(k+1,bckcoeff[k]*Zarea/jData->GetBinContent(k+1));
-	cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]*Zarea<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is "<<bckcoeff[k]*Zarea/jData->GetBinContent(k+1)<<endl;	
+	relativebkg->SetBinContent(k+1,bckcoeff[k]/jData->GetBinContent(k+1));
+	cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is "<<bckcoeff[k]/jData->GetBinContent(k+1)<<endl;	
       }
       else {
 	relativebkg->SetBinContent(k+1,0);
-	cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]*Zarea<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is 0"<<endl;
+	cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is 0"<<endl;
       }
-      cout<<"after "<<bckcoeff[k]*Zarea/jData->GetBinContent(k+1)<<endl;
+      cout<<"after "<<bckcoeff[k]/jData->GetBinContent(k+1)<<endl;
     }
   }
 
@@ -591,7 +591,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 
   TH1F *vstatistics=new TH1F("vstatistics","vstatistics",divPlot,0,divPlot);
       
-  for (int j=0; j<1; j++){
+  for (int j=1; j<2; j++){
     string method;
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
@@ -676,14 +676,14 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	/// Error treatment
 	/////////////////////
 	
-/* 	std::vector<double> err; */
-/* 	for (unsigned int k=0; k<jData->GetNbinsX(); k++){ */
-/* 	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum */
-/* 	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza */
-/* 	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)))); */
-/* 	  err.push_back(vunfo[k]); */
-/* 	} */
-/* 	kcontainer.push_back(err); */
+	std::vector<double> err;
+	for (unsigned int k=0; k<jData->GetNbinsX(); k++){
+	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
+	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
+	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
+	  err.push_back(vunfo[k]);
+	}
+	kcontainer.push_back(err);
       } 
 	
       cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
@@ -708,7 +708,8 @@ void Unfolding::LoopJetPt (int numbOfJets)
       title2=whichjet+"jet pT diff xsec distribution. "+title;
       jReco->SetTitle (title2.c_str());
       jReco->GetXaxis ()->SetTitle ("");
-      jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
+      if (!isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
+      if (isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d p_{T}");
       jReco->SetMarkerStyle (20);
       jData->SetMarkerStyle (21);
       jData->SetLineColor(kGreen);

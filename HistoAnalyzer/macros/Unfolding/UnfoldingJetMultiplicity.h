@@ -61,16 +61,31 @@ void Unfolding::LoopJetMultiplicity ()
     kmaxN=maxNJets-2; 
   }
 
-  
+  bool indentityCheck=false;
+
   string sdatadir=sdata+":/validationJEC";
+  if (isMu) sdatadir=sdata+":/EPTmuoReco";
+
   string smcdir=smc+":/validationJEC";
+  //string smcdir=smc+":/EPTmuoReco_MC";  
   if (isMu) {
-    smcdir=smc+":/EPTmuoWp80_MC";
+    smcdir=smc+":/EPTmuoReco_MC";
   }
+  if (indentityCheck) sdatadir=smcdir;
+  cout<<smcdir<<endl;
+  cout<<sdatadir<<endl; 
   fA->cd (smcdir.c_str());
-  TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  gDirectory->ls();
+  TTree *tree_fA= (TTree *) gDirectory->Get ("treeValidationJEC_");
+  cout<<"#####################"<<endl;
   fB->cd (sdatadir.c_str());
+  gDirectory->ls();
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  //FOR closure tests
+  if (indentityCheck){  fB->cd (smcdir.c_str());
+    TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  }
+  
 
   //Setting the errors
   NTrue->Sumw2();
@@ -84,9 +99,10 @@ void Unfolding::LoopJetMultiplicity ()
 
   fChain = tree_fA;	
   Init (fChain);
+
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
-  
+
   if (fChain == 0) return;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++){
@@ -95,6 +111,7 @@ void Unfolding::LoopJetMultiplicity ()
       break;
     nb = fChain->GetEntry (jentry);
     nbytes += nb;
+ 
     if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
     
     if (Jet_multiplicity >= 0 || Jet_multiplicity_gen >= 0){
@@ -117,7 +134,7 @@ void Unfolding::LoopJetMultiplicity ()
 	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	}
 	else{
-	  double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC");
+	  double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
 	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
@@ -166,7 +183,7 @@ void Unfolding::LoopJetMultiplicity ()
 	  NData2->Fill (Jet_multiplicity,effcorrdata);
 	}
 	else{
-	  double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data");
+	  double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
 	  NData->Fill (Jet_multiplicity,effcorrdata);
 	  NData2->Fill (Jet_multiplicity,effcorrdata);
 	}
@@ -194,14 +211,14 @@ void Unfolding::LoopJetMultiplicity ()
     std::vector<double> bckcoeff;
     bckcoeff=getBackgroundContributions(bkgstring,"jet_Multiplicity");
     for (unsigned int k=0; k< maxNJets; k++){
-      NData->SetBinContent(k+1, NData->GetBinContent(k+1) - bckcoeff[k+1]);  //K+1 perche' c'e' il bkgr a 0 Jets...
+      NData->SetBinContent(k+1, NData->GetBinContent(k+1) - bckcoeff[k]);  //K+1 perche' c'e' il bkgr a 0 Jets...
       if (NData->GetBinContent(k+1)>0) {
-	relativebkgN->SetBinContent(k+1,bckcoeff[k+1]/NData->GetBinContent(k+1));
-	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k+1]<<" (coefficient is "<<bckcoeff[k+1]<<"). Relative bin ratio is "<<bckcoeff[k+1]/NData->GetBinContent(k+1)<<endl;	
+	relativebkgN->SetBinContent(k+1,bckcoeff[k]/NData->GetBinContent(k+1));
+	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;	
       }
       else {
 	relativebkgN->SetBinContent(k+1,0);
-	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k+1]<<" (coefficient is "<<bckcoeff[k+1]<<"). Relative bin ratio is 0"<<endl;
+	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is 0"<<endl;
       }
       cout<<"after "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;
     }
@@ -276,7 +293,9 @@ void Unfolding::LoopJetMultiplicity ()
       title2="Number of jet + Z distribution. "+title;
       NReco->SetTitle (title2.c_str());
       NReco->GetXaxis ()->SetTitle ("");
-      NReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/dN");
+      if (!isMu) NReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/dN");
+      if (isMu) NReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/dN");
+
       NReco->SetMarkerStyle (20);
       NData->SetMarkerStyle (21);
       NData->SetLineColor(kGreen);
@@ -416,7 +435,7 @@ void Unfolding::LoopJetMultiplicity ()
       string title3= s+"JETMULTI"+method+"_"+num.str();
       if (correctForEff) title3= s+"JETMULTI"+method+"_"+num.str()+"_effcorr.png";
       else title3= s+"JETMULTI"+method+"_"+num.str()+".png";
-      if (isMu) s="Muons:"+s;
+      if (isMu) s="Muons_"+s;
       cmultip->cd ();
 
       cmultip->Print(title3.c_str());
