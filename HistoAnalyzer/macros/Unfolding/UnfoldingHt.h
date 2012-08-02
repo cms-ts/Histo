@@ -1,30 +1,110 @@
-TH1D *HTrue = new TH1D ("HTrue", "H Truth", 11, 30, 330);
-TH1D *HData = new TH1D ("HData", "H DATA Measured", 11, 30, 330);
+int Nbins = 12;
+int Nmin = 60;
+int Nmax = 630;
+int kminH = 3;
+int kmaxH = 4;
+bool spanKvaluesH = false;
+double thresh = 15.0;
+int Nj = 2;
+
+TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
+TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
 TH2D *HMatx =
-  new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", 11, 30, 330, 11, 30,
-	    330);
+  new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,
+	    Nbins, Nmin, Nmax);
 TH2D *HMatxlong =
-  new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", 12, 0, 330, 12,
-	    0, 330);
-TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", 11, 30, 330);
-TH1D *HMCrecoratio_ = new TH1D ("H mcrecoratio_", "H mcreco_", 11, 30, 330);
-TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", 11, 30, 330);
+  new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins, Nmin,
+	    Nmax, Nbins, Nmin, Nmax);
+TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", Nbins, Nmin, Nmax);
+TH1D *HMCrecoratio_ =
+  new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
+TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", Nbins, Nmin, Nmax);
 TH1F *relativebkgH =
   new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,
 	    0.5, maxNJets - 0.5);
 TH1F *HUnfolded;
-int kminH = 6;
-int kmaxH = 7;
-bool spanKvaluesH = false;
-double thresh = 15.0;
+
+string numjet;
+
+int
+getNumberOfValidGenJetsH (int Jet_multiplicity_gen, double thresh,
+			  double jet1_pt_gen, double jet2_pt_gen,
+			  double jet3_pt_gen, double jet4_pt_gen,
+			  double jet5_pt_gen, double jet6_pt_gen,
+			  double jet1_eta_gen, double jet2_eta_gen,
+			  double jet3_eta_gen, double jet4_eta_gen,
+			  double jet5_eta_gen, double jet6_eta_gen)
+{
+
+  int counter = 0;
+  for (int i = 1; i <= Jet_multiplicity_gen; i++)
+    {
+
+      if (i == 1)
+	{
+
+	  if (jet1_pt_gen < thresh || fabs (jet1_eta_gen) > 2.4)
+	    counter++;
+
+	}
+
+      if (i == 2)
+	{
+
+	  if (jet2_pt_gen < thresh || fabs (jet2_eta_gen) > 2.4)
+	    counter++;
+
+	}
+
+      if (i == 3)
+	{
+
+	  if (jet3_pt_gen < thresh || fabs (jet3_eta_gen) > 2.4)
+	    counter++;
+
+	}
+
+      if (i == 4)
+	{
+
+	  if (jet4_pt_gen < thresh || fabs (jet4_eta_gen) > 2.4)
+	    counter++;
+
+	}
+
+      if (i == 5)
+	{
+
+	  if (jet5_pt_gen < thresh || fabs (jet5_eta_gen) > 2.4)
+	    counter++;
+
+	}
+
+      if (i == 6)
+	{
+
+	  if (jet6_pt_gen < thresh || fabs (jet6_eta_gen) > 2.4)
+	    counter++;
+
+	}
+
+      //  cout<<"output della funzione getNumberOfValidGenJetsH ="<<counter<<endl;
+
+    }				// for
+  return counter;
+
+}				// end
+
 
 double
 getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
 			   double thresh, double jet1_pt_gen,
 			   double jet2_pt_gen, double jet3_pt_gen,
-			   double jet4_pt_gen, double jet1_eta_gen,
+			   double jet4_pt_gen, double jet5_pt_gen,
+			   double jet6_pt_gen, double jet1_eta_gen,
 			   double jet2_eta_gen, double jet3_eta_gen,
-			   double jet4_eta_gen)
+			   double jet4_eta_gen, double jet5_eta_gen,
+			   double jet6_eta_gen)
 {
   double jetPt = 0.0;
   if (Jet_multiplicity_gen == 0 && jet1_pt_gen < 30)
@@ -36,7 +116,7 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
   if (Jet_multiplicity_gen == 0 && fabs (jet1_eta_gen) <= 2.4)
     pt.push_back (jet1_pt_gen);
 
-  for (int i = 1; i <= 4; i++)
+  for (int i = 1; i <= Jet_multiplicity_gen; i++)
     {
       if (i == 1)
 	{
@@ -66,11 +146,27 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
 	      pt.push_back (jet4_pt_gen);
 	    }
 	}
-    }				// for
+      
+      if (i == 5)
+	{
+	  if (jet5_pt_gen > thresh && fabs (jet5_eta_gen) <= 2.4)
+	    {
+	      pt.push_back (jet5_pt_gen);
+	    }
+	}
+      if (i == 6)
+	{
+	  if (jet6_pt_gen > thresh && fabs (jet6_eta_gen) <= 2.4)
+	    {
+	      pt.push_back (jet6_pt_gen);
+	    }
+	}
+    }	    
+	
+// for
 
 
-  if (whichjet <= pt.size ())
-    jetPt = pt[whichjet - 1];
+  if (whichjet <= pt.size ()) jetPt = pt[whichjet - 1];
   //restituisci il pt (se valido) del get che ti chiede corrispondene all'oridne che chiedsi
 
   //if (jetPt != jet1_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_
@@ -99,6 +195,7 @@ Unfolding::LoopHt ()
       kmaxH = maxNJets - 2;
     }
 
+  bool Debug=false; //decomment it to increase verbosity
 
   string sdatadir = sdata + ":/validationJEC";
   string smcdir = smc + ":/validationJEC";
@@ -131,41 +228,63 @@ Unfolding::LoopHt ()
 	break;
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
-      
+
       double Ht, Ht_gen;
       double correctGenJetPt;
-	  /*  getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, 1, 15.0,
-				       jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
-				       jet4_pt_gen, jet1_eta_gen,
-				       jet2_eta_gen,
-				       jet3_eta_gen, jet4_eta_gen);
-*/
-      for (int i = 1; i <= 4; i++)
+      int genJet;
+      /*  getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, 1, 15.0,
+         jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
+         jet4_pt_gen, jet1_eta_gen,
+         jet2_eta_gen,
+         jet3_eta_gen, jet4_eta_gen);
+       */
+      genJet = Jet_multiplicity_gen-getNumberOfValidGenJetsH (Jet_multiplicity_gen, 30.0,
+					 jet1_pt_gen, jet2_pt_gen,
+					 jet3_pt_gen, jet4_pt_gen,
+					 jet5_pt_gen, jet6_pt_gen,
+					 jet1_eta_gen, jet2_eta_gen,
+					 jet3_eta_gen, jet4_eta_gen,
+					 jet5_eta_gen, jet6_eta_gen);
+
+      for (int i = 1; i <= Jet_multiplicity_gen; i++)
 	{
-	    correctGenJetPt = getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, i, 30.0,
+	  correctGenJetPt =
+	    getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, i, 30.0,
 				       jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
-				       jet4_pt_gen, jet1_eta_gen,
-				       jet2_eta_gen,
-				       jet3_eta_gen, jet4_eta_gen);
+				      jet4_pt_gen, jet5_pt_gen, jet6_pt_gen,
+				       jet1_eta_gen, jet2_eta_gen,
+				       jet3_eta_gen, jet4_eta_gen,
+				       jet5_eta_gen, jet6_eta_gen);
+	
+	  
+	  if (Debug) cout << "pT=" << correctGenJetPt << "N=" << genJet << "multi_gen=" << Jet_multiplicity_gen << endl;
+	  
+	  if (correctGenJetPt > 0 && correctGenJetPt < 7000 && genJet>=Nj){
+	    Ht_gen += correctGenJetPt;
+	  }
+	} //!
 
+      if (Debug) cout << "&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;
 
-
-	  if (correctGenJetPt>0 && correctGenJetPt<7000) Ht_gen += correctGenJetPt;
-
+      if (Jet_multiplicity >= Nj)
+	{
+	  if (jet1_pt > 0 && jet1_pt < 7000)
+	    Ht += jet1_pt;
+	  if (jet2_pt > 0 && jet2_pt < 7000)
+	    Ht += jet2_pt;
+	  if (jet3_pt > 0 && jet3_pt < 7000)
+	    Ht += jet3_pt;
+	  if (jet4_pt > 0 && jet4_pt < 7000)
+	    Ht += jet4_pt;
+	  if (jet5_pt > 0 && jet5_pt < 7000)
+	    Ht += jet5_pt;
+	  if (jet6_pt > 0 && jet6_pt < 7000)
+	    Ht += jet6_pt;
 	}
 
-
-      if (jet1_pt >0 && jet1_pt<7000) Ht += jet1_pt;
-      if (jet2_pt >0 && jet2_pt<7000) Ht += jet2_pt;
-      if (jet3_pt >0 && jet3_pt<7000) Ht += jet3_pt;
-      if (jet4_pt >0 && jet4_pt<7000) Ht += jet4_pt;
-      if (jet5_pt >0 && jet5_pt<7000) Ht += jet5_pt;
-      if (jet6_pt >0 && jet6_pt<7000) Ht += jet6_pt;
-
-
       //cout<<"Ht gen="<<Ht_gen<<"    "<<"Ht="<<Ht<<endl;
-      
-      
+
+
       if (correctForEff)
 	{
 	  if (!useElectronsToCorrect)
@@ -174,12 +293,12 @@ Unfolding::LoopHt ()
 		getEfficiencyCorrectionJetMultiplicity (fAeff, fBeff,
 							Ht, "Data");
 	      double effcorrdata = 1.00 / valuesdata[0];
-	      double efferrdata =
-		valuesdata[1] / pow (valuesdata[0], 2);
-	      HMCreco->Fill (Ht, effcorrdata);
-	      HTrue->Fill (Ht_gen, effcorrdata);
-	      HMatx->Fill (Ht, Ht_gen,1);
-	      HMatxlong->Fill (Ht, Ht_gen,1);
+	      double efferrdata = valuesdata[1] / pow (valuesdata[0], 2);
+
+	     if (Jet_multiplicity >= Nj)  			        HMCreco->Fill (Ht, effcorrdata);
+	     if (genJet >= Nj)		 	        		HTrue->Fill (Ht_gen, effcorrdata);
+	     if (Jet_multiplicity >= Nj || genJet>= Nj) 		HMatx->Fill (Ht, Ht_gen, 1);
+	     if (Jet_multiplicity >= Nj || genJet>= Nj) 		HMatxlong->Fill (Ht, Ht_gen, 1);
 
 	    }
 	  else
@@ -192,35 +311,36 @@ Unfolding::LoopHt ()
 							       e2_pt,
 							       e2_eta,
 							       "Data");
-	      HMCreco->Fill (Ht, effcorrdata);
-	      HTrue->Fill (Ht_gen, effcorrdata);
-	      HMatx->Fill (Ht, Ht_gen,1);
-	      HMatxlong->Fill (Ht, Ht_gen,1);
+	     
+	     if (Jet_multiplicity >= Nj)  	      HMCreco->Fill (Ht, effcorrdata);
+	     if (genJet >= Nj)		 	      HTrue->Fill (Ht_gen, effcorrdata);
+	     if (Jet_multiplicity >= Nj || genJet>= Nj) HMatx->Fill (Ht, Ht_gen, 1);
+	     if (Jet_multiplicity >= Nj || genJet>= Nj)  HMatxlong->Fill (Ht, Ht_gen, 1);
 
 	    }
 	}
       else
 	{
-	  HMCreco->Fill (Ht);
-	  HTrue->Fill (Ht_gen);
-	  HMatx->Fill (Ht, Ht_gen,1);
-	  HMatxlong->Fill (Ht, Ht_gen,1);
+		if (Jet_multiplicity >= Nj)  	     	          HMCreco->Fill (Ht);
+		if (genJet >= Nj)		 	     	  HTrue->Fill (Ht_gen);
+		if (Jet_multiplicity >= Nj || genJet>= Nj)	  HMatx->Fill (Ht, Ht_gen, 1);
+		if (Jet_multiplicity >= Nj || genJet>= Nj)	  HMatxlong->Fill (Ht, Ht_gen, 1);
 
 	}
 
-      Ht=0;
-      Ht_gen=0;
+      Ht = 0;
+      Ht_gen = 0;
     }
-  
+
   /////////////////////////
   //  Correct for background
   /////////////////////////
-  
+
   if (correctForBkg)
     {
-      
+
     }
-  
+
   /*Loop on data */
   fChain = tree_fB;
   Init (fChain);
@@ -236,22 +356,31 @@ Unfolding::LoopHt ()
       Long64_t ientry = LoadTree (jentry);
       if (ientry < 0)
 	break;
-        
-        nb2 = fChain->GetEntry (jentry);
-        nbytes += nb2;
 
-      double Ht ; 
-      if (jet1_pt >0 && jet1_pt<7000) Ht += jet1_pt;
-      if (jet2_pt >0 && jet2_pt<7000) Ht += jet2_pt;
-      if (jet3_pt >0 && jet3_pt<7000) Ht += jet3_pt;
-      if (jet4_pt >0 && jet4_pt<7000) Ht += jet4_pt;
-      if (jet5_pt >0 && jet5_pt<7000) Ht += jet5_pt;
-      if (jet6_pt >0 && jet6_pt<7000) Ht += jet6_pt; 
+      nb2 = fChain->GetEntry (jentry);
+      nbytes += nb2;
 
+      double Ht;
+
+      if (Jet_multiplicity >= Nj)
+	{
+	  if (jet1_pt > 0 && jet1_pt < 7000)
+	    Ht += jet1_pt;
+	  if (jet2_pt > 0 && jet2_pt < 7000)
+	    Ht += jet2_pt;
+	  if (jet3_pt > 0 && jet3_pt < 7000)
+	    Ht += jet3_pt;
+	  if (jet4_pt > 0 && jet4_pt < 7000)
+	    Ht += jet4_pt;
+	  if (jet5_pt > 0 && jet5_pt < 7000)
+	    Ht += jet5_pt;
+	  if (jet6_pt > 0 && jet6_pt < 7000)
+	    Ht += jet6_pt;
+	}
 
       //cout<<"Ht data="<<Ht<<endl;
-	  
-      
+
+
       if (correctForEff)
 	{
 	  if (!useElectronsToCorrect)
@@ -261,29 +390,28 @@ Unfolding::LoopHt ()
 							Ht, "Data");
 	      double effcorrdata = 1.00 / valuesdata[0];
 	      double efferrdata = valuesdata[1] / pow (valuesdata[0], 2);
-	      HData->Fill (Ht, effcorrdata);
-	      HData2->Fill (Ht, effcorrdata);
+	       if (Jet_multiplicity >= Nj) HData->Fill (Ht, effcorrdata);
+	       if (Jet_multiplicity >= Nj) HData2->Fill (Ht, effcorrdata);
 	    }
 	  else
 	    {
 	      double effcorrdata =
-		1.00 / getEfficiencyCorrectionPtUsingElectron (fAeff,
-								   fBeff,
+		1.00 / getEfficiencyCorrectionPtUsingElectron (fAeff,fBeff,
 							       e1_pt,
 							       e1_eta,
 							       e2_pt,
 							       e2_eta,
 							       "Data");
-	      HData->Fill (Ht, effcorrdata);
-	      HData2->Fill (Ht, effcorrdata);
+	      if (Jet_multiplicity >= Nj) HData->Fill (Ht, effcorrdata);
+	      if (Jet_multiplicity >= Nj) HData2->Fill (Ht, effcorrdata);
 	    }
 	}
       else
 	{
-	  HData->Fill (Ht);
-	  HData2->Fill (Ht);
-	    }
-      Ht=0;
+	  if (Jet_multiplicity >= Nj)  HData->Fill (Ht);
+	  if (Jet_multiplicity >= Nj)  HData2->Fill (Ht);
+	}
+      Ht = 0;
 
     }
   ///   NOTA BENE!!
@@ -294,11 +422,11 @@ Unfolding::LoopHt ()
   double ScaleMCData =
     ((double) HData->GetEntries () / (double) HMCreco->GetEntries ());
   cout << "scale=" << ScaleMCData << endl;
-  
+
   /////////////////////////
   //  Correct for background
   /////////////////////////
-  
+
   if (correctForBkg)
     {
       std::vector < double >bckcoeff;
@@ -399,10 +527,10 @@ Unfolding::LoopHt ()
 	    {
 	      cout << HReco->GetBinContent (c + 1) << endl;
 	    }
-	
+
 	  //cmultip->cd ();
 	  TCanvas *c = new TCanvas ("c", "c", 1000, 700);
-	  c->cd();
+	  c->cd ();
 	  TPad *pad1 = new TPad ("pad1", "pad1", 0.01, 0.33, 0.99, 0.99);
 	  pad1->Draw ();
 	  pad1->cd ();
@@ -415,17 +543,19 @@ Unfolding::LoopHt ()
 	  title2 = "H_{T} differential cross section" + title;
 	  HReco->SetTitle (title2.c_str ());
 	  HReco->GetXaxis ()->SetTitle ("");
-	  HReco->GetYaxis ()->SetTitle("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/dH_{T}");
+	  HReco->GetYaxis ()->
+	    SetTitle
+	    ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/dH_{T}");
 	  HReco->SetMarkerStyle (20);
 	  HData->SetMarkerStyle (21);
 	  HData->SetLineColor (kGreen);
 
 	  HReco->SetMarkerStyle (20);
 	  HReco->SetStats (0);
-	  HMCreco->SetStats(0);
-	  HData->SetStats(0);
-          HTrue->SetStats(0);
-	  
+	  HMCreco->SetStats (0);
+	  HData->SetStats (0);
+	  HTrue->SetStats (0);
+
 	  HReco->GetXaxis ()->SetTitle ("H_{T}");
 	  HReco->GetXaxis ()->SetTitleSize (0.00);
 	  HReco->GetYaxis ()->SetLabelSize (0.07);
@@ -435,7 +565,7 @@ Unfolding::LoopHt ()
 	  HReco->Draw ("EP");	//risultato dell'unfolding
 	  HReco->SetLineColor (kRed);
 	  HReco->SetLineWidth (2);
-	  HMCreco->Draw();
+	  HMCreco->Draw ();
 	  HMCreco->SetLineColor (kBlue + 1);
 	  HMCreco->SetLineStyle (2);
 	  HTrue->SetLineColor (kBlack);
@@ -448,8 +578,8 @@ Unfolding::LoopHt ()
 
 	  HReco->DrawCopy ();
 	  pad1->SetLogy (1);
-	  HTrue->Draw ("same"); /*same*/
-	  HMCreco->Draw ("same");   /*same*/
+	  HTrue->Draw ("same");	/*same */
+	  HMCreco->Draw ("same");	/*same */
 	  HData->SetLineStyle (2);
 	  HData->Draw ("same");
 
@@ -468,11 +598,11 @@ Unfolding::LoopHt ()
 	  legend_d->AddEntry (HData, "Data Folded", "L");
 	  legend_d->Draw ("same");
 
-	  TLatex *latexLabel=CMSPrel(4.890,""); // make fancy label
-          latexLabel->Draw("same");
-	  pad1->Update();
-	  
-	  c->cd();
+	  TLatex *latexLabel = CMSPrel (4.890, "");	// make fancy label
+	  latexLabel->Draw ("same");
+	  pad1->Update ();
+
+	  c->cd ();
 	  //cmultip->cd ();
 
 	  TPad *pad2 = new TPad ("pad2", "pad2", 0.01, 0.01, 0.99, 0.32);
@@ -495,7 +625,7 @@ Unfolding::LoopHt ()
 	  HReco->GetYaxis ()->SetTitleSize (0.06);
 	  HReco->GetYaxis ()->SetTitleOffset (0.5);
 
-	  HReco->GetYaxis ()->SetRangeUser (0.8, 1.2);
+	  HReco->GetYaxis ()->SetRangeUser (0.7, 1.3);
 	  //NReco->GetXaxis ()->SetRangeUser (0, 7.5);
 	  HReco->SetMarkerStyle (20);
 	  HReco->SetLineWidth (0);
@@ -538,8 +668,9 @@ Unfolding::LoopHt ()
 
 	  HRecoClone->Draw ("ep SAMES");
 
-	  TF1 *f = new TF1 ("f", "1", 0, 10);
+	  TF1 *f = new TF1 ("f", "1", 0, 1000);
 	  f->SetLineWidth (1);
+	  f->SetLineColor (kBlack);
 	  f->Draw ("SAMES");
 
 	  TLegend *legend_w =
@@ -553,18 +684,18 @@ Unfolding::LoopHt ()
 
 	  pad2->Update ();
 
-	  gROOT->SetStyle("Plain");
+	  gROOT->SetStyle ("Plain");
 
 	  string title3 = s + "HT" + method + "_" + num.str ();
 	  if (correctForEff)
 	    title3 = s + "HT" + method + "_" + num.str () + "_effcorr.png";
 	  else
 	    title3 = s + "HT" + method + "_" + num.str () + ".png";
-          
-	  c->cd();
+
+	  c->cd ();
 	  //cmultip->cd ();
 
-	  c/*multip*/->Print (title3.c_str ());
+	  c /*multip */ ->Print (title3.c_str ());
 	  num.str ("");
 	  cout << "PNG file saved (maybe) on " << title3 << endl;
 
@@ -573,11 +704,11 @@ Unfolding::LoopHt ()
 
 //  if (saveFile)
 //    {
-      TFile *w = new TFile ("HT_unfolded"/*filename.c_str ()*/, "UPDATE");
-      w->cd ();
-      HUnfolded->Write ();
-      HTrue->Write ();
-      w->Close ();
+  TFile *w = new TFile ("HT_unfolded" /*filename.c_str () */ , "UPDATE");
+  w->cd ();
+  HUnfolded->Write ();
+  HTrue->Write ();
+  w->Close ();
 //    }
 
   TCanvas *N =
@@ -592,9 +723,9 @@ Unfolding::LoopHt ()
   gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
   HMatxlong->SetMarkerColor (kBlack);
-  double entries=1.000/(double)HMatx->Integral();
-  HMatx->Scale(entries);
+  double entries = 1.000 / (double) HMatx->Integral ();
+  HMatx->Scale (entries);
   HMatxlong->Draw ("COLZ,text");
-//  N->Print(s+"/MatrixHt.png");
+  N->Print ("svdMatrixHt.png");
 
 }
