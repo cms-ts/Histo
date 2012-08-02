@@ -500,10 +500,16 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 
       TCanvas *c = new TCanvas ("c", "c", 1000, 700);
       c->cd ();
-      TPad *pad1 = new TPad ("pad1", "pad1", 0, 0.2, 1, 1);
+      TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
+
       pad1->Draw ();
       pad1->cd ();
-      pad1->SetLogy (1);
+      //gPad->SetLogy (1);
+      pad1->SetTopMargin(0.1);
+      pad1->SetBottomMargin(0.01);
+      pad1->SetRightMargin(0.1);
+      pad1->SetFillStyle(0);
+
       string whichjet="";
       if (numbOfJets==1) whichjet="Leading "; 
       if (numbOfJets==2) whichjet="Second leading "; 
@@ -512,7 +518,8 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       title2=whichjet+"jet eta diff xsec distribution. "+title;
       jReco->SetTitle (title2.c_str());
       jReco->GetXaxis ()->SetTitle ("");
-      jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
+      if (!isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d#eta");
+      if (isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d#eta");
       jReco->SetMarkerStyle (20);
       jData->SetMarkerStyle (21);
       jData->SetLineColor(kGreen);
@@ -556,7 +563,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       jData->SetStats(0);
       jData->Draw("EPSAME");
     
-      pad1->SetBottomMargin (0.1);
+      //pad1->SetBottomMargin (0.1);
     
       TLegend *legend_d = new TLegend (0.73494, 0.63, 0.931727, 0.83);
       legend_d->SetFillColor (0);
@@ -573,10 +580,16 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       pad1->Update();      
       c->cd ();
     
-      TPad *pad2 = new TPad ("pad2", "pad2", 0, 0, 1, 0.2);
+      TPad *pad2 = new TPad ("pad2", "pad2",0.01,0.01,0.99,0.32);
+
       pad2->SetTopMargin (0);
       pad2->Draw ();
       pad2->cd ();
+      pad2->SetTopMargin(0.01);
+      pad2->SetBottomMargin(0.3);
+      pad2->SetRightMargin(0.1);
+      pad2->SetFillStyle(0);
+
       TH1F *jRecoClone= (TH1F*) jReco->Clone("jReco");
       jRecoClone->SetName("jRecoClone");      
       jRecoClone->SetStats(0);
@@ -594,6 +607,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       jRecoClone->GetXaxis ()->SetRangeUser (-5, 5);
       jRecoClone->GetYaxis ()->SetTitle ("Ratios");
       jRecoClone->GetXaxis ()->SetTitle("jet eta [GeV/c]");
+      jRecoClone->GetXaxis ()->SetTitleSize(0.06);
       jRecoClone->SetMarkerStyle (20);
       jRecoClone->SetLineWidth (0);
       jRecoClone->SetTitle ("");
