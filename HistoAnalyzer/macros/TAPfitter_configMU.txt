@@ -1,0 +1,3 @@
+DATAFILENAME:	/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu_v2_30.root
+MCFILENAME:	/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_30.root
+OUTPUT:		/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root

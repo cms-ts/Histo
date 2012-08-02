@@ -75,6 +75,8 @@ public:
   void eff_vs_PtEta_MC();
   void eff_vs_PtEta_edmStyle();
   void eff_vs_PtEta_edmStyle_MC();
+  void effMU_vs_PtEta_edmStyle();
+  void effMU_vs_PtEta_edmStyle_MC();
   void signal_yields();
   void validate_BWCB();
   int doFit_BWCB(string, string, string);
@@ -4612,6 +4614,274 @@ void TagProbeFitter::eff_vs_PtEta_edmStyle_MC() {
 }
 
 
+// E. Di Marco inspired efficiency measurement as a function of muon pseudorapidity (eta) and transverse momentum (pt):
+
+void TagProbeFitter::effMU_vs_PtEta_edmStyle() {
+  
+  // Load file names from config.txt
+  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
+
+  ifstream in;
+  in.open("TAPfitter_configMU.txt");
+  in >> stupid >> DATA_filename;
+  in >> stupid >> MC_filename;
+  in >> stupid >> output_rootuple;
+  in.close();
+
+
+  //DATA efficiencies:
+
+  TFile input_file_DATA(DATA_filename.c_str(),"READ");
+  TFile input_file_MC(MC_filename.c_str(),"READ");
+
+  // WP80 2st LEG Efficiency (DATA):
+
+  TH2F DATA_WP80_Probe("DATA_WP80_Probe","Muon efficieny;eta BINS;pt BINS",4,0,4,4,0,4);
+  DATA_WP80_Probe.Sumw2();
+
+  TH2F  DATA_HLTele17_Probe("DATA_HLTele17_Probe","Muon efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
+  DATA_HLTele17_Probe.Sumw2();
+
+  TH2F  DATA_RECO_Probe("DATA_RECO_Probe","Reconstruction efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
+  DATA_RECO_Probe.Sumw2();
+
+  char dummy[100];
+
+  for (int nj=0;nj<4;nj++) {
+    for (int mj=0;mj<4;mj++) {
+
+      sprintf (dummy, "EPTmuoWp80_MC/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoWp80_MC/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      input_file_MC.cd();
+      TH1D* hist_passing_MC_WP80 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_MC_WP80 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      sprintf (dummy, "EPTmuoWp80/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoWp80/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_WP80_Probe_%deta%dpt.png", nj+1, mj+1);
+      output_name_ = dummy;
+      input_file_DATA.cd();
+      TH1D* hist_passing_DATA_WP80 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_DATA_WP80 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      doFit_BWCB_edm_MC(hist_passing_MC_WP80, hist_failing_MC_WP80, hist_passing_DATA_WP80, hist_failing_DATA_WP80, output_name_);
+      DATA_WP80_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
+      DATA_WP80_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
+
+      sprintf (dummy, "EPThltmuoTight_MC/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPThltmuoTight_MC/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      input_file_MC.cd();
+      TH1D* hist_passing_MC_HLTele17 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_MC_HLTele17 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      sprintf (dummy, "EPThltmuoTight/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPThltmuoTight/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_HLTele17_Probe_%deta%dpt.png", nj+1, mj+1);
+      output_name_ = dummy;
+      input_file_DATA.cd();
+      TH1D* hist_passing_DATA_HLTele17 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_DATA_HLTele17 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      doFit_BWCB_edm_MC(hist_passing_MC_HLTele17, hist_failing_MC_HLTele17, hist_passing_DATA_HLTele17, hist_failing_DATA_HLTele17, output_name_);
+      DATA_HLTele17_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
+      DATA_HLTele17_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
+
+      sprintf (dummy, "EPTmuoReco_MC/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoReco_MC/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      input_file_MC.cd();
+      TH1D* hist_passing_MC_RECO = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_MC_RECO = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      sprintf (dummy, "EPTmuoReco/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoReco/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/DATA_RECO_Probe_%deta%dpt.png", nj+1, mj+1);
+      output_name_ = dummy;
+      input_file_DATA.cd();
+      TH1D* hist_passing_DATA_RECO = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_DATA_RECO = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      doFit_BWCB_edm_MC(hist_passing_MC_RECO, hist_failing_MC_RECO, hist_passing_DATA_RECO, hist_failing_DATA_RECO, output_name_);
+      DATA_RECO_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
+      DATA_RECO_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
+    }
+  }
+
+  input_file_MC.Close();
+  input_file_DATA.Close();
+
+  //Compute global efficiencies:
+
+  TH2F DATA_globalEfficiency("DATA_globalEfficiency","Global efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
+  DATA_globalEfficiency.Sumw2();
+  DATA_globalEfficiency.Add(&DATA_HLTele17_Probe);
+  DATA_globalEfficiency.Multiply(&DATA_WP80_Probe);
+  DATA_globalEfficiency.Multiply(&DATA_RECO_Probe);
+
+  // Write histos to file:
+  
+  TFile output_file(output_rootuple.c_str(),"UPDATE");
+  output_file.mkdir("efficiency_vs_PtEta");
+  output_file.cd("efficiency_vs_PtEta");
+
+  DATA_WP80_Probe.Write();
+  DATA_HLTele17_Probe.Write();
+  DATA_RECO_Probe.Write();
+
+  DATA_globalEfficiency.Write();
+
+  output_file.Close();
+
+}
+
+
+
+// E. Di Marco inspired efficiency measurement as a function of muon pseudorapidity (eta) and transverse momentum (pt) MC:
+
+void TagProbeFitter::effMU_vs_PtEta_edmStyle_MC() {
+  
+  // Load file names from config.txt
+  string stupid, DATA_filename, MC_filename, pass_data_, fail_data_, output_name_, output_rootuple;
+
+  ifstream in;
+  in.open("TAPfitter_configMU.txt");
+  in >> stupid >> DATA_filename;
+  in >> stupid >> MC_filename;
+  in >> stupid >> output_rootuple;
+  in.close();
+
+
+  //DATA efficiencies:
+
+  TFile input_file_MC(MC_filename.c_str(),"READ");
+
+  // WP80 2st LEG Efficiency (DATA):
+
+  TH2F  MC_WP80_Probe("MC_WP80_Probe","Muon efficieny;eta BINS;pt BINS",4,0,4,4,0,4);
+  MC_WP80_Probe.Sumw2();
+
+  TH2F  MC_HLTele17_Probe("MC_HLTele17_Probe","Muon efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
+  MC_HLTele17_Probe.Sumw2();
+
+  TH2F  MC_RECO_Probe("MC_RECO_Probe","Reconstruction efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
+  MC_RECO_Probe.Sumw2();
+
+  TH2F  MC_TruthRatio_bkg_pass("MC_TruthRatio_bkg_pass","Ratio MC-DY bkg over MCtruth bkg (pass probes);eta BINS;pt BINS",4,0,4,4,0,4);
+  MC_TruthRatio_bkg_pass.Sumw2();
+
+  TH2F  MC_TruthRatio_bkg_fail("MC_TruthRatio_bkg_fail","Ratio MC-DY bkg over MCtruth bkg (fail probes);eta BINS;pt BINS",4,0,4,4,0,4);
+  MC_TruthRatio_bkg_fail.Sumw2();
+
+  char dummy[100];
+
+  for (int nj=0;nj<4;nj++) {
+    for (int mj=0;mj<4;mj++) {
+
+      sprintf (dummy, "EPTmuoWp80_MC/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoWp80_MC/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      TH1D* hist_passing_MC_WP80 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_MC_WP80 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      sprintf (dummy, "EPTmuoWp80/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoWp80/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_WP80_Probe_%deta%dpt.png", nj+1, mj+1);
+      output_name_ = dummy;
+      TH1D* hist_passing_DATA_WP80 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_DATA_WP80 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      doFit_BWCB_edm_MC(hist_passing_MC_WP80, hist_failing_MC_WP80, hist_passing_DATA_WP80, hist_failing_DATA_WP80, output_name_);
+      MC_WP80_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
+      MC_WP80_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
+      MC_TruthRatio_bkg_pass.SetBinContent(nj+1,mj+1,ratio_truth_bkg_pass);
+      MC_TruthRatio_bkg_fail.SetBinContent(nj+1,mj+1,ratio_truth_bkg_fail);
+
+      sprintf (dummy, "EPThltmuoTight_MC/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPThltmuoTight_MC/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      TH1D* hist_passing_MC_HLTele17 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_MC_HLTele17 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      sprintf (dummy, "EPThltmuoTight/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPThltmuoTight/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_HLTele17_Probe_%deta%dpt.png", nj+1, mj+1);
+      output_name_ = dummy;
+      TH1D* hist_passing_DATA_HLTele17 = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_DATA_HLTele17 = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      doFit_BWCB_edm_MC(hist_passing_MC_HLTele17, hist_failing_MC_HLTele17, hist_passing_DATA_HLTele17, hist_failing_DATA_HLTele17, output_name_);
+      MC_HLTele17_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
+      MC_HLTele17_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
+
+      sprintf (dummy, "EPTmuoReco_MC/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoReco_MC/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      TH1D* hist_passing_MC_RECO = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_MC_RECO = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      sprintf (dummy, "EPTmuoReco/probepass%deta%dpt", nj+1, mj+1);
+      pass_data_ = dummy;
+      sprintf (dummy, "EPTmuoReco/probefail%deta%dpt", nj+1, mj+1);
+      fail_data_ = dummy;
+      sprintf (dummy, "/gpfs/cms/data/2011/TaP/plots/MC_RECO_Probe_%deta%dpt.png", nj+1, mj+1);
+      output_name_ = dummy;
+      TH1D* hist_passing_DATA_RECO = (TH1D*) gDirectory->Get(pass_data_.c_str());
+      TH1D* hist_failing_DATA_RECO = (TH1D*) gDirectory->Get(fail_data_.c_str());
+
+      doFit_BWCB_edm_MC(hist_passing_MC_RECO, hist_failing_MC_RECO, hist_passing_DATA_RECO, hist_failing_DATA_RECO, output_name_);
+      MC_RECO_Probe.SetBinContent(nj+1,mj+1,TAP_efficiency);
+      MC_RECO_Probe.SetBinError(nj+1,mj+1,TAP_efficiency_uncertainty);
+    }
+  }
+
+  input_file_MC.Close();
+
+  //Compute global efficiencies:
+
+  TH2F MC_globalEfficiency("MC_globalEfficiency","Global efficiency;eta BINS;pt BINS",4,0,4,4,0,4);
+  MC_globalEfficiency.Sumw2();
+  MC_globalEfficiency.Add(&MC_HLTele17_Probe);
+  MC_globalEfficiency.Multiply(&MC_WP80_Probe);
+  MC_globalEfficiency.Multiply(&MC_RECO_Probe);
+
+  // Write histos to file:
+  
+  TFile output_file(output_rootuple.c_str(),"UPDATE");
+  output_file.mkdir("efficiency_vs_PtEta");
+  output_file.cd("efficiency_vs_PtEta");
+
+  MC_WP80_Probe.Write();
+  MC_HLTele17_Probe.Write();
+  MC_RECO_Probe.Write();
+
+  MC_globalEfficiency.Write();
+
+  MC_TruthRatio_bkg_pass.Write();
+  MC_TruthRatio_bkg_fail.Write();
+
+  output_file.Close();
+
+}
+
+
 //////////////////////////////////////
 //    Validation ROUTINE: BW+CB     //
 //////////////////////////////////////
@@ -5446,7 +5716,7 @@ int TagProbeFitter::doFit_BWCB_edm( TH1D* hist_passing_MC, TH1D* hist_failing_MC
 
 
   // And... "Let the sunshine in"!
-  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE));
+  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE),NumCPU(3),Verbose(kFALSE),PrintLevel(-1),Warnings(kFALSE),PrintEvalErrors(kFALSE));
 
   TAP_efficiency = w.var("efficiency")->getVal();
   TAP_efficiency_uncertainty = w.var("efficiency")->getError();
@@ -5601,7 +5871,7 @@ int TagProbeFitter::doFit_BWCB_edm_MC( TH1D* hist_passing_MC, TH1D* hist_failing
 
 
   // And... "Let the sunshine in"!
-  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE));
+  w.pdf("pdf_global")->fitTo(binnedData_PassFailJoined,Extended(kTRUE),NumCPU(3),Verbose(kFALSE),PrintLevel(-1),Warnings(kFALSE),PrintEvalErrors(kFALSE));
 
   TAP_efficiency = w.var("efficiency")->getVal();
   TAP_efficiency_uncertainty = w.var("efficiency")->getError();
