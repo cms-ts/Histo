@@ -1,11 +1,15 @@
-int Nbins = 12;
-int Nmin = 60;
-int Nmax = 630;
-int kminH = 3;
-int kmaxH = 4;
+int Nbins=12;
+int Nmin=30;
+int Nmax=630;
+int kminH=11;
+int kmaxH=12;
 bool spanKvaluesH = false;
 double thresh = 15.0;
-int Nj = 2;
+int Nj = 1;
+
+
+
+
 
 TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
 TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
@@ -188,6 +192,39 @@ Unfolding::LoopHt ()
 #ifdef __CINT__
   gSystem->Load ("libRooUnfold");
 #endif
+  if (Nj==1) { 			//il caso Nj=0 è identico
+	  kminH=11;
+	  kmaxH=12;
+  	  Nbins=12;
+	  Nmin=30;
+	  Nmax=630;
+  }
+  if (Nj==2) { 			//il caso Nj=0 è identico
+	  kminH=11;
+	  kmaxH=12;
+  	  Nbins=12;
+	  Nmin=60;
+	  Nmax=630;
+  }
+  if (Nj==3) { 			//il caso Nj=0 è identico
+	  kminH=6;
+	  kmaxH=7;
+  	  Nbins=7;
+	  Nmin=90;
+	  Nmax=630;
+  }
+  if (Nj==4) { 			//il caso Nj=0 è identico
+	  kminH=3;
+	  kmaxH=4;
+  	  Nbins=5;
+	  Nmin=120;
+	  Nmax=630;
+  }
+
+
+
+
+
 
   if (spanKvaluesH)
     {
@@ -478,7 +515,7 @@ Unfolding::LoopHt ()
 
 
   //Repeating each algorithm
-  for (int j = 0; j < 1; j++)
+  for (int j = 1; j < 2; j++)
     {
       string method;
       if (j == 0)
