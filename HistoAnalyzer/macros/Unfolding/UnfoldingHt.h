@@ -1,16 +1,14 @@
-int Nbins=12;
-int Nmin=30;
-int Nmax=630;
-int kminH=11;
-int kmaxH=12;
+int Nbins = 12;
+int Nmin = 30;
+int Nmax = 630;
+int kminH = 11;
+int kmaxH = 12;
 bool spanKvaluesH = false;
 double thresh = 15.0;
-int Nj = 1;
+int Nj = 2;
 
 
-
-
-
+/*
 TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
 TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
 TH2D *HMatx =
@@ -27,6 +25,7 @@ TH1F *relativebkgH =
   new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,
 	    0.5, maxNJets - 0.5);
 TH1F *HUnfolded;
+*/
 
 string numjet;
 
@@ -150,7 +149,7 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
 	      pt.push_back (jet4_pt_gen);
 	    }
 	}
-      
+
       if (i == 5)
 	{
 	  if (jet5_pt_gen > thresh && fabs (jet5_eta_gen) <= 2.4)
@@ -165,12 +164,13 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
 	      pt.push_back (jet6_pt_gen);
 	    }
 	}
-    }	    
-	
+    }
+
 // for
 
 
-  if (whichjet <= pt.size ()) jetPt = pt[whichjet - 1];
+  if (whichjet <= pt.size ())
+    jetPt = pt[whichjet - 1];
   //restituisci il pt (se valido) del get che ti chiede corrispondene all'oridne che chiedsi
 
   //if (jetPt != jet1_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_
@@ -192,38 +192,52 @@ Unfolding::LoopHt ()
 #ifdef __CINT__
   gSystem->Load ("libRooUnfold");
 #endif
-  if (Nj==1) { 			//il caso Nj=0 è identico
-	  kminH=11;
-	  kmaxH=12;
-  	  Nbins=12;
-	  Nmin=30;
-	  Nmax=630;
-  }
-  if (Nj==2) { 			//il caso Nj=0 è identico
-	  kminH=11;
-	  kmaxH=12;
-  	  Nbins=12;
-	  Nmin=60;
-	  Nmax=630;
-  }
-  if (Nj==3) { 			//il caso Nj=0 è identico
-	  kminH=6;
-	  kmaxH=7;
-  	  Nbins=7;
-	  Nmin=90;
-	  Nmax=630;
-  }
-  if (Nj==4) { 			//il caso Nj=0 è identico
-	  kminH=3;
-	  kmaxH=4;
-  	  Nbins=5;
-	  Nmin=120;
-	  Nmax=630;
-  }
-
-
-
-
+  if (Nj == 1)
+    {				//il caso Nj=0 è identico
+      kminH = 12;
+      kmaxH = 13;
+      Nbins = 12;
+      Nmin = 30;
+      Nmax = 630;
+    }
+  if (Nj == 2)
+    {				//il caso Nj=0 è identico
+      kminH = 12;
+      kmaxH = 13;
+      Nbins = 12;
+      Nmin = 60;
+      Nmax = 630;
+    }
+  if (Nj == 3)
+    {				//il caso Nj=0 è identico
+      kminH = 7;
+      kmaxH = 8;
+      Nbins = 7;
+      Nmin = 90;
+      Nmax = 630;
+    }
+  if (Nj == 4)
+    {				//il caso Nj=0 è identico
+      kminH = 4;
+      kmaxH = 5;
+      Nbins = 5;
+      Nmin = 120;
+      Nmax = 630;
+    }
+	TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
+	TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
+	TH2D *HMatx = new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,
+	    Nbins, Nmin, Nmax);
+	TH2D *HMatxlong = new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins, Nmin,
+	    Nmax, Nbins, Nmin, Nmax);
+	TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", Nbins, Nmin, Nmax);
+	TH1D *HMCrecoratio_ =
+  new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
+	TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", Nbins, Nmin, Nmax);
+	TH1F *relativebkgH =
+  new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,
+	    0.5, maxNJets - 0.5);
+	TH1F *HUnfolded;
 
 
   if (spanKvaluesH)
@@ -232,7 +246,7 @@ Unfolding::LoopHt ()
       kmaxH = maxNJets - 2;
     }
 
-  bool Debug=false; //decomment it to increase verbosity
+  bool Debug = false;		//decomment it to increase verbosity
 
   string sdatadir = sdata + ":/validationJEC";
   string smcdir = smc + ":/validationJEC";
@@ -275,33 +289,44 @@ Unfolding::LoopHt ()
          jet2_eta_gen,
          jet3_eta_gen, jet4_eta_gen);
        */
-      genJet = Jet_multiplicity_gen-getNumberOfValidGenJetsH (Jet_multiplicity_gen, 30.0,
-					 jet1_pt_gen, jet2_pt_gen,
-					 jet3_pt_gen, jet4_pt_gen,
-					 jet5_pt_gen, jet6_pt_gen,
-					 jet1_eta_gen, jet2_eta_gen,
-					 jet3_eta_gen, jet4_eta_gen,
-					 jet5_eta_gen, jet6_eta_gen);
+      genJet =
+	Jet_multiplicity_gen - getNumberOfValidGenJetsH (Jet_multiplicity_gen,
+							 30.0, jet1_pt_gen,
+							 jet2_pt_gen,
+							 jet3_pt_gen,
+							 jet4_pt_gen,
+							 jet5_pt_gen,
+							 jet6_pt_gen,
+							 jet1_eta_gen,
+							 jet2_eta_gen,
+							 jet3_eta_gen,
+							 jet4_eta_gen,
+							 jet5_eta_gen,
+							 jet6_eta_gen);
 
       for (int i = 1; i <= Jet_multiplicity_gen; i++)
 	{
 	  correctGenJetPt =
 	    getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, i, 30.0,
 				       jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
-				      jet4_pt_gen, jet5_pt_gen, jet6_pt_gen,
+				       jet4_pt_gen, jet5_pt_gen, jet6_pt_gen,
 				       jet1_eta_gen, jet2_eta_gen,
 				       jet3_eta_gen, jet4_eta_gen,
 				       jet5_eta_gen, jet6_eta_gen);
-	
-	  
-	  if (Debug) cout << "pT=" << correctGenJetPt << "N=" << genJet << "multi_gen=" << Jet_multiplicity_gen << endl;
-	  
-	  if (correctGenJetPt > 0 && correctGenJetPt < 7000 && genJet>=Nj){
-	    Ht_gen += correctGenJetPt;
-	  }
-	} //!
 
-      if (Debug) cout << "&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;
+
+	  if (Debug)
+	    cout << "pT=" << correctGenJetPt << "N=" << genJet << "multi_gen="
+	      << Jet_multiplicity_gen << endl;
+
+	  if (correctGenJetPt > 0 && correctGenJetPt < 7000 && genJet >= Nj)
+	    {
+	      Ht_gen += correctGenJetPt;
+	    }
+	}			//!
+
+      if (Debug)
+	cout << "&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;
 
       if (Jet_multiplicity >= Nj)
 	{
@@ -332,10 +357,14 @@ Unfolding::LoopHt ()
 	      double effcorrdata = 1.00 / valuesdata[0];
 	      double efferrdata = valuesdata[1] / pow (valuesdata[0], 2);
 
-	     if (Jet_multiplicity >= Nj)  			        HMCreco->Fill (Ht, effcorrdata);
-	     if (genJet >= Nj)		 	        		HTrue->Fill (Ht_gen, effcorrdata);
-	     if (Jet_multiplicity >= Nj || genJet>= Nj) 		HMatx->Fill (Ht, Ht_gen, 1);
-	     if (Jet_multiplicity >= Nj || genJet>= Nj) 		HMatxlong->Fill (Ht, Ht_gen, 1);
+	      if (Jet_multiplicity >= Nj)
+		HMCreco->Fill (Ht, effcorrdata);
+	      if (genJet >= Nj)
+		HTrue->Fill (Ht_gen, effcorrdata);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj)
+		HMatx->Fill (Ht, Ht_gen, 1);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj)
+		HMatxlong->Fill (Ht, Ht_gen, 1);
 
 	    }
 	  else
@@ -348,20 +377,28 @@ Unfolding::LoopHt ()
 							       e2_pt,
 							       e2_eta,
 							       "Data");
-	     
-	     if (Jet_multiplicity >= Nj)  	      HMCreco->Fill (Ht, effcorrdata);
-	     if (genJet >= Nj)		 	      HTrue->Fill (Ht_gen, effcorrdata);
-	     if (Jet_multiplicity >= Nj || genJet>= Nj) HMatx->Fill (Ht, Ht_gen, 1);
-	     if (Jet_multiplicity >= Nj || genJet>= Nj)  HMatxlong->Fill (Ht, Ht_gen, 1);
+
+	      if (Jet_multiplicity >= Nj)
+		HMCreco->Fill (Ht, effcorrdata);
+	      if (genJet >= Nj)
+		HTrue->Fill (Ht_gen, effcorrdata);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj)
+		HMatx->Fill (Ht, Ht_gen, 1);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj)
+		HMatxlong->Fill (Ht, Ht_gen, 1);
 
 	    }
 	}
       else
 	{
-		if (Jet_multiplicity >= Nj)  	     	          HMCreco->Fill (Ht);
-		if (genJet >= Nj)		 	     	  HTrue->Fill (Ht_gen);
-		if (Jet_multiplicity >= Nj || genJet>= Nj)	  HMatx->Fill (Ht, Ht_gen, 1);
-		if (Jet_multiplicity >= Nj || genJet>= Nj)	  HMatxlong->Fill (Ht, Ht_gen, 1);
+	  if (Jet_multiplicity >= Nj)
+	    HMCreco->Fill (Ht);
+	  if (genJet >= Nj)
+	    HTrue->Fill (Ht_gen);
+	  if (Jet_multiplicity >= Nj || genJet >= Nj)
+	    HMatx->Fill (Ht, Ht_gen, 1);
+	  if (Jet_multiplicity >= Nj || genJet >= Nj)
+	    HMatxlong->Fill (Ht, Ht_gen, 1);
 
 	}
 
@@ -373,10 +410,10 @@ Unfolding::LoopHt ()
   //  Correct for background
   /////////////////////////
 
-  if (correctForBkg)
-    {
-
-    }
+//  if (correctForBkg)
+//    {
+//
+//    }
 
   /*Loop on data */
   fChain = tree_fB;
@@ -427,26 +464,32 @@ Unfolding::LoopHt ()
 							Ht, "Data");
 	      double effcorrdata = 1.00 / valuesdata[0];
 	      double efferrdata = valuesdata[1] / pow (valuesdata[0], 2);
-	       if (Jet_multiplicity >= Nj) HData->Fill (Ht, effcorrdata);
-	       if (Jet_multiplicity >= Nj) HData2->Fill (Ht, effcorrdata);
+	      if (Jet_multiplicity >= Nj)
+		HData->Fill (Ht, effcorrdata);
+	      if (Jet_multiplicity >= Nj)
+		HData2->Fill (Ht, effcorrdata);
 	    }
 	  else
 	    {
 	      double effcorrdata =
-		1.00 / getEfficiencyCorrectionPtUsingElectron (fAeff,fBeff,
+		1.00 / getEfficiencyCorrectionPtUsingElectron (fAeff, fBeff,
 							       e1_pt,
 							       e1_eta,
 							       e2_pt,
 							       e2_eta,
 							       "Data");
-	      if (Jet_multiplicity >= Nj) HData->Fill (Ht, effcorrdata);
-	      if (Jet_multiplicity >= Nj) HData2->Fill (Ht, effcorrdata);
+	      if (Jet_multiplicity >= Nj)
+		HData->Fill (Ht, effcorrdata);
+	      if (Jet_multiplicity >= Nj)
+		HData2->Fill (Ht, effcorrdata);
 	    }
 	}
       else
 	{
-	  if (Jet_multiplicity >= Nj)  HData->Fill (Ht);
-	  if (Jet_multiplicity >= Nj)  HData2->Fill (Ht);
+	  if (Jet_multiplicity >= Nj)
+	    HData->Fill (Ht);
+	  if (Jet_multiplicity >= Nj)
+	    HData2->Fill (Ht);
 	}
       Ht = 0;
 
@@ -466,39 +509,51 @@ Unfolding::LoopHt ()
 
   if (correctForBkg)
     {
-      std::vector < double >bckcoeff;
-      bckcoeff = getBackgroundContributions (bkgstring, "jet_Multiplicity");
-      for (unsigned int k = 0; k < maxNJets; k++)
+      std::vector < double >bckcoeff2;
+      cout<<"A"<<endl;
+      if (Nj == 1)  bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT1");
+      cout<<"B"<<endl;
+      
+      if (Nj == 2)
+	bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT2");
+      if (Nj == 3)
+	bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT3");
+      if (Nj == 4)
+	bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT4");
+
+
+      for (unsigned int k = 0; k < Nbins; k++)
 	{
-	  HData->SetBinContent (k + 1, HData->GetBinContent (k + 1) - bckcoeff[k + 1]);	//K+1 perche' c'e' il bkgr a 0 Jets...
+	  HData->SetBinContent (k + 1,
+				HData->GetBinContent (k + 1) - bckcoeff2[k]);
+	  HData2->SetBinContent (k + 1,
+				 HData2->GetBinContent (k + 1) - bckcoeff2[k]);
+      cout<<"C"<<endl;
+            
 	  if (HData->GetBinContent (k + 1) > 0)
 	    {
-	      relativebkgH->SetBinContent (k + 1,
-					   bckcoeff[k +
-						    1] /
-					   HData->GetBinContent (k + 1));
+	      relativebkg->SetBinContent (k + 1,
+					  bckcoeff2[k] /
+					  HData->GetBinContent (k + 1));
 	      cout << "Data:" << HData->GetBinContent (k +
 						       1) << " bck:" <<
-		bckcoeff[k + 1] << " (coefficient is " << bckcoeff[k +
-								   1] <<
-		"). Relative bin ratio is " << bckcoeff[k +
-							1] /
+		bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<
+		"). Relative bin ratio is " << bckcoeff2[k] /
 		HData->GetBinContent (k + 1) << endl;
 	    }
 	  else
 	    {
-	      relativebkgH->SetBinContent (k + 1, 0);
+	      relativebkg->SetBinContent (k + 1, 0);
 	      cout << "Data:" << HData->GetBinContent (k +
 						       1) << " bck:" <<
-		bckcoeff[k + 1] << " (coefficient is " << bckcoeff[k +
-								   1] <<
+		bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<
 		"). Relative bin ratio is 0" << endl;
 	    }
-	  cout << "after " << bckcoeff[k] / NData->GetBinContent (k +
+	  cout << "after " << bckcoeff2[k] / HData->GetBinContent (k +
 								  1) << endl;
 	}
-    }
 
+    }
   // Fill the matrix response with the MC values, this time as histograms!
   RooUnfoldResponse response_H (HMCreco, HTrue, HMatx);
   response_H.UseOverflow ();
