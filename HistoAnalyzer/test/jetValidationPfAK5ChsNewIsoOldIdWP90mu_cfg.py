@@ -1299,6 +1299,8 @@ process.ToolInizialization = cms.Path(
     #process.pfNoMuon*
     process.ak5PFJetsRC*
     process.ak5PFchsJetsRCL1FastL2L3Residual*
+    process.validationJECScaleUp*
+    process.validationJECScaleDown* 
     process.validationJEC
     )
 
