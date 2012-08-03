@@ -79,7 +79,7 @@ bool useElectronsToCorrect=true;
 bool differentialCrossSection=false;
 
 // Correct for backgrounds: 
-bool correctForBkg=false;
+bool correctForBkg=true;
 // name of the root file containing background evaluation
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
@@ -160,10 +160,9 @@ Unfolding::LoopOneFour()
 #include "UnfoldingJetMultiplicity.h"
 #include "UnfoldingZPt.h"
 #include "UnfoldingZy.h"
-#include "UnfoldingHt.h"
 #include "UnfoldingJetPt.h"
 #include "LoopEta.h"
-
+#include "UnfoldingHt.h"
 
 #ifndef __CINT__
 
@@ -192,7 +191,11 @@ std::vector<double> getBackgroundContributions(string filename, string str){
   TH1F *leadhisto3;
   TH1F *leadhisto4;
   TH1F *multiphisto;
-  TH1F *hthisto;
+  TH1F *HT;
+  TH1F *HT1;
+  TH1F *HT2;
+  TH1F *HT3;
+  TH1F *HT4;
 
   //Check for the interesting plots, regardless the content..
   while ( (tobj = iter.Next()) ) {
@@ -214,9 +217,22 @@ std::vector<double> getBackgroundContributions(string filename, string str){
       gDirectory->GetObject(name.c_str(),multiphisto);
     } 
   
-    if(temp=="hthisto"){
-      gDirectory->GetObject(name.c_str(),multiphisto);
+    if(temp=="HT"){
+      gDirectory->GetObject(name.c_str(),HT);
+    }
+    if(temp=="HT1"){
+      gDirectory->GetObject(name.c_str(),HT1);
     } 
+    if(temp=="HT2"){
+      gDirectory->GetObject(name.c_str(),HT2);
+    } 
+    if(temp=="HT3"){
+      gDirectory->GetObject(name.c_str(),HT3);
+    } 
+    if(temp=="HT4"){
+      gDirectory->GetObject(name.c_str(),HT4);
+    } 
+
 }
   if (str=="jet_pT"){
     for(int k=0; k<leadhisto->GetNbinsX(); k++){
@@ -249,10 +265,29 @@ std::vector<double> getBackgroundContributions(string filename, string str){
   }
   
   if (str=="HT"){
-    for(int k=0; k<hthisto->GetNbinsX(); k++){
-        value.push_back(hthisto->GetBinContent(k+1));
+    for(int k=0; k<HT->GetNbinsX(); k++){
+        value.push_back(HT->GetBinContent(k+1));
     }
   }
-  
+  if (str=="HT1"){
+    for(int k=0; k<HT1->GetNbinsX(); k++){
+        value.push_back(HT1->GetBinContent(k+1));
+    }
+  }
+  if (str=="HT2"){
+    for(int k=0; k<HT2->GetNbinsX(); k++){
+        value.push_back(HT2->GetBinContent(k+1));
+    }
+  }
+  if (str=="HT3"){
+    for(int k=0; k<HT3->GetNbinsX(); k++){
+        value.push_back(HT3->GetBinContent(k+1));
+    }
+  }
+  if (str=="HT4"){
+    for(int k=0; k<HT4->GetNbinsX(); k++){
+        value.push_back(HT4->GetBinContent(k+1));
+    }
+  }
   return value;
 }
