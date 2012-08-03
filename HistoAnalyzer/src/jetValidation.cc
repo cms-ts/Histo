@@ -52,6 +52,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int totJets=0;
    int totJetsCk=0;
    double deltaPhi=0;
+
+   double inclHt=0.;
    //bool isEB;
    //bool isEE;
    
@@ -503,6 +505,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (fabs(jet->Eta())<edgeEE){
 	    h_jetEta_EE->Fill(jet->Eta(),myweight[0]);
 	    h_jetPtVsEta_EE->Fill(jet->Eta(),jet->Pt(),myweight[0]);
+	    inclHt += jet->Pt();
+	    
 	 } 
 
 	  if (totJetsCk==1) {
@@ -805,6 +809,11 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (totJets == i) h_ptZ_jet[i]->Fill(zPt,myweight[0]);
 	 if (totJets >= i) h_ptZ_jetIncl[i]->Fill(zPt,myweight[0]);
       }     
+      
+      if (totJets >= 1) h_jetHtNjet1->Fill(inclHt,myweight[0]);
+      if (totJets >= 2) h_jetHtNjet2->Fill(inclHt,myweight[0]);
+      if (totJets >= 3) h_jetHtNjet3->Fill(inclHt,myweight[0]);
+      if (totJets >= 4) h_jetHtNjet4->Fill(inclHt,myweight[0]);
       
       for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin ();
 	   jet != JetContainer.end (); jet++) {
@@ -1187,41 +1196,51 @@ jetValidation::endJob()
  h_zYieldVsjetsVtx1->GetXaxis()->SetTitle("N_{jets}");
  h_zYieldVsjetsVtx5->GetYaxis()->SetTitle("N_{events}");
  h_zYieldVsjetsVtx5->GetXaxis()->SetTitle("N_{jets}");
+
  h_jetPtNjet1->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet1->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet1->GetXaxis()->SetTitle("p_{T} leading jet");
  h_jetPtNjet2->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet2->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet2->GetXaxis()->SetTitle("p_{T} subleading jet");
  h_jetPtNjet3->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet3->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet3->GetXaxis()->SetTitle("p_{T} subsubleading jet");
  h_jetPtNjet4->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet4->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet4->GetXaxis()->SetTitle("p_{T} subsubsubleading jet");
 
  h_jetEtaNjet1->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet1->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet1->GetXaxis()->SetTitle("#eta leading jet");
  h_jetEtaNjet2->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet2->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet2->GetXaxis()->SetTitle("#eta subleading jet");
  h_jetEtaNjet3->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet3->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet3->GetXaxis()->SetTitle("#eta subsubleading jet");
  h_jetEtaNjet4->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet4->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet4->GetXaxis()->SetTitle("#eta subsubsubleading jet");
+
+ h_jetHtNjet1->GetYaxis()->SetTitle("N_{events}");
+ h_jetHtNjet1->GetXaxis()->SetTitle("Ht leading jet");
+ h_jetHtNjet2->GetYaxis()->SetTitle("N_{events}");
+ h_jetHtNjet2->GetXaxis()->SetTitle("Ht subleading jet");
+ h_jetHtNjet3->GetYaxis()->SetTitle("N_{events}");
+ h_jetHtNjet3->GetXaxis()->SetTitle("Ht subsubleading jet");
+ h_jetHtNjet4->GetYaxis()->SetTitle("N_{events}");
+ h_jetHtNjet4->GetXaxis()->SetTitle("Ht subsubsubleading jet");
 
  h_jetPtNjet1Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet1Incl->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet1Incl->GetXaxis()->SetTitle("p_{T} leading jet");
  h_jetPtNjet2Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet2Incl->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet2Incl->GetXaxis()->SetTitle("p_{T} subleading jet");
  h_jetPtNjet3Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet3Incl->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet3Incl->GetXaxis()->SetTitle("p_{T} subsubleading jet");
  h_jetPtNjet4Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetPtNjet4Incl->GetXaxis()->SetTitle("p{T}^{jets}");
+ h_jetPtNjet4Incl->GetXaxis()->SetTitle("p_{T} subsubsubleading jet");
 
  h_jetEtaNjet1Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet1Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet1Incl->GetXaxis()->SetTitle("#eta leading jet");
  h_jetEtaNjet2Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet2Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet2Incl->GetXaxis()->SetTitle("#eta subleading jet");
  h_jetEtaNjet3Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet3Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet3Incl->GetXaxis()->SetTitle("#eta subsubleading jet");
  h_jetEtaNjet4Incl->GetYaxis()->SetTitle("N_{jets}");
- h_jetEtaNjet4Incl->GetXaxis()->SetTitle("#eta^{jets}");
+ h_jetEtaNjet4Incl->GetXaxis()->SetTitle("#eta subsubsubleading jet");
 
  h_zRapidity->GetYaxis()->SetTitle("N_{Z}");
  h_zRapidity->GetXaxis()->SetTitle("rapidity_{Z}");

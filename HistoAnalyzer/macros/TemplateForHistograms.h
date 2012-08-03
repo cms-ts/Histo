@@ -38,3 +38,23 @@ int minEtaPlot_subsubsubleading=-2.4;
 int maxEtaPlot_subsubsubleading=2.4;
 int divPlot_subsubsubleadingeta=12;
 
+/////////////////////////////////////
+/// HT
+/////////////////////////////////////
+
+int minHtPlot_leading=30;
+int maxHtPlot_leading=630;
+int divHtPlot_leading=12;
+
+int minHtPlot_subleading=60;
+int maxHtPlot_subleading=630;
+int divHtPlot_subleading=12;
+
+int minHtPlot_subsubleading=90;
+int maxHtPlot_subsubleading=630;
+int divHtPlot_subsubleading=7;
+
+int minHtPlot_subsubsubleading=120;
+int maxHtPlot_subsubsubleading=630;
+int divHtPlot_subsubsubleading=5;
+
