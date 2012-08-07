@@ -982,8 +982,10 @@ process.genParticlesForJetsENoNuNoGammaCone = cms.EDProducer("photonRemoval",
     isElectron = cms.untracked.bool(True),
     bottomCollection = cms.InputTag("genParticlesForJetsNoNu"),
     particleCollection = cms.InputTag("genParticles"),
-    barrelRCone = cms.untracked.double(0.05),
-    endcapRCone = cms.untracked.double(0.07)
+    #barrelRCone = cms.untracked.double(0.05),
+    #endcapRCone = cms.untracked.double(0.07)
+    barrelRCone = cms.untracked.double(0.1),
+    endcapRCone = cms.untracked.double(0.1)
        )
 
 process.genParticlesForJetsMuNoNuNoGammaCone = cms.EDProducer("photonRemoval",
