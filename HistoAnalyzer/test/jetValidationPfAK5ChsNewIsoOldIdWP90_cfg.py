@@ -376,7 +376,8 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                           JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treeOLDJEC_")   
+                                       RootuplaName = cms.string("treeOLDJEC_"),
+                                       isElectron= cms.untracked.bool(True)  
                                        )
                                  
 process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
@@ -399,7 +400,8 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treeTESTJEC_")   
+                                       RootuplaName = cms.string("treeTESTJEC_"),
+                                       isElectron= cms.untracked.bool(True)   
                                        )
                                  
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -422,7 +424,8 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treePUJEC_")   
+                                       RootuplaName = cms.string("treePUJEC_"),
+                                       isElectron= cms.untracked.bool(True)   
                                        )
 
 
@@ -448,7 +451,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeValidationJEC_")  
+                                       RootuplaName = cms.string("treeValidationJEC_"),
+                                       isElectron= cms.untracked.bool(True)  
                                        )
                                    
 process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
@@ -471,7 +475,8 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),  
                                       JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeL2L3_")                                                
+                                       RootuplaName = cms.string("treeL2L3_"),
+                                       isElectron= cms.untracked.bool(True)                                               
                                        )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -494,7 +499,8 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),  
                                       JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treePU_")                                      
+                                       RootuplaName = cms.string("treePU_"),
+                                       isElectron= cms.untracked.bool(True)                                   
                                     )
 
 
@@ -520,7 +526,8 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeRC_")                                       
+                                       RootuplaName = cms.string("treeRC_"),
+                                       isElectron= cms.untracked.bool(True)                                     
                                     )
 
 
@@ -546,7 +553,8 @@ process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(1), 
-                                       RootuplaName = cms.string("treeJECScaleUp_")  
+                                       RootuplaName = cms.string("treeJECScaleUp_"),
+                                       isElectron= cms.untracked.bool(True) 
                                     )
 
 process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
@@ -571,7 +579,8 @@ process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(-1),
-                                       RootuplaName = cms.string("treeJECScaleDown_")   
+                                       RootuplaName = cms.string("treeJECScaleDown_"),
+                                       isElectron= cms.untracked.bool(True) 
                                     )
                                   
 process.reclusValidation = cms.EDAnalyzer('reclusVal',
@@ -681,6 +690,7 @@ process.Selection = cms.EDFilter('ZpatFilter2011',
 process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    electronCollection = cms.InputTag("patElectronsWithTrigger"),
                                    pflowEleCollection = cms.untracked.InputTag("pfIsolatedElectrons"),
+                                   pflowMuCollection = cms.untracked.InputTag("pfIsolatedMuons"), 
                                    useNewID=  cms.bool(False),
                                    doWP90 =  cms.untracked.bool(True),
                                    secondEleEnThrhold   = cms.double(20.0),
@@ -694,6 +704,8 @@ process.goodEPair = cms.EDProducer('goodEPairProducer2011',
                                    isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
                                                                          cms.InputTag('elPFIsoValueGamma03PFIso'),
                                                                          cms.InputTag('elPFIsoValueNeutral03PFIso')),
+                                   ZmumuCandidates = cms.untracked.InputTag("matchedMuons"),
+                                   isElectron= cms.untracked.bool(True)
                                    )
 
 process.goodElec = cms.EDProducer('goodEleProducer2011',
@@ -735,6 +747,9 @@ process.pfAllElectrons.src = "pfNoPileUp"
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso
 process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 process.pfIsolatedElectrons.isolationCut = 999 ### VERY loose, true isolation done later, exploiting deposits...
+
+#from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFMuonIso
+#process.muIsoSequence = setupPFMuonIso(process, 'muons')
 
 ###########################
 ### Electron Removal
@@ -966,63 +981,63 @@ process.ToolInizialization = cms.Path(
     #process.ak5PFchsJetsPUL1FastL2L3Residual
     )
 
-process.TAPAnalysisWP80 = cms.Path(
-        process.goodOfflinePrimaryVertices*
-        process.trgmatchPatElectronsEle17*
-        process.trgmatchPatElectronsEle8*
-        process.TAPwp80
-        )
+# process.TAPAnalysisWP80 = cms.Path(
+#         process.goodOfflinePrimaryVertices*
+#         process.trgmatchPatElectronsEle17*
+#         process.trgmatchPatElectronsEle8*
+#         process.TAPwp80
+#         )
 
-process.TAPAnalysisHLTele8NOTele17 = cms.Path(
-        process.goodOfflinePrimaryVertices*
-        process.trgmatchPatElectronsReco*
-        process.trgmatchPatElectronsNOTEle17*
-        process.trgmatchPatElectronsEle8NOTEle17*
-        process.TAPhltele8NOTele17
-        )
+# process.TAPAnalysisHLTele8NOTele17 = cms.Path(
+#         process.goodOfflinePrimaryVertices*
+#         process.trgmatchPatElectronsReco*
+#         process.trgmatchPatElectronsNOTEle17*
+#         process.trgmatchPatElectronsEle8NOTEle17*
+#         process.TAPhltele8NOTele17
+#         )
 
-process.TAPAnalysisHLTele17 = cms.Path(
-        process.goodOfflinePrimaryVertices*
-        process.trgmatchPatElectronsReco*
-        process.trgmatchPatElectronsEle17*
-        process.TAPhltele17
-        )
+# process.TAPAnalysisHLTele17 = cms.Path(
+#         process.goodOfflinePrimaryVertices*
+#         process.trgmatchPatElectronsReco*
+#         process.trgmatchPatElectronsEle17*
+#         process.TAPhltele17
+#         )
 
-process.TAPAnalysisRECO = cms.Path(
-        process.goodOfflinePrimaryVertices*
-        process.trgmatchPatElectronsReco*
-        process.trgmatchPatElectronsEle8*
-        process.TAPreco
-        )
+# process.TAPAnalysisRECO = cms.Path(
+#         process.goodOfflinePrimaryVertices*
+#         process.trgmatchPatElectronsReco*
+#         process.trgmatchPatElectronsEle8*
+#         process.TAPreco
+#         )
 
-process.EPTAnalysisWP80 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle17*    
-    process.trgmatchPatElectronsEle8*
-    process.EPTwp80
-    )
+# process.EPTAnalysisWP80 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle17*    
+#     process.trgmatchPatElectronsEle8*
+#     process.EPTwp80
+#     )
 
-process.EPTAnalysisHLTele8NOTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsReco*    
-    process.trgmatchPatElectronsNOTEle17*
-    process.trgmatchPatElectronsEle8NOTEle17*
-    process.EPThltele8NOTele17
-    )
+# process.EPTAnalysisHLTele8NOTele17 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsReco*    
+#     process.trgmatchPatElectronsNOTEle17*
+#     process.trgmatchPatElectronsEle8NOTEle17*
+#     process.EPThltele8NOTele17
+#     )
 
-process.EPTAnalysisHLTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsReco*        
-    process.trgmatchPatElectronsEle17*
-    process.EPThltele17
-    )
+# process.EPTAnalysisHLTele17 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsReco*        
+#     process.trgmatchPatElectronsEle17*
+#     process.EPThltele17
+#     )
 
-process.EPTAnalysisRECO = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsReco*
-    process.trgmatchPatElectronsEle8*        
-    process.EPTreco
-    )
+# process.EPTAnalysisRECO = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsReco*
+#     process.trgmatchPatElectronsEle8*        
+#     process.EPTreco
+#     )
 
 process.JetValidation = cms.Path(
     process.TotalEventCounter*
