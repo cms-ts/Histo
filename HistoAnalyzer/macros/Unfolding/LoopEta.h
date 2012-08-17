@@ -74,7 +74,6 @@ kmin=1;
 kmax=1;
 spanKvalues=false;
  bool Unfold=true;
-bool indentityCheck=false;
 
 TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPlot,0,divPlot);
   
@@ -131,7 +130,21 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   TH1F *unfoerrormat = new TH1F ("unfoerrormat", "unfoerrormat",divPlot,0,divPlot);
   TH1F *unfoerrordiag = new TH1F ("unfoerrordiag", "unfoerrordiag",divPlot,0,divPlot);
   
-  /////////////
+
+ //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
+  bool identityCheck=true;    //to perform identity check
+  bool splitCheck=false;
+  bool pythiaCheck=false;
+  bool bayesianTests=true;
+  //////////////////////////////////////////////////////////////////
+
+  if (identityCheck) {
+    correctForEff=false;
+    correctForBkg=false;
+  }
+
+  if (splitCheck) identityCheck=true;
+
 
   jReco->Sumw2();
   jReco->SetName("jReco"); // After unfolding, it changed the name...
@@ -142,25 +155,35 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
 
-  string smcdir=smc+":/validationJEC";
-  //string smcdir=smc+":/EPTmuoReco_MC";  
+  //string smcdir=smc+":/validationJEC";
+  string smcdir=smc+":/EPTmuoReco_MC";  
   if (isMu) {
     smcdir=smc+":/EPTmuoReco_MC";
   }
-  if (indentityCheck) sdatadir=smcdir;
-  cout<<smcdir<<endl;
-  cout<<sdatadir<<endl; 
+  if (identityCheck) {
+    sdatadir=smcdir;
+    //correctForEff=false;
+    //correctForBkg=false;
+  }
+
   fA->cd (smcdir.c_str());
-  gDirectory->ls();
+  gDirectory->ls("tree*");
   TTree *tree_fA= (TTree *) gDirectory->Get ("treeValidationJEC_");
-  cout<<"#####################"<<endl;
+  if (isMu) tree_fA= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
   fB->cd (sdatadir.c_str());
-  gDirectory->ls();
+  gDirectory->ls("tree*");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
   //FOR closure tests
-  if (indentityCheck){  fB->cd (smcdir.c_str());
-    TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (identityCheck){  
+    fB->cd (smcdir.c_str());
+    tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+    if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
   }
+
+  
+  RooUnfoldResponse unfold_jBayes(jMCreco,jTrue);
+  unfold_jBayes.UseOverflow();
 
   //Setting the errors
   jTrue->Sumw2();
@@ -176,6 +199,12 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
 
+  if (splitCheck) {
+    nentries=(int) 2.0*(nentries/3.);
+    cout<<"Slitcheck is active, so Dataset A has now "<<nentries<<endl;
+  }
+
+
   if (fChain == 0)
     return;
   
@@ -188,15 +217,29 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
 
+   if (isElectron!=isEle) {
+      cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+      return;
+    }
+
+
+      double thresh=15.0;
+   if (isElectron!=isEle) {
+      cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+      return;
+    }
+
+   double effcorrmc=1.0;
+
       //if (ientry>80000) continue;
       if (numbOfJets<=1){
-	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+	double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
 
-	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
+	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || fabs(correctGenJetEta)<=2.4 ){ 
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
-	    jMatx->Fill (jet1_eta, correctGenJetPt,effcorrmc);	 
+	    effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+	    jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	 
 	    jMCreco->Fill (jet1_eta,effcorrmc);
 	  }
 	  else {
@@ -206,6 +249,10 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	  jTrue->Fill (jet1_eta_gen);
 	  supplabel="_jet1";
 	}
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayes.Fill(jet1_pt, correctGenJetEta,effcorrmc);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) unfold_jBayes.Fake(jet1_pt,effcorrmc);
+	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayes.Miss(correctGenJetEta);
+	
       }
 
       if (numbOfJets==2){
@@ -214,7 +261,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	if((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	    jMatx->Fill (jet2_eta, correctGenJetPt,effcorrmc);	 
 	    jMCreco->Fill (jet2_eta,effcorrmc);
 	  }
@@ -233,7 +280,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	  if((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	    jMatx->Fill (jet3_eta, correctGenJetPt,effcorrmc);	 
 	    jMCreco->Fill (jet3_eta,effcorrmc);
 	  }
@@ -252,7 +299,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	  if((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
 	    //Correct for efficiencies event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	    jMatx->Fill (jet4_eta, correctGenJetPt,effcorrmc);	 
 	    jMCreco->Fill (jet4_eta,effcorrmc);
 	  }
@@ -291,7 +338,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	if( fabs(jet1_eta)<2.4 ){    // Old        if( jet1_eta>=0 && jet1_eta<7000 ){
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	    jData->Fill (jet1_eta,effcorrmc);	 
 	    jData2->Fill (jet1_eta,effcorrmc);	
 	  }
@@ -306,7 +353,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	if( fabs(jet2_eta)<2.4 ){ 
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	    jData->Fill (jet2_eta,effcorrmc);	 
 	    jData2->Fill (jet2_eta,effcorrmc);	
 	  }
@@ -321,7 +368,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	if( fabs(jet3_eta)<2.4 ){ 
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	    jData->Fill (jet3_eta,effcorrmc);	 
 	    jData2->Fill (jet3_eta,effcorrmc);
 	  }
@@ -336,7 +383,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	if( fabs(jet4_eta)<2.4 ){ 
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	    jData->Fill (jet4_eta,effcorrmc);	 
 	    jData2->Fill (jet4_eta,effcorrmc);
 	  }
@@ -393,8 +440,15 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   TH1F *vstatistics=new TH1F("vstatistics","vstatistics",divPlot,0,divPlot);
   string title2,title;
   stringstream num;
-  
-  for (int j=1; j<2; j++){
+ 
+  int k0=1;
+  int k1=2;
+  if (bayesianTests){
+    k0=0;
+    k1=1;    
+  }
+
+  for (int j=k0; j<k1; j++){
     string method;
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
@@ -406,9 +460,10 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       string title="Data unfolding "+method+" method with K="+num.str();
       title2="Jet eta diff xsec distribution. "+title;
       cout<<"ongoing:"<<title<<endl;
-    
+      
       if (Unfold){
       if (method=="Bayesian") {
+	//RooUnfoldBayes unfold_j (&unfold_jBayes, jData, myNumber, 1000);
 	RooUnfoldBayes unfold_j(&response_j, jData, myNumber, 1000);
 	jReco = (TH1D *) unfold_j.Hreco ();
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
@@ -436,18 +491,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	  //kCovariance	
 	  //kCovToy	
 	}
-	/////////////////////
-	/// Error treatment
-	/////////////////////
-	
-	std::vector<double> err;
-	for (unsigned int k=0; k<jData->GetNbinsX(); k++){
-	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
-	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
-	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
-	  err.push_back(vunfo[k]);
-	}
-	kcontainer.push_back(err);
+
       }
 
       if (method=="Svd"){
@@ -498,6 +542,20 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
       cout<<"Zarea "<<Zarea<<endl;
 
+      /////////////////////
+      /// Error treatment
+      /////////////////////
+      
+      std::vector<double> erre;
+      for (unsigned int k=0; k<jData->GetNbinsX(); k++){
+	// Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
+	//jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
+	jReco->SetBinError(k+1,sqrt(jReco->GetBinContent(k+1)) );
+	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
+	//erre.push_back(vunfo[k]);
+      }
+      kcontainer.push_back(erre);
+      
       TCanvas *c = new TCanvas ("c", "c", 1000, 700);
       c->cd ();
       TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
@@ -547,6 +605,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       jReco->SetStats(0);
       jReco->GetXaxis()->SetTitle("jet eta [GeV/c]");
       jReco->SetLineColor (kBlack); 
+      jReco->SetTitle("");
       jReco->Draw("EP");	//risultato dell'unfolding
     
       jMCreco->SetLineColor (kBlue + 1);
@@ -639,7 +698,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
       legend_w->Draw ("same");
       //pad2->Update();
-      string title3= s+"JETETAXSEC"+method+"_"+num.str()+supplabel+".png";
+      string title3= s+"JETETAXSEC"+method+"_"+num.str()+supplabel+".pdf";
       //c->cd ();
       c->Print(title3.c_str());
 
@@ -664,15 +723,19 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       legend_e->AddEntry (staterrorsqrt, "Statistical Errors, sqrt of data", "L");
       legend_e->Draw ("same");
 
-      string title4= s+"JETETAerror"+method+"_"+num.str()+supplabel+".png";
+      string title4= s+"JETETAerror"+method+"_"+num.str()+supplabel+".pdf";
       err->Print(title4.c_str());
 
       TCanvas *N =new TCanvas ("jet eta response matrix", "jet eta response matrix", 1000, 700);
       N->cd ();
       jMatx->SetStats (0);
-      jMatx->GetZaxis()->SetRangeUser(0.002,1);
+      gPad->SetLogz (1);
+
+      gPad->SetRightMargin(0.15);
+      jMatx->GetZaxis()->SetRangeUser(0.01,1);
       jMatx->GetXaxis()->SetTitle("Reconstructed jet eta [GeV/c]");
       jMatx->GetYaxis()->SetTitle("Generated jet eta [GeV/c]");
+      jMatx->SetTitle("");
       gStyle->SetPalette (1);
       gStyle->SetPaintTextFormat ("5.3f");
       gStyle->SetNumberContours (999);
@@ -680,7 +743,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       double entries=1.000/(double)jMatx->Integral();
       jMatx->Scale(entries);
       jMatx->Draw ("COLZ,text");
-      string title5= s+"JetEtaUnfoMatrix"+method+"_"+num.str()+supplabel+".png";
+      string title5= s+"JetEtaUnfoMatrix"+method+"_"+num.str()+supplabel+".pdf";
       N->Print(title5.c_str());      
 
       for (unsigned int p=0;p<staterror->GetNbinsX();p++){
@@ -715,7 +778,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   relativebkg->SetLineColor(kRed);
   relativebkg->GetXaxis()->SetTitle("Jet Eta Bin");
   relativebkg->Draw();
-  string title4= s+"BakgroundContribution.png";
+  string title4= s+"BakgroundContribution.pdf";
   rel->Print(title4.c_str());
   
   TCanvas *kparam =new TCanvas ("kparam", "errors as a function of the k param", 1000, 700);
@@ -756,7 +819,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   legend_e->AddEntry (vstatistics,"Stat errors", "L");
   legend_e->Draw("same");
   
-  string title6= s+"Kparam.png";
+  string title6= s+"Kparam.pdf";
   kparam->Print(title6.c_str()); 
       
   ///////////

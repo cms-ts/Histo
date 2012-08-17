@@ -10,10 +10,11 @@ int kmin=1;
 int kmax=1;
 bool spanKvalues=false;
 
-bool indentityCheck=false;
-  TCanvas cc;
+TCanvas cc;
 
 TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPlot,0,divPlot);
+TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);	
+TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
 
 int getNumberOfValidGenJetsPt(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen){
   int counter=0;
@@ -163,6 +164,20 @@ void Unfolding::LoopJetPt (int numbOfJets)
   
   /////////////
 
+  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
+  bool identityCheck=false;    //to perform identity check
+  bool splitCheck=false;
+  bool pythiaCheck=false;
+  bool bayesianTests=true;
+  //////////////////////////////////////////////////////////////////
+
+  if (identityCheck) {
+    correctForEff=false;
+    correctForBkg=false;
+  }
+
+  if (splitCheck) identityCheck=true;
+
   jReco->Sumw2();
   jReco->SetName("jReco"); // After unfolding, it changed the name...
   jData->Sumw2();
@@ -173,28 +188,42 @@ void Unfolding::LoopJetPt (int numbOfJets)
   string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
 
-  string smcdir=smc+":/validationJEC";
-  //string smcdir=smc+":/EPTmuoReco_MC";  
+  //string smcdir=smc+":/validationJEC";
+  string smcdir=smc+":/EPTmuoReco_MC";  
   if (isMu) {
     smcdir=smc+":/EPTmuoReco_MC";
   }
-  if (indentityCheck) sdatadir=smcdir;
-  cout<<smcdir<<endl;
-  cout<<sdatadir<<endl; 
+  if (identityCheck) {
+    sdatadir=smcdir;
+    //correctForEff=false;
+    //correctForBkg=false;
+  }
+
   fA->cd (smcdir.c_str());
-  gDirectory->ls();
+  gDirectory->ls("tree*");
   TTree *tree_fA= (TTree *) gDirectory->Get ("treeValidationJEC_");
-  cout<<"#####################"<<endl;
+  if (isMu) tree_fA= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
   fB->cd (sdatadir.c_str());
-  gDirectory->ls();
+  gDirectory->ls("tree*");
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
   //FOR closure tests
-  if (indentityCheck){  fB->cd (smcdir.c_str());
-    TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (identityCheck){  
+    fB->cd (smcdir.c_str());
+    tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+    if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
   }
   
   RooUnfoldResponse unfold_jBayes(jMCreco,jTrue);
   unfold_jBayes.UseOverflow();
+
+  cout<<"#####################"<<endl;
+  cout<<"You'are using"<<endl;
+  cout<<sdatadir<<endl;
+  cout<<smcdir<<endl;  
+  cout<<"MC tree  is ->"<<tree_fA->GetName()<<endl;
+  cout<<"Data tree is->"<<tree_fB->GetName()<<endl;  
+  cout<<"#####################"<<endl;
 
   //Setting the errors
   jTrue->Sumw2();
@@ -214,6 +243,11 @@ void Unfolding::LoopJetPt (int numbOfJets)
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
 
+  if (splitCheck) {
+    nentries=(int) 2.0*(nentries/3.);
+    cout<<"Slitcheck is active, so Dataset A has now "<<nentries<<endl;
+  }
+
   if (fChain == 0)
     return;
   int counter=0;  
@@ -225,6 +259,11 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	break;
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
+
+   if (isElectron!=isEle) {
+      cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+      return;
+    }
 
       //if (ientry>80000) continue;
       double thresh=15.0;
@@ -239,31 +278,28 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	continue;
       }
 
+      double effcorrmc=1.0;
+      if (!identityCheck) effcorrmc = 1.0 * evWeight; 
+
       if (numbOfJets<=1){
 	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
 	//correctGenJetPt=jet1_pt_gen;
 	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
-  // Old working if((jet1_pt>=0 && jet1_pt<7000) || (jet1_pt_gen>0 && jet1_pt_gen<7000) ){
-	  //if (correctGenJetPt<20) cout<<"correctGen->"<<correctGenJetPt<<" ("<<jet1_pt_gen<<" % "<<jet1_eta_gen<<") jet1_pt->"<<jet1_pt<<endl;
-	  //if (jet1_pt<1) cout<<jet1_pt<<endl;
-	  //if (fabs(jet1_eta)>2.4 || fabs(jet1_eta_gen)>2.4 ) continue;
-	  //if (offsetJetMultiplicity>=1 && jet1_pt_gen<jet2_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<correctGenJetPt<<")"<<endl;
 
-	  double effcorrmc=1;
-	  double efferrmc=1;
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
 	      std::vector<double> valuesmc=getEfficiencyCorrectionPt(fAeff,fBeff,numbOfJets,jet1_pt,"MC");
 
-	      double effcorrmc=1.00/valuesmc[0];	
+	      effcorrmc=effcorrmc*1.00/valuesmc[0];	
 	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
 	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
  	      jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
 	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	    else{
-	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	      effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+	      efficiencycorrectionsmc->Fill(effcorrmc);
 	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
 	      jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
 	      jMCreco->Fill (jet1_pt,effcorrmc);
@@ -277,8 +313,8 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	  jTrue->Fill (correctGenJetPt);
 	  supplabel="_jet1";
 	}
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt);
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt,effcorrmc);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt,effcorrmc);
 	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
 
 	//Old Way
@@ -300,7 +336,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jMCreco->Fill (jet2_pt,effcorrmc);  
 	    }
 	    else{
-	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	      jMatx->Fill (jet2_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet2_pt,effcorrmc);	      
 	    }
@@ -331,7 +367,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jMCreco->Fill (jet3_pt,effcorrmc);  
 	    }
 	    else{
-	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	      jMatx->Fill (jet3_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet3_pt,effcorrmc);
 	    }
@@ -362,7 +398,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jMCreco->Fill (jet4_pt,effcorrmc);  
 	    }
 	    else{
-	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	      double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	      jMatx->Fill (jet4_pt, correctGenJetPt,effcorrmc);	  
 	      jMCreco->Fill (jet4_pt,effcorrmc);	      
 	    }
@@ -416,7 +452,8 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      effAndrea->Fill(jet1_pt,effcorrdata);
 	    }
 	    else{
-	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
+	      efficiencycorrections->Fill(effcorrdata);
 	      jData->Fill (jet1_pt,effcorrdata);
 	      jData2->Fill (jet1_pt,effcorrdata);
 	      effAnne->Fill(jet1_pt,effcorrdata);
@@ -441,7 +478,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jData2->Fill (jet2_pt,effcorrdata);
 	    }
 	    else{
-	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	      jData->Fill (jet2_pt,effcorrdata);
 	      jData2->Fill (jet2_pt,effcorrdata);	      
 	    }
@@ -465,7 +502,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jData2->Fill (jet3_pt,effcorrdata);
 	    }
 	    else{
-	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	      jData->Fill (jet3_pt,effcorrdata);
 	      jData2->Fill (jet3_pt,effcorrdata);
 	    }
@@ -489,7 +526,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	      jData2->Fill (jet4_pt,effcorrdata);
 	    }
 	    else{
-	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	      double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	      jData->Fill (jet4_pt,effcorrdata);
 	      jData2->Fill (jet4_pt,effcorrdata);	      
 	    }
@@ -590,8 +627,14 @@ void Unfolding::LoopJetPt (int numbOfJets)
   response_j.UseOverflow();
 
   TH1F *vstatistics=new TH1F("vstatistics","vstatistics",divPlot,0,divPlot);
-      
-  for (int j=1; j<2; j++){
+  int k0=1;
+  int k1=2;
+  if (bayesianTests){
+    k0=0;
+    k1=1;    
+  }
+  
+  for (int j=k0; j<k1; j++){
     string method;
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
@@ -680,11 +723,12 @@ void Unfolding::LoopJetPt (int numbOfJets)
 	for (unsigned int k=0; k<jData->GetNbinsX(); k++){
 	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
 	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
+	  jReco->SetBinError(k+1,sqrt(jReco->GetBinContent(k+1))); //FIXME!!!!!!!!!!!!!!!!!!!!!
 	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
 	  err.push_back(vunfo[k]);
 	}
 	kcontainer.push_back(err);
-      } 
+      }
 	
       cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
       cout<<"Zarea "<<Zarea<<endl;
@@ -743,7 +787,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
       jReco->GetYaxis()->SetLabelSize(0.07);
       jReco->GetYaxis()->SetTitleSize(0.08);
       jReco->GetYaxis()->SetTitleOffset(0.76);
-      
+      jReco->SetTitle("");
       jReco->Draw("EP");	//risultato dell'unfolding
 
       jMCreco->SetLineColor (kBlue + 1);
@@ -841,7 +885,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
       legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
       legend_w->Draw ("same");
       //pad2->Update();
-      string title3= s+"JETPTXSEC"+method+"_"+num.str()+supplabel+".png";
+      string title3= s+"JETPTXSEC"+method+"_"+num.str()+supplabel+".pdf";
       //c->cd ();
       c->Print(title3.c_str());
 
@@ -866,23 +910,26 @@ void Unfolding::LoopJetPt (int numbOfJets)
       legend_e->AddEntry (staterrorsqrt, "Statistical Errors, sqrt of data", "L");
       legend_e->Draw ("same");
 
-      string title4= s+"JETPTerror"+method+"_"+num.str()+supplabel+".png";
+      string title4= s+"JETPTerror"+method+"_"+num.str()+supplabel+".pdf";
       err->Print(title4.c_str());
 
       TCanvas *N =new TCanvas ("jet pT response matrix", "jet pT response matrix", 1000, 700);
       N->cd ();
-      jMatxlong->SetStats (0);
-      jMatxlong->GetZaxis()->SetRangeUser(0.002,1);
-      jMatxlong->GetXaxis()->SetTitle("Reconstructed jet pT [GeV/c]");
-      jMatxlong->GetYaxis()->SetTitle("Generated jet pT [GeV/c]");
+      jMatx->SetStats (0);
+      gPad->SetLogz (1);
+      gPad->SetRightMargin(0.15);
+      jMatx->SetTitle("");
+      jMatx->GetZaxis()->SetRangeUser(0.002,1);
+      jMatx->GetXaxis()->SetTitle("Reconstructed jet pT [GeV/c]");
+      jMatx->GetYaxis()->SetTitle("Generated jet pT [GeV/c]");
       gStyle->SetPalette (1);
       gStyle->SetPaintTextFormat ("5.3f");
       gStyle->SetNumberContours (999);
-      jMatxlong->SetMarkerColor (kBlack);
+      jMatx->SetMarkerColor (kBlack);
       double entries=1.000/(double)jMatx->Integral();
-      jMatxlong->Scale(entries);
-      jMatxlong->Draw ("COLZ,text");
-      string title5= s+"JetPtUnfoMatrix"+method+"_"+num.str()+supplabel+".png";
+      jMatx->Scale(entries);
+      jMatx->Draw ("COLZ,text");
+      string title5= s+"JetPtUnfoMatrix"+method+"_"+num.str()+supplabel+".pdf";
       N->Print(title5.c_str());      
 
       for (unsigned int p=0;p<staterror->GetNbinsX();p++){
@@ -916,7 +963,7 @@ void Unfolding::LoopJetPt (int numbOfJets)
   relativebkg->SetLineColor(kRed);
   relativebkg->GetXaxis()->SetTitle("Jet Pt Bin");
   relativebkg->Draw();
-  string title4= s+"BakgroundContribution.png";
+  string title4= s+"BakgroundContribution.pdf";
   rel->Print(title4.c_str());
   
   TCanvas *kparam =new TCanvas ("kparam", "errors as a function of the k param", 1000, 700);
@@ -957,8 +1004,28 @@ void Unfolding::LoopJetPt (int numbOfJets)
   legend_e->AddEntry (vstatistics,"Stat errors", "L");
   legend_e->Draw("same");
   
-  string title6= s+"Kparam.png";
+  string title6= s+"Kparam.pdf";
   kparam->Print(title6.c_str()); 
+
+
+  //Efficiency correction
+  TCanvas *efficiency = new TCanvas ("efficiency", "efficiency", 1000, 700);
+  efficiency->cd ();
+  efficiencycorrectionsmc->SetStats (111111);
+  efficiencycorrectionsmc->GetXaxis()->SetTitle("Coefficients");
+  efficiencycorrectionsmc->GetYaxis()->SetTitle("#");
+  efficiencycorrectionsmc->SetLineColor(kRed);
+  efficiencycorrectionsmc->Draw();
+  efficiencycorrections->SetLineColor(kBlack);
+  efficiencycorrections->Draw("SAMES");
+  
+  TLegend *legend_eff = new TLegend (0.23494, 0.696429, 0.431727, 0.895833);
+  legend_eff->SetFillColor (0);
+  legend_eff->SetFillStyle (0);
+  legend_eff->SetBorderSize (0);
+  legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
+  legend_eff->AddEntry (efficiencycorrections, "Data", "L");
+  legend_eff->Draw ("same");
       
   ///////////
   ///SAve unfolded distribution

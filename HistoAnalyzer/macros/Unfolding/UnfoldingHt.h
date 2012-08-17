@@ -5,93 +5,51 @@ int kminH = 11;
 int kmaxH = 12;
 bool spanKvaluesH = false;
 double thresh = 15.0;
-int Nj = 2;
-
-
-/*
-TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
-TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
-TH2D *HMatx =
-  new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,
-	    Nbins, Nmin, Nmax);
-TH2D *HMatxlong =
-  new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins, Nmin,
-	    Nmax, Nbins, Nmin, Nmax);
-TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", Nbins, Nmin, Nmax);
-TH1D *HMCrecoratio_ =
-  new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
-TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", Nbins, Nmin, Nmax);
-TH1F *relativebkgH =
-  new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,
-	    0.5, maxNJets - 0.5);
-TH1F *HUnfolded;
-*/
-
+TH1F *HReco2;
 string numjet;
 
 int
-getNumberOfValidGenJetsH (int Jet_multiplicity_gen, double thresh,
-			  double jet1_pt_gen, double jet2_pt_gen,
-			  double jet3_pt_gen, double jet4_pt_gen,
-			  double jet5_pt_gen, double jet6_pt_gen,
-			  double jet1_eta_gen, double jet2_eta_gen,
-			  double jet3_eta_gen, double jet4_eta_gen,
-			  double jet5_eta_gen, double jet6_eta_gen)
+getNumberOfValidGenJetsH (int Jet_multiplicity_gen, double thresh,double jet1_pt_gen, double jet2_pt_gen,double jet3_pt_gen, double jet4_pt_gen,double jet5_pt_gen, double jet6_pt_gen,double jet1_eta_gen, double jet2_eta_gen,double jet3_eta_gen, double jet4_eta_gen,double jet5_eta_gen, double jet6_eta_gen)
 {
-
   int counter = 0;
   for (int i = 1; i <= Jet_multiplicity_gen; i++)
     {
 
       if (i == 1)
 	{
-
 	  if (jet1_pt_gen < thresh || fabs (jet1_eta_gen) > 2.4)
 	    counter++;
-
 	}
 
       if (i == 2)
 	{
-
 	  if (jet2_pt_gen < thresh || fabs (jet2_eta_gen) > 2.4)
 	    counter++;
-
 	}
 
       if (i == 3)
 	{
-
 	  if (jet3_pt_gen < thresh || fabs (jet3_eta_gen) > 2.4)
 	    counter++;
-
 	}
 
       if (i == 4)
 	{
-
 	  if (jet4_pt_gen < thresh || fabs (jet4_eta_gen) > 2.4)
 	    counter++;
-
 	}
 
       if (i == 5)
 	{
-
 	  if (jet5_pt_gen < thresh || fabs (jet5_eta_gen) > 2.4)
 	    counter++;
-
 	}
 
       if (i == 6)
 	{
-
 	  if (jet6_pt_gen < thresh || fabs (jet6_eta_gen) > 2.4)
 	    counter++;
-
 	}
-
-      //  cout<<"output della funzione getNumberOfValidGenJetsH ="<<counter<<endl;
 
     }				// for
   return counter;
@@ -100,24 +58,15 @@ getNumberOfValidGenJetsH (int Jet_multiplicity_gen, double thresh,
 
 
 double
-getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
-			   double thresh, double jet1_pt_gen,
-			   double jet2_pt_gen, double jet3_pt_gen,
-			   double jet4_pt_gen, double jet5_pt_gen,
-			   double jet6_pt_gen, double jet1_eta_gen,
-			   double jet2_eta_gen, double jet3_eta_gen,
-			   double jet4_eta_gen, double jet5_eta_gen,
-			   double jet6_eta_gen)
+getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,double thresh, double jet1_pt_gen,double jet2_pt_gen, double jet3_pt_gen,double jet4_pt_gen, double jet5_pt_gen,double jet6_pt_gen, double jet1_eta_gen,double jet2_eta_gen, double jet3_eta_gen,double jet4_eta_gen, double jet5_eta_gen,double jet6_eta_gen)
 {
   double jetPt = 0.0;
   if (Jet_multiplicity_gen == 0 && jet1_pt_gen < 30)
     return 0;
   std::vector < double >pt;
 
-  if (Jet_multiplicity_gen == 0 && fabs (jet1_eta_gen) <= 2.4)
-    pt.push_back (jet1_pt_gen);
-  if (Jet_multiplicity_gen == 0 && fabs (jet1_eta_gen) <= 2.4)
-    pt.push_back (jet1_pt_gen);
+  if (Jet_multiplicity_gen == 0 && fabs (jet1_eta_gen) <= 2.4) pt.push_back (jet1_pt_gen);
+  if (Jet_multiplicity_gen == 0 && fabs (jet1_eta_gen) <= 2.4) pt.push_back (jet1_pt_gen);
 
   for (int i = 1; i <= Jet_multiplicity_gen; i++)
     {
@@ -182,11 +131,12 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,
 
 
 void
-Unfolding::LoopHt ()
+Unfolding::LoopHt (int Nj)
 {
+  
   cout << endl;
   cout << "*********************************" << endl;
-  cout << "Unfolding HT" << endl;
+  cout << "Unfolding HT" << " with Nj equal to "<<Nj<<endl;
   cout << "*********************************" << endl;
 
 #ifdef __CINT__
@@ -194,16 +144,16 @@ Unfolding::LoopHt ()
 #endif
   if (Nj == 1)
     {				//il caso Nj=0 è identico
-      kminH = 12;
-      kmaxH = 13;
+      kminH = 10;
+      kmaxH = 11;
       Nbins = 12;
       Nmin = 30;
       Nmax = 630;
     }
   if (Nj == 2)
     {				//il caso Nj=0 è identico
-      kminH = 12;
-      kmaxH = 13;
+      kminH = 8;
+      kmaxH = 9;
       Nbins = 12;
       Nmin = 60;
       Nmax = 630;
@@ -226,19 +176,18 @@ Unfolding::LoopHt ()
     }
 	TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
 	TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
-	TH2D *HMatx = new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,
-	    Nbins, Nmin, Nmax);
-	TH2D *HMatxlong = new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins, Nmin,
-	    Nmax, Nbins, Nmin, Nmax);
+	TH2D *HMatx = new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,Nbins, Nmin, Nmax);
+	TH2D *HMatxlong = new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins+1, 0,Nmax, Nbins+1, 0, Nmax);
 	TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", Nbins, Nmin, Nmax);
-	TH1D *HMCrecoratio_ =
-  new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
+	TH1D *HMCrecoratio_ = new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
 	TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", Nbins, Nmin, Nmax);
-	TH1F *relativebkgH =
-  new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,
-	    0.5, maxNJets - 0.5);
-	TH1F *HUnfolded;
-
+	TH1F *relativebkgH =  new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,0.5, maxNJets - 0.5);
+	TH1F *vstatistics=new TH1F("vstatistics","vstatistics",Nbins, Nmin, Nmax);
+	TH1F *staterror = new TH1F ("staterror", "staterror",Nbins, Nmin, Nmax);
+	TH1F *staterrorsqrt = new TH1F ("staterrorsqrt", "staterrorsqrt",Nbins, Nmin, Nmax);
+	TH1F *unfoerror = new TH1F ("unfoerror", "unfoerror",Nbins, Nmin, Nmax);
+	TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);	
+	TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
 
   if (spanKvaluesH)
     {
@@ -248,13 +197,63 @@ Unfolding::LoopHt ()
 
   bool Debug = false;		//decomment it to increase verbosity
 
-  string sdatadir = sdata + ":/validationJEC";
-  string smcdir = smc + ":/validationJEC";
-  fA->cd (smcdir.c_str ());
-  TTree *tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
-  fB->cd (sdatadir.c_str ());
-  TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
 
+  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
+  bool indentityCheck=false;    //to perform identity check
+  bool splitCheck=false;
+  bool pythiaCheck=false;
+  bool bayesianTest=true;
+  //////////////////////////////////////////////////////////////////
+
+
+  if (splitCheck) indentityCheck=true;
+  if (pythiaCheck) indentityCheck=true;
+
+  if (indentityCheck) {
+    correctForEff=false;
+    correctForBkg=false;
+  }
+
+ string sdatadir=sdata+":/validationJEC";
+  if (isMu) sdatadir=sdata+":/EPTmuoReco";
+
+  string smcdir=smc+":/EPTmuoReco_MC";   
+
+  if (isMu) {
+    smcdir=smc+":/EPTmuoReco_MC";
+  }
+  if (indentityCheck) sdatadir=smcdir;
+  if (pythiaCheck) {
+    smcdir=smc+":/EPTmuoReco_MC";  
+    cout<<"Activate the pythia tests->"<<smcdir<<endl;
+  }
+
+  fA->cd (smcdir.c_str());
+  gDirectory->ls("tree*");
+ 
+  TTree *tree_fA;
+  if (!isMu) tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (isMu) tree_fA= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
+  fB->cd (sdatadir.c_str());
+  gDirectory->ls("tree*");
+  TTree *tree_fB;
+  if (!indentityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
+  //FOR closure tests
+  if (indentityCheck){  
+    fB->cd (smcdir.c_str());
+    if (!isMu) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+    if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+  }
+
+  cout<<"#####################"<<endl;
+  cout<<"You'are using"<<endl;
+  cout<<sdatadir<<endl;
+  cout<<smcdir<<endl;  
+  cout<<"MC tree  is ->"<<tree_fA->GetName()<<endl;
+  cout<<"Data tree is->"<<tree_fB->GetName()<<endl;  
+  cout<<"#####################"<<endl;
+  
   //Setting the errors
   HTrue->Sumw2 ();
   HMCreco->Sumw2 ();
@@ -262,11 +261,22 @@ Unfolding::LoopHt ()
   HData->Sumw2 ();
 
   int count = 0;
-  /*costruisco la matrice di unfolding */
 
+  //Second way to bulid the response matriz
+  RooUnfoldResponse unfold_second(HMCreco,HTrue);
+  unfold_second.UseOverflow();
+
+  //Entro nei dati
   fChain = tree_fA;
   Init (fChain);
   Long64_t nentries = fChain->GetEntriesFast ();
+  cout<<"Dataset A has "<<nentries<<endl;
+
+  if (splitCheck) {
+    nentries=(int) 2.0*(nentries/3.);
+    cout<<"Slitcheck is active, so Dataset A has now "<<nentries<<endl;
+  }
+
   Long64_t nbytes = 0, nb = 0;
 
   if (fChain == 0)
@@ -280,128 +290,85 @@ Unfolding::LoopHt ()
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
 
+   if (isElectron!=isEle) {
+      cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+      return;
+    }
+
       double Ht, Ht_gen;
       double correctGenJetPt;
       int genJet;
-      /*  getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, 1, 15.0,
-         jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
-         jet4_pt_gen, jet1_eta_gen,
-         jet2_eta_gen,
-         jet3_eta_gen, jet4_eta_gen);
-       */
-      genJet =
-	Jet_multiplicity_gen - getNumberOfValidGenJetsH (Jet_multiplicity_gen,
-							 30.0, jet1_pt_gen,
-							 jet2_pt_gen,
-							 jet3_pt_gen,
-							 jet4_pt_gen,
-							 jet5_pt_gen,
-							 jet6_pt_gen,
-							 jet1_eta_gen,
-							 jet2_eta_gen,
-							 jet3_eta_gen,
-							 jet4_eta_gen,
-							 jet5_eta_gen,
-							 jet6_eta_gen);
+
+      genJet = Jet_multiplicity_gen - getNumberOfValidGenJetsH (Jet_multiplicity_gen,30.0, jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
 
       for (int i = 1; i <= Jet_multiplicity_gen; i++)
 	{
-	  correctGenJetPt =
-	    getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, i, 30.0,
-				       jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
-				       jet4_pt_gen, jet5_pt_gen, jet6_pt_gen,
-				       jet1_eta_gen, jet2_eta_gen,
-				       jet3_eta_gen, jet4_eta_gen,
-				       jet5_eta_gen, jet6_eta_gen);
-
-
-	  if (Debug)
-	    cout << "pT=" << correctGenJetPt << "N=" << genJet << "multi_gen="
-	      << Jet_multiplicity_gen << endl;
+	  correctGenJetPt =getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, i, 30.0,
+						      jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
+						      jet4_pt_gen, jet5_pt_gen, jet6_pt_gen,
+						      jet1_eta_gen, jet2_eta_gen,
+						      jet3_eta_gen, jet4_eta_gen,
+						      jet5_eta_gen, jet6_eta_gen);
+	  
+	  if (Debug) cout << "pT=" << correctGenJetPt << "N=" << genJet << "multi_gen="<< Jet_multiplicity_gen << endl;
 
 	  if (correctGenJetPt > 0 && correctGenJetPt < 7000 && genJet >= Nj)
 	    {
 	      Ht_gen += correctGenJetPt;
 	    }
 	}			//!
-
-      if (Debug)
-	cout << "&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;
+      
 
       if (Jet_multiplicity >= Nj)
 	{
-	  if (jet1_pt > 0 && jet1_pt < 7000)
-	    Ht += jet1_pt;
-	  if (jet2_pt > 0 && jet2_pt < 7000)
-	    Ht += jet2_pt;
-	  if (jet3_pt > 0 && jet3_pt < 7000)
-	    Ht += jet3_pt;
-	  if (jet4_pt > 0 && jet4_pt < 7000)
-	    Ht += jet4_pt;
-	  if (jet5_pt > 0 && jet5_pt < 7000)
-	    Ht += jet5_pt;
-	  if (jet6_pt > 0 && jet6_pt < 7000)
-	    Ht += jet6_pt;
+	  if (jet1_pt > 0 && jet1_pt < 7000) Ht += jet1_pt;
+	  if (jet2_pt > 0 && jet2_pt < 7000) Ht += jet2_pt;
+	  if (jet3_pt > 0 && jet3_pt < 7000) Ht += jet3_pt;
+	  if (jet4_pt > 0 && jet4_pt < 7000) Ht += jet4_pt;
+	  if (jet5_pt > 0 && jet5_pt < 7000) Ht += jet5_pt;
+	  if (jet6_pt > 0 && jet6_pt < 7000) Ht += jet6_pt;
 	}
 
       //cout<<"Ht gen="<<Ht_gen<<"    "<<"Ht="<<Ht<<endl;
 
+      double effcorrmc=1.0*evWeight;
+      if (indentityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
+      double efferrmc=0.0;
 
       if (correctForEff)
 	{
 	  if (!useElectronsToCorrect)
 	    {
-	      std::vector < double >valuesdata =
-		getEfficiencyCorrectionJetMultiplicity (fAeff, fBeff,
-							Ht, "Data");
-	      double effcorrdata = 1.00 / valuesdata[0];
-	      double efferrdata = valuesdata[1] / pow (valuesdata[0], 2);
+	      std::vector < double >valuesdata = getEfficiencyCorrectionJetMultiplicity (fAeff, fBeff,Ht, "MC");
+	      effcorrmc =effcorrmc* (1.00 / valuesdata[0]);
+	      efferrmc = valuesdata[1] / pow (valuesdata[0], 2);
 
-	      if (Jet_multiplicity >= Nj)
-		HMCreco->Fill (Ht, effcorrdata);
-	      if (genJet >= Nj)
-		HTrue->Fill (Ht_gen, effcorrdata);
-	      if (Jet_multiplicity >= Nj || genJet >= Nj)
-		HMatx->Fill (Ht, Ht_gen, 1);
-	      if (Jet_multiplicity >= Nj || genJet >= Nj)
-		HMatxlong->Fill (Ht, Ht_gen, 1);
-
+	      if (Jet_multiplicity >= Nj) HMCreco->Fill (Ht, effcorrmc);
+	      if (genJet >= Nj) HTrue->Fill (Ht_gen, effcorrmc);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj) HMatx->Fill (Ht, Ht_gen, 1);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj) HMatxlong->Fill (Ht, Ht_gen, 1);
 	    }
 	  else
 	    {
-	      double effcorrdata =
-		1.00 / getEfficiencyCorrectionPtUsingElectron (fAeff,
-							       fBeff,
-							       e1_pt,
-							       e1_eta,
-							       e2_pt,
-							       e2_eta,
-							       "Data");
-
-	      if (Jet_multiplicity >= Nj)
-		HMCreco->Fill (Ht, effcorrdata);
-	      if (genJet >= Nj)
-		HTrue->Fill (Ht_gen, effcorrdata);
-	      if (Jet_multiplicity >= Nj || genJet >= Nj)
-		HMatx->Fill (Ht, Ht_gen, 1);
-	      if (Jet_multiplicity >= Nj || genJet >= Nj)
-		HMatxlong->Fill (Ht, Ht_gen, 1);
-
+	      effcorrmc = 1.00 / getEfficiencyCorrectionPtUsingElectron (fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+	      if (Jet_multiplicity >= Nj) HMCreco->Fill (Ht, effcorrmc);
+	      if (genJet >= Nj) HTrue->Fill (Ht_gen);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj) HMatx->Fill (Ht, Ht_gen, 1);
+	      if (Jet_multiplicity >= Nj || genJet >= Nj) HMatxlong->Fill (Ht, Ht_gen, 1);
 	    }
 	}
       else
 	{
-	  if (Jet_multiplicity >= Nj)
-	    HMCreco->Fill (Ht);
-	  if (genJet >= Nj)
-	    HTrue->Fill (Ht_gen);
-	  if (Jet_multiplicity >= Nj || genJet >= Nj)
-	    HMatx->Fill (Ht, Ht_gen, 1);
-	  if (Jet_multiplicity >= Nj || genJet >= Nj)
-	    HMatxlong->Fill (Ht, Ht_gen, 1);
-
+	  if (Jet_multiplicity >= Nj) HMCreco->Fill (Ht);
+	  if (genJet >= Nj) HTrue->Fill (Ht_gen);
+	  if (Jet_multiplicity >= Nj || genJet >= Nj) HMatx->Fill (Ht, Ht_gen, 1);
+	  if (Jet_multiplicity >= Nj || genJet >= Nj) HMatxlong->Fill (Ht, Ht_gen, 1);
 	}
-
+      
+      if (Jet_multiplicity >= Nj && genJet >= Nj) unfold_second.Fill(Ht, Ht_gen,effcorrmc);
+      if (Jet_multiplicity >= Nj && !(genJet >= Nj)) unfold_second.Fake(Ht,effcorrmc);
+      if (!(Jet_multiplicity >= Nj) && genJet >= Nj) unfold_second.Miss(Ht_gen);
+      efficiencycorrectionsmc->Fill(effcorrmc); //Save the corrections that you applyed
       Ht = 0;
       Ht_gen = 0;
     }
@@ -415,7 +382,6 @@ Unfolding::LoopHt ()
 //
 //    }
 
-  /*Loop on data */
   fChain = tree_fB;
   Init (fChain);
   Long64_t nentries2 = fChain->GetEntriesFast ();
@@ -477,7 +443,8 @@ Unfolding::LoopHt ()
 							       e1_eta,
 							       e2_pt,
 							       e2_eta,
-							       "Data");
+							       "Data",isEle);
+	      efficiencycorrections->Fill(effcorrdata);
 	      if (Jet_multiplicity >= Nj)
 		HData->Fill (Ht, effcorrdata);
 	      if (Jet_multiplicity >= Nj)
@@ -503,6 +470,7 @@ Unfolding::LoopHt ()
     ((double) HData->GetEntries () / (double) HMCreco->GetEntries ());
   cout << "scale=" << ScaleMCData << endl;
 
+
   /////////////////////////
   //  Correct for background
   /////////////////////////
@@ -510,52 +478,35 @@ Unfolding::LoopHt ()
   if (correctForBkg)
     {
       std::vector < double >bckcoeff2;
-      cout<<"A"<<endl;
-      if (Nj == 1)  bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT1");
-      cout<<"B"<<endl;
-      
-      if (Nj == 2)
-	bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT2");
-      if (Nj == 3)
-	bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT3");
-      if (Nj == 4)
-	bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT4");
+
+      if (Nj == 1) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT1");
+      if (Nj == 2) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT2");
+      if (Nj == 3) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT3");
+      if (Nj == 4) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT4");
 
 
       for (unsigned int k = 0; k < Nbins; k++)
 	{
-	  HData->SetBinContent (k + 1,
-				HData->GetBinContent (k + 1) - bckcoeff2[k]);
-	  HData2->SetBinContent (k + 1,
-				 HData2->GetBinContent (k + 1) - bckcoeff2[k]);
-      cout<<"C"<<endl;
-            
+	  HData->SetBinContent (k + 1, HData->GetBinContent (k + 1) - bckcoeff2[k]);
+	  HData2->SetBinContent (k + 1,HData2->GetBinContent (k + 1) - bckcoeff2[k]);
 	  if (HData->GetBinContent (k + 1) > 0)
 	    {
-	      relativebkg->SetBinContent (k + 1,
-					  bckcoeff2[k] /
-					  HData->GetBinContent (k + 1));
-	      cout << "Data:" << HData->GetBinContent (k +
-						       1) << " bck:" <<
-		bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<
-		"). Relative bin ratio is " << bckcoeff2[k] /
-		HData->GetBinContent (k + 1) << endl;
+	      relativebkg->SetBinContent (k + 1,bckcoeff2[k] /HData->GetBinContent (k + 1));
+	      cout << "Data:" << HData->GetBinContent (k + 1) << " bck:" <<bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<"). Relative bin ratio is " << bckcoeff2[k] /HData->GetBinContent (k + 1) << endl;
 	    }
 	  else
 	    {
 	      relativebkg->SetBinContent (k + 1, 0);
-	      cout << "Data:" << HData->GetBinContent (k +
-						       1) << " bck:" <<
-		bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<
-		"). Relative bin ratio is 0" << endl;
+	      cout << "Data:" << HData->GetBinContent (k +1) << " bck:" <<bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<"). Relative bin ratio is 0" << endl;
 	    }
-	  cout << "after " << bckcoeff2[k] / HData->GetBinContent (k +
-								  1) << endl;
+	  cout << "after " << bckcoeff2[k] / HData->GetBinContent (k + 1) << endl;
 	}
 
     }
+
   // Fill the matrix response with the MC values, this time as histograms!
   RooUnfoldResponse response_H (HMCreco, HTrue, HMatx);
+
   response_H.UseOverflow ();
 
   cout << "***********************" << endl;
@@ -568,9 +519,17 @@ Unfolding::LoopHt ()
   HTrue->Scale (ScaleMCData);
   HMCrecoratio_->Scale (ScaleMCData);
 
-
+  int k0=1;
+  int k1=2;
+  if (bayesianTest){
+  k0=0;
+  k1=1;    
+  }
+  stringstream num;
+  stringstream numJ;
+  numJ << Nj;
   //Repeating each algorithm
-  for (int j = 1; j < 2; j++)
+  for (int j = k0; j < k1; j++)
     {
       string method;
       if (j == 0)
@@ -584,25 +543,45 @@ Unfolding::LoopHt ()
       for (int k = kminH; k < kmaxH; k++)
 	{
 	  int myNumber = k;
-	  stringstream num;
+	  if (j == 0) myNumber=5;
 	  num << myNumber;
-	  string title =
-	    "Data unfolding " + method + " method with K=" + num.str ();
+	  string title = "Data unfolding " + method + " method with K=" + num.str ();
 	  std::string title2 = "Ht distribution. " + title;
 	  cout << title << endl;
 
 	  if (method == "Bayesian")
 	    {
-	      RooUnfoldBayes unfold_H (&response_H, HData, myNumber);
+	      //RooUnfoldBayes unfold_H (&response_H, HData, myNumber);
+	      RooUnfoldBayes unfold_H (&unfold_second, HData, myNumber);
 	      HReco = (TH1D *) unfold_H.Hreco ();
+	      // Extract covariance matrix TMatrixD m= unfold_j.Ereco();
+	      TVectorD vstat= unfold_H.ErecoV();
+	      TVectorD vunfo= unfold_H.ErecoV(RooUnfold::kCovToy);
+	      TVectorD vunfomat= unfold_H.ErecoV(RooUnfold::kCovariance);
+	      TVectorD vunfodiag= unfold_H.ErecoV(RooUnfold::kErrors);	     
 	    }
 	  if (method == "Svd")
 	    {
-	      RooUnfoldSvd unfold_H (&response_H, HData, myNumber);	// OR
+	      //RooUnfoldSvd unfold_H (&response_H, HData, myNumber);
+	      RooUnfoldSvd unfold_H (&unfold_second, HData, myNumber);	// OR
 	      HReco = (TH1D *) unfold_H.Hreco ();
+	      // Extract covariance matrix TMatrixD m= unfold_j.Ereco();
+	      TVectorD vstat= unfold_H.ErecoV();
+	      TVectorD vunfo= unfold_H.ErecoV(RooUnfold::kCovToy);
+	      TVectorD vunfomat= unfold_H.ErecoV(RooUnfold::kCovariance);
+	      TVectorD vunfodiag= unfold_H.ErecoV(RooUnfold::kErrors);	
+	      std::vector<double> err;
+	      for (unsigned int k=0; k<HReco->GetNbinsX(); k++){
+		HReco->SetBinError(k+1,sqrt(HReco->GetBinContent(k+1)) ); //CORREGGERE QUESTA FORZATURA... E' LEFFICIENZA CHE SPARA
+		vstatistics->SetBinContent(k+1,sqrt(HData->GetBinContent(k+1)));
+		staterror->SetBinContent(k+1,vstat[k]/HData->GetBinContent(k+1));
+		staterrorsqrt->SetBinContent(k+1,sqrt(HData->GetBinContent(k+1))/HData->GetBinContent(k+1));
+		unfoerror->SetBinContent(k+1,vunfo[k]/HData->GetBinContent(k+1));
+		err.push_back(vunfo[k]);
+	      } 
+	      kcontainer.push_back(err);
 	    }
 
-	  HReco->Sumw2 ();
 
 	  if (differentialCrossSection)
 	    {
@@ -612,13 +591,12 @@ Unfolding::LoopHt ()
 	      HData->Scale (1. / HData->Integral ());
 	    }
 
-	  HUnfolded = (TH1F *) HReco->Clone ("HReco");
-	  HUnfolded->SetName ("HUnfolded");
 	  //Save info to evaluate the unfolding uncertainties... Da fare a mano ogni volta cambiando il MC e vedendo la differenza nei dati... poi prendi i dati, e li trascrivi nella macro!
 	  for (int c = 0; c < 6; c++)
 	    {
 	      cout << HReco->GetBinContent (c + 1) << endl;
 	    }
+
 
 	  //cmultip->cd ();
 	  TCanvas *c = new TCanvas ("c", "c", 1000, 700);
@@ -634,10 +612,10 @@ Unfolding::LoopHt ()
 
 	  title2 = "H_{T} differential cross section" + title;
 	  HReco->SetTitle (title2.c_str ());
+	  HReco->SetTitle("");
 	  HReco->GetXaxis ()->SetTitle ("");
-	  HReco->GetYaxis ()->
-	    SetTitle
-	    ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/dH_{T}");
+	  HReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/dH_{T}");
+	  if (isMu) HReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/dH_{T}");
 	  HReco->SetMarkerStyle (20);
 	  HData->SetMarkerStyle (21);
 	  HData->SetLineColor (kGreen);
@@ -655,6 +633,10 @@ Unfolding::LoopHt ()
 	  HReco->GetYaxis ()->SetTitleSize (0.08);
 	  HReco->GetYaxis ()->SetTitleOffset (0.62);
 	  HReco->Draw ("EP");	//risultato dell'unfolding
+
+	  HReco2= (TH1F*) HReco->Clone("HReco");
+	  HReco2->SetName("HReco2");
+      
 	  HReco->SetLineColor (kRed);
 	  HReco->SetLineWidth (2);
 	  HMCreco->Draw ();
@@ -780,44 +762,171 @@ Unfolding::LoopHt ()
 
 	  string title3 = s + "HT" + method + "_" + num.str ();
 	  if (correctForEff)
-	    title3 = s + "HT" + method + "_" + num.str () + "_effcorr.png";
+	    title3 = s + "HT" + method + "_" + numJ.str () + "_effcorr.pdf";
 	  else
-	    title3 = s + "HT" + method + "_" + num.str () + ".png";
+	    title3 = s + "HT" + method + "_" + numJ.str () + ".pdf";
 
 	  c->cd ();
 	  //cmultip->cd ();
 
 	  c /*multip */ ->Print (title3.c_str ());
 	  num.str ("");
-	  cout << "PNG file saved (maybe) on " << title3 << endl;
+	  cout << "PDF file saved (maybe) on " << title3 << endl;
 
 	}
     }
 
-//  if (saveFile)
-//    {
-  TFile *w = new TFile ("HT_unfolded" /*filename.c_str () */ , "UPDATE");
-  w->cd ();
-  HUnfolded->Write ();
-  HTrue->Write ();
-  w->Close ();
-//    }
+  if (makeSecondaryPlots){
+  ///Background and K parameter
 
-  TCanvas *N =
-    new TCanvas ("Ht jet response matrix", "Ht jet response matrix", 1000,
-		 700);
+  TCanvas *rel =new TCanvas ("rel", "Background relative contribution, bin by bin", 1000, 700);
+  rel->cd ();
+  relativebkg->SetLineColor(kRed);
+  relativebkg->GetXaxis()->SetTitle("Jet Eta Bin");
+  relativebkg->Draw();
+  string title4= s+"BakgroundContribution.pdf";
+  rel->Print(title4.c_str());
+  
+  TCanvas *kparam =new TCanvas ("kparam", "errors as a function of the k param", 1000, 700);
+  bool firstp=true;
+  kparam->cd();     
+  TLegend *legend_e = new TLegend (0.73494, 0.63, 0.931727, 0.83);
+  legend_e->SetFillColor (0);
+  legend_e->SetFillStyle (0);
+  legend_e->SetBorderSize (0);
+  
+  for (int i=0; i<kcontainer.size(); i++){
+    stringstream num;
+    num<<i;
+    std::vector<double> ki=kcontainer[i];
+    TH1D *histo= new TH1D("histo","histo",Nbins, Nmin, Nmax);
+    for (int ii=0; ii<ki.size();ii++){
+      histo->SetBinContent(ii+1,ki[ii]);
+      histo->SetLineWidth(2);
+    }
+    histo->SetLineColor(i+2);
+    if (firstp) {
+      histo->GetYaxis()->SetRangeUser(0,3000);
+      histo->Draw();
+      firstp=false;
+      string stringa="k="+num.str();
+      legend_e->AddEntry (histo,stringa.c_str(), "L");
+    }
+    else {
+      histo->Draw("SAME");
+      string stringa="k="+num.str();
+      legend_e->AddEntry (histo,stringa.c_str(), "L");
+    }   
+    num.str("");
+  }
+  vstatistics->SetLineColor(kViolet);
+  vstatistics->SetLineWidth(3);
+  vstatistics->Draw("SAME");
+  legend_e->AddEntry (vstatistics,"Stat errors", "L");
+  legend_e->Draw("same");
+  
+  string title6= s+"Kparam.pdf";
+  kparam->Print(title6.c_str()); 
+
+  TCanvas *err = new TCanvas ("err", "err", 1000, 700);
+  err->cd ();
+  staterror->SetStats (0);
+  staterror->GetXaxis()->SetTitle("Jet Pt bin");
+  staterror->GetYaxis()->SetTitle("Relative error");
+  staterror->GetYaxis()->SetRangeUser(0.,.50);
+  staterror->Draw();
+  staterrorsqrt->SetLineColor(kViolet);
+  staterrorsqrt->Draw("SAME");
+  unfoerror->SetLineColor(kRed);
+  unfoerror->Draw("SAME");
+  
+  TLegend *legend_ef = new TLegend (0.23494, 0.696429, 0.431727, 0.895833);
+  legend_ef->SetFillColor (0);
+  legend_ef->SetFillStyle (0);
+  legend_ef->SetBorderSize (0);
+  legend_ef->AddEntry (staterror, "Statistical Errors", "L");
+  legend_ef->AddEntry (unfoerror, "Unf. Errors with Toy", "L");
+  legend_ef->AddEntry (staterrorsqrt, "Statistical Errors, sqrt of data", "L");
+  legend_ef->Draw ("same");
+
+  //Efficiency correction
+  TCanvas *efficiency = new TCanvas ("efficiency", "efficiency", 1000, 700);
+  efficiency->cd ();
+  efficiencycorrectionsmc->SetStats (111111);
+  efficiencycorrectionsmc->GetXaxis()->SetTitle("Coefficients");
+  efficiencycorrectionsmc->GetYaxis()->SetTitle("#");
+  efficiencycorrectionsmc->SetLineColor(kRed);
+  efficiencycorrectionsmc->Draw();
+  efficiencycorrections->SetLineColor(kBlack);
+  efficiencycorrections->Draw("SAMES");
+  
+  TLegend *legend_eff = new TLegend (0.23494, 0.696429, 0.431727, 0.895833);
+  legend_eff->SetFillColor (0);
+  legend_eff->SetFillStyle (0);
+  legend_eff->SetBorderSize (0);
+  legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
+  legend_eff->AddEntry (efficiencycorrections, "Data", "L");
+  legend_eff->Draw ("same");
+
+  TCanvas *N = new TCanvas ("Ht jet response matrix", "Ht jet response matrix", 1000,700);
   N->cd ();
-  HMatxlong->SetStats (1);
+  HMatx->SetStats (0);
+  gPad->SetLogz(1);
+  gPad->SetRightMargin(0.1);
+  HMatx->SetTitle("");
   gStyle->SetOptStat (1111111);
-  HMatxlong->GetXaxis ()->SetTitle ("Reconstructed Ht");
-  HMatxlong->GetYaxis ()->SetTitle ("Generated Ht");
+  HMatx->GetXaxis ()->SetTitle ("Reconstructed Ht");
+  HMatx->GetYaxis ()->SetTitle ("Generated Ht");
   gStyle->SetPalette (1);
   gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
-  HMatxlong->SetMarkerColor (kBlack);
+  HMatx->SetMarkerColor (kBlack);
   double entries = 1.000 / (double) HMatx->Integral ();
   HMatx->Scale (entries);
-  HMatxlong->Draw ("COLZ,text");
-  N->Print ("svdMatrixHt.png");
+  HMatx->Draw ("COLZ,text");
+  string title3 = s + "HT_" + numJ.str () + "_Matrix.pdf";
+  N->Print(title3.c_str());
+  }
+  //Save the info
+
+
+  if (saveFile){
+    TFile* w = new TFile(filename.c_str(), "UPDATE");
+    w->cd();
+
+    if (Nj==1) {
+     TH1F *HReco_leading= (TH1F*) HReco2->Clone("HReco2");
+      HReco_leading->SetName("HReco_leading");
+      HReco_leading->Write();
+      //TH1F *jTrue_leading= (TH1F*) jTrue->Clone("jTrue");
+      //jTrue_leading->Write();
+    }
+    if (Nj==2) {
+      TH1F *HReco_subleading= (TH1F*) HReco2->Clone("HReco2");
+      HReco_subleading->SetName("HReco_subleading");
+      HReco_subleading->Write();
+      //TH1F *jTrue_subleading= (TH1F*) jTrue->Clone("jTrue");
+      //jTrue_subleading->Write();
+
+    }
+    if (Nj==3) {
+      TH1F *HReco_subsubleading= (TH1F*) HReco2->Clone("HReco2");
+      HReco_subsubleading->SetName("HReco_subsubleading");
+      HReco_subsubleading->Write();
+      //TH1F *jTrue_subsubleading= (TH1F*) jTrue->Clone("jTrue");
+      //jTrue_subsubleading->Write();
+
+    }
+    if (Nj==4) {
+      TH1F *HReco_subsubsubleading= (TH1F*) HReco2->Clone("HReco2");
+      HReco_subsubsubleading->SetName("HReco_subsubsubleading");
+      HReco_subsubsubleading->Write();
+      //TH1F *jTrue_subsubsubleading= (TH1F*) jTrue->Clone("jTrue");
+      //jTrue_subsubsubleading->Write();
+
+    }
+
+    w->Close();
+  }  
 
 }
