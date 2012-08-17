@@ -61,31 +61,66 @@ void Unfolding::LoopJetMultiplicity ()
     kmaxN=maxNJets-2; 
   }
 
-  bool indentityCheck=false;
+  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
+  bool indentityCheck=true;    //to perform identity check
+  bool splitCheck=false;
+  bool pythiaCheck=false;
+  bool bayesianTests=true;
+  //////////////////////////////////////////////////////////////////
+
+  if (indentityCheck) {
+    correctForEff=false;
+    correctForBkg=false;
+  }
+
+  if (splitCheck) indentityCheck=true;
+  if (pythiaCheck) indentityCheck=true;
 
   string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
 
-  string smcdir=smc+":/validationJEC";
-  //string smcdir=smc+":/EPTmuoReco_MC";  
+  //string smcdir=smc+":/validationJEC";
+  string smcdir=smc+":/EPTmuoReco_MC";  
   if (isMu) {
     smcdir=smc+":/EPTmuoReco_MC";
   }
   if (indentityCheck) sdatadir=smcdir;
-  cout<<smcdir<<endl;
-  cout<<sdatadir<<endl; 
+
+  //if (pythiaCheck) smcdir=smcpythia+":/EPTmuoReco_MC";  
+
   fA->cd (smcdir.c_str());
-  gDirectory->ls();
+  gDirectory->ls("tree*");
   TTree *tree_fA= (TTree *) gDirectory->Get ("treeValidationJEC_");
-  cout<<"#####################"<<endl;
+  if (isMu) tree_fA= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
   fB->cd (sdatadir.c_str());
-  gDirectory->ls();
-  TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  gDirectory->ls("tree*");
+
+  TTree *tree_fB;
+  if (!indentityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
   //FOR closure tests
-  if (indentityCheck){  fB->cd (smcdir.c_str());
-    TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (indentityCheck){  
+    if (pythiaCheck) {
+      TFile *_file0 = TFile::Open(smcpythia.c_str()); 
+      _file0->cd("EPTmuoReco_MC");
+      cout<<"Activate the pythia tests->"<<smcpythia<<endl;
+      if (!isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+      smcdir=smcpythia;
+    }
+    else{
+      fB->cd (smcdir.c_str());
+      if (!isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+    }
   }
-  
+  cout<<"#####################"<<endl;
+  cout<<"You'are using"<<endl;
+  cout<<sdatadir<<endl;
+  cout<<smcdir<<endl;  
+  cout<<"MC tree  is ->"<<tree_fA->GetName()<<endl;
+  cout<<"Data tree is->"<<tree_fB->GetName()<<endl;  
+  cout<<"#####################"<<endl;
 
   //Setting the errors
   NTrue->Sumw2();
@@ -103,6 +138,11 @@ void Unfolding::LoopJetMultiplicity ()
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
 
+  if (splitCheck) {
+    nentries=(int) 2.0*(nentries/3.);
+    cout<<"Slitcheck is active, so Dataset A has now "<<nentries<<endl;
+  }
+
   if (fChain == 0) return;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++){
@@ -114,6 +154,11 @@ void Unfolding::LoopJetMultiplicity ()
  
     if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
     
+    if (isElectron!=isEle) {
+      cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+      return;
+    }
+    
     if (Jet_multiplicity >= 0 || Jet_multiplicity_gen >= 0){
       double thresh=15.0;
       
@@ -121,11 +166,13 @@ void Unfolding::LoopJetMultiplicity ()
       int offsetJetMultiplicity=0;
       
       offsetJetMultiplicity=getNumberOfValidGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+      double effcorrmc=1.0*evWeight;
+      if (indentityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
 
       if (correctForEff){
 	if (!useElectronsToCorrect){
 	  std::vector<double> valuesmc=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"MC");
-	  double effcorrmc=1.00/valuesmc[0];	
+	  effcorrmc=effcorrmc*(1.00/valuesmc[0]);	
 	  double efferrmc=valuesmc[1]/pow(valuesmc[0],2); 
 	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
@@ -134,7 +181,7 @@ void Unfolding::LoopJetMultiplicity ()
 	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	}
 	else{
-	  double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isElectron);
+	  double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
@@ -183,7 +230,7 @@ void Unfolding::LoopJetMultiplicity ()
 	  NData2->Fill (Jet_multiplicity,effcorrdata);
 	}
 	else{
-	  double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isElectron);
+	  double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	  NData->Fill (Jet_multiplicity,effcorrdata);
 	  NData2->Fill (Jet_multiplicity,effcorrdata);
 	}
@@ -236,9 +283,15 @@ void Unfolding::LoopJetMultiplicity ()
   NTrue->Scale (ScaleMCData);
   NMCrecoratio_->Scale (ScaleMCData);
   
-
+  int k0=1;
+  int k1=2;
+  if (bayesianTests){
+  k0=0;
+  k1=1;    
+  }
+  
   //Repeating each algorithm
-  for (int j=1; j<2; j++){
+  for (int j=k0; j<k1; j++){
     string method;
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
@@ -308,6 +361,7 @@ void Unfolding::LoopJetMultiplicity ()
       NReco->GetXaxis()->SetLabelSize(0.00);
       NReco->GetYaxis()->SetTitleSize(0.08);
       NReco->GetYaxis()->SetTitleOffset(0.76);
+      NReco->SetTitle("");
       NReco->Draw("EP");		//risultato dell'unfolding
       NReco->SetLineColor (kRed);
       NReco->SetLineWidth (2);
@@ -375,7 +429,7 @@ void Unfolding::LoopJetMultiplicity ()
       NReco->GetYaxis ()->SetTitleSize (0.06);
       NReco->GetYaxis ()->SetTitleOffset (0.5);
 
-      NReco->GetYaxis ()->SetRangeUser (0.5, 1.5);
+      NReco->GetYaxis ()->SetRangeUser (0.3, 1.7);
       //NReco->GetXaxis ()->SetRangeUser (0, 7.5);
       NReco->SetMarkerStyle (20);
       NReco->SetLineWidth (0);
@@ -433,14 +487,14 @@ void Unfolding::LoopJetMultiplicity ()
       pad2->Update();
 
       string title3= s+"JETMULTI"+method+"_"+num.str();
-      if (correctForEff) title3= s+"JETMULTI"+method+"_"+num.str()+"_effcorr.png";
-      else title3= s+"JETMULTI"+method+"_"+num.str()+".png";
+      if (correctForEff) title3= s+"JETMULTI"+method+"_"+num.str()+"_effcorr.pdf";
+      else title3= s+"JETMULTI"+method+"_"+num.str()+".pdf";
       if (isMu) s="Muons_"+s;
       cmultip->cd ();
 
       cmultip->Print(title3.c_str());
       num.str("");
-      cout<<"PNG file saved (maybe) on "<<title3<<endl;
+      cout<<"PDF file saved (maybe) on "<<title3<<endl;
  
     }
   }
@@ -455,18 +509,20 @@ void Unfolding::LoopJetMultiplicity ()
 
   TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
   N->cd ();
-  NMatxlong->SetStats (1);
-  gStyle->SetOptStat(1111111);
-  NMatxlong->GetXaxis()->SetTitle("Reconstructed # of Jets");
-  NMatxlong->GetYaxis()->SetTitle("Generated # of Jets");
+  NMatx->SetStats (0);
+  gPad->SetLogz (1);
+  gPad->SetRightMargin(0.15);
+  NMatx->SetTitle("");
+  NMatx->GetXaxis()->SetTitle("Reconstructed # of Jets");
+  NMatx->GetYaxis()->SetTitle("Generated # of Jets");
   gStyle->SetPalette (1);
   gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
-  NMatxlong->SetMarkerColor (kBlack);
+  NMatx->SetMarkerColor (kBlack);
   //double entries=1.000/(double)NMatxlong->Integral();
   //NMatxlong->Scale(entries);
-  NMatxlong->Draw ("COLZ,text");
-  string title3= s+"MatrixjetMultiplicity.png";;
+  NMatx->Draw ("COLZ,text");
+  string title3= s+"MatrixjetMultiplicity.pdf";;
   N->Print(title3.c_str());
 
 }

@@ -51,43 +51,42 @@ using
 std::endl;
 #endif
 
-//string version="_v2_28.root";
-string version="_v2_28.root";
-bool isMu=false;
+string version="_v2_30.root";
+bool isMu=false;  
+bool isEle=!isMu;
+bool makeSecondaryPlots=true;
 
-//string smc="/gpfs/cms/data/2011/jet/jetValidation_dytoee_pythia_2011_v2_27.root";
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version;
-
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_dytoee_pythia_2011_v2_31.root";
 
-TFile *fA = new TFile (smc.c_str());
-TFile *fB = new TFile (sdata.c_str()); 
+TFile *fA;
+TFile *fB;
 
 //Directory and files to start with
-string s = "/afs/infn.it/ts/user/candelis/html/Unfolding/";
+ string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
 bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UnfoldedDistributions"+version;
+string filename=direct+"UnfoldedDistributionsPtDamiana_v2_32.root";//+version;
 
 // Efficiency corrections
 bool correctForEff=false; // If true, it will take the correction factor from outside
 bool useElectronsToCorrect=true;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
-bool differentialCrossSection=false;
+bool differentialCrossSection=true;
 
 // Correct for backgrounds: 
-bool correctForBkg=true;
+bool correctForBkg=false;
 // name of the root file containing background evaluation
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
-string bkgstring=dir+"Backgrounds"+version;
-
+//string bkgstring=dir+"Backgrounds"+version;
+string bkgstring=dir+"Backgrounds_v2_28.root";
 
 //File with efficiency coefficients
-//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011"+version;
 string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";//+version;
 
 TFile *eff = TFile::Open(efffile.c_str()); 
@@ -99,7 +98,7 @@ TFile *fBeff = new TFile (efffile.c_str());
 /* Number of jet associated to a Z distribution */
 //-------------------------
 double jetPtthreshold=30.0;
-int maxNJets=6;
+int maxNJets=7;
 //------------------------
 
 TH1D *NReco;
@@ -129,29 +128,65 @@ std::vector<double> getBackgroundContributions(string filebkg, string str); // r
 void
 Unfolding::Loop()
 {
-  if (isMu) s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
+  if (isMu) {
+    s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
+    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
+    sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";//+version;
+    bkgstring=dir+"BackgroundsMu_v2_30.root";
+  }
+  fA = new TFile (smc.c_str());
+  fB = new TFile (sdata.c_str()); 
+
+  cout<<"########################################"<<endl;
+  cout<<"You're using:"<<endl;
+  cout<<smc<<endl;
+  cout<<sdata<<endl;
+  cout<<efffile<<endl;
+  cout<<bkgstring<<endl;
+  cout<<"########################################"<<endl;
+
   setTDRStyle();
   //LoopJetMultiplicity();
   //LoopZpt();
   //LoopZy();
-  LoopHt();
-  int numbOfJets=1;
+
+  int numbOfJets=2;
   //LoopJetPt(numbOfJets);
-  //LoopJetEta(numbOfJets);
+  //LoopHt(numbOfJets);
+  LoopJetEta(numbOfJets);
 }
 
 void
 Unfolding::LoopOneFour()
 {
-  if (isMu) s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
-  setTDRStyle();
-  LoopJetMultiplicity();
-  LoopHt();
-  for (int i=1; i<=3; i++){
+  if (isMu) {
+    s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
+    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
+    sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";//+version
+    bkgstring=dir+"BackgroundsMu_v2_30.root";
+  }
+
+  fA = new TFile (smc.c_str());
+  fB = new TFile (sdata.c_str()); 
+  cout<<"########################################"<<endl;
+  cout<<"You're using:"<<endl;
+  cout<<smc<<endl;
+  cout<<sdata<<endl;
+  cout<<efffile<<endl;
+  cout<<bkgstring<<endl;
+  cout<<"########################################"<<endl;
+
+  //setTDRStyle();
+  //LoopJetMultiplicity();
+
+  for (int i=1; i<=4; i++){
+    //LoopHt(i);
     //LoopZpt();
     //LoopZy();
     //LoopJetPt(i);
-    //LoopJetEta(i);
+    LoopJetEta(i); // ------------------------> Correggere baco, fare metodo Miss,Fake e controllare "correctGenJetEta"
   }
 }
 
@@ -190,6 +225,12 @@ std::vector<double> getBackgroundContributions(string filename, string str){
   TH1F *leadhisto2;
   TH1F *leadhisto3;
   TH1F *leadhisto4;
+
+  TH1F *leadhistoeta;
+  TH1F *leadhistoeta2;
+  TH1F *leadhistoeta3;
+  TH1F *leadhistoeta4;
+
   TH1F *multiphisto;
   TH1F *HT;
   TH1F *HT1;
@@ -217,6 +258,20 @@ std::vector<double> getBackgroundContributions(string filename, string str){
       gDirectory->GetObject(name.c_str(),multiphisto);
     } 
   
+    if(temp=="leadhistoeta"){
+      gDirectory->GetObject(name.c_str(),leadhistoeta);
+    } 
+    if(temp=="leadhistoeta2"){
+      gDirectory->GetObject(name.c_str(),leadhistoeta2);
+    } 
+    if(temp=="leadhistoeta3"){
+      gDirectory->GetObject(name.c_str(),leadhistoeta3);
+    } 
+    if(temp=="leadhistoeta4"){
+      gDirectory->GetObject(name.c_str(),leadhistoeta4);
+    } 
+
+  //FIlling the histograms
     if(temp=="HT"){
       gDirectory->GetObject(name.c_str(),HT);
     }
@@ -234,6 +289,8 @@ std::vector<double> getBackgroundContributions(string filename, string str){
     } 
 
 }
+  ///////////////////////////////////
+
   if (str=="jet_pT"){
     for(int k=0; k<leadhisto->GetNbinsX(); k++){
       value.push_back(leadhisto->GetBinContent(k+1));
@@ -257,12 +314,42 @@ std::vector<double> getBackgroundContributions(string filename, string str){
       value.push_back(leadhisto4->GetBinContent(k+1));
     }
   }
-  
+
+  //////////////////////////////////
+
+   if (str=="jet_eta"){
+    for(int k=0; k<leadhistoeta->GetNbinsX(); k++){
+      value.push_back(leadhistoeta->GetBinContent(k+1));
+    }
+  }
+
+  if (str=="jet_eta2"){
+    for(int k=0; k<leadhistoeta2->GetNbinsX(); k++){
+      value.push_back(leadhistoeta2->GetBinContent(k+1));
+    }
+  }
+
+  if (str=="jet_eta3"){
+    for(int k=0; k<leadhistoeta3->GetNbinsX(); k++){
+      value.push_back(leadhistoeta3->GetBinContent(k+1));
+    }
+  }
+
+  if (str=="jet_eta4"){
+    for(int k=0; k<leadhistoeta4->GetNbinsX(); k++){
+      value.push_back(leadhistoeta4->GetBinContent(k+1));
+    }
+  }
+
+  /////////////////////////////
+ 
   if (str=="jet_Multiplicity"){
     for(int k=0; k<multiphisto->GetNbinsX(); k++){
         value.push_back(multiphisto->GetBinContent(k+1));
     }
   }
+
+  ////////////////////////////
   
   if (str=="HT"){
     for(int k=0; k<HT->GetNbinsX(); k++){
