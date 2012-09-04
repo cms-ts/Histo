@@ -25,6 +25,7 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
 
    // Declaration of leaf types
+   Double_t        evWeight;
    Double_t        Z_pt;
    Double_t        Z_y;
    Int_t           Jet_multiplicity;
@@ -59,9 +60,10 @@ public :
    Double_t        e2_eta;
    Double_t        e1_pt;
    Double_t        e2_pt;
-
+   Bool_t          isElectron;
 
    // List of branches
+   TBranch        *b_evWeight;   //!
    TBranch        *b_Z_pt;   //!
    TBranch        *b_Z_y;   //!
    TBranch        *b_Jet_multiplicity;   //!
@@ -96,7 +98,7 @@ public :
    TBranch        *b_e2_eta;
    TBranch        *b_e1_pt;
    TBranch        *b_e2_pt;
-
+   TBranch        *b_isElectron;
 
 
    Unfolding(TTree *tree=0);
@@ -108,7 +110,7 @@ public :
    virtual void     LoopJetMultiplicity();
    virtual void     LoopZpt();
    virtual void     LoopZy();
-   virtual void     LoopHt();
+   virtual void     LoopHt(int Nj);
    virtual void     Loop();
    virtual void     LoopOneFour();
    virtual void     LoopJetPt(int numbOfJets);
@@ -179,6 +181,7 @@ void Unfolding::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
+   fChain->SetBranchAddress("evWeight", &evWeight, &b_evWeight);
    fChain->SetBranchAddress("Z_pt", &Z_pt, &b_Z_pt);
    fChain->SetBranchAddress("Z_y", &Z_y, &b_Z_y);
    fChain->SetBranchAddress("Jet_multiplicity", &Jet_multiplicity, &b_Jet_multiplicity);
@@ -215,7 +218,7 @@ void Unfolding::Init(TTree *tree)
    fChain->SetBranchAddress("e2_eta", &e2_eta, &b_e2_eta);
    fChain->SetBranchAddress("e1_pt", &e1_pt, &b_e1_pt);
    fChain->SetBranchAddress("e2_pt", &e2_pt, &b_e2_pt);
-
+   fChain->SetBranchAddress("isElectron", &isElectron, &b_isElectron);
   
 
    Notify();
