@@ -158,16 +158,28 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
       }     
       e_pair = e1 + e2;
+      
+      if (e1.Pt()>e2.Pt()){
+	 e1_pt  =e1.Pt();
+	 e1_eta =e1.Eta();
+	 e1_phi =e1.Phi();
+	 e1_mass=e1.M();
+	 e2_pt  =e2.Pt();
+	 e2_eta =e2.Eta();
+	 e2_phi =e2.Phi();
+	 e2_mass=e2.M();
+      }
+      else {
+	 e1_pt  =e2.Pt();
+	 e1_eta =e2.Eta();
+	 e1_phi =e2.Phi();
+	 e1_mass=e2.M();
+	 e2_pt  =e1.Pt();
+	 e2_eta =e1.Eta();
+	 e2_phi =e1.Phi();
+	 e2_mass=e1.M();
+      }
 
-      e1_pt  =e1.Pt();
-      e1_eta =e1.Eta();
-      e1_phi =e1.Phi();
-      e1_mass=e1.M();
-      e2_pt  =e2.Pt();
-      e2_eta =e2.Eta();
-      e2_phi =e2.Phi();
-      e2_mass=e2.M();
-   
       // ================================
      
       ///////////////////
