@@ -3,7 +3,7 @@
 #include "TH1.h"
 #include "TDirectory.h"
 #include "TLine.h"
-#include "Unfolding/MakePlotLumiLabel.C"
+#include "Unfolding/MakePlotLumiLabelMu.C"
 #include <TH2.h>
 #include "TF1.h"
 #include <TStyle.h>
@@ -33,25 +33,26 @@
 TCanvas * plots;
 string version="_v2_32";
 //string s = "/afs/infn.it/ts/user/marone/html/ZJets/articlePlots/";
-string s = "plotArticleEle120918"+version+"/";
+string s = "plotArticleMu120918"+version+"/";
 
-void makeArticlePlots(){
+void makeArticlePlotsXMu(){
 
   setTDRStyle();
 
   int whichjet=4;
-  string plotpath="/gpfs/cms/data/2011/Uncertainties/";
+  string plotpath="/gpfs/cms/data/2011/Uncertainties/muons/";
   gStyle->SetOptStat(0);
 
   //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+".root";
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_28.root";
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions_v2_30SVD.root";
+  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMu_v2_30.root"; // only some dist
   //====================================================================================================
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsEle_v2_30.root";
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsEle2_v2_31.root";  // 2 3 4 jet
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsEtaEle_v2_31.root";  // only eta
-  string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsHT_v2_30.root"; // only HT_v2_28
+  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMu2_v2_31.root";  //  only pt 2 3 4 
+  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMuons_v2_30.root";  //  all distr ls 
+  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsHTMu_v2_30.root"; // only HT_v2_31
+  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsEtaMu_v2_31.root";  // only eta
+  string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMuPtDamiana_v2_32.root";  // only the pt 32
   //====================================================================================================
+
   TFile *histof = TFile::Open(pathFile.c_str());
   plots = new TCanvas("plots","EB",400,20,1200,800);
   histof->cd("");
@@ -80,7 +81,7 @@ void makeArticlePlots(){
     if (whichjet==4) {
        stringmatch="jReco_subsubsubleading";
        systPathFile = plotpath+"jet4PtFinalSyst"+version+".txt";}
-    
+
     //Leading Jet Pt
     if(name==stringmatch){
       cout<<"processing histogram->"<<name<<endl;
@@ -105,6 +106,11 @@ void makeArticlePlots(){
       }    
       in.close();
       // ------------------------------------------------------------
+
+      // double sysv_lead[15] ={5.90857,4.31947,4.07386,4.47094,4.83375,5.77636,5.59512,6.06586,5.76923,5.76923,5.76923,5.76923,5.76923,5.76923,5.76923}; //in %
+//       double sysv_sublead[15]={9.31662,8.10951,5.86788,5.6427,5.2652,6.44753,7.49487,5.0571,10,10,10,10,10,10,10};
+//       double sysv_subsublead[15]={10.6758,10.2108,8.77832,10.6999,7.89177,8.125,7.59494,11.3793,14.7929,14.7929,14.7929,14.7929,14.7929,14.7929,14.7929};	    
+//       double sysv_subsubsublead[15]={16.3347,13.6889,15.7618,13.2791,21.0084,22.2222,5.17241,3.44828,26.2295,26.2295,26.2295,26.2295,26.2295,26.2295,26.2295};
       
        leadingSystematics->SetName("leadingSystematics"); 
       if ( systTmp.size()!= leadingSystematics->GetNbinsX())
@@ -115,6 +121,14 @@ void makeArticlePlots(){
 	  double err = sqrt( pow(leading->GetBinError(i+1),2) + pow(systTmp[i]*leadingSystematics->GetBinContent(i+1),2)); 
 	  leadingSystematics->SetBinError(i+1,err);
        }
+      
+//       for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
+// 	cout<<leadingSystematics->GetBinError(i+1)<<endl;
+// 	if (whichjet==1) leadingSystematics->SetBinError(i+1,0.01*sysv_lead[i]*leadingSystematics->GetBinContent(i+1));
+// 	if (whichjet==2) leadingSystematics->SetBinError(i+1,0.01*sysv_sublead[i]*leadingSystematics->GetBinContent(i+1));
+// 	if (whichjet==3) leadingSystematics->SetBinError(i+1,0.01*sysv_subsublead[i]*leadingSystematics->GetBinContent(i+1));
+// 	if (whichjet==4) leadingSystematics->SetBinError(i+1,0.01*sysv_subsubsublead[i]*leadingSystematics->GetBinContent(i+1));
+//       }
 
       leadingSystematics->SetLineColor(kBlack);
       leadingSystematics->SetMarkerStyle(20);
@@ -132,14 +146,14 @@ void makeArticlePlots(){
       leadingSystematics->GetYaxis()->SetLabelFont(42);
       leadingSystematics->GetYaxis()->SetTitleFont(42);
       leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
+      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d p_{T}");
       leadingSystematics->GetXaxis()->SetTitle("jet p_{T} [GeV/c]");
       leadingSystematics->Draw("E3");
       leading->SetFillColor(kBlack);
       leading->SetFillStyle(3001);
       leading->Draw("E3SAMES");
       
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.4); // make fancy label
+      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
       latexLabel->Draw("same");  
       TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
       legend_d->SetFillColor (0);
@@ -193,7 +207,7 @@ void makeArticlePlots(){
       leadingSystematics->SetFillColor(kRed); 
       leadingSystematics->SetMarkerColor(kBlack);
       leadingSystematics->SetStats(0);
-      leadingSystematics->GetYaxis()->SetTitleOffset(1.);
+      leadingSystematics->GetYaxis()->SetTitleOffset(1.0);
       leadingSystematics->GetXaxis()->SetTitleOffset(1.1);
       leadingSystematics->GetXaxis()->SetTitleSize(0.05);
       leadingSystematics->GetXaxis()->SetLabelSize(0.06);
@@ -204,14 +218,14 @@ void makeArticlePlots(){
       leadingSystematics->GetYaxis()->SetLabelFont(42);
       leadingSystematics->GetYaxis()->SetTitleFont(42);
       leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d N");
+      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d N");
       leadingSystematics->GetXaxis()->SetTitle("jet multiplicity");
       leadingSystematics->Draw("E3");
       leading->SetFillColor(kBlack);
       leading->SetFillStyle(3001);
       leading->Draw("E3SAMES");
       
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.4); // make fancy label
+      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
       latexLabel->Draw("same");  
       TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
       legend_d->SetFillColor (0);
@@ -243,10 +257,10 @@ void makeArticlePlots(){
     if (whichjet==4) {
        stringmatch="jReco_subsubsubleadingeta";
        systPathFile = plotpath+"jet4EtaFinalSyst"+version+".txt";}
-    //stringmatch= "ciccio";
+    
     if(name==stringmatch){
       cout<<"processing histogram->"<<name<<endl;
-      gPad->SetLogy(1); 
+      gPad->SetLogy(1);   
       //gPad->SetLogy(0);   // remove log scale
       TH1D* leading;
       gDirectory->GetObject(name.c_str(),leading);
@@ -313,14 +327,14 @@ void makeArticlePlots(){
       leadingSystematics->GetYaxis()->SetLabelFont(42);
       leadingSystematics->GetYaxis()->SetTitleFont(42);
       leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d #eta");
+      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d #eta");
       leadingSystematics->GetXaxis()->SetTitle("jet #eta");
       leadingSystematics->Draw("E3");
       leading->SetFillColor(kBlack);
       leading->SetFillStyle(3001);
       leading->Draw("E3SAMES");
       
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.4); // make fancy label
+      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
       latexLabel->Draw("same");  
       TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
       legend_d->SetFillColor (0);
@@ -334,9 +348,10 @@ void makeArticlePlots(){
       cout<<title1<<endl;
       plots->Print(title1.c_str());
     }
-    
+
+
     //////////////////////
-    /// HT
+    /// Ht
     ////////////////////
     
     if (whichjet==1) {
@@ -351,7 +366,7 @@ void makeArticlePlots(){
     if (whichjet==4) {
        stringmatch="HReco_subsubsubleading";
        systPathFile = plotpath+"jet4HtFinalSyst"+version+".txt";}
-    //stringmatch= "ciccio";
+    
     if(name==stringmatch){
       cout<<"processing histogram->"<<name<<endl;
       gPad->SetLogy(1);
@@ -388,8 +403,7 @@ void makeArticlePlots(){
       leadingSystematics->SetLineColor(kBlack);
       leadingSystematics->SetMarkerStyle(20);
       leadingSystematics->SetFillStyle(3002);
-      leadingSystematics->SetFillColor(kRed);
-      //leadingSystematics->SetFillColor(kBlack); 
+      leadingSystematics->SetFillColor(kRed); 
       leadingSystematics->SetMarkerColor(kBlack);
       leadingSystematics->GetYaxis()->SetTitleOffset(1.);
       leadingSystematics->GetXaxis()->SetTitleOffset(1.1);
@@ -402,14 +416,14 @@ void makeArticlePlots(){
       leadingSystematics->GetYaxis()->SetLabelFont(42);
       leadingSystematics->GetYaxis()->SetTitleFont(42);
       leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d H_{T}");
+      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d H_{T}");
       leadingSystematics->GetXaxis()->SetTitle("jet H_{T} [GeV/c]");
       leadingSystematics->Draw("E3");
       leading->SetFillColor(kBlack);
       leading->SetFillStyle(3001);
       leading->Draw("E3SAMES");
       
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.4); // make fancy label
+      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
       latexLabel->Draw("same");  
       TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
       legend_d->SetFillColor (0);
