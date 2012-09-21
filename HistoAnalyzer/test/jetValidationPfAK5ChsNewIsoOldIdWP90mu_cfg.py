@@ -73,7 +73,11 @@ process.GlobalTag.globaltag = 'FT_R_44_V9::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
     #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
-    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleMu/RAW-RECO/ZMu-08Nov2011-v1/0000/4031F103-2D1B-E111-86DC-003048FFCBF0.root"
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleMu/RAW-RECO/ZMu-08Nov2011-v1/0000/4031F103-2D1B-E111-86DC-003048FFCBF0.root",
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleMu/RAW-RECO/ZMu-08Nov2011-v1/0000/2257C697-111B-E111-8542-00248C0BE01E.root",
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleMu/RAW-RECO/ZMu-08Nov2011-v1/0000/128D2EA7-2D1B-E111-8788-002618FDA28E.root",
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleMu/RAW-RECO/ZMu-08Nov2011-v1/0000/3ACDFDFC-2C1B-E111-BC79-0026189437E8.root",
+    "file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleMu/RAW-RECO/ZMu-08Nov2011-v1/0000/68E9D290-2E1B-E111-9813-003048678F9C.root"
     #"file:/gpfs/grid/srm/cms/store/data/Run2011B/DoubleMu/RAW-RECO/ZMu-19Nov2011-v1/0000/784E3411-FD1D-E111-92C6-003048D15E24.root"
     ])
 
@@ -157,6 +161,9 @@ process.selectedPatMuonsTriggerMatch.matches = cms.VInputTag('muonTriggerMatchHL
 
 removeCleaningFromTriggerMatching(process)
 
+process.analyzerMuCuts = cms.EDAnalyzer('analyzerMuCuts',
+    muonCollection = cms.InputTag('selectedPatMuonsTriggerMatch'),
+    )
 
 ### Our muon collections: all, tight, matched
 process.allMuons = selectedPatMuons.clone(
@@ -1283,6 +1290,7 @@ process.ToolInizialization = cms.Path(
     process.patDefaultSequence*
     #process.crapMuons*
     #process.patElectronsWithTrigger*
+    process.analyzerMuCuts*
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
     process.matchedMuons*                                      ## our final muon collection: matched muons
