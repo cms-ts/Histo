@@ -163,6 +163,7 @@ removeCleaningFromTriggerMatching(process)
 
 process.analyzerMuCuts = cms.EDAnalyzer('analyzerMuCuts',
     muonCollection = cms.InputTag('selectedPatMuonsTriggerMatch'),
+    muonMatchedCollection = cms.InputTag('matchedMuons'),
     )
 
 ### Our muon collections: all, tight, matched
@@ -1290,10 +1291,10 @@ process.ToolInizialization = cms.Path(
     process.patDefaultSequence*
     #process.crapMuons*
     #process.patElectronsWithTrigger*
-    process.analyzerMuCuts*
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
-    process.matchedMuons*                                      ## our final muon collection: matched muons
+    process.matchedMuons*
+    process.analyzerMuCuts*                                      ## our final muon collection: matched muons
     (process.zmuAllmuAll+                                      ##
      process.zmuTightmuTight+                                  ##
      process.zmuMatchedmuMatched)*
