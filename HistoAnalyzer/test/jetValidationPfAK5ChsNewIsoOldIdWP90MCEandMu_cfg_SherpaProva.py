@@ -66,7 +66,8 @@ process.GlobalTag.globaltag = 'MC_44_V5D::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
 #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
-    "file:/gpfs/grid/srm/cms/store/data/Fall11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S6-START44_V5-v1/0001/B48B1A68-460A-E111-88DF-485B39800BAB.root"
+    "root://xrootd.ba.infn.it//store/mc/Fall11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S6_START44_V5-v1/0001/F24B5A52-A307-E111-9BEA-002618943849.root"
+    #"file:/store/mc/Fall11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S6_START44_V5-v1/0002/F6E6A225-A707-E111-B127-003048678F1C.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -262,6 +263,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                        goodEPair = cms.InputTag("goodEPair"),
                                        WeightName = cms.string('EventWeight'),
+                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(True),
                                        genJets = cms.InputTag("ak5GenJetsENoGammaCone"),
                                        usingMC = cms.untracked.bool(True),
                                        usingPF = cms.untracked.bool(True),
@@ -279,8 +282,6 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeValidationJEC_") ,
-                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
-                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                        isElectron= cms.untracked.bool(True)   
                                        )
 
@@ -1053,7 +1054,7 @@ process.out.outputCommands.extend([#'keep *_offlinePrimaryVertices*_*_*',
                                    #'keep *_*_*_PAT',
                                    #'keep *_zmumurec*_*_*',
                                    #'keep *_selectedMuons_*_*'
-                                   'keep *_*elPFIsoValue*03PFIso*_*_*'
+                                   'keep  *_*_*_demo'
                                    ])
 process.out.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('ToolInizialization'))
 

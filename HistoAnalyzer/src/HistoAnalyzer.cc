@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.43 2012/05/19 13:24:19 montanin Exp $
+// $Id: HistoAnalyzer.cc,v 1.44 2012/06/01 12:57:42 marone Exp $
 //
 //
 
@@ -29,6 +29,8 @@
 #include "Histo/HistoAnalyzer/interface/ZSkim_v1.h"
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
+//Sherpa weights
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 bool hltispresentH11=1;
 
@@ -40,11 +42,12 @@ bool hltispresentH11=1;
 void
 HistoAnalyzer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   // We need the output Muon association collection to fill 
   std::auto_ptr<std::vector<float> > EventWeight( new std::vector<float>);
   std::auto_ptr<std::vector<float> > EventWeightScaleUp( new std::vector<float>);
   std::auto_ptr<std::vector<float> > EventWeightScaleDown( new std::vector<float>);
+  std::auto_ptr<std::vector<float> > EventWeightSherpa( new std::vector<float>);
+
 
   //IMPORTANTE
   clean_vectors();
@@ -645,13 +648,29 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 	iEvent.getByLabel(VertexCollectionTag_, Vertexes);
 	numberOfVertices = Vertexes->size();
 
+	////////////////////////
+	////// Weights to accomodate SHERPA
+	////////////////////////
 
+	// applies the MC weight corrections
+	// for Sherpa (recipe from https://hypernews.cern.ch/HyperNews/CMS/get/ewk-vplusjets/317) and aMC@NLO
+	if (usingMC_ && applyMCWeightsSherpa_) {  
+	  edm::Handle<GenEventInfoProduct> genEventInfoHandle;
+	  iEvent.getByLabel("generator",genEventInfoHandle);
+	  double wMCtmp = genEventInfoHandle->weight();
+	  //std::cout << "Weight MC for SHERPA -> " << wMCtmp<< std::endl; 
+	  EventWeightSherpa->push_back(wMCtmp);
+	}
+	else{
+	  EventWeightSherpa->push_back(1);
+	}
 	//--------------------------------//
 	//---------Fill del Tree----------//
 	treeVJ_->Fill();
 	iEvent.put( EventWeight,"EventWeight" );
 	iEvent.put( EventWeightScaleUp,"EventWeightScaleUp" );
 	iEvent.put( EventWeightScaleDown,"EventWeightScaleDown" );
+	iEvent.put( EventWeightSherpa,"EventWeightSherpa" );
 }
 
 

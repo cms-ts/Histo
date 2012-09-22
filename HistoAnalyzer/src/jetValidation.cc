@@ -35,6 +35,21 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  Get The Weights
   ///////
 
+  //Sherpa weights
+  
+  edm::Handle< std::vector<float> > weightSherpa;
+  if (! iEvent.getByLabel("demo",WeightNameSherpa,weightSherpa)) {
+    cout<<"Problems to open the Sherpa Weight... check"<<endl;
+  }
+  else
+    {
+      iEvent.getByLabel("demo",WeightNameSherpa,weightSherpa);
+      const std::vector<float> & myweightSherpa=*weightSherpa;
+      evWeightSherpa = myweightSherpa[0];
+      //cout<<"evWeightSherpa->"<<evWeightSherpa<<endl;
+    }
+  // Normal Weights
+
   edm::Handle< std::vector<float> > weight;
   iEvent.getByLabel("demo",WeightName,weight);
   const std::vector<float> & myweight=*weight;
@@ -108,7 +123,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<reco::GsfElectronCollection > goodEPair;
 
    if (! iEvent.getByLabel (goodEPairTag, goodPfEPair)) {
-     cout<<"Add a filter to avoid Z->mumu non selected"<<endl;
+     //cout<<"Add a filter to avoid Z->mumu non selected"<<endl;
      return;
    }
    int checkGoodEPairSize=0;
@@ -127,7 +142,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<reco::PFCandidateCollection> pfPart;
    iEvent.getByLabel (pflowCollection_,pfPart);
   
-   cout<<" Leptons size->"<<checkGoodEPairSize<<endl;
+   //cout<<" Leptons size->"<<checkGoodEPairSize<<endl;
    if (checkGoodEPairSize==2)
  
    {   
@@ -887,6 +902,7 @@ jetValidation::beginJob()
   //EB PileUp REMOVED
 
   treeUN_->Branch("evWeight",&evWeight);
+  treeUN_->Branch("evWeightSherpa",&evWeightSherpa);
   treeUN_->Branch("Z_pt",&Z_pt);
   treeUN_->Branch("Z_y",&Z_y);
   treeUN_->Branch("Jet_multiplicity",&Jet_multiplicity);
@@ -961,6 +977,8 @@ jetValidation::beginJob()
   cout<<"JEC scale Uncertainty parameter "<<param<<endl;
   cout<<endl;
 
+
+
   //Initilize the JEDC
   p = new JetCorrectorParameters("JEC11_V12_AK5PF_UncertaintySources.txt", "Total");
   t = new JetCorrectionUncertainty(*p);  
@@ -974,6 +992,7 @@ jetValidation::endJob()
     
  //Histograms
   h_weights->GetXaxis()->SetTitle("Weight");
+  h_weightsSherpa->GetXaxis()->SetTitle("WeightSherpa");
  h_jetPt_EB->GetXaxis()->SetTitle("p_{T}^{jets}");
  h_jetPt_EB->GetYaxis()->SetTitle("N_{jets}");
  h_jetEta_EB->GetXaxis()->SetTitle("#eta_{jets}");
@@ -1383,7 +1402,7 @@ int jetValidation::isTauOrMu(edm::Handle<GenParticleCollection> genParticlesColl
 	 }
 	 //Loop for muons
 	 if(abs(genp->daughter(i)->pdgId())==13 && genp->daughter(i)->status()==3){
-	   std::cout<<"found a mu from Z"<<std::endl;
+	   //std::cout<<"found a mu from Z"<<std::endl;
 	   nmuFromZ++;
 	   std::pair<int,math::XYZTLorentzVectorD> theMuInfo;
 	   theMuInfo = make_pair(0,pMuPos);

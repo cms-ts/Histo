@@ -478,6 +478,8 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treeOLDJEC_"),
+                                                                                 WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                        isElectron= cms.untracked.bool(False)  
                                        )
                                  
@@ -502,6 +504,8 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treeTESTJEC_"),
+                                                                                  WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                        isElectron= cms.untracked.bool(False)  
                                        )
                                  
@@ -526,6 +530,8 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treePUJEC_"),
+                                                                                WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                        isElectron= cms.untracked.bool(False)    
                                        )
 
@@ -553,6 +559,8 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeValidationJEC_"),
+                                                                              WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                        isElectron= cms.untracked.bool(False)  
                                        )
                                    
@@ -577,6 +585,8 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),  
                                       JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeL2L3_"),
+                                                                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                                 isElectron= cms.untracked.bool(False)   
                                        )
 
@@ -601,6 +611,8 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     chargedMultiplicity= cms.int32(0),  
                                       JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treePU_"),
+                                                                             WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                       isElectron= cms.untracked.bool(False)  
                                     )
 
@@ -628,6 +640,8 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeRC_"),
+                                                                             WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                       isElectron= cms.untracked.bool(False)  
                                     )
 
@@ -655,6 +669,8 @@ process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
                                     chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(1), 
                                        RootuplaName = cms.string("treeJECScaleUp_"),
+                                                                                     WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                               isElectron= cms.untracked.bool(False)  
                                     )
 
@@ -681,6 +697,8 @@ process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
                                     chargedMultiplicity= cms.int32(0),
                                       JECUncertainties= cms.double(-1),
                                        RootuplaName = cms.string("treeJECScaleDown_"),
+                                                                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
                                                 isElectron= cms.untracked.bool(False)  
                                     )
                                   
