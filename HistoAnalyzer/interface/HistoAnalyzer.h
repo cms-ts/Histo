@@ -111,6 +111,7 @@ class HistoAnalyzer : public edm::EDProducer {
       bool doTheHLTAnalysis_;
       TimeValue_t  Timestamp;
       bool giveEventWeightEqualToOne_;
+      bool applyMCWeightsSherpa_;
 
       //Event Counter
       int lumi;
@@ -124,6 +125,8 @@ class HistoAnalyzer : public edm::EDProducer {
 
       //MC
       double Weight;
+      double WeightSherpa;
+
       int npv;
       //MC reweight
       edm::Lumi3DReWeighting LumiWeights_;
@@ -331,6 +334,7 @@ HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
   produces<std::vector<float> >("EventWeight");
   produces<std::vector<float> >("EventWeightScaleUp");
   produces<std::vector<float> >("EventWeightScaleDown");
+  produces<std::vector<float> >("EventWeightSherpa");
 
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   particleCollection_ = conf.getParameter<edm::InputTag>("particleCollection");
@@ -350,6 +354,7 @@ HistoAnalyzer::HistoAnalyzer(const edm::ParameterSet& conf):hltConfig_()
   WhichRun_             = conf.getParameter< std::string > ("WhichRun");
   giveEventWeightEqualToOne_ = conf.getParameter<bool>("giveEventWeightEqualToOne");
   rootuplaname          = conf.getParameter< std::string > ("RootuplaName");
+  applyMCWeightsSherpa_ = conf.getUntrackedParameter<bool>("applyMCWeightsSherpa",false);
 
   //now do what ever initialization is needed
   edm::Service<TFileService> fs; 

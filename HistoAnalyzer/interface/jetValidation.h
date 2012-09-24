@@ -86,6 +86,8 @@ class jetValidation : public edm::EDAnalyzer {
       double distR(TLorentzVector ,math::XYZTLorentzVector);
 
       std::string WeightName;
+      std::string WeightNameSherpa;
+
       // ----------member data ---------------------------
 
       //Retrieved from the .py
@@ -113,6 +115,7 @@ class jetValidation : public edm::EDAnalyzer {
       TTree* treeUN_;
 
       double evWeight;
+      double evWeightSherpa;
       double Z_pt;
       double Z_y;
       int Jet_multiplicity;
@@ -179,6 +182,7 @@ class jetValidation : public edm::EDAnalyzer {
 
       // Weight
       TH1F * h_weights;
+      TH1F * h_weightsSherpa;
 
 //EB ==============================
       // jets
@@ -398,6 +402,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
    zMassPdg = 91.1876;
 
   WeightName = conf.getParameter<std::string>("WeightName");
+  WeightNameSherpa = conf.getParameter<std::string>("WeightNameSherpa");
   //  weightCollection_ = conf.getParameter<std::string>("EventWeight");
   //  weightCollection_ = conf.getParameter<edm::InputTag>("weightCollection");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
@@ -420,6 +425,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
 
   //Weights
   h_weights = fs->make<TH1F>("h_weights","Event Weights",500,0.,5);
+  h_weightsSherpa= fs->make<TH1F>("h_weightsSherpa","Event Weights with Sherpa",500,0.,5);
 
   //Jets Properties
   deltaRCone           = conf.getParameter<double>("deltaRCone");
