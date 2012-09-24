@@ -569,6 +569,11 @@ process.selectedPatMuonsTriggerMatch.matches = cms.VInputTag('muonTriggerMatchHL
 
 removeCleaningFromTriggerMatching(process)
 
+process.analyzerMuCuts = cms.EDAnalyzer('analyzerMuCuts',
+    muonCollection = cms.InputTag('selectedPatMuonsTriggerMatch'),
+    muonMatchedCollection = cms.InputTag('matchedMuons'),
+    )
+
 ### Our muon collections: all, tight, matched
 process.allMuons = selectedPatMuons.clone(
     src = cms.InputTag('selectedPatMuonsTriggerMatch'),
@@ -1137,6 +1142,7 @@ process.JetValidationMU = cms.Path(
     process.allMuons*                                          ## our final muon collection: all muons
     process.tightMuons*                                        ## our final muon collection: tight muons
     process.matchedMuons*                                      ## our final muon collection: matched muons
+    process.analyzerMuCuts*
     (process.zmuAllmuAll+                                      ##
      process.zmuTightmuTight+                                  ##
      process.zmuMatchedmuMatched)*
