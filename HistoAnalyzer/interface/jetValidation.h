@@ -106,6 +106,7 @@ class jetValidation : public edm::EDAnalyzer {
       bool doPlotsJetComposition;
       bool isElectron;
       double param;
+      bool isSherpa;
 
       //JEC
       JetCorrectorParameters *p;
@@ -416,6 +417,7 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   useCkElInJet        = conf.getUntrackedParameter<bool>("useCkElInJet",false);
   genJetsCollection   = conf.getParameter<edm::InputTag>("genJets");
   isElectron          = conf.getUntrackedParameter<bool>("isElectron",true);
+  isSherpa            = conf.getUntrackedParameter<bool>("isSherpa",false);
 
   // variable to enable the fill of the plots
   doPlotsJetComposition  = conf.getUntrackedParameter<bool>("doPlotsJetComposition",true); 

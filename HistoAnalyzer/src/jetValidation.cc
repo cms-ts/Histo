@@ -666,6 +666,15 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//Number of GenJet
 	edm::Handle<reco::GenJetCollection> genJets;
 	iEvent.getByLabel(genJetsCollection, genJets );
+	
+	// if Sherpa, fake lepton are created in order to fill the Jet_multiplicity_gen
+	// if we removed the leptons before (in photonRemoval) the check  
+	// within the cone is useless
+	if (isSherpa) {
+	   ele_gen.SetPxPyPzE(1,1,1,1); 
+	   ele_gen_vec.push_back(ele_gen);
+	   ele_gen_vec.push_back(ele_gen);
+	}
 
 	for (reco::GenJetCollection::const_iterator iter=genJets->begin();iter!=genJets->end();++iter){
 	  if (ele_gen_vec.size()==2){  // Only jets reaching the detector are allowed...

@@ -66,7 +66,8 @@ process.GlobalTag.globaltag = 'MC_44_V5D::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
 #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
-    "root://xrootd.ba.infn.it//store/mc/Fall11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S6_START44_V5-v1/0001/F24B5A52-A307-E111-9BEA-002618943849.root"
+    "file:/gpfs/cms/data/2011/FilesRunLocal/F6E6A225-A707-E111-B127-003048678F1C_Sherpa.root"
+    #"root://xrootd.ba.infn.it//store/mc/Fall11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S6_START44_V5-v1/0001/F24B5A52-A307-E111-9BEA-002618943849.root"
     #"file:/store/mc/Fall11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S6_START44_V5-v1/0002/F6E6A225-A707-E111-B127-003048678F1C.root"
     ])
 
@@ -282,6 +283,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        chargedMultiplicity= cms.int32(0),
                                        JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeValidationJEC_") ,
+                                       isSherpa = cms.untracked.bool(True),
                                        isElectron= cms.untracked.bool(True)   
                                        )
 
