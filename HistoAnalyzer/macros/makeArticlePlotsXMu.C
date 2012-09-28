@@ -3,7 +3,7 @@
 #include "TH1.h"
 #include "TDirectory.h"
 #include "TLine.h"
-#include "Unfolding/MakePlotLumiLabelMu.C"
+#include "Unfolding/MakePlotLumiLabel.C"
 #include <TH2.h>
 #include "TF1.h"
 #include <TStyle.h>
@@ -28,415 +28,522 @@
 #include "TH2.h"
 #include "THStack.h"
 #include "TLatex.h"
+#include "TColor.h"
 #include <string.h>
 
-TCanvas * plots;
-string version="_v2_32";
-//string s = "/afs/infn.it/ts/user/marone/html/ZJets/articlePlots/";
-string s = "plotArticleMu120918"+version+"/";
+TCanvas *plots;
+string version = "_v2_32";
+string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleMu" + version + "/";
 
-void makeArticlePlotsXMu(){
+void
+makeArticlePlotsXMu ()
+{
 
-  setTDRStyle();
+  setTDRStyle ();
 
-  int whichjet=4;
-  string plotpath="/gpfs/cms/data/2011/Uncertainties/muons/";
-  gStyle->SetOptStat(0);
+  int use_case = 4;
+  int whichjet = 4;
+  string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
+  gStyle->SetOptStat (0);
 
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributions"+version+".root";
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMu_v2_30.root"; // only some dist
-  //====================================================================================================
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMu2_v2_31.root";  //  only pt 2 3 4 
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMuons_v2_30.root";  //  all distr ls 
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsHTMu_v2_30.root"; // only HT_v2_31
-  //string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsEtaMu_v2_31.root";  // only eta
-  string pathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedDistributionsMuPtDamiana_v2_32.root";  // only the pt 32
-  //====================================================================================================
+  //DATA:
+  string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32MuApprovalB.root";
 
-  TFile *histof = TFile::Open(pathFile.c_str());
-  plots = new TCanvas("plots","EB",400,20,1200,800);
-  histof->cd("");
-  TDirectory *dir=gDirectory;
-  TList *mylist=(TList*)dir->GetListOfKeys();
-  TIter iter(mylist);	
-  // Use TIter::Next() to get each TObject mom owns.
-  TObject* tobj = 0;
+  //RIVET:
+  string rivetPathSherpa ="/gpfs/cms/users/candelis/CMSSW_5_2_6/src/GeneratorInterface/RivetInterface/test/test_prod/out.root";
+  string rivetPathSherpaUP ="/gpfs/cms/users/candelis/CMSSW_5_2_6/src/GeneratorInterface/RivetInterface/test/test_scaleup/out.root";
+  string rivetPathSherpaDOWN ="/gpfs/cms/users/candelis/CMSSW_5_2_6/src/GeneratorInterface/RivetInterface/test/test_scaledown/out.root";
+  string rivetPathSherpaPDF1 ="/gpfs/cms/users/candelis/CMSSW_5_2_6/src/GeneratorInterface/RivetInterface/test/test_pdfmstw/out.root";
+  string rivetPathSherpaPDF2 ="/gpfs/cms/users/candelis/CMSSW_5_2_6/src/GeneratorInterface/RivetInterface/test/test_pdfnn/out.root";
+  string rivetPathMadGraph ="/gpfs/cms/users/candelis/CMSSW_5_2_5_patch1/src/GeneratorInterface/RivetInterface/test/test_full2/merged.root";
+
+  TFile *histof = TFile::Open (pathFile.c_str ());
+  plots = new TCanvas ("plots", "EB", 0, 0, 1200, 800);
+  histof->cd ("");
+  TDirectory *dir = gDirectory;
+  TList *mylist = (TList *) dir->GetListOfKeys ();
+  TIter iter (mylist);
+  TObject *tobj = 0;
   string tmpname;
+  string stringmatch;
+  string systPathFile;
+  string rivet_data;
 
-    plots->cd();
-  int i=0; // solo di servizio quando debuggo...
-  while ( (tobj = iter.Next()) ) {
-    string name=tobj->GetName();
-    string stringmatch;
-    string systPathFile;
-    if (whichjet==1) {
-       stringmatch="jReco_leading";
-       systPathFile = plotpath+"jet1PtFinalSyst"+version+".txt";}
-    if (whichjet==2) {
-       stringmatch="jReco_subleading";
-       systPathFile = plotpath+"jet2PtFinalSyst"+version+".txt";}
-    if (whichjet==3) {
-       stringmatch="jReco_subsubleading";
-       systPathFile = plotpath+"jet3PtFinalSyst"+version+".txt";}
-    if (whichjet==4) {
-       stringmatch="jReco_subsubsubleading";
-       systPathFile = plotpath+"jet4PtFinalSyst"+version+".txt";}
-
-    //Leading Jet Pt
-    if(name==stringmatch){
-      cout<<"processing histogram->"<<name<<endl;
-      gPad->SetLogy(1);
-      TH1D* leading;
-      gDirectory->GetObject(name.c_str(),leading);
-      TH1D* leadingSystematics;
-      leadingSystematics=(TH1D*) leading->Clone("leading");
-
-      // read from file ---------------------------------------------
-      double dat;
-      ifstream in;
-      cout<< "reading ...  "<< systPathFile <<endl;
-      in.open (systPathFile.c_str());
-      //int l2 =0;
-      std::vector<double> systTmp;
-      while (1) {
-	 in >> dat;
-	 if (!in.good()) break;
-	 systTmp.push_back(dat);
-	 //l2++;  
-      }    
-      in.close();
-      // ------------------------------------------------------------
-
-      // double sysv_lead[15] ={5.90857,4.31947,4.07386,4.47094,4.83375,5.77636,5.59512,6.06586,5.76923,5.76923,5.76923,5.76923,5.76923,5.76923,5.76923}; //in %
-//       double sysv_sublead[15]={9.31662,8.10951,5.86788,5.6427,5.2652,6.44753,7.49487,5.0571,10,10,10,10,10,10,10};
-//       double sysv_subsublead[15]={10.6758,10.2108,8.77832,10.6999,7.89177,8.125,7.59494,11.3793,14.7929,14.7929,14.7929,14.7929,14.7929,14.7929,14.7929};	    
-//       double sysv_subsubsublead[15]={16.3347,13.6889,15.7618,13.2791,21.0084,22.2222,5.17241,3.44828,26.2295,26.2295,26.2295,26.2295,26.2295,26.2295,26.2295};
-      
-       leadingSystematics->SetName("leadingSystematics"); 
-      if ( systTmp.size()!= leadingSystematics->GetNbinsX())
-	 cout<<"WRONG NUMBER OF BINS"<<endl;
-       for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
-	  //cout<<"jetPt"<<whichjet<<" - syst = "<<leadingSystematics->GetBinError(i+1)<<endl;
-	  //leadingSystematics->SetBinError(i+1,systTmp[i]*leadingSystematics->GetBinContent(i+1));
-	  double err = sqrt( pow(leading->GetBinError(i+1),2) + pow(systTmp[i]*leadingSystematics->GetBinContent(i+1),2)); 
-	  leadingSystematics->SetBinError(i+1,err);
-       }
-      
-//       for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
-// 	cout<<leadingSystematics->GetBinError(i+1)<<endl;
-// 	if (whichjet==1) leadingSystematics->SetBinError(i+1,0.01*sysv_lead[i]*leadingSystematics->GetBinContent(i+1));
-// 	if (whichjet==2) leadingSystematics->SetBinError(i+1,0.01*sysv_sublead[i]*leadingSystematics->GetBinContent(i+1));
-// 	if (whichjet==3) leadingSystematics->SetBinError(i+1,0.01*sysv_subsublead[i]*leadingSystematics->GetBinContent(i+1));
-// 	if (whichjet==4) leadingSystematics->SetBinError(i+1,0.01*sysv_subsubsublead[i]*leadingSystematics->GetBinContent(i+1));
-//       }
-
-      leadingSystematics->SetLineColor(kBlack);
-      leadingSystematics->SetMarkerStyle(20);
-      leadingSystematics->SetFillStyle(3002);
-      leadingSystematics->SetFillColor(kRed); 
-      leadingSystematics->SetMarkerColor(kBlack);
-      leadingSystematics->GetYaxis()->SetTitleOffset(1.);
-      leadingSystematics->GetXaxis()->SetTitleOffset(1.1);
-      leadingSystematics->GetXaxis()->SetTitleSize(0.05);
-      leadingSystematics->GetXaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetXaxis()->SetLabelFont(42);
-      leadingSystematics->GetXaxis()->SetTitleFont(42);
-      leadingSystematics->GetYaxis()->SetTitleSize(0.07);
-      leadingSystematics->GetYaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetYaxis()->SetLabelFont(42);
-      leadingSystematics->GetYaxis()->SetTitleFont(42);
-      leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d p_{T}");
-      leadingSystematics->GetXaxis()->SetTitle("jet p_{T} [GeV/c]");
-      leadingSystematics->Draw("E3");
-      leading->SetFillColor(kBlack);
-      leading->SetFillStyle(3001);
-      leading->Draw("E3SAMES");
-      
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
-      latexLabel->Draw("same");  
-      TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
-      legend_d->SetFillColor (0);
-      legend_d->SetFillStyle (0);
-      legend_d->SetBorderSize (0);
-      legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
-      legend_d->Draw ("same");
-      
-      string title1= s+"DifferentialX"+stringmatch+".pdf";
-      cout<<title1<<endl;
-      plots->Print(title1.c_str());
-    }
-    
-    // Jet Multiplicity
-    if(name=="JetMultiplicityUnfolded"){
-      gPad->SetLogy(1);
-      TH1D* leading;
-      gDirectory->GetObject(name.c_str(),leading);
-      TH1D* leadingSystematics;
-      leadingSystematics=(TH1D*) leading->Clone("leading");
-      systPathFile = plotpath+"jetMultFinalSyst"+version+".txt";
-
-      // read from file ---------------------------------------------
-      ifstream inM;
-      cout<< "reading ...  "<< systPathFile <<endl;
-      inM.open (systPathFile.c_str());
-      //int l2 =0;
-      std::vector<double> systTmpM;
-      while (1) {
-	 inM >> dat;
-	 if (!inM.good()) break;
-	 systTmpM.push_back(dat);
-	 //l2++;  
-      }    
-      inM.close();
-      // ------------------------------------------------------------
-      //double sysv[6] ={1.01766,4.83302,7.63652,9.28372,14.0438,10.5528}; //in %
-      
-      leadingSystematics->SetName("leadingSystematics");
-      if ( systTmpM.size()!= leadingSystematics->GetNbinsX())
-	 cout<<"WRONG NUMBER OF BINS"<<endl;
-      for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
-	 //cout<<"jetMulti - syst = "<<leadingSystematics->GetBinError(i+1)<<endl;	 
-	 double err = sqrt( pow(leading->GetBinError(i+1),2) + pow(systTmpM[i]*leadingSystematics->GetBinContent(i+1),2)); 
-	leadingSystematics->SetBinError(i+1,err);
+  plots->cd ();
+  int i = 0;			// solo di servizio quando debuggo...
+  while ((tobj = iter.Next ()))
+    {
+      string name = tobj->GetName ();
+      /*
+      if (whichjet == 1)
+	{
+	  stringmatch = "jReco_leading";
+	  systPathFile = plotpath + "jet1PtFinalSyst" + version + ".txt";
+	  rivet_data = "d06_x01_y01";
+	  rivet_dataMG = "d06-x01-y01";
+	  rivet_data_eta   = "d11_x01_y01";
+	  rivet_dataMG_eta = "d11-x01-y01";
+	  rivet_data_ht    = "d23_x01_y01";
+	  rivet_dataMG_ht  = "d23-x01-y01";
+	}
+      if (whichjet == 2)
+	{
+	  stringmatch = "jReco_subleading";
+	  systPathFile = plotpath + "jet2PtFinalSyst" + version + ".txt";
+	  rivet_data = "d07_x01_y01";
+	  rivet_dataMG = "d07-x01-y01";
+	  rivet_data_eta   = "d12_x01_y01";
+	  rivet_dataMG_eta = "d12-x01-y01";
+	  rivet_data_ht    = "d24_x01_y01";
+	  rivet_dataMG_ht  = "d24-x01-y01";
+	}
+      if (whichjet == 3)
+	{
+	  stringmatch = "jReco_subsubleading";
+	  systPathFile = plotpath + "jet3PtFinalSyst" + version + ".txt";
+	  rivet_data = "d09_x01_y01";
+	  rivet_dataMG = "d09-x01-y01";
+	  rivet_data_eta   = "d13_x01_y01";
+	  rivet_dataMG_eta = "d13-x01-y01";
+	  rivet_data_ht    = "d25_x01_y01";
+	  rivet_dataMG_ht  = "d25-x01-y01";
+	}
+      if (whichjet == 4)
+	{
+	  stringmatch = "jReco_subsubsubleading";
+	  systPathFile = plotpath + "jet4PtFinalSyst" + version + ".txt";
+	  rivet_data = "d10_x01_y01";
+	  rivet_dataMG = "d10-x01-y01";
+	  rivet_data_eta   = "d14_x01_y01";
+	  rivet_dataMG_eta = "d14-x01-y01";
+	  rivet_data_ht    = "d26_x01_y01";
+	  rivet_dataMG_ht  = "d26-x01-y01";
+	}
+      */
+      if (use_case == 1) 
+	{ // Jet Multiplicity
+	  stringmatch = "JetMultiplicityUnfolded";
+	  systPathFile = plotpath + "jetMultFinalSyst" + version + ".txt";
+	  rivet_data="d03_x01_y01";
+	}
+      if (use_case == 2) 
+	{ // Jet Pt
+	  if (whichjet == 1)
+	    {
+	      stringmatch = "jReco_leading";
+	      systPathFile = plotpath + "jet1PtFinalSyst" + version + ".txt";
+	      rivet_data = "d01_x01_y01";
+	    }
+	  if (whichjet == 2)
+	    {
+	      stringmatch = "jReco_subleading";
+	      systPathFile = plotpath + "jet2PtFinalSyst" + version + ".txt";
+	      rivet_data = "d02_x01_y01";
+	    }
+	  if (whichjet == 3)
+	    {
+	      stringmatch = "jReco_subsubleading";
+	      systPathFile = plotpath + "jet3PtFinalSyst" + version + ".txt";
+	      rivet_data = "d04_x01_y01";
+	    }
+	  if (whichjet == 4)
+	    {
+	      stringmatch = "jReco_subsubsubleading";
+	      systPathFile = plotpath + "jet4PtFinalSyst" + version + ".txt";
+	      rivet_data = "d05_x01_y01";
+	    }
+	}
+      if (use_case == 3) { // Jet Eta
+	if (whichjet == 1)
+	  {
+	    stringmatch = "jReco_leadingeta";
+	    systPathFile = plotpath + "jet1EtaFinalSyst" + version + ".txt";
+	    rivet_data   = "d15_x01_y01";
+	  }
+	if (whichjet == 2)
+	  {
+	    stringmatch = "jReco_subleadingeta";
+	    systPathFile = plotpath + "jet2EtaFinalSyst" + version + ".txt";
+	    rivet_data   = "d16_x01_y01";
+	  }
+	if (whichjet == 3)
+	  {
+	    stringmatch = "jReco_subsubleadingeta";
+	    systPathFile = plotpath + "jet3EtaFinalSyst" + version + ".txt";
+	    rivet_data   = "d17_x01_y01";
+	  }
+	if (whichjet == 4)
+	  {
+	    stringmatch = "jReco_subsubsubleadingeta";
+	    systPathFile = plotpath + "jet4EtaFinalSyst" + version + ".txt";
+	    rivet_data   = "d18_x01_y01";
+	  }
       }
-      leadingSystematics->SetLineColor(kBlack);
-      leadingSystematics->SetMarkerStyle(20);
-      leadingSystematics->SetFillStyle(3002);
-      leadingSystematics->SetFillColor(kRed); 
-      leadingSystematics->SetMarkerColor(kBlack);
-      leadingSystematics->SetStats(0);
-      leadingSystematics->GetYaxis()->SetTitleOffset(1.0);
-      leadingSystematics->GetXaxis()->SetTitleOffset(1.1);
-      leadingSystematics->GetXaxis()->SetTitleSize(0.05);
-      leadingSystematics->GetXaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetXaxis()->SetLabelFont(42);
-      leadingSystematics->GetXaxis()->SetTitleFont(42);
-      leadingSystematics->GetYaxis()->SetTitleSize(0.07);
-      leadingSystematics->GetYaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetYaxis()->SetLabelFont(42);
-      leadingSystematics->GetYaxis()->SetTitleFont(42);
-      leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d N");
-      leadingSystematics->GetXaxis()->SetTitle("jet multiplicity");
-      leadingSystematics->Draw("E3");
-      leading->SetFillColor(kBlack);
-      leading->SetFillStyle(3001);
-      leading->Draw("E3SAMES");
-      
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
-      latexLabel->Draw("same");  
-      TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
-      legend_d->SetFillColor (0);
-      legend_d->SetFillStyle (0);
-      legend_d->SetBorderSize (0);
-      legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
-      legend_d->Draw ("same");
-      
-      string title1= s+"DifferentialXSJetMultiplicity.pdf";
-      cout<<title1<<endl;
-      plots->Print(title1.c_str());
-    }
-    
-    
-    //////////////////////
-    /// Eta
-    ////////////////////
-    
-    if (whichjet==1) {
-       stringmatch="jReco_leadingeta";
-       systPathFile = plotpath+"jet1EtaFinalSyst"+version+".txt";}
-    if (whichjet==2) {
-       stringmatch="jReco_subleadingeta";
-       systPathFile = plotpath+"jet2EtaFinalSyst"+version+".txt";}
-    if (whichjet==3) {
-       stringmatch="jReco_subsubleadingeta";
-       systPathFile = plotpath+"jet3EtaFinalSyst"+version+".txt";}
-    if (whichjet==4) {
-       stringmatch="jReco_subsubsubleadingeta";
-       systPathFile = plotpath+"jet4EtaFinalSyst"+version+".txt";}
-    
-    if(name==stringmatch){
-      cout<<"processing histogram->"<<name<<endl;
-      gPad->SetLogy(1);   
-      //gPad->SetLogy(0);   // remove log scale
-      TH1D* leading;
-      gDirectory->GetObject(name.c_str(),leading);
-      TH1D* leadingSystematics;
-      leadingSystematics=(TH1D*) leading->Clone("leading");
-
-//
-//   COMMENTED ONLY FOR NOW  **********************************
-//
-     //  // read from file --------------------------------------------
-      ifstream in2;
-      cout<< "reading ...  "<< systPathFile <<endl;
-      in2.open (systPathFile.c_str());
-      //int l2 =0;
-      std::vector<double> systTmpEta;
-      while (1) {
-	 in2 >> dat;
-	 if (!in2.good()) break;
-	 systTmpEta.push_back(dat);
-	 //l2++;  
-      }    
-      in2.close();
-      // ------------------------------------------------------------
-      leadingSystematics->SetName("leadingSystematics");
-      if ( systTmpEta.size()!= leadingSystematics->GetNbinsX())
-	 cout<<"WRONG NUMBER OF BINS"<<endl;
-      for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
-	 double err = sqrt( pow(leading->GetBinError(i+1),2) + pow(systTmpEta[i]*leadingSystematics->GetBinContent(i+1),2)); 
-	leadingSystematics->SetBinError(i+1,err);
-      }
-//******************************************************************************************************
-
-      
-    //   double sysv_lead[15] ={5.90857,4.31947,4.07386,4.47094,4.83375,5.77636,5.59512,6.06586,5.76923,5.76923,5.76923,5.76923,5.76923,5.76923,5.76923}; //in %
-//       double sysv_sublead[15]={9.31662,8.10951,5.86788,5.6427,5.2652,6.44753,7.49487,5.0571,10,10,10,10,10,10,10};
-//       double sysv_subsublead[15]={10.6758,10.2108,8.77832,10.6999,7.89177,8.125,7.59494,11.3793,14.7929,14.7929,14.7929,14.7929,14.7929,14.7929,14.7929};	    
-//       double sysv_subsubsublead[15]={16.3347,13.6889,15.7618,13.2791,21.0084,22.2222,5.17241,3.44828,26.2295,26.2295,26.2295,26.2295,26.2295,26.2295,26.2295};
-      
-//       leadingSystematics->SetName("leadingSystematics");
-      
-//       for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
-// 	leadingSystematics->SetBinError(i+1,0.05*leadingSystematics->GetBinContent(i+1));
-
-// 	//if (whichjet==1) leadingSystematics->SetBinError(i+1,0.01*sysv_lead[i]*leadingSystematics->GetBinContent(i+1));
-// 	//if (whichjet==2) leadingSystematics->SetBinError(i+1,0.01*sysv_sublead[i]*leadingSystematics->GetBinContent(i+1));
-// 	//if (whichjet==3) leadingSystematics->SetBinError(i+1,0.01*sysv_subsublead[i]*leadingSystematics->GetBinContent(i+1));
-// 	//if (whichjet==4) leadingSystematics->SetBinError(i+1,0.01*sysv_subsubsublead[i]*leadingSystematics->GetBinContent(i+1));
-//       }
-
-
-      leadingSystematics->SetLineColor(kBlack);
-      leadingSystematics->SetMarkerStyle(20);
-      leadingSystematics->SetFillStyle(3002);
-      leadingSystematics->SetFillColor(kRed); 
-      leadingSystematics->SetMarkerColor(kBlack);
-      leadingSystematics->GetYaxis()->SetTitleOffset(1.);
-      leadingSystematics->GetXaxis()->SetTitleOffset(1.1);
-      leadingSystematics->GetXaxis()->SetTitleSize(0.05);
-      leadingSystematics->GetXaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetXaxis()->SetLabelFont(42);
-      leadingSystematics->GetXaxis()->SetTitleFont(42);
-      leadingSystematics->GetYaxis()->SetTitleSize(0.07);
-      leadingSystematics->GetYaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetYaxis()->SetLabelFont(42);
-      leadingSystematics->GetYaxis()->SetTitleFont(42);
-      leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d #eta");
-      leadingSystematics->GetXaxis()->SetTitle("jet #eta");
-      leadingSystematics->Draw("E3");
-      leading->SetFillColor(kBlack);
-      leading->SetFillStyle(3001);
-      leading->Draw("E3SAMES");
-      
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
-      latexLabel->Draw("same");  
-      TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
-      legend_d->SetFillColor (0);
-      legend_d->SetFillStyle (0);
-      legend_d->SetBorderSize (0);
-      legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
-      legend_d->Draw ("same");
-      
-      string title1= s+"DifferentialXSEta"+stringmatch+".pdf";
-      cout<<title1<<endl;
-      plots->Print(title1.c_str());
-    }
-
-
-    //////////////////////
-    /// Ht
-    ////////////////////
-    
-    if (whichjet==1) {
-       stringmatch="HReco_leading";
-       systPathFile = plotpath+"jet1HtFinalSyst"+version+".txt";}
-    if (whichjet==2) {
-       stringmatch="HReco_subleading";
-       systPathFile = plotpath+"jet2HtFinalSyst"+version+".txt";}
-    if (whichjet==3) {
-       stringmatch="HReco_subsubleading";
-       systPathFile = plotpath+"jet3HtFinalSyst"+version+".txt";}
-    if (whichjet==4) {
-       stringmatch="HReco_subsubsubleading";
-       systPathFile = plotpath+"jet4HtFinalSyst"+version+".txt";}
-    
-    if(name==stringmatch){
-      cout<<"processing histogram->"<<name<<endl;
-      gPad->SetLogy(1);
-      TH1D* leading;
-      gDirectory->GetObject(name.c_str(),leading);
-      TH1D* leadingSystematics;
-      leadingSystematics=(TH1D*) leading->Clone("leading");
-
-//
-//   COMMENTED ONLY FOR NOW  **********************************
-//
-     //  // read from file --------------------------------------------
-      ifstream in2;
-      cout<< "reading ...  "<< systPathFile <<endl;
-      in2.open (systPathFile.c_str());
-      //int l2 =0;
-      std::vector<double> systTmpHt;
-      while (1) {
-	 in2 >> dat;
-	 if (!in2.good()) break;
-	 systTmpHt.push_back(dat);
-	 //l2++;  
-      }    
-      in2.close();
-      // ------------------------------------------------------------
-      leadingSystematics->SetName("leadingSystematics");
-      if ( systTmpHt.size()!= leadingSystematics->GetNbinsX())
-	 cout<<"WRONG NUMBER OF BINS"<<endl;
-      for (int i=0; i<=leadingSystematics->GetNbinsX();i++){
-	 double err = sqrt( pow(leading->GetBinError(i+1),2) + pow(systTmpHt[i]*leadingSystematics->GetBinContent(i+1),2)); 
-	leadingSystematics->SetBinError(i+1,err);
+      if (use_case == 4) { // Ht
+	if (whichjet == 1)
+	  {
+	    stringmatch = "HReco_leading";
+	    systPathFile = plotpath + "jet1HtFinalSyst" + version + ".txt";
+	    rivet_data    = "d19_x01_y01";
+	  }
+	if (whichjet == 2)
+	  {
+	    stringmatch = "HReco_subleading";
+	    systPathFile = plotpath + "jet2HtFinalSyst" + version + ".txt";
+	    rivet_data    = "d20_x01_y01";
+	  }
+	if (whichjet == 3)
+	  {
+	    stringmatch = "HReco_subsubleading";
+	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
+	    rivet_data    = "d21_x01_y01";
+	  }
+	if (whichjet == 4)
+	  {
+	    stringmatch = "HReco_subsubsubleading";
+	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
+	    rivet_data    = "d22_x01_y01";
+	  }
       }
 
-      leadingSystematics->SetLineColor(kBlack);
-      leadingSystematics->SetMarkerStyle(20);
-      leadingSystematics->SetFillStyle(3002);
-      leadingSystematics->SetFillColor(kRed); 
-      leadingSystematics->SetMarkerColor(kBlack);
-      leadingSystematics->GetYaxis()->SetTitleOffset(1.);
-      leadingSystematics->GetXaxis()->SetTitleOffset(1.1);
-      leadingSystematics->GetXaxis()->SetTitleSize(0.05);
-      leadingSystematics->GetXaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetXaxis()->SetLabelFont(42);
-      leadingSystematics->GetXaxis()->SetTitleFont(42);
-      leadingSystematics->GetYaxis()->SetTitleSize(0.07);
-      leadingSystematics->GetYaxis()->SetLabelSize(0.06);
-      leadingSystematics->GetYaxis()->SetLabelFont(42);
-      leadingSystematics->GetYaxis()->SetTitleFont(42);
-      leadingSystematics->SetTitle();
-      leadingSystematics->GetYaxis()->SetTitle("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d H_{T}");
-      leadingSystematics->GetXaxis()->SetTitle("jet H_{T} [GeV/c]");
-      leadingSystematics->Draw("E3");
-      leading->SetFillColor(kBlack);
-      leading->SetFillStyle(3001);
-      leading->Draw("E3SAMES");
-      
-      TLatex *latexLabel=CMSPrel(4.890,"",0.25,0.40); // make fancy label
-      latexLabel->Draw("same");  
-      TLegend *legend_d = new TLegend (0.73494, 0.73, 0.931727, 0.93);
-      legend_d->SetFillColor (0);
-      legend_d->SetFillStyle (0);
-      legend_d->SetBorderSize (0);
-      legend_d->AddEntry (leading, "Statistical Error", "F");
-      legend_d->AddEntry (leadingSystematics, "Total Error", "F");
-      legend_d->Draw ("same");
-      
-      string title1= s+"DifferentialXSHt"+stringmatch+".pdf";
-      cout<<title1<<endl;
-      plots->Print(title1.c_str());
+      if (name == stringmatch) {
+
+	cout << "CONFIGURATION:" << endl;
+	cout << "stringmatch: " <<stringmatch<< endl;
+	cout << "systPathFile: " <<systPathFile<< endl;
+	cout << "rivet_data: " <<rivet_data<< endl;
+
+	gPad->SetLogy (1);
+	TH1D *leading;
+	gDirectory->GetObject (name.c_str (), leading);
+	TH1D *leadingSystematics;
+	leadingSystematics = (TH1D *) leading->Clone ("leading");
+
+	  // read from file ---------------------------------------------
+	  double dat;
+	  ifstream inM;
+	  cout << "reading ...  " << systPathFile << endl;
+	  inM.open (systPathFile.c_str ());
+	  //int l2 =0;
+	  std::vector < double >systTmpM;
+	  while (1)
+	    {
+	      inM >> dat;
+	      if (!inM.good ())
+		break;
+	      systTmpM.push_back (dat);
+	      //l2++;  
+	    }
+	  inM.close ();
+	  // ------------------------------------------------------------
+
+	  // Get RIVET data: --------------------------------------------
+	  TFile *histoRivetSherpa = TFile::Open (rivetPathSherpa.c_str ());
+	  histoRivetSherpa->cd ("");
+	  TDirectory *dirRivetSherpa = gDirectory;
+	  TList *mylistRivetSherpa = (TList *) dirRivetSherpa->GetListOfKeys ();
+	  TIter iterRivetSherpa (mylistRivetSherpa);
+	  TObject *tobjRivetSherpa = 0;
+	  while ((tobjRivetSherpa = iterRivetSherpa.Next ()))
+	    {
+	      string nameRivetSherpa = tobjRivetSherpa->GetName ();
+	      if (nameRivetSherpa == rivet_data)
+		{
+		  cout << "Getting rivet data->" << nameRivetSherpa << endl;
+		  TGraphAsymmErrors *leadingRivetSherpa;
+		  gDirectory->GetObject (nameRivetSherpa.c_str (), leadingRivetSherpa);
+		}
+	    }
+
+	  TFile *histoRivetSherpaUP = TFile::Open (rivetPathSherpaUP.c_str ());
+	  histoRivetSherpaUP->cd ("");
+	  TDirectory *dirRivetSherpaUP = gDirectory;
+	  TList *mylistRivetSherpaUP = (TList *) dirRivetSherpaUP->GetListOfKeys ();
+	  TIter iterRivetSherpaUP (mylistRivetSherpaUP);
+	  TObject *tobjRivetSherpaUP = 0;
+	  while ((tobjRivetSherpaUP = iterRivetSherpaUP.Next ()))
+	    {
+	      string nameRivetSherpaUP = tobjRivetSherpaUP->GetName ();
+	      if (nameRivetSherpaUP == rivet_data)
+		{
+		  cout << "Getting rivet data->" << nameRivetSherpaUP << endl;
+		  TGraphAsymmErrors *leadingRivetSherpaUP;
+		  gDirectory->GetObject (nameRivetSherpaUP.c_str (), leadingRivetSherpaUP);
+		}
+	    }
+
+	  TFile *histoRivetSherpaDOWN = TFile::Open (rivetPathSherpaDOWN.c_str ());
+	  histoRivetSherpaDOWN->cd ("");
+	  TDirectory *dirRivetSherpaDOWN = gDirectory;
+	  TList *mylistRivetSherpaDOWN = (TList *) dirRivetSherpaDOWN->GetListOfKeys ();
+	  TIter iterRivetSherpaDOWN (mylistRivetSherpaDOWN);
+	  TObject *tobjRivetSherpaDOWN = 0;
+	  while ((tobjRivetSherpaDOWN = iterRivetSherpaDOWN.Next ()))
+	    {
+	      string nameRivetSherpaDOWN = tobjRivetSherpaDOWN->GetName ();
+	      if (nameRivetSherpaDOWN == rivet_data)
+		{
+		  cout << "Getting rivet data->" << nameRivetSherpaDOWN << endl;
+		  TGraphAsymmErrors *leadingRivetSherpaDOWN;
+		  gDirectory->GetObject (nameRivetSherpaDOWN.c_str (), leadingRivetSherpaDOWN);
+		}
+	    }
+
+	  TFile *histoRivetSherpaPDF1 = TFile::Open (rivetPathSherpaPDF1.c_str ());
+	  histoRivetSherpaPDF1->cd ("");
+	  TDirectory *dirRivetSherpaPDF1 = gDirectory;
+	  TList *mylistRivetSherpaPDF1 = (TList *) dirRivetSherpaPDF1->GetListOfKeys ();
+	  TIter iterRivetSherpaPDF1 (mylistRivetSherpaPDF1);
+	  TObject *tobjRivetSherpaPDF1 = 0;
+	  while ((tobjRivetSherpaPDF1 = iterRivetSherpaPDF1.Next ()))
+	    {
+	      string nameRivetSherpaPDF1 = tobjRivetSherpaPDF1->GetName ();
+	      if (nameRivetSherpaPDF1 == rivet_data)
+		{
+		  cout << "Getting rivet data->" << nameRivetSherpaPDF1 << endl;
+		  TGraphAsymmErrors *leadingRivetSherpaPDF1;
+		  gDirectory->GetObject (nameRivetSherpaPDF1.c_str (), leadingRivetSherpaPDF1);
+		}
+	    }
+
+	  TFile *histoRivetSherpaPDF2 = TFile::Open (rivetPathSherpaPDF2.c_str ());
+	  histoRivetSherpaPDF2->cd ("");
+	  TDirectory *dirRivetSherpaPDF2 = gDirectory;
+	  TList *mylistRivetSherpaPDF2 = (TList *) dirRivetSherpaPDF2->GetListOfKeys ();
+	  TIter iterRivetSherpaPDF2 (mylistRivetSherpaPDF2);
+	  TObject *tobjRivetSherpaPDF2 = 0;
+	  while ((tobjRivetSherpaPDF2 = iterRivetSherpaPDF2.Next ()))
+	    {
+	      string nameRivetSherpaPDF2 = tobjRivetSherpaPDF2->GetName ();
+	      if (nameRivetSherpaPDF2 == rivet_data)
+		{
+		  cout << "Getting rivet data->" << nameRivetSherpaPDF2 << endl;
+		  TGraphAsymmErrors *leadingRivetSherpaPDF2;
+		  gDirectory->GetObject (nameRivetSherpaPDF2.c_str (), leadingRivetSherpaPDF2);
+		}
+	    }
+
+	  TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
+	  histoRivetMadGraph->cd ("");
+	  TDirectory *dirRivetMadGraph = gDirectory;
+	  TList *mylistRivetMadGraph = (TList *) dirRivetMadGraph->GetListOfKeys ();
+	  TIter iterRivetMadGraph (mylistRivetMadGraph);
+	  TObject *tobjRivetMadGraph = 0;
+	  while ((tobjRivetMadGraph = iterRivetMadGraph.Next ()))
+	    {
+	      string nameRivetMadGraph = tobjRivetMadGraph->GetName ();
+	      if (nameRivetMadGraph == rivet_data)
+		{
+		  cout << "Getting rivet data->" << nameRivetMadGraph << endl;
+		  TGraphAsymmErrors *leadingRivetMadGraph;
+		  gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph);
+		}
+	    }
+	  //-------------------------------------------------------------
+
+	  leadingSystematics->SetName ("leadingSystematics");
+	  if (systTmpM.size () != leadingSystematics->GetNbinsX ())
+	    cout << "WRONG NUMBER OF BINS" << endl;
+	  for (int i = 0; i <= leadingSystematics->GetNbinsX (); i++)
+	    {
+	      //cout<<"jetMulti - syst = "<<leadingSystematics->GetBinError(i+1)<<endl;       
+	      double err =
+		sqrt (pow (leading->GetBinError (i + 1), 2) +
+		      pow (systTmpM[i] *
+			   leadingSystematics->GetBinContent (i + 1), 2));
+	      leadingSystematics->SetBinError (i + 1, err);
+	    }
+
+	  if (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999) {
+	    cout << "Warning: DATA is NOT NORMALIZED CORRECTLY! I will fix it...";
+	    leadingSystematics->Scale(1./leadingSystematics->Integral());
+	    leading->Scale(1./leading->Integral());
+	  }
+
+	  leadingSystematics->SetLineColor (kRed);
+	  leadingSystematics->SetLineWidth (1.5);
+	  leadingSystematics->SetMarkerStyle (20);
+	  leadingSystematics->SetMarkerSize (1);
+	  leadingSystematics->SetFillStyle (3001);
+	  leadingSystematics->SetFillColor (kRed);
+	  leadingSystematics->SetMarkerColor (kRed);
+	  leadingSystematics->GetYaxis ()->SetTitleOffset (1.);
+	  leadingSystematics->GetXaxis ()->SetTitleOffset (1.1);
+	  leadingSystematics->GetXaxis ()->SetTitleSize (0.05);
+	  leadingSystematics->GetXaxis ()->SetLabelSize (0.06);
+	  leadingSystematics->GetXaxis ()->SetLabelFont (42);
+	  leadingSystematics->GetXaxis ()->SetTitleFont (42);
+	  leadingSystematics->GetYaxis ()->SetTitleSize (0.07);
+	  leadingSystematics->GetYaxis ()->SetLabelSize (0.06);
+	  leadingSystematics->GetYaxis ()->SetLabelFont (42);
+	  leadingSystematics->GetYaxis ()->SetTitleFont (42);
+	  leadingSystematics->SetTitle ();
+	  if (use_case ==1) {
+	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d N");
+	    leadingSystematics->GetXaxis ()->SetTitle ("jet multiplicity");
+	  }
+	  if (use_case ==2) {
+	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d p_{T}");
+	    leadingSystematics->GetXaxis ()->SetTitle ("jet p_{T} [GeV/c]");
+	  }
+	  if (use_case ==3) {
+	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d #eta");
+	    leadingSystematics->GetXaxis ()->SetTitle ("jet #eta");
+	  }
+	  if (use_case ==4) {
+	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d H_{T}");
+	    leadingSystematics->GetXaxis ()->SetTitle ("jet H_{T} [GeV/c]");
+	  }
+	  leadingSystematics->Draw ("E1");
+	  leading->SetFillColor (kBlack);
+	  leading->SetFillStyle (3001);
+	  leading->SetMarkerColor (kBlack);
+	  leading->SetLineColor (kBlack);
+	  leading->SetLineWidth (1.5);
+	  leading->SetMarkerStyle (20);
+	  leading->SetMarkerSize (1);
+	  leading->Draw ("E1SAMES");
+
+
+	  // Superimpose RIVET: -----------------------
+	  Double_t dummyXvar=0.;
+	  Double_t dummyYvar=0.;
+	  Int_t nRivetPoints = 0;
+	  Double_t dummyNorm = 0.;
+	  nRivetPoints = leadingRivetSherpa->GetN();
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetSherpa->SetPointEXhigh(ovo,10.);
+	    leadingRivetSherpa->SetPointEXlow(ovo,10.);
+	    leadingRivetSherpa->SetPointEYhigh(ovo,leadingRivetSherpa->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetSherpa->SetPointEYlow(ovo,leadingRivetSherpa->GetErrorYlow(ovo)/dummyNorm);
+	  }
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetSherpaUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetSherpaUP->SetPointEXhigh(ovo,10.);
+	    leadingRivetSherpaUP->SetPointEXlow(ovo,10.);
+	    leadingRivetSherpaUP->SetPointEYhigh(ovo,leadingRivetSherpaUP->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetSherpaUP->SetPointEYlow(ovo,leadingRivetSherpaUP->GetErrorYlow(ovo)/dummyNorm);
+	  }
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetSherpaDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetSherpaDOWN->SetPointEXhigh(ovo,10.);
+	    leadingRivetSherpaDOWN->SetPointEXlow(ovo,10.);
+	    leadingRivetSherpaDOWN->SetPointEYhigh(ovo,leadingRivetSherpaDOWN->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetSherpaDOWN->SetPointEYlow(ovo,leadingRivetSherpaDOWN->GetErrorYlow(ovo)/dummyNorm);
+	  }
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetSherpaPDF1->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetSherpaPDF1->SetPointEXhigh(ovo,10.);
+	    leadingRivetSherpaPDF1->SetPointEXlow(ovo,10.);
+	    leadingRivetSherpaPDF1->SetPointEYhigh(ovo,leadingRivetSherpaPDF1->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetSherpaPDF1->SetPointEYlow(ovo,leadingRivetSherpaPDF1->GetErrorYlow(ovo)/dummyNorm);
+	  }
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetSherpaPDF2->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetSherpaPDF2->SetPointEXhigh(ovo,10.);
+	    leadingRivetSherpaPDF2->SetPointEXlow(ovo,10.);
+	    leadingRivetSherpaPDF2->SetPointEYhigh(ovo,leadingRivetSherpaPDF2->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetSherpaPDF2->SetPointEYlow(ovo,leadingRivetSherpaPDF2->GetErrorYlow(ovo)/dummyNorm);
+	  }
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetMadGraph->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetMadGraph->SetPointEXhigh(ovo,10.);
+	    leadingRivetMadGraph->SetPointEXlow(ovo,10.);
+	    leadingRivetMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)/dummyNorm);
+	  }
+
+	  TColor *t = new TColor(996,0.,0.0,1.0,"blu1",0.5);
+	  TColor *t = new TColor(995,0.,0.5,1.0,"blu2",0.5);
+	  TColor *t = new TColor(994,0.,1.0,1.0,"blu3",0.5);
+	  TColor *t = new TColor(993,0.,1.0,0.5.,"blu4",0.5);
+	  TColor *t = new TColor(992,0.,1.0,0.0,"blu5",0.5);
+	  TColor *t = new TColor(999,1.,0.5,0.0,"arancio1",0.5);
+
+	  //	  leadingRivetSherpaPDF1->SetLineColor(992);
+	  leadingRivetSherpaPDF1->SetFillColor(992);
+	  leadingRivetSherpaPDF1->Draw("3");
+
+	  //	  leadingRivetSherpaPDF2->SetLineColor(993);
+	  leadingRivetSherpaPDF2->SetFillColor(993);
+	  leadingRivetSherpaPDF2->Draw("3");
+
+	  //	  leadingRivetSherpaUP->SetLineColor(994);
+	  leadingRivetSherpaUP->SetFillColor(994);
+	  leadingRivetSherpaUP->Draw("3");
+
+	  //	  leadingRivetSherpaDOWN->SetLineColor(995);
+	  leadingRivetSherpaDOWN->SetFillColor(995);
+	  leadingRivetSherpaDOWN->Draw("3");
+
+	  //	  leadingRivetSherpa->SetLineColor(996);
+	  leadingRivetSherpa->SetFillColor(996);
+	  leadingRivetSherpa->Draw("3");
+
+	  //	  leadingRivetMadGraph->SetFillColor(999);
+	  leadingRivetMadGraph->SetFillColor(999);
+	  leadingRivetMadGraph->Draw("3");
+
+	  leadingSystematics->Draw ("E1SAMES");
+	  leading->Draw ("E1SAMES");
+	  //-------------------------------------------
+
+	  // Draw the label and save plot:
+	  TLatex *latexLabel = CMSPrel (4.890, "", 0.25, 0.4);	// make fancy label
+	  latexLabel->Draw ("same");
+	  TLegend *legend_d = new TLegend (0.70494, 0.71, 0.931727, 0.93);
+	  legend_d->SetFillColor (0);
+	  legend_d->SetFillStyle (0);
+	  legend_d->SetBorderSize (0);
+	  legend_d->AddEntry (leading, "Data w/Stat Uncertainty", "LP");
+	  legend_d->AddEntry (leadingSystematics, "Total Uncertainty", "LP");
+	  legend_d->AddEntry (leadingRivetSherpa, "Sherpa", "F");
+	  legend_d->AddEntry (leadingRivetSherpaUP, "Sherpa (scale-up)", "F");
+	  legend_d->AddEntry (leadingRivetSherpaDOWN, "Sherpa (scale-down)", "F");
+	  legend_d->AddEntry (leadingRivetSherpaPDF1, "Sherpa (pdf mstw)", "F");
+	  legend_d->AddEntry (leadingRivetSherpaPDF2, "Sherpa (pdf nn)", "F");
+	  legend_d->AddEntry (leadingRivetMadGraph, "MadGraph", "F");
+	  legend_d->Draw ("same");
+
+	  string title1 = s + "DifferentialX" + stringmatch + ".png";
+	  cout << title1 << endl;
+	  plots->Print (title1.c_str ());
+	}
     }
-    
-  }
 }
