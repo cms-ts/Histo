@@ -30,6 +30,7 @@
 #include "TLatex.h"
 #include "TColor.h"
 #include <string.h>
+#include "plotHistsAndRatio.C"
 
 TCanvas *plots;
 string version = "_v2_32";
