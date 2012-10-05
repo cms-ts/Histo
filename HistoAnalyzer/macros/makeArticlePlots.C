@@ -37,7 +37,7 @@ makeArticlePlots ()
 
   setTDRStyle ();
 
-  int use_case = 2;
+  int use_case = 4;
   int whichjet = 4;
   string version = "_v2_32";
   string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
@@ -598,37 +598,37 @@ makeArticlePlots ()
 	    if ((y1temp-dummyYvar/dummyNorm)<0 && (y2temp-dummyYvar/dummyNorm)>0) {
 	      leadingRivetSherpa->SetPointEYhigh(ovo,y2temp-dummyYvar/dummyNorm);
 	      leadingRivetSherpa->SetPointEYlow(ovo,dummyYvar/dummyNorm-y1temp);
-	      leadingRatioSherpa->SetPointEYhigh(ovo,((y2temp-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm))*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
-	      leadingRatioSherpa->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+	      leadingRatioSherpa->SetPointEYlow(ovo,((y2temp-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm))*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
+	      leadingRatioSherpa->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      
 	    }
 	    if ((y1temp-dummyYvar/dummyNorm)>0 && (y2temp-dummyYvar/dummyNorm)<0) {
 	      leadingRivetSherpa->SetPointEYhigh(ovo,y1temp-dummyYvar/dummyNorm);
 	      leadingRivetSherpa->SetPointEYlow(ovo,dummyYvar/dummyNorm-y2temp);
-	      leadingRatioSherpa->SetPointEYhigh(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
-	      leadingRatioSherpa->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+	      leadingRatioSherpa->SetPointEYlow(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+	      leadingRatioSherpa->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	    }
 	    if ((y1temp-dummyYvar/dummyNorm)>0 && (y2temp-dummyYvar/dummyNorm)>0) {
 	      if ((y1temp-dummyYvar/dummyNorm) > (y2temp-dummyYvar/dummyNorm)) {
 		leadingRivetSherpa->SetPointEYhigh(ovo,y1temp-dummyYvar/dummyNorm);
-		leadingRatioSherpa->SetPointEYhigh(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioSherpa->SetPointEYlow(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      } else {
 		leadingRivetSherpa->SetPointEYhigh(ovo,y2temp-dummyYvar/dummyNorm);
-		leadingRatioSherpa->SetPointEYhigh(ovo,(y2temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioSherpa->SetPointEYlow(ovo,(y2temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      }
 	      leadingRivetSherpa->SetPointEYlow(ovo,0.0);
-	      leadingRatioSherpa->SetPointEYlow(ovo,0.0);
+	      leadingRatioSherpa->SetPointEYhigh(ovo,0.0);
 	    }
 	    if ((y1temp-dummyYvar/dummyNorm)<0 && (y2temp-dummyYvar/dummyNorm)<0) {
 	      if ((y1temp-dummyYvar/dummyNorm) < (y2temp-dummyYvar/dummyNorm)) {
 		leadingRivetSherpa->SetPointEYlow(ovo,dummyYvar/dummyNorm-y1temp);
-		leadingRatioSherpa->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioSherpa->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      } else {
 		leadingRivetSherpa->SetPointEYlow(ovo,dummyYvar/dummyNorm-y2temp);
-		leadingRatioSherpa->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioSherpa->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      }
 	      leadingRivetSherpa->SetPointEYhigh(ovo,0.0);
-	      leadingRatioSherpa->SetPointEYhigh(ovo,0.0);
+	      leadingRatioSherpa->SetPointEYlow(ovo,0.0);
 	    }
 	  }
 
@@ -661,37 +661,37 @@ makeArticlePlots ()
 	    if ((y1temp-dummyYvar/dummyNorm)<0 && (y2temp-dummyYvar)>0) {
 	      leadingRivetSherpaPDF->SetPointEYhigh(ovo,y2temp-dummyYvar + leadingRivetSherpa->GetErrorYhigh(ovo));
 	      leadingRivetSherpaPDF->SetPointEYlow(ovo,dummyYvar-y1temp + leadingRivetSherpa->GetErrorYlow(ovo));
-	      leadingRatioSherpaPDF->SetPointEYhigh(ovo,(y2temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
-	      leadingRatioSherpaPDF->SetPointEYlow(ovo,(dummyYvar-y1temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
+	      leadingRatioSherpaPDF->SetPointEYlow(ovo,(y2temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
+	      leadingRatioSherpaPDF->SetPointEYhigh(ovo,(dummyYvar-y1temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
 	      
 	    }
 	    if ((y1temp-dummyYvar)>0 && (y2temp-dummyYvar)<0) {
 	      leadingRivetSherpaPDF->SetPointEYhigh(ovo,y1temp-dummyYvar + leadingRivetSherpa->GetErrorYhigh(ovo));
 	      leadingRivetSherpaPDF->SetPointEYlow(ovo,dummyYvar-y2temp + leadingRivetSherpa->GetErrorYlow(ovo));
-	      leadingRatioSherpaPDF->SetPointEYhigh(ovo,(y1temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
-	      leadingRatioSherpaPDF->SetPointEYlow(ovo,(dummyYvar-y2temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
+	      leadingRatioSherpaPDF->SetPointEYlow(ovo,(y1temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
+	      leadingRatioSherpaPDF->SetPointEYhigh(ovo,(dummyYvar-y2temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
 	    }
 	    if ((y1temp-dummyYvar)>0 && (y2temp-dummyYvar)>0) {
 	      if ((y1temp-dummyYvar) > (y2temp-dummyYvar)) {
 		leadingRivetSherpaPDF->SetPointEYhigh(ovo,y1temp-dummyYvar + leadingRivetSherpa->GetErrorYhigh(ovo));
-		leadingRatioSherpaPDF->SetPointEYhigh(ovo,(y1temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
+		leadingRatioSherpaPDF->SetPointEYlow(ovo,(y1temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
 	      } else {
 		leadingRivetSherpaPDF->SetPointEYhigh(ovo,y2temp-dummyYvar + leadingRivetSherpa->GetErrorYhigh(ovo));
-		leadingRatioSherpaPDF->SetPointEYhigh(ovo,(y2temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
+		leadingRatioSherpaPDF->SetPointEYlow(ovo,(y2temp-dummyYvar)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
 	      }
 	      leadingRivetSherpaPDF->SetPointEYlow(ovo,0.0 + leadingRivetSherpa->GetErrorYlow(ovo));
-	      leadingRatioSherpaPDF->SetPointEYlow(ovo,0.0 + leadingRatioSherpa->GetErrorYlow(ovo));
+	      leadingRatioSherpaPDF->SetPointEYhigh(ovo,0.0 + leadingRatioSherpa->GetErrorYhigh(ovo));
 	    }
 	    if ((y1temp-dummyYvar)<0 && (y2temp-dummyYvar)<0) {
 	      if ((y1temp-dummyYvar) < (y2temp-dummyYvar)) {
 		leadingRivetSherpaPDF->SetPointEYlow(ovo,dummyYvar-y1temp + leadingRivetSherpa->GetErrorYlow(ovo));
-		leadingRatioSherpaPDF->SetPointEYlow(ovo,(dummyYvar-y1temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
+		leadingRatioSherpaPDF->SetPointEYhigh(ovo,(dummyYvar-y1temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
 	      } else {
 		leadingRivetSherpaPDF->SetPointEYlow(ovo,dummyYvar-y2temp + leadingRivetSherpa->GetErrorYlow(ovo));
-		leadingRatioSherpaPDF->SetPointEYlow(ovo,(dummyYvar-y2temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYlow(ovo));
+		leadingRatioSherpaPDF->SetPointEYhigh(ovo,(dummyYvar-y2temp)*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar*dummyYvar) + leadingRatioSherpa->GetErrorYhigh(ovo));
 	      }
 	      leadingRivetSherpaPDF->SetPointEYhigh(ovo,0.0 + leadingRivetSherpa->GetErrorYhigh(ovo));
-	      leadingRatioSherpaPDF->SetPointEYhigh(ovo,0.0 + leadingRatioSherpa->GetErrorYhigh(ovo));
+	      leadingRatioSherpaPDF->SetPointEYlow(ovo,0.0 + leadingRatioSherpa->GetErrorYlow(ovo));
 	    }
 	  }
 
@@ -753,37 +753,37 @@ makeArticlePlots ()
 	    if ((y1temp-dummyYvar/dummyNorm)<0 && (y2temp-dummyYvar/dummyNorm)>0) {
 	      leadingRivetMadGraph->SetPointEYhigh(ovo,y2temp-dummyYvar/dummyNorm);
 	      leadingRivetMadGraph->SetPointEYlow(ovo,dummyYvar/dummyNorm-y1temp);
-	      leadingRatioMadGraph->SetPointEYhigh(ovo,((y2temp-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm))*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
-	      leadingRatioMadGraph->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+	      leadingRatioMadGraph->SetPointEYlow(ovo,((y2temp-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm))*leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
+	      leadingRatioMadGraph->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      
 	    }
 	    if ((y1temp-dummyYvar/dummyNorm)>0 && (y2temp-dummyYvar/dummyNorm)<0) {
 	      leadingRivetMadGraph->SetPointEYhigh(ovo,y1temp-dummyYvar/dummyNorm);
 	      leadingRivetMadGraph->SetPointEYlow(ovo,dummyYvar/dummyNorm-y2temp);
-	      leadingRatioMadGraph->SetPointEYhigh(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
-	      leadingRatioMadGraph->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+	      leadingRatioMadGraph->SetPointEYlow(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+	      leadingRatioMadGraph->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	    }
 	    if ((y1temp-dummyYvar/dummyNorm)>0 && (y2temp-dummyYvar/dummyNorm)>0) {
 	      if ((y1temp-dummyYvar/dummyNorm) > (y2temp-dummyYvar/dummyNorm)) {
 		leadingRivetMadGraph->SetPointEYhigh(ovo,y1temp-dummyYvar/dummyNorm);
-		leadingRatioMadGraph->SetPointEYhigh(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioMadGraph->SetPointEYlow(ovo,(y1temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      } else {
 		leadingRivetMadGraph->SetPointEYhigh(ovo,y2temp-dummyYvar/dummyNorm);
-		leadingRatioMadGraph->SetPointEYhigh(ovo,(y2temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioMadGraph->SetPointEYlow(ovo,(y2temp-dummyYvar/dummyNorm)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      }
 	      leadingRivetMadGraph->SetPointEYlow(ovo,0.0);
-	      leadingRatioMadGraph->SetPointEYlow(ovo,0.0);
+	      leadingRatioMadGraph->SetPointEYhigh(ovo,0.0);
 	    }
 	    if ((y1temp-dummyYvar/dummyNorm)<0 && (y2temp-dummyYvar/dummyNorm)<0) {
 	      if ((y1temp-dummyYvar/dummyNorm) < (y2temp-dummyYvar/dummyNorm)) {
 		leadingRivetMadGraph->SetPointEYlow(ovo,dummyYvar/dummyNorm-y1temp);
-		leadingRatioMadGraph->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioMadGraph->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y1temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      } else {
 		leadingRivetMadGraph->SetPointEYlow(ovo,dummyYvar/dummyNorm-y2temp);
-		leadingRatioMadGraph->SetPointEYlow(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
+		leadingRatioMadGraph->SetPointEYhigh(ovo,(dummyYvar/dummyNorm-y2temp)*leadingSystematics->GetBinContent(ovo+1)/((dummyYvar*dummyYvar)/(dummyNorm*dummyNorm)));
 	      }
 	      leadingRivetMadGraph->SetPointEYhigh(ovo,0.0);
-	      leadingRatioMadGraph->SetPointEYhigh(ovo,0.0);
+	      leadingRatioMadGraph->SetPointEYlow(ovo,0.0);
 	    }
 	  }
 	  //	  leadingRivetMadGraph->Scale(1.0/leadingRivetMadGraph->Integral());
