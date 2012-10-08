@@ -538,8 +538,8 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (use_case == 1 ) {
-	      //dummyNorm= 15000000.0*( (1000000.0/967.713)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
-	      dummyNorm=1000000*(3048.0/967.713);
+	      dummyNorm= (21046.58) * 1000.0*( (1000000.0/967.713)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      //dummyNorm=1000000*(3048.0/967.713);
 	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
 	    leadingRivetSherpaUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
@@ -556,8 +556,8 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (use_case == 1 ) {
-	      //dummyNorm= 1500000.0*( (1000000.0/837.477)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
-	      dummyNorm=2000000*(3048.0/907.485);
+	      dummyNorm= (25310.48) * 1000.0*( (1000000.0/837.477)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      //dummyNorm=2000000*(3048.0/907.485);
 	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
@@ -573,7 +573,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (use_case == 1 ) {
-	      dummyNorm= 1000.0*( (120000.0/902.862)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      dummyNorm= 1000.0*( (1000000.0/898.33)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF1->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
@@ -589,7 +589,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (use_case == 1 ) {
-	      dummyNorm= 1000.0*( (995000.0/895.164)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      dummyNorm= 1000.0*( (995000.0/896.767)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
 	    }
 	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF2->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
