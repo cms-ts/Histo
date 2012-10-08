@@ -493,7 +493,7 @@ makeArticlePlots ()
 	    
 
 	  if (use_case ==1) {
-	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d N [pb]");
+	    leadingSystematics->GetYaxis ()->SetTitle ("d #sigma/d N [pb]");
 	    //	    leadingSystematics->GetXaxis ()->SetTitle ("jet multiplicity");
 	  }
 	  if (use_case ==2) {
@@ -518,10 +518,13 @@ makeArticlePlots ()
 	  leading->Draw ("E1SAMES");
 
 	  TH1D *leadingRatio;
+	  TH1D *leadingRatio2;
 	  leadingRatio = (TH1D *) leading->Clone ("leading");
+	  leadingRatio2 = (TH1D *) leading->Clone ("leading");
 	  TH1D *leadingRatioSystematics;
+	  TH1D *leadingRatio2Systematics;
 	  leadingRatioSystematics = (TH1D *) leadingSystematics->Clone ("leading");
-
+	  leadingRatio2Systematics = (TH1D *) leadingSystematics->Clone ("leading");
 
 	  // Superimpose RIVET: -----------------------
 	  Double_t dummyXvar=0.;
@@ -622,14 +625,14 @@ makeArticlePlots ()
 	    leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
 
- 	    leadingRatioSherpa->SetPoint(ovo,dummyXvar,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
+ 	    leadingRatioSherpa->SetPoint(ovo,dummyXvar,1.0);
 	    leadingRatioSherpa->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 	    leadingRatioSherpa->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 
-	    leadingRatio->SetBinContent(ovo+1,1.0);
+	    leadingRatio->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
-	    leadingRatioSystematics->SetBinContent(ovo+1,1.0);
+	    leadingRatioSystematics->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatioSystematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
 	  }
@@ -660,7 +663,7 @@ makeArticlePlots ()
 	    leadingRivetSherpaPDF->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar)-dummyYvar + leadingRivetSherpa->GetErrorYhigh(ovo));
 	    leadingRivetSherpaPDF->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar) + leadingRivetSherpa->GetErrorYlow(ovo));
 
- 	    leadingRatioSherpaPDF->SetPoint(ovo,dummyXvar,leadingSystematics->GetBinContent(ovo+1)/dummyYvar);
+ 	    leadingRatioSherpaPDF->SetPoint(ovo,dummyXvar,1.0);
 	    leadingRatioSherpaPDF->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar + leadingRatioSherpa->GetErrorYhigh(ovo));
 	    leadingRatioSherpaPDF->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar + leadingRatioSherpa->GetErrorYlow(ovo));
 
@@ -716,15 +719,15 @@ makeArticlePlots ()
 	    leadingRivetMadGraph->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetMadGraph->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
 
- 	    leadingRatioMadGraph->SetPoint(ovo,dummyXvar,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
+ 	    leadingRatioMadGraph->SetPoint(ovo,dummyXvar,1.0);
 	    leadingRatioMadGraph->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 	    leadingRatioMadGraph->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 
-	    leadingRatio->SetBinContent(ovo+1,1.0);
-	    leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
+	    leadingRatio2->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
+	    leadingRatio2->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
-	    leadingRatioSystematics->SetBinContent(ovo+1,1.0);
-	    leadingRatioSystematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
+	    leadingRatio2Systematics->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
+	    leadingRatio2Systematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 	    
 	  }
 	  //	  leadingRivetMadGraph->Scale(1.0/leadingRivetMadGraph->Integral());
@@ -784,7 +787,7 @@ makeArticlePlots ()
 	  legend_d->SetFillStyle (0);
 	  legend_d->SetBorderSize (0);
 	  legend_d->AddEntry (leading, "Data w/Stat Uncertainty", "LP");
-	  legend_d->AddEntry (leadingSystematics, "Total Uncertainty", "LP");
+	  legend_d->AddEntry (leadingSystematics, "Total Uncertainty", "L");
 	  legend_d->AddEntry (leadingRivetSherpa, "Sherpa", "F");
 	  legend_d->AddEntry (leadingRivetSherpaPDF, "Sherpa (PDF dep.)", "F");
 	  //	  legend_d->AddEntry (leadingRivetSherpaUP, "Sherpa (scale-up)", "F");
@@ -861,6 +864,7 @@ makeArticlePlots ()
 	  //	  leadingRatioSystematics->SetLineColor (kBlack);
 	  //	  leadingRatioSystematics->SetMarkerStyle (20);
 	  leadingRatioSystematics->Draw ("E1 SAME");
+	  leadingRatio2Systematics->Draw ("E1 SAME");
 
 	  //	  leading->SetFillColor (kBlack);
 	  //	  leading->SetFillStyle (3001);
@@ -868,6 +872,20 @@ makeArticlePlots ()
 	  //	  leading->SetLineColor (kBlack);
 	  //	  leading->SetMarkerStyle (20);
 	  leadingRatio->Draw ("E1 SAME");
+	  leadingRatio2->Draw ("E1 SAME");
+
+
+	  TH1D *leadingRatio_1;
+	  TH1D *leadingRatio2_1;
+	  leadingRatio_1 = (TH1D *) leadingRatio->Clone ("leading");	  
+	  leadingRatio2_1 = (TH1D *) leadingRatio2->Clone ("leading");
+
+	  leadingRatio_1->SetMarkerColor (kBlue);
+	  leadingRatio2_1->SetMarkerColor (kRed);
+
+	  leadingRatio_1->Draw ("SAME");
+	  leadingRatio2_1->Draw ("SAME");
+
 
 	  TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	  OLine->SetLineColor(kBlack);
