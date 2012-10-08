@@ -32,29 +32,32 @@
 #include <string.h>
 
 void
-makeArticlePlots ()
+makeArticlePlotsXMu ()
 {
 
   setTDRStyle ();
+  gStyle->SetErrorX(0);
 
-  int use_case = 4;
-  int whichjet = 4;
+  int use_case = 1;
+  int whichjet = 1;
   string version = "_v2_32";
-  string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleMu" + version + "/";
+  //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleMu" + version + "/";
+  string s="/tmp/";
+
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   gStyle->SetOptStat (0);
 
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 800, 800);
 
   //DATA:
-  string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalB.root";
+  string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
 
   //RIVET:
   string rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
   string rivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup_mu/out.root";
   string rivetPathSherpaDOWN   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown_mu/out.root";
-  string rivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw/out.root";
-  string rivetPathSherpaPDF2   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn/out.root";
+  string rivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw_mu/out.root";
+  string rivetPathSherpaPDF2   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn_mu/out.root";
   string rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   string rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
   string rivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
@@ -446,10 +449,17 @@ makeArticlePlots ()
 	      leadingSystematics->SetBinError (i + 1, err);
 	    }
 
-	  if (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999) {
+	  if ( (use_case>1) && (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999)) {
 	    cout << "Warning: DATA is NOT NORMALIZED CORRECTLY! I will fix it...";
 	    leadingSystematics->Scale(1./leadingSystematics->Integral());
 	    leading->Scale(1./leading->Integral());
+	  }
+
+	  //When use_case = Jet Multi, then the absolute cross section is required...
+	  if (use_case==1){
+	    //Normalizing data to the luminosity
+	    leadingSystematics->Scale(1./4890.0); //Int Lumi 1/pb -> bimn in pb
+	    leading->Scale(1./4890.0);
 	  }
 
 	  plots->cd ();
@@ -480,7 +490,7 @@ makeArticlePlots ()
 	  leadingSystematics->GetXaxis ()->SetTitle ();
 
 	  if (use_case ==1) {
-	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d N");
+	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d N [pb]");
 	    //	    leadingSystematics->GetXaxis ()->SetTitle ("jet multiplicity");
 	  }
 	  if (use_case ==2) {
@@ -524,23 +534,32 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case == 1 ) {
+	      dummyNorm= 1000.0*( (1000000.0/967.713)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      //dummyNorm=1000000*(3048.0/967.713);
+	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    leadingRivetSherpaUP->SetPointEXhigh(ovo,10.);
-	    leadingRivetSherpaUP->SetPointEXlow(ovo,10.);
+	    //leadingRivetSherpaUP->SetPointEXhigh(ovo,10.);
+	    //leadingRivetSherpaUP->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaUP->SetPointEYhigh(ovo,leadingRivetSherpaUP->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaUP->SetPointEYlow(ovo,leadingRivetSherpaUP->GetErrorYlow(ovo)/dummyNorm);
 	  }
+
 	  Double_t dummyNorm = 0.;
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case == 1 ) {
+	      dummyNorm= 1000.0*( (1000000.0/837.477)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      //dummyNorm=2000000*(3048.0/837.477);
+	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    leadingRivetSherpaDOWN->SetPointEXhigh(ovo,10.);
-	    leadingRivetSherpaDOWN->SetPointEXlow(ovo,10.);
+	    //leadingRivetSherpaDOWN->SetPointEXhigh(ovo,10.);
+	    //leadingRivetSherpaDOWN->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaDOWN->SetPointEYhigh(ovo,leadingRivetSherpaDOWN->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaDOWN->SetPointEYlow(ovo,leadingRivetSherpaDOWN->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -550,10 +569,13 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case == 1 ) {
+	      dummyNorm= 1000.0*( (500000.0/902.862)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF1->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    leadingRivetSherpaPDF1->SetPointEXhigh(ovo,10.);
-	    leadingRivetSherpaPDF1->SetPointEXlow(ovo,10.);
+	    //leadingRivetSherpaPDF1->SetPointEXhigh(ovo,10.);
+	    //leadingRivetSherpaPDF1->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaPDF1->SetPointEYhigh(ovo,leadingRivetSherpaPDF1->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaPDF1->SetPointEYlow(ovo,leadingRivetSherpaPDF1->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -563,6 +585,9 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case == 1 ) {
+	      dummyNorm= 1000.0*( (450000.0/895.164)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	    }
 	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF2->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetSherpaPDF2->SetPointEXhigh(ovo,10.);
@@ -584,6 +609,11 @@ makeArticlePlots ()
 	    leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaDOWN->GetPoint(ovo,x1temp,y1temp); 
 	    leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
+
+	    if (use_case == 1 ) {
+	      dummyNorm= 1000.0*( (1000000.0/911.328)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	    }
+
 	    leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetSherpa->SetPointEXhigh(ovo,0.);
 	    leadingRivetSherpa->SetPointEXlow(ovo,0.);
@@ -700,6 +730,7 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case ==1 ) dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetMadGraphDOWN->SetPointEXhigh(ovo,10.);
@@ -713,6 +744,7 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case ==1 ) dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetMadGraphUP->SetPointEXhigh(ovo,10.);
@@ -731,6 +763,7 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (use_case ==1 ) dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
 	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,x1temp,y1temp); 
 	    leadingRivetMadGraphUP->GetPoint(ovo,x2temp,y2temp); 
@@ -796,16 +829,16 @@ makeArticlePlots ()
 	  TColor *t = new TColor(997,1.,1.0,0.0,"arancio3",0.5);
 
 	  leadingRivetSherpaPDF1->SetFillColor(992);
-	  //	  leadingRivetSherpaPDF1->Draw("3");
+	  //leadingRivetSherpaPDF1->Draw("3");
 
 	  leadingRivetSherpaPDF2->SetFillColor(993);
-	  //	  leadingRivetSherpaPDF2->Draw("3");
+	  //leadingRivetSherpaPDF2->Draw("3");
 
 	  leadingRivetSherpaUP->SetFillColor(994);
-	  //	  leadingRivetSherpaUP->Draw("3");
-
+	  //leadingRivetSherpaUP->Draw("3");
+	  
 	  leadingRivetSherpaDOWN->SetFillColor(995);
-	  //	  leadingRivetSherpaDOWN->Draw("3");
+	  //leadingRivetSherpaDOWN->Draw("3");
 
 	  leadingRivetSherpaPDF->SetFillColor(994);
 	  leadingRivetSherpaPDF->SetLineColor(kBlue);
