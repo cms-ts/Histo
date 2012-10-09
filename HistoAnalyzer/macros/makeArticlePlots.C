@@ -38,7 +38,9 @@ makeArticlePlots ()
   setTDRStyle ();
   gStyle->SetErrorX(0);
 
-  int use_case = 1;
+  bool absoluteNormalization=true;
+
+  int use_case = 2;
   int whichjet = 1;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
@@ -451,14 +453,14 @@ makeArticlePlots ()
 	      leadingSystematics->SetBinError (i + 1, err);
 	    }
 
-	  if ( (use_case>1) && (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999)) {
+	  if ( (!absoluteNormalization) && (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999)) {
 	    cout << "Warning: DATA is NOT NORMALIZED CORRECTLY! I will fix it...";
 	    leadingSystematics->Scale(1./leadingSystematics->Integral());
 	    leading->Scale(1./leading->Integral());
 	  }
 
 	  //When use_case = Jet Multi, then the absolute cross section is required...
-	  if (use_case==1){
+	  if (absoluteNormalization){
 	    //Normalizing data to the luminosity
 	    leadingSystematics->Scale(1./4890.0); //Int Lumi 1/pb -> bimn in pb
 	    leading->Scale(1./4890.0);
@@ -493,29 +495,28 @@ makeArticlePlots ()
 	    
 
 	  if (use_case ==1) {
-	    leadingSystematics->GetYaxis ()->SetTitle ("d #sigma/d N [pb]");
-	    //	    leadingSystematics->GetXaxis ()->SetTitle ("jet multiplicity");
+	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dN [pb]");
+	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dN [pb]");
 	  }
 	  if (use_case ==2) {
-	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
-	    //	    leadingSystematics->GetXaxis ()->SetTitle ("jet p_{T} [GeV/c]");
+	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dp_{T} [pb]");
+	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
 	  }
 	  if (use_case ==3) {
-	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d #eta");
-	    //	    leadingSystematics->GetXaxis ()->SetTitle ("jet #eta");
+	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/d#eta [pb]");
+	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/d#eta");
 	  }
 	  if (use_case ==4) {
-	    leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d H_{T}");
-	    //	    leadingSystematics->GetXaxis ()->SetTitle ("jet H_{T} [GeV/c]");
+	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb]");
+	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
 	  }
 	  leadingSystematics->Draw ("E1");
-
 	  leading->SetFillColor (kBlack);
 	  leading->SetFillStyle (3001);
 	  leading->SetMarkerColor (kBlack);
 	  leading->SetLineColor (kBlack);
 	  leading->SetMarkerStyle (20);
-	  leading->Draw ("E1SAMES");
+	  leading->Draw ("E1SAME");
 
 	  TH1D *leadingRatio;
 	  TH1D *leadingRatio2;
@@ -540,14 +541,12 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case == 1 ) {
+	    if (absoluteNormalization) {
 	      dummyNorm= (21046.58) * 1000.0*( (1000000.0/967.713)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
-	      //dummyNorm=1000000*(3048.0/967.713);
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
 	    leadingRivetSherpaUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    //leadingRivetSherpaUP->SetPointEXhigh(ovo,10.);
-	    //leadingRivetSherpaUP->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaUP->SetPointEYhigh(ovo,leadingRivetSherpaUP->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaUP->SetPointEYlow(ovo,leadingRivetSherpaUP->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -558,14 +557,12 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case == 1 ) {
+	    if (absoluteNormalization) {
 	      dummyNorm= (25310.48) * 1000.0*( (1000000.0/837.477)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
-	      //dummyNorm=2000000*(3048.0/907.485);
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    //leadingRivetSherpaDOWN->SetPointEXhigh(ovo,10.);
-	    //leadingRivetSherpaDOWN->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaDOWN->SetPointEYhigh(ovo,leadingRivetSherpaDOWN->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaDOWN->SetPointEYlow(ovo,leadingRivetSherpaDOWN->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -575,13 +572,12 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case == 1 ) {
+	    if (absoluteNormalization) {
 	      dummyNorm= 1000.0*( (1000000.0/898.33)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF1->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    //leadingRivetSherpaPDF1->SetPointEXhigh(ovo,10.);
-	    //leadingRivetSherpaPDF1->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaPDF1->SetPointEYhigh(ovo,leadingRivetSherpaPDF1->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaPDF1->SetPointEYlow(ovo,leadingRivetSherpaPDF1->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -591,13 +587,13 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case == 1 ) {
+	    if (absoluteNormalization) {
 	      dummyNorm= 1000.0*( (995000.0/896.767)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
+
 	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF2->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    //leadingRivetSherpaPDF2->SetPointEXhigh(ovo,10.);
-	    //leadingRivetSherpaPDF2->SetPointEXlow(ovo,10.);
 	    leadingRivetSherpaPDF2->SetPointEYhigh(ovo,leadingRivetSherpaPDF2->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaPDF2->SetPointEYlow(ovo,leadingRivetSherpaPDF2->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -617,10 +613,11 @@ makeArticlePlots ()
 	    leadingRivetSherpaDOWN->GetPoint(ovo,x1temp,y1temp); 
 	    leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
 
-	    if (use_case == 1 ) {
+	    if (absoluteNormalization) {
 	      dummyNorm= 1000.0*( (980000.0/911.328)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
-
+	    
 	    leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
@@ -677,8 +674,11 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case ==1 ) dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
-	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);                // Attenzione allo 0.5!!!! E' perche' abbiamo mu e elettroni, ma consideriamo uno????
+	    if (absoluteNormalization) {
+	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	    }
+	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
 	    leadingRivetMadGraphDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetMadGraphDOWN->SetPointEXhigh(ovo,10.);
 	    leadingRivetMadGraphDOWN->SetPointEXlow(ovo,10.);
@@ -691,7 +691,10 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case ==1 ) dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	    if (absoluteNormalization) {
+	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	    }
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetMadGraphUP->SetPointEXhigh(ovo,10.);
@@ -710,7 +713,10 @@ makeArticlePlots ()
 	    dummyNorm = dummyNorm + dummyYvar;
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	    if (use_case ==1 ) dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	    if (absoluteNormalization) {
+	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	    }
 	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,x1temp,y1temp); 
 	    leadingRivetMadGraphUP->GetPoint(ovo,x2temp,y2temp); 
@@ -730,8 +736,6 @@ makeArticlePlots ()
 	    leadingRatio2Systematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 	    
 	  }
-	  //	  leadingRivetMadGraph->Scale(1.0/leadingRivetMadGraph->Integral());
-	  //	  leadingRatioMadGraph->Scale(1.0/leadingRatioMadGraph->Integral());
 
 	  TColor *t = new TColor(996,0.,0.0,1.0,"blu1",0.5);
 	  TColor *t = new TColor(995,0.,0.5,1.0,"blu2",0.5);
@@ -775,8 +779,8 @@ makeArticlePlots ()
  	  leadingRivetMadGraphUP->SetFillColor(997);
 	  //	  leadingRivetMadGraphUP->Draw("3");
 
-	  leadingSystematics->Draw ("E1SAMES");
-	  leading->Draw ("E1SAMES");
+	  leadingSystematics->Draw ("ESAME");
+	  leading->Draw ("ESAME");
 	  //-------------------------------------------
 
 	  // Draw the label and save plot:
@@ -821,13 +825,8 @@ makeArticlePlots ()
 	  leadingRatioSherpaPDF->GetYaxis()->SetTitle("Ratio data/MC");   
 
 	  leadingRatioSherpaPDF->GetXaxis()->SetTitleOffset (1.1);
-	  //	  leadingRatioSherpaPDF->GetYaxis()->SetTitleOffset (1.);
-	  //	  leadingRatioSherpaPDF->GetXaxis()->SetTitleSize (0.05);
-	  //	  leadingRatioSherpaPDF->GetXaxis()->SetLabelSize (0.06);
 	  leadingRatioSherpaPDF->GetXaxis()->SetLabelFont (42);
 	  leadingRatioSherpaPDF->GetXaxis()->SetTitleFont (42);
-	  //	  leadingRatioSherpaPDF->GetYaxis()->SetTitleSize (0.07);
-	  //	  leadingRatioSherpaPDF->GetYaxis()->SetLabelSize (0.06);
 
 	  if (use_case ==1) {
 	    leadingRatioSherpaPDF->GetXaxis ()->SetTitle ("jet multiplicity");
@@ -841,6 +840,8 @@ makeArticlePlots ()
 	  if (use_case ==4) {
 	    leadingRatioSherpaPDF->GetXaxis ()->SetTitle ("jet H_{T} [GeV/c]");
 	  }
+
+	  leadingRatioSherpaPDF->SetTitle("");	  
 
 	  leadingRatioSherpaPDF->SetFillColor(994);
 	  leadingRatioSherpaPDF->SetLineColor(kBlue);
@@ -863,16 +864,16 @@ makeArticlePlots ()
 	  //	  leadingRatioSystematics->SetMarkerColor (kBlack);
 	  //	  leadingRatioSystematics->SetLineColor (kBlack);
 	  //	  leadingRatioSystematics->SetMarkerStyle (20);
-	  leadingRatioSystematics->Draw ("E1 SAME");
-	  leadingRatio2Systematics->Draw ("E1 SAME");
+	  leadingRatioSystematics->Draw ("E1SAME");
+	  leadingRatio2Systematics->Draw ("E1SAME");
 
 	  //	  leading->SetFillColor (kBlack);
 	  //	  leading->SetFillStyle (3001);
 	  //	  leading->SetMarkerColor (kBlack);
 	  //	  leading->SetLineColor (kBlack);
 	  //	  leading->SetMarkerStyle (20);
-	  leadingRatio->Draw ("E1 SAME");
-	  leadingRatio2->Draw ("E1 SAME");
+	  leadingRatio->Draw ("E1SAME");
+	  leadingRatio2->Draw ("E1SAME");
 
 
 	  TH1D *leadingRatio_1;
