@@ -39,8 +39,9 @@ makeArticlePlots ()
   gStyle->SetErrorX(0);
 
   bool absoluteNormalization=true;
+  int lepton=2; //1 -> electron,  2-> muon
 
-  int use_case = 2;
+  int use_case = 3;
   int whichjet = 1;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
@@ -66,6 +67,17 @@ makeArticlePlots ()
   //  string rivetPathMadGraphUP ="/gpfs/cms/users/dellaric/work/cms/pythiaZ2tune/madgraph_lhe/test_full2_scaleup/merged.root";
   string rivetPathMadGraphUP ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
 
+  if (lepton == 2){
+  rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
+  rivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup_mu/out.root";
+  rivetPathSherpaDOWN   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown_mu/out.root";
+  rivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw_mu/out.root";
+  rivetPathSherpaPDF2   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn_mu/out.root";
+  rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
+  rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
+  rivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
+  }
+
   TFile *histof = TFile::Open (pathFile.c_str ());
   histof->cd ("");
   TDirectory *dir = gDirectory;
@@ -82,106 +94,111 @@ makeArticlePlots ()
   while ((tobj = iter.Next ()))
     {
       string name = tobj->GetName ();
+      stringstream oss;
 
       if (use_case == 1) 
 	{ // Jet Multiplicity
 	  stringmatch = "JetMultiplicityUnfolded";
 	  systPathFile = plotpath + "jetMultFinalSyst" + version + ".txt";
-	  rivet_data="d03_x01_y01";
-	  rivet_dataMG="d03-x01-y01";
+	  if (lepton == 1) oss<<"03"; else oss<<"08";
 	}
+
       if (use_case == 2) 
 	{ // Jet Pt
 	  if (whichjet == 1)
 	    {
 	      stringmatch = "jReco_leading";
 	      systPathFile = plotpath + "jet1PtFinalSyst" + version + ".txt";
-	      rivet_data = "d01_x01_y01";
-	      rivet_dataMG = "d01-x01-y01";
+	      if (lepton == 1) oss<<"01"; else oss<<"06";
 	    }
+	  
 	  if (whichjet == 2)
 	    {
 	      stringmatch = "jReco_subleading";
 	      systPathFile = plotpath + "jet2PtFinalSyst" + version + ".txt";
-	      rivet_data = "d02_x01_y01";
-	      rivet_dataMG = "d02-x01-y01";
+	      if (lepton == 1) oss<<"02"; else oss<<"07";
 	    }
+	  
 	  if (whichjet == 3)
 	    {
 	      stringmatch = "jReco_subsubleading";
 	      systPathFile = plotpath + "jet3PtFinalSyst" + version + ".txt";
-	      rivet_data = "d04_x01_y01";
-	      rivet_dataMG = "d04-x01-y01";
+	      if (lepton == 1) oss<<"04"; else oss<<"09";
 	    }
+	  
 	  if (whichjet == 4)
 	    {
 	      stringmatch = "jReco_subsubsubleading";
 	      systPathFile = plotpath + "jet4PtFinalSyst" + version + ".txt";
-	      rivet_data = "d05_x01_y01";
-	      rivet_dataMG = "d05-x01-y01";
+	      if (lepton == 1) oss<<"05"; else oss<<"10";
 	    }
 	}
+      
       if (use_case == 3) { // Jet Eta
 	if (whichjet == 1)
 	  {
 	    stringmatch = "jReco_leadingeta";
 	    systPathFile = plotpath + "jet1EtaFinalSyst" + version + ".txt";
-	    rivet_data   = "d15_x01_y01";
-	    rivet_dataMG   = "d15-x01-y01";
+	    if (lepton == 1) oss<<"15"; else oss<<"11";
 	  }
+	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "jReco_subleadingeta";
 	    systPathFile = plotpath + "jet2EtaFinalSyst" + version + ".txt";
-	    rivet_data   = "d16_x01_y01";
-	    rivet_dataMG   = "d16-x01-y01";
+	    if (lepton == 1) oss<<"16"; else oss<<"12";
 	  }
+
 	if (whichjet == 3)
 	  {
 	    stringmatch = "jReco_subsubleadingeta";
 	    systPathFile = plotpath + "jet3EtaFinalSyst" + version + ".txt";
-	    rivet_data   = "d17_x01_y01";
-	    rivet_dataMG   = "d17-x01-y01";
+	    if (lepton == 1) oss<<"17"; else oss<<"13";
 	  }
+	
 	if (whichjet == 4)
 	  {
 	    stringmatch = "jReco_subsubsubleadingeta";
 	    systPathFile = plotpath + "jet4EtaFinalSyst" + version + ".txt";
-	    rivet_data   = "d18_x01_y01";
-	    rivet_dataMG   = "d18-x01-y01";
+	    if (lepton == 1) oss<<"18"; else oss<<"14";
 	  }
       }
+      
       if (use_case == 4) { // Ht
 	if (whichjet == 1)
 	  {
 	    stringmatch = "HReco_leading";
 	    systPathFile = plotpath + "jet1HtFinalSyst" + version + ".txt";
-	    rivet_data    = "d19_x01_y01";
-	    rivet_dataMG    = "d19-x01-y01";
+	    if (lepton == 1) oss<<"19"; else oss<<"23";
 	  }
+	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "HReco_subleading";
 	    systPathFile = plotpath + "jet2HtFinalSyst" + version + ".txt";
-	    rivet_data    = "d20_x01_y01";
-	    rivet_dataMG    = "d20-x01-y01";
+	    if (lepton == 1) oss<<"20"; else oss<<"24";
 	  }
+	
 	if (whichjet == 3)
 	  {
 	    stringmatch = "HReco_subsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
-	    rivet_data    = "d21_x01_y01";
-	    rivet_dataMG    = "d21-x01-y01";
+	    if (lepton == 1) oss<<"21"; else oss<<"25";
 	  }
+
 	if (whichjet == 4)
 	  {
 	    stringmatch = "HReco_subsubsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
-	    rivet_data    = "d22_x01_y01";
-	    rivet_dataMG    = "d22-x01-y01";
+	    if (lepton == 1) oss<<"22"; else oss<<"26";
 	  }
       }
 
+      string rivetname="d"+oss.str()+"_x01_y01";
+      string rivetnameMG="d"+oss.str()+"-x01-y01";
+      rivet_data    = rivetname;
+      rivet_dataMG    = rivetnameMG;
+      
       if (name == stringmatch) {
 
 	cout << "CONFIGURATION:" << endl;
@@ -300,26 +317,6 @@ makeArticlePlots ()
 		  gDirectory->GetObject (nameRivetSherpaPDF2.c_str (), leadingRivetSherpaPDF2);
 		}
 	    }
-	  /*
-	  TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
-	  histoRivetMadGraph->cd ("");
-	  TDirectory *dirRivetMadGraph = gDirectory;
-	  TList *mylistRivetMadGraph = (TList *) dirRivetMadGraph->GetListOfKeys ();
-	  TIter iterRivetMadGraph (mylistRivetMadGraph);
-	  TObject *tobjRivetMadGraph = 0;
-	  while ((tobjRivetMadGraph = iterRivetMadGraph.Next ()))
-	    {
-	      string nameRivetMadGraph = tobjRivetMadGraph->GetName ();
-	      if (nameRivetMadGraph == rivet_data)
-		{
-		  cout << "Getting rivet data->" << nameRivetMadGraph << endl;
-		  TGraphAsymmErrors *leadingRivetMadGraph;
-		  gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph);
-		  TGraphAsymmErrors *leadingRatioMadGraph;
-		  leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
-		}
-	    }
-	  */
 
 	  TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
 	  histoRivetMadGraph->cd ("");
@@ -349,24 +346,6 @@ makeArticlePlots ()
 		  leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
 		}
 	    }
-	  /*
-	  TFile *histoRivetMadGraphDOWN = TFile::Open (rivetPathMadGraphDOWN.c_str ());
-	  histoRivetMadGraphDOWN->cd ("");
-	  TDirectory *dirRivetMadGraphDOWN = gDirectory;
-	  TList *mylistRivetMadGraphDOWN = (TList *) dirRivetMadGraphDOWN->GetListOfKeys ();
-	  TIter iterRivetMadGraphDOWN (mylistRivetMadGraphDOWN);
-	  TObject *tobjRivetMadGraphDOWN = 0;
-	  while ((tobjRivetMadGraphDOWN = iterRivetMadGraphDOWN.Next ()))
-	    {
-	      string nameRivetMadGraphDOWN = tobjRivetMadGraphDOWN->GetName ();
-	      if (nameRivetMadGraphDOWN == rivet_data)
-		{
-		  cout << "Getting rivet data->" << nameRivetMadGraphDOWN << endl;
-		  TGraphAsymmErrors *leadingRivetMadGraphDOWN;
-		  gDirectory->GetObject (nameRivetMadGraphDOWN.c_str (), leadingRivetMadGraphDOWN);
-		}
-	    }
-	  */
 
 	  TFile *histoRivetMadGraphDOWN = TFile::Open (rivetPathMadGraphDOWN.c_str ());
 	  histoRivetMadGraphDOWN->cd ("");
@@ -393,24 +372,6 @@ makeArticlePlots ()
 		  }
 		}
 	    }
-	  /*
-	  TFile *histoRivetMadGraphUP = TFile::Open (rivetPathMadGraphUP.c_str ());
-	  histoRivetMadGraphUP->cd ("");
-	  TDirectory *dirRivetMadGraphUP = gDirectory;
-	  TList *mylistRivetMadGraphUP = (TList *) dirRivetMadGraphUP->GetListOfKeys ();
-	  TIter iterRivetMadGraphUP (mylistRivetMadGraphUP);
-	  TObject *tobjRivetMadGraphUP = 0;
-	  while ((tobjRivetMadGraphUP = iterRivetMadGraphUP.Next ()))
-	    {
-	      string nameRivetMadGraphUP = tobjRivetMadGraphUP->GetName ();
-	      if (nameRivetMadGraphUP == rivet_data)
-		{
-		  cout << "Getting rivet data->" << nameRivetMadGraphUP << endl;
-		  TGraphAsymmErrors *leadingRivetMadGraphUP;
-		  gDirectory->GetObject (nameRivetMadGraphUP.c_str (), leadingRivetMadGraphUP);
-		}
-	    }
-	  */
 
 	  TFile *histoRivetMadGraphUP = TFile::Open (rivetPathMadGraphUP.c_str ());
 	  histoRivetMadGraphUP->cd ("");
@@ -496,20 +457,36 @@ makeArticlePlots ()
 
 	  if (use_case ==1) {
 	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dN [pb]");
-	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dN [pb]");
+	    else {
+	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dN");
+	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dN");
+	    }
 	  }
+
 	  if (use_case ==2) {
 	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dp_{T} [pb]");
-	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
+	    else {
+	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
+	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dp_{T}");
+	    }
 	  }
+
 	  if (use_case ==3) {
 	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/d#eta [pb]");
-	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/d#eta");
+	    else {
+	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/d#eta");
+	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/d#eta");
+	    }
 	  }
+	  
 	  if (use_case ==4) {
 	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb]");
-	    else leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
+	    else {
+	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
+	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dH_{T}");
+	    }
 	  }
+	  
 	  leadingSystematics->Draw ("E1");
 	  leading->SetFillColor (kBlack);
 	  leading->SetFillStyle (3001);
@@ -542,7 +519,8 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= (21046.58) * 1000.0*( (1000000.0/967.713)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      if (lepton ==1) dummyNorm= (21046.58) * 1000.0*( (1000000.0/969.565)/4890.0)*(1/1.23);   
+	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/967.713)/4890.0)*(1/1.23); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -558,7 +536,8 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= (25310.48) * 1000.0*( (1000000.0/837.477)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      if (lepton ==1) dummyNorm= (25310.48) * 1000.0*( (1000000.0/838.298)/4890.0)*(1/1.23); 
+	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/837.477)/4890.0)*(1/1.23); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -573,7 +552,8 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 1000.0*( (1000000.0/898.33)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      if (lepton==1) dummyNorm= 1000.0*( (1000000.0/898.33)/4890.0)*(1/1.23);   
+	      if (lepton==2) dummyNorm= 1000.0*( (500000.0/902.862)/4890.0)*(1/1.23);   
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -588,7 +568,8 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 1000.0*( (995000.0/896.767)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      if (lepton ==1 ) dummyNorm= 1000.0*( (995000.0/896.767)/4890.0)*(1/1.23);  
+	      if (lepton ==2 ) dummyNorm= 1000.0*( (450000.0/895.164)/4890.0)*(1/1.23);  
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 
@@ -614,7 +595,8 @@ makeArticlePlots ()
 	    leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
 
 	    if (absoluteNormalization) {
-	      dummyNorm= 1000.0*( (980000.0/911.328)/4890.0)*(1/1.23);   //   100*1.5*1.23;//000 *(2475./3048)*(1./1.23)*0.666;
+	      if (lepton ==1) dummyNorm= 1000.0*( (980000.0/911.328)/4890.0)*(1/1.23);   
+	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/907.485)/4890.0)*(1/1.23);  
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    
@@ -675,7 +657,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0); // ele = mu !
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -692,7 +674,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -784,7 +766,10 @@ makeArticlePlots ()
 	  //-------------------------------------------
 
 	  // Draw the label and save plot:
-	  TLatex *latexLabel = CMSPrel (4.890, "", 0.25, 0.4);	// make fancy label
+	  TLatex *latexLabel;
+          if (lepton ==1) latexLabel = CMSPrel (4.890, "Electron sample", 0.25, 0.4);	// make fancy label
+          if (lepton ==2) latexLabel = CMSPrel (4.890, "Muon sample", 0.25, 0.4);	// make fancy label
+
 	  latexLabel->Draw ("same");
 	  TLegend *legend_d = new TLegend (0.65, 0.62, 0.90, 0.88);
 	  legend_d->SetFillColor (0);
