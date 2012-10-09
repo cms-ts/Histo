@@ -41,7 +41,7 @@ makeArticlePlots ()
   bool absoluteNormalization=true;
   int lepton=2; //1 -> electron,  2-> muon
 
-  int use_case = 3;
+  int use_case = 2;
   int whichjet = 1;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
@@ -49,7 +49,7 @@ makeArticlePlots ()
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   gStyle->SetOptStat (0);
 
-  TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 800, 800);
+  TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
   string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
@@ -428,11 +428,12 @@ makeArticlePlots ()
 	  }
 
 	  plots->cd ();
-	  TPad *pad1 = new TPad("pad1","pad1",0.01,0.33,0.99,0.99);
+	  TPad *pad1 = new TPad("pad1","pad1",0.01,0.50,0.99,0.99);
+
 	  pad1->Draw();
 	  pad1->cd();
 	  pad1->SetTopMargin(0.1);
-	  pad1->SetBottomMargin(0.01);
+	  pad1->SetBottomMargin(0.0);
 	  pad1->SetRightMargin(0.1);
 	  pad1->SetFillStyle(0);
 	  pad1->SetLogy(1);
@@ -441,16 +442,19 @@ makeArticlePlots ()
 	  leadingSystematics->SetMarkerStyle (20);
 	  leadingSystematics->SetFillColor (kRed);
 	  leadingSystematics->SetMarkerColor (kRed);
-	  leadingSystematics->GetYaxis ()->SetTitleOffset (1.);
+
 	  leadingSystematics->GetXaxis ()->SetTitleOffset (1.1);
 	  leadingSystematics->GetXaxis ()->SetTitleSize (0.05);
 	  leadingSystematics->GetXaxis ()->SetLabelSize (0.0);
 	  leadingSystematics->GetXaxis ()->SetLabelFont (42);
 	  leadingSystematics->GetXaxis ()->SetTitleFont (42);
+
+	  leadingSystematics->GetYaxis ()->SetTitleOffset (1.);
 	  leadingSystematics->GetYaxis ()->SetTitleSize (0.07);
 	  leadingSystematics->GetYaxis ()->SetLabelSize (0.06);
 	  leadingSystematics->GetYaxis ()->SetLabelFont (42);
 	  leadingSystematics->GetYaxis ()->SetTitleFont (42);
+
 	  leadingSystematics->SetTitle ();
 	  leadingSystematics->GetXaxis ()->SetTitle ();
 	    
@@ -623,15 +627,11 @@ makeArticlePlots ()
 	  leadingRivetSherpaPDF = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ();
 	  TGraphAsymmErrors *leadingRatioSherpaPDF;
 	  leadingRatioSherpaPDF = (TGraphAsymmErrors *) leadingRatioSherpa->Clone ();
-	  //	  Double_t dummyNorm = 0.;
+
 	  Double_t y1temp = 0.;
 	  Double_t y2temp = 0.;
 	  Double_t x1temp = 0.;
 	  Double_t x2temp = 0.;
-	  //	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	  //	    leadingRivetSherpaPDF->GetPoint(ovo,dummyXvar,dummyYvar); 
-	  //	    dummyNorm = dummyNorm + dummyYvar;
-	  //	  }
 
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    leadingRivetSherpaPDF->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -789,96 +789,129 @@ makeArticlePlots ()
 	  legend_d->Draw ("same");
 
 	  // Draw the ratio plot: ----------------------
-	  plots->cd ();
 
-	  TPad *pad2 = new TPad("pad2","pad2",0.01,0.01,0.99,0.32);
+	  plots->cd ();
+	  TPad *pad2 = new TPad("pad2","pad2",0.01,0.30,0.99,0.50);
 	  pad2->Draw();
 	  pad2->cd();
-	  pad2->SetTopMargin(0.01);
-	  pad2->SetBottomMargin(0.3);
+	  pad2->SetTopMargin(0.0);
+	  pad2->SetBottomMargin(0.0);
 	  pad2->SetRightMargin(0.1);
 	  pad2->SetFillStyle(0);
 
-	  leadingRatioSherpaPDF->GetXaxis()->SetRangeUser(leadingSystematics->GetXaxis()->GetXmin(),leadingSystematics->GetXaxis()->GetXmax());
-	  leadingRatioSherpaPDF->GetYaxis()->SetRangeUser(0.,2.);
-	  leadingRatioSherpaPDF->GetYaxis()->SetNdivisions(5);
-	  leadingRatioSherpaPDF->GetXaxis()->SetTitleSize(0.14);
-	  leadingRatioSherpaPDF->GetYaxis()->SetTitleSize(0.11);
-	  leadingRatioSherpaPDF->GetXaxis()->SetLabelSize(0.14);
-	  leadingRatioSherpaPDF->GetYaxis()->SetLabelSize(0.11);
-	  leadingRatioSherpaPDF->GetYaxis()->SetTitleOffset(0.65);
-	  leadingRatioSherpaPDF->GetYaxis()->SetTitle("Ratio data/MC");   
+	  leadingRatioSystematics->GetXaxis()->SetLabelFont (42);
+	  leadingRatioSystematics->GetXaxis()->SetTitleFont (42);
 
-	  leadingRatioSherpaPDF->GetXaxis()->SetTitleOffset (1.1);
-	  leadingRatioSherpaPDF->GetXaxis()->SetLabelFont (42);
-	  leadingRatioSherpaPDF->GetXaxis()->SetTitleFont (42);
+	  leadingRatioSystematics->GetXaxis()->SetTitleSize(0.14);
+	  leadingRatioSystematics->GetXaxis()->SetLabelSize(0.0);
 
-	  if (use_case ==1) {
-	    leadingRatioSherpaPDF->GetXaxis ()->SetTitle ("jet multiplicity");
-	  }
-	  if (use_case ==2) {
-	    leadingRatioSherpaPDF->GetXaxis ()->SetTitle ("jet p_{T} [GeV/c]");
-	  }
-	  if (use_case ==3) {
-	    leadingRatioSherpaPDF->GetXaxis ()->SetTitle ("jet #eta");
-	  }
-	  if (use_case ==4) {
-	    leadingRatioSherpaPDF->GetXaxis ()->SetTitle ("jet H_{T} [GeV/c]");
-	  }
+	  leadingRatioSystematics->GetYaxis()->SetTitleSize(0.16);
+	  leadingRatioSystematics->GetYaxis()->SetLabelSize(0.14);
+	  leadingRatioSystematics->GetYaxis()->SetTitleOffset(0.45);
+	  leadingRatioSystematics->GetYaxis()->SetTitle("Data/MC");   
+	  leadingRatioSystematics->GetYaxis()->SetNdivisions(5);
+	  leadingRatioSystematics->GetYaxis()->SetRangeUser(-0.2,2.2);
 
-	  leadingRatioSherpaPDF->SetTitle("");	  
+	  leadingRatioSystematics->SetTitle("");	  
+
+	  leadingRatioSystematics->Draw ("E1");
+	  leadingRatio->Draw ("E1SAME");
 
 	  leadingRatioSherpaPDF->SetFillColor(994);
 	  leadingRatioSherpaPDF->SetLineColor(kBlue);
 	  leadingRatioSherpaPDF->SetLineWidth(2);
-	  leadingRatioSherpaPDF->Draw("al3");
+	  leadingRatioSherpaPDF->Draw("l3");
 
 	  leadingRatioSherpa->SetFillColor(995);
 	  leadingRatioSherpa->SetLineColor(kBlue);
 	  leadingRatioSherpa->SetLineWidth(2);
 	  leadingRatioSherpa->Draw("l3");
 
-	  leadingRatioMadGraph->SetFillColor(999);
-	  leadingRatioMadGraph->SetLineColor(kRed);
-	  leadingRatioMadGraph->SetLineWidth(2);
-	  leadingRatioMadGraph->Draw("l3");
-
-
-	  //	  leadingRatioSystematics->SetFillColor (kBlack);
-	  //	  leadingRatioSystematics->SetFillStyle (3001);
-	  //	  leadingRatioSystematics->SetMarkerColor (kBlack);
-	  //	  leadingRatioSystematics->SetLineColor (kBlack);
-	  //	  leadingRatioSystematics->SetMarkerStyle (20);
 	  leadingRatioSystematics->Draw ("E1SAME");
-	  leadingRatio2Systematics->Draw ("E1SAME");
-
-	  //	  leading->SetFillColor (kBlack);
-	  //	  leading->SetFillStyle (3001);
-	  //	  leading->SetMarkerColor (kBlack);
-	  //	  leading->SetLineColor (kBlack);
-	  //	  leading->SetMarkerStyle (20);
 	  leadingRatio->Draw ("E1SAME");
-	  leadingRatio2->Draw ("E1SAME");
-
-
-	  TH1D *leadingRatio_1;
-	  TH1D *leadingRatio2_1;
-	  leadingRatio_1 = (TH1D *) leadingRatio->Clone ("leading");	  
-	  leadingRatio2_1 = (TH1D *) leadingRatio2->Clone ("leading");
-
-	  leadingRatio_1->SetMarkerColor (kBlue);
-	  leadingRatio2_1->SetMarkerColor (kRed);
-
-	  leadingRatio_1->Draw ("SAME");
-	  leadingRatio2_1->Draw ("SAME");
-
 
 	  TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	  OLine->SetLineColor(kBlack);
 	  OLine->SetLineStyle(2);
 	  OLine->Draw();
 
+	  /*
+	  TLegend *legend2_d = new TLegend (0.19, 0.72, 0.44, 0.94);
+	  legend2_d->SetFillColor (0);
+	  legend2_d->SetFillStyle (0);
+	  legend2_d->SetBorderSize (0);
+	  legend2_d->AddEntry (leadingRatio, "Data Stat", "P");
+	  legend2_d->AddEntry (leadingRatioSystematics, "Data Syst", "P");
+	  legend2_d->AddEntry (leadingRatioSherpa, "SHERPA Scale uncertainties", "F");
+	  legend2_d->AddEntry (leadingRatioSherpaPDF, "SHERPA PDF uncertainties", "F");
+	  legend2_d->Draw ("same");
+	  */
 	  // -------------------------------------------
+	  
+	  plots->cd();
+	  TPad *pad3 = new TPad("pad3","pad3",0.01,0.01,0.99,0.30);
+	  pad3->Draw();
+	  pad3->cd();
+	  pad3->SetTopMargin(0.0);
+	  pad3->SetBottomMargin(0.3);
+	  pad3->SetRightMargin(0.1);
+	  pad3->SetFillStyle(0);
+
+	  leadingRatio2Systematics->GetXaxis()->SetLabelFont (42);
+	  leadingRatio2Systematics->GetXaxis()->SetTitleFont (42);
+	  leadingRatio2Systematics->GetXaxis()->SetTitleSize(0.11);
+	  leadingRatio2Systematics->GetXaxis()->SetLabelSize(0.11);
+	  leadingRatio2Systematics->GetXaxis()->SetTitleOffset (1.1);
+
+	  leadingRatio2Systematics->GetYaxis()->SetTitleSize(0.11);
+	  leadingRatio2Systematics->GetYaxis()->SetLabelSize(0.10);
+	  leadingRatio2Systematics->GetYaxis()->SetTitleOffset(0.65);
+	  leadingRatio2Systematics->GetYaxis()->SetTitle("Data/MC");   
+	  leadingRatio2Systematics->GetYaxis()->SetNdivisions(5);
+	  leadingRatio2Systematics->GetYaxis()->SetRangeUser(-0.2,2.2);
+
+
+	  leadingRatioMadGraph->SetTitle("");	  
+
+	  if (use_case ==1) {
+	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet multiplicity");
+	  }
+	  if (use_case ==2) {
+	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet p_{T} [GeV/c]");
+	  }
+	  if (use_case ==3) {
+	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet #eta");
+	  }
+	  if (use_case ==4) {
+	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet H_{T} [GeV/c]");
+	  }
+
+	  leadingRatio2Systematics->Draw ("E1");
+	  leadingRatio2->Draw ("E1SAME");
+
+	  leadingRatioMadGraph->SetFillColor(999);
+	  leadingRatioMadGraph->SetLineColor(kRed);
+	  leadingRatioMadGraph->SetLineWidth(2);
+	  leadingRatioMadGraph->Draw("l3");
+
+	  leadingRatio2Systematics->Draw ("E1SAME");
+	  leadingRatio2->Draw ("E1SAME");
+
+	  TLine *OLine2 = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
+	  OLine2->SetLineColor(kBlack);
+	  OLine2->SetLineStyle(2);
+	  OLine2->Draw();
+
+	  /*
+	  TLegend *legend2_d = new TLegend (0.19, 0.72, 0.44, 0.94);
+	  legend2_d->SetFillColor (0);
+	  legend2_d->SetFillStyle (0);
+	  legend2_d->SetBorderSize (0);
+	  legend2_d->AddEntry (leadingRatio2, "Data Stat", "P");
+	  legend2_d->AddEntry (leadingRatio2Systematics, "Data Syst", "P");
+	  legend2_d->AddEntry (leadingRatioMadGraph, "MADGRAPH Scale uncertainties", "F");
+	  legend2_d->Draw ("same");
+	  */
 
 	  string title1 = s + "DifferentialX" + stringmatch + ".png";
 	  cout << title1 << endl;
