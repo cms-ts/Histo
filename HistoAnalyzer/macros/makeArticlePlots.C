@@ -32,17 +32,17 @@
 #include <string.h>
 
 void
-makeArticlePlots ()
+makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 {
 
   setTDRStyle ();
   gStyle->SetErrorX(0);
 
   bool absoluteNormalization=true;
-  int lepton=2; //1 -> electron,  2-> muon
+  int lepton=whichlepton; //1 -> electron,  2-> muon
 
-  int use_case = 3;
-  int whichjet = 4;
+  int use_case = whichobservable;
+  int whichjet = whichjet;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
   string s = "/tmp/";
@@ -53,6 +53,7 @@ makeArticlePlots ()
 
   //DATA:
   string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
+  if (lepton == 2) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
 
   //RIVET:
   string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod/out.root";
@@ -211,6 +212,9 @@ makeArticlePlots ()
 	gDirectory->GetObject (name.c_str (), leading);
 	TH1D *leadingSystematics;
 	leadingSystematics = (TH1D *) leading->Clone ("leading");
+
+	leadingSystematics->SetMarkerSize(0.9);
+	leading->SetMarkerSize(0.9);
 
 	  // read from file ---------------------------------------------
 	  double dat;
@@ -473,7 +477,7 @@ makeArticlePlots ()
 	  }
 
 	  if (use_case ==2) {
-	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dp_{T} [pb]");
+	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dp_{T} [pb/GeV]");
 	    else {
 	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
 	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dp_{T}");
@@ -489,7 +493,7 @@ makeArticlePlots ()
 	  }
 	  
 	  if (use_case ==4) {
-	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb]");
+	    if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb/GeV]");
 	    else {
 	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
 	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dH_{T}");
@@ -927,13 +931,22 @@ makeArticlePlots ()
 	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet multiplicity");
 	  }
 	  if (use_case ==2) {
-	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet p_{T} [GeV/c]");
+	    if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("leading jet p_{T} [GeV/c]");
+	    if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subleading jet p_{T} [GeV/c]");
+	    if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubleading jet p_{T} [GeV/c]");
+	    if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet p_{T} [GeV/c]");
 	  }
 	  if (use_case ==3) {
-	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet #eta");
+	    if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("leading jet #eta");
+	    if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subleading jet #eta");
+	    if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubleading jet #eta");
+	    if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet #eta");
 	  }
 	  if (use_case ==4) {
-	    leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet H_{T} [GeV/c]");
+	    if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("leading jet H_{T} [GeV/c]");
+	    if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subleading jet H_{T} [GeV/c]");
+	    if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubleading jet H_{T} [GeV/c]");
+	    if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet H_{T} [GeV/c]");
 	  }
 
 	  leadingRatio2Systematics->Draw ("E1");
@@ -966,8 +979,12 @@ makeArticlePlots ()
 	  legend2_d->Draw ("same");
 	  */
 	  
-	  string title1 = s + "DifferentialX" + stringmatch + ".png";
+	  string title1;
+	  if (lepton ==1) title1 = s + "DifferentialX" + stringmatch + ".png";
+	  if (lepton ==2) title1 = s + "DifferentialX" + stringmatch + "Mu.png";
+
 	  cout << title1 << endl;
+	  
 	  plots->Print (title1.c_str ());
 	  return;
       }
