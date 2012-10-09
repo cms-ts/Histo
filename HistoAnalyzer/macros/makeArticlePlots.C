@@ -39,7 +39,7 @@ makeArticlePlots ()
   gStyle->SetErrorX(0);
 
   bool absoluteNormalization=true;
-  int lepton=2; //1 -> electron,  2-> muon
+  int lepton=1; //1 -> electron,  2-> muon
 
   int use_case = 2;
   int whichjet = 1;
@@ -603,7 +603,7 @@ makeArticlePlots ()
 	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/907.485)/4890.0)*(1/1.23);  
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
-	    
+
 	    leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
@@ -648,6 +648,7 @@ makeArticlePlots ()
 
 	  }
 
+
 	  // Madgraph:
 
 	  Double_t dummyNorm = 0.;
@@ -657,7 +658,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0); // ele = mu !
+	      dummyNorm= 2.0 * 0.000000001*( (1739.04)/3048.0); // ele = mu !
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -674,7 +675,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);
+	      dummyNorm= 2.0 * 0.000000001*( (1734.13)/3048.0);
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -696,7 +697,7 @@ makeArticlePlots ()
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.85)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= 2.0 * 0.000000001*( (1681.35)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -765,28 +766,67 @@ makeArticlePlots ()
 	  leading->Draw ("ESAME");
 	  //-------------------------------------------
 
-	  // Draw the label and save plot:
+	  // Draw the label and save plot: (in the proper position)
+
 	  TLatex *latexLabel;
-          if (lepton ==1) latexLabel = CMSPrel (4.890, "Electron sample", 0.25, 0.4);	// make fancy label
-          if (lepton ==2) latexLabel = CMSPrel (4.890, "Muon sample", 0.25, 0.4);	// make fancy label
+
+	  if (use_case ==3){
+	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Electron sample", 0.425, 0.25);	// make fancy label
+	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Muon sample", 0.425, 0.25);	// make fancy label
+	  }
+
+	  if (use_case ==2 || use_case ==1 || use_case == 4){
+	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Electron sample", 0.25, 0.3);	// make fancy label
+	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Muon sample", 0.25, 0.3);	// make fancy label
+	  }
+
+	  leadingSystematics->SetMarkerColor(kBlack);
+	  leadingSystematics->SetMarkerSize(0.8);
+	  leading->SetMarkerSize(0.8);
 
 	  latexLabel->Draw ("same");
-	  TLegend *legend_d = new TLegend (0.65, 0.62, 0.90, 0.88);
-	  legend_d->SetFillColor (0);
-	  legend_d->SetFillStyle (0);
-	  legend_d->SetBorderSize (0);
-	  legend_d->AddEntry (leading, "Data w/Stat Uncertainty", "LP");
-	  legend_d->AddEntry (leadingSystematics, "Total Uncertainty", "L");
-	  legend_d->AddEntry (leadingRivetSherpa, "Sherpa", "F");
-	  legend_d->AddEntry (leadingRivetSherpaPDF, "Sherpa (PDF dep.)", "F");
-	  //	  legend_d->AddEntry (leadingRivetSherpaUP, "Sherpa (scale-up)", "F");
-	  //	  legend_d->AddEntry (leadingRivetSherpaDOWN, "Sherpa (scale-down)", "F");
-	  //	  legend_d->AddEntry (leadingRivetSherpaPDF1, "Sherpa (pdf mstw)", "F");
-	  //	  legend_d->AddEntry (leadingRivetSherpaPDF2, "Sherpa (pdf nn)", "F");
-	  legend_d->AddEntry (leadingRivetMadGraph, "MadGraph", "F");
-	  //	  legend_d->AddEntry (leadingRivetMadGraphUP, "MadGraph (scale-up)", "F");
-	  //	  legend_d->AddEntry (leadingRivetMadGraphDOWN, "MadGraph (scale-down)", "F");
-	  legend_d->Draw ("same");
+	  
+	  TLegend *legendsx_d;
+	  TLegend *legenddx_d;
+
+	  if (use_case ==3){
+	    legendsx_d = new TLegend (0.20, 0.79, 0.57, 0.88);
+	    legenddx_d = new TLegend (0.6, 0.75, 0.92, 0.88);	   
+	    legendsx_d->SetFillColor (0);
+	    legendsx_d->SetFillStyle (0);
+	    legendsx_d->SetBorderSize (0);
+	    legendsx_d->SetNColumns(2);
+	    legendsx_d->SetTextSize(.027);
+	    legendsx_d->AddEntry (leading, "Data (Stat Unc.)", "PLE");
+	    legendsx_d->AddEntry (leadingSystematics, "(Data Total Unc.)", "PEL");
+	    legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa Reference", "L");
+	    legendsx_d->AddEntry (leadingRivetMadGraph, "MadGraph Reference", "L"); 
+	    legenddx_d->SetFillColor (0);
+	    legenddx_d->SetFillStyle (0);
+	    legenddx_d->SetBorderSize (0);
+	    legenddx_d->SetTextSize(.027);
+	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa Scale Env.", "F");
+	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF Env.", "F");
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph Scale Env.", "F");
+	    legendsx_d->Draw ("same");
+	    legenddx_d->Draw ("same");
+	  }
+	  else{
+	    legenddx_d = new TLegend (0.6, 0.65, 0.92, 0.88);	   
+	    legenddx_d->SetFillColor (0);
+	    legenddx_d->SetFillStyle (0);
+	    legenddx_d->SetBorderSize (0);
+	    legenddx_d->SetNColumns(1);
+	    legenddx_d->SetTextSize(.030);
+	    legenddx_d->AddEntry (leading, "Data (Stat Unc.)", "PLE");
+	    legenddx_d->AddEntry (leadingSystematics, "(Data Total Unc.)", "PEL");
+	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa Reference", "L");
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph Reference", "L"); 
+	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa Scale Env.", "F");
+	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF Env.", "F");
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph Scale Env.", "F");
+	    legenddx_d->Draw ("same");
+	  }
 
 	  // Draw the ratio plot: ----------------------
 
@@ -847,7 +887,12 @@ makeArticlePlots ()
 	  legend2_d->Draw ("same");
 	  */
 	  // -------------------------------------------
-	  
+	  TLatex *latexLabel = new TLatex();
+	  latexLabel->SetTextSize(0.1);
+	  latexLabel->SetTextFont(42);
+	  latexLabel->SetLineWidth(2);
+	  latexLabel->SetNDC();
+	  latexLabel->DrawLatex(0.2,0.09,"Sherpa MC");	  
 	  plots->cd();
 	  TPad *pad3 = new TPad("pad3","pad3",0.01,0.01,0.99,0.30);
 	  pad3->Draw();
@@ -888,20 +933,23 @@ makeArticlePlots ()
 
 	  leadingRatio2Systematics->Draw ("E1");
 	  leadingRatio2->Draw ("E1SAME");
-
+      
 	  leadingRatioMadGraph->SetFillColor(999);
 	  leadingRatioMadGraph->SetLineColor(kRed);
 	  leadingRatioMadGraph->SetLineWidth(2);
 	  leadingRatioMadGraph->Draw("l3");
-
+	  
 	  leadingRatio2Systematics->Draw ("E1SAME");
 	  leadingRatio2->Draw ("E1SAME");
-
+	  
 	  TLine *OLine2 = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	  OLine2->SetLineColor(kBlack);
 	  OLine2->SetLineStyle(2);
 	  OLine2->Draw();
+	  
+	  latexLabel->SetTextSize(0.07);
 
+	  latexLabel->DrawLatex(0.2,0.35,"Madgraph MC");	  
 	  /*
 	  TLegend *legend2_d = new TLegend (0.19, 0.72, 0.44, 0.94);
 	  legend2_d->SetFillColor (0);
@@ -912,10 +960,12 @@ makeArticlePlots ()
 	  legend2_d->AddEntry (leadingRatioMadGraph, "MADGRAPH Scale uncertainties", "F");
 	  legend2_d->Draw ("same");
 	  */
-
+	  
 	  string title1 = s + "DifferentialX" + stringmatch + ".png";
 	  cout << title1 << endl;
 	  plots->Print (title1.c_str ());
-	}
+	  return;
+      }
     }
 }
+
