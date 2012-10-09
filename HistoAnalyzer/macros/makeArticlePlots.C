@@ -39,10 +39,10 @@ makeArticlePlots ()
   gStyle->SetErrorX(0);
 
   bool absoluteNormalization=true;
-  int lepton=1; //1 -> electron,  2-> muon
+  int lepton=2; //1 -> electron,  2-> muon
 
-  int use_case = 2;
-  int whichjet = 1;
+  int use_case = 3;
+  int whichjet = 4;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
   string s = "/tmp/";
@@ -436,8 +436,13 @@ makeArticlePlots ()
 	  pad1->SetBottomMargin(0.0);
 	  pad1->SetRightMargin(0.1);
 	  pad1->SetFillStyle(0);
-	  pad1->SetLogy(1);
+	  if (use_case !=3) pad1->SetLogy(1); 
+	  else pad1->SetLogy(0);
 
+	  if (use_case ==3){
+	    leadingSystematics->SetMinimum((0.5-0.05*(whichjet-1))*leadingSystematics->GetMinimum());
+	    leadingSystematics->SetMaximum((1.25+0.35*(whichjet-1))*leadingSystematics->GetMaximum());
+	  }
 	  leadingSystematics->SetLineColor (kRed);
 	  leadingSystematics->SetMarkerStyle (20);
 	  leadingSystematics->SetFillColor (kRed);
@@ -771,13 +776,13 @@ makeArticlePlots ()
 	  TLatex *latexLabel;
 
 	  if (use_case ==3){
-	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Electron sample", 0.425, 0.25);	// make fancy label
-	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Muon sample", 0.425, 0.25);	// make fancy label
+	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.425, 0.15);	// make fancy label
+	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.425, 0.15);	// make fancy label
 	  }
 
 	  if (use_case ==2 || use_case ==1 || use_case == 4){
-	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Electron sample", 0.25, 0.3);	// make fancy label
-	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Muon sample", 0.25, 0.3);	// make fancy label
+	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.25, 0.3);	// make fancy label
+	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.25, 0.3);	// make fancy label
 	  }
 
 	  leadingSystematics->SetMarkerColor(kBlack);
@@ -797,17 +802,17 @@ makeArticlePlots ()
 	    legendsx_d->SetBorderSize (0);
 	    legendsx_d->SetNColumns(2);
 	    legendsx_d->SetTextSize(.027);
-	    legendsx_d->AddEntry (leading, "Data (Stat Unc.)", "PLE");
-	    legendsx_d->AddEntry (leadingSystematics, "(Data Total Unc.)", "PEL");
-	    legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa Reference", "L");
-	    legendsx_d->AddEntry (leadingRivetMadGraph, "MadGraph Reference", "L"); 
+	    legendsx_d->AddEntry (leading, "Data (stat)", "PLE");
+	    legendsx_d->AddEntry (leadingSystematics, "Data (stat+syst)", "PEL");
+	    legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
+	    legendsx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
 	    legenddx_d->SetFillColor (0);
 	    legenddx_d->SetFillStyle (0);
 	    legenddx_d->SetBorderSize (0);
 	    legenddx_d->SetTextSize(.027);
-	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa Scale Env.", "F");
-	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF Env.", "F");
-	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph Scale Env.", "F");
+	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
+	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
 	    legendsx_d->Draw ("same");
 	    legenddx_d->Draw ("same");
 	  }
@@ -818,13 +823,13 @@ makeArticlePlots ()
 	    legenddx_d->SetBorderSize (0);
 	    legenddx_d->SetNColumns(1);
 	    legenddx_d->SetTextSize(.030);
-	    legenddx_d->AddEntry (leading, "Data (Stat Unc.)", "PLE");
-	    legenddx_d->AddEntry (leadingSystematics, "(Data Total Unc.)", "PEL");
-	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa Reference", "L");
-	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph Reference", "L"); 
-	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa Scale Env.", "F");
-	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF Env.", "F");
-	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph Scale Env.", "F");
+	    legenddx_d->AddEntry (leading, "Data (stat)", "PLE");
+	    legenddx_d->AddEntry (leadingSystematics, "Data (stat+syst)", "PEL");
+	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
+	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
+	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
 	    legenddx_d->Draw ("same");
 	  }
 
@@ -892,7 +897,7 @@ makeArticlePlots ()
 	  latexLabel->SetTextFont(42);
 	  latexLabel->SetLineWidth(2);
 	  latexLabel->SetNDC();
-	  latexLabel->DrawLatex(0.2,0.09,"Sherpa MC");	  
+	  latexLabel->DrawLatex(0.2,0.09,"Sherpa");	  
 	  plots->cd();
 	  TPad *pad3 = new TPad("pad3","pad3",0.01,0.01,0.99,0.30);
 	  pad3->Draw();
@@ -949,7 +954,7 @@ makeArticlePlots ()
 	  
 	  latexLabel->SetTextSize(0.07);
 
-	  latexLabel->DrawLatex(0.2,0.35,"Madgraph MC");	  
+	  latexLabel->DrawLatex(0.2,0.35,"MadGraph");	  
 	  /*
 	  TLegend *legend2_d = new TLegend (0.19, 0.72, 0.44, 0.94);
 	  legend2_d->SetFillColor (0);
