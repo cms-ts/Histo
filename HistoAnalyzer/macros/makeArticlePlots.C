@@ -40,6 +40,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 
   bool absoluteNormalization=true;
   int lepton=whichlepton; //1 -> electron,  2-> muon
+  bool noErrorsOnPad1=false;
 
   int use_case = whichobservable;
   int whichjet = whichjet;
@@ -416,7 +417,6 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  while ((tobjRivetMadGraphPDF1 = iterRivetMadGraphPDF1.Next ()))
 	    {
 	      string nameRivetMadGraphPDF1 = tobjRivetMadGraphPDF1->GetName ();
-	      cout<<nameRivetMadGraphPDF1<<" "<<rivet_dataMG<<endl;
 	      if (nameRivetMadGraphPDF1 == rivet_dataMG)
 		{
 		  cout << "Getting MG PDF1 rivet data->" << nameRivetMadGraphPDF1 << endl;
@@ -648,7 +648,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      if (lepton ==1 ) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
-	      if (lepton ==2 ) dummyNorm=  0.150141 * (450000.0/895.164)*(895.164*3/3048);  
+	      if (lepton ==2 ) dummyNorm=  0.150823 * (500000.0/898.071)*(898.071*3/3048);  
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
@@ -694,15 +694,37 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRatioSystematics->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatioSystematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
+	    if (noErrorsOnPad1){
+	      leadingRivetSherpa->SetPointEYhigh(ovo,0);
+	      leadingRivetSherpa->SetPointEYlow(ovo,0);
+	      leadingRivetSherpa->SetPointEXhigh(ovo,0.);
+	      leadingRivetSherpa->SetPointEXlow(ovo,0.);
+	      leadingRivetSherpaUP->SetPointEYhigh(ovo,0);
+	      leadingRivetSherpaUP->SetPointEYlow(ovo,0);
+	      leadingRivetSherpaUP->SetPointEXhigh(ovo,0.);
+	      leadingRivetSherpaUP->SetPointEXlow(ovo,0.);
+	      leadingRivetSherpaDOWN->SetPointEYhigh(ovo,0);
+	      leadingRivetSherpaDOWN->SetPointEYlow(ovo,0);
+	      leadingRivetSherpaDOWN->SetPointEXhigh(ovo,0.);
+	      leadingRivetSherpaDOWN->SetPointEXlow(ovo,0.);
+	      leadingRivetSherpaPDF1->SetPointEYhigh(ovo,0);
+	      leadingRivetSherpaPDF1->SetPointEYlow(ovo,0);
+	      leadingRivetSherpaPDF1->SetPointEXhigh(ovo,0.);
+	      leadingRivetSherpaPDF1->SetPointEXlow(ovo,0.);
+	      leadingRivetSherpaPDF2->SetPointEYhigh(ovo,0);
+	      leadingRivetSherpaPDF2->SetPointEYlow(ovo,0);
+	      leadingRivetSherpaPDF2->SetPointEXhigh(ovo,0.);
+	      leadingRivetSherpaPDF2->SetPointEXlow(ovo,0.);
+	    }
 	  }
 
-	    /////////////////////////
-
-	    cout<<"Sherpa, after the rescaling, has integral -> "<<leadingRivetSherpa->Integral()<<endl;
-
-	    ////////////////////////
-
-
+	  /////////////////////////
+	  
+	  cout<<"Sherpa, after the rescaling, has integral -> "<<leadingRivetSherpa->Integral()<<endl;
+	  
+	  ////////////////////////
+	  
+	  
 	  // PDF envelop for Sherpa:
 	  TGraphAsymmErrors *leadingRivetSherpaPDF;
 	  leadingRivetSherpaPDF = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ();
@@ -744,8 +766,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    }
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
 	    leadingRivetMadGraphDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
-	    leadingRivetMadGraphDOWN->SetPointEXhigh(ovo,10.);
-	    leadingRivetMadGraphDOWN->SetPointEXlow(ovo,10.);
+	    //leadingRivetMadGraphDOWN->SetPointEXhigh(ovo,10.);
+	    //leadingRivetMadGraphDOWN->SetPointEXlow(ovo,10.);
 	    leadingRivetMadGraphDOWN->SetPointEYhigh(ovo,leadingRivetMadGraphDOWN->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetMadGraphDOWN->SetPointEYlow(ovo,leadingRivetMadGraphDOWN->GetErrorYlow(ovo)/dummyNorm);
 	  }
@@ -797,7 +819,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 
 	    leadingRatio2Systematics->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatio2Systematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
-	    
+
+	    leadingRivetMadGraph->SetPointEYhigh(ovo,0);
+	    leadingRivetMadGraph->SetPointEYlow(ovo,0);
+
+	    if (noErrorsOnPad1){
+	      leadingRivetMadGraphDOWN->SetPointEYhigh(ovo,0);
+	      leadingRivetMadGraphDOWN->SetPointEYlow(ovo,0);
+	      leadingRivetMadGraphUP->SetPointEYhigh(ovo,0);
+	      leadingRivetMadGraphUP->SetPointEYlow(ovo,0);
+	      leadingRivetMadGraphDOWN->SetPointEXhigh(ovo,0.);
+	      leadingRivetMadGraphDOWN->SetPointEXlow(ovo,0.);
+	      leadingRivetMadGraphUP->SetPointEXhigh(ovo,0.);
+	      leadingRivetMadGraphUP->SetPointEXlow(ovo,0.);
+	      leadingRivetMadGraphPDF1->SetPointEYhigh(ovo,0);
+	      leadingRivetMadGraphPDF1->SetPointEYlow(ovo,0);
+	      leadingRivetMadGraphPDF1->SetPointEXhigh(ovo,0.);
+	      leadingRivetMadGraphPDF1->SetPointEXlow(ovo,0.);
+	      leadingRivetMadGraphPDF2->SetPointEYhigh(ovo,0);
+	      leadingRivetMadGraphPDF2->SetPointEYlow(ovo,0);
+	      leadingRivetMadGraphPDF2->SetPointEXhigh(ovo,0.);
+	      leadingRivetMadGraphPDF2->SetPointEXlow(ovo,0.);
+	    }
 	  }
 
 	  Double_t dummyNorm = 0.;
@@ -884,46 +927,94 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  TColor *t = new TColor(998,1.,0.0,0.0,"arancio2",0.5);
 	  TColor *t = new TColor(997,1.,1.0,0.0,"arancio3",0.5);
 	  TColor *t = new TColor(991,1.,0.5,0.4,"arancio-rosso",0.5);
+	  TColor *t = new TColor(000,0.,0.0,0.0,"bianco",0.0);
 
-	  leadingRivetSherpaPDF1->SetFillColor(992);
-	  //leadingRivetSherpaPDF1->Draw("al3");
-
-	  leadingRivetSherpaPDF2->SetFillColor(993);
-	  //leadingRivetSherpaPDF2->Draw("l3");
-
-	  leadingRivetSherpaUP->SetFillColor(994);
-	  //leadingRivetSherpaUP->Draw("l3");
-
-	  leadingRivetSherpaDOWN->SetFillColor(995);
-	  //leadingRivetSherpaDOWN->Draw("l3");
-
-	  leadingRivetSherpaPDF->SetFillColor(994);
-	  leadingRivetSherpaPDF->SetLineColor(kBlue);
-	  leadingRivetSherpaPDF->SetLineWidth(2);
-	  leadingRivetSherpaPDF->Draw("l3");
-
-	  leadingRivetSherpa->SetFillColor(995);
-	  leadingRivetSherpa->SetLineColor(kBlue);
-	  leadingRivetSherpa->SetLineWidth(2);
-	  leadingRivetSherpa->Draw("l3");
-
-	  leadingRivetMadGraph->SetFillColor(999);
-	  leadingRivetMadGraph->SetLineColor(kRed);
-	  leadingRivetMadGraph->SetLineWidth(2);
-	  leadingRivetMadGraph->Draw("l3");
-
-	  //Envelop PDF Madgraph
-	  leadingRivetMadGraphPDF->SetFillColor(991);
-	  leadingRivetMadGraphPDF->SetLineColor(kRed);
-	  leadingRivetMadGraphPDF->SetLineWidth(2);
-	  leadingRivetMadGraphPDF->Draw("l3");
-
-	  leadingRivetMadGraphDOWN->SetFillColor(998);
-	  //	  leadingRivetMadGraphDOWN->Draw("3");
-
- 	  leadingRivetMadGraphUP->SetFillColor(997);
-	  //	  leadingRivetMadGraphUP->Draw("3");
-
+	  bool drawPad1Withlines=false;
+	  
+	  if (drawPad1Withlines){
+	    leadingRivetSherpaPDF1->SetFillColor(992);
+	    leadingRivetSherpaPDF1->SetLineStyle(0);
+	    leadingRivetSherpaPDF1->SetLineColor(kBlue);
+	    leadingRivetSherpaPDF1->Draw("l");
+	    
+	    leadingRivetSherpaPDF2->SetFillColor(993);
+	    leadingRivetSherpaPDF2->SetLineStyle(0);
+	    leadingRivetSherpaPDF2->SetLineColor(kBlue);
+	    leadingRivetSherpaPDF2->Draw("l");
+	    
+	    leadingRivetSherpaUP->SetLineStyle(5);
+	    leadingRivetSherpaUP->SetLineColor(994);
+	    leadingRivetSherpaUP->Draw("l");
+	    
+	    leadingRivetSherpaDOWN->SetLineStyle(5);
+	    leadingRivetSherpaDOWN->SetLineColor(994);
+	    leadingRivetSherpaDOWN->Draw("l");
+	    
+	    leadingRivetSherpaPDF->SetFillColor(994);
+	    leadingRivetSherpaPDF->SetLineColor(kBlue);
+	    leadingRivetSherpaPDF->SetLineWidth(2);
+	    //leadingRivetSherpaPDF->Draw("l3");
+	    
+	    leadingRivetSherpa->SetFillColor(996);
+	    leadingRivetSherpa->SetLineColor(kBlue);
+	    leadingRivetSherpa->SetLineWidth(3);
+	    leadingRivetSherpa->Draw("l");
+	    
+	    leadingRivetMadGraph->SetFillColor(999);
+	    leadingRivetMadGraph->SetLineColor(kRed);
+	    leadingRivetMadGraph->SetLineWidth(3);
+	    leadingRivetMadGraph->Draw("l");
+	    
+	    //Envelop PDF Madgraph
+	    leadingRivetMadGraphPDF->SetFillColor(991);
+	    leadingRivetMadGraphPDF->SetLineColor(kRed);
+	    leadingRivetMadGraphPDF->SetLineWidth(2);
+	    //leadingRivetMadGraphPDF->Draw("l3");
+	    
+	    leadingRivetMadGraphDOWN->SetLineColor(kRed);
+	    leadingRivetMadGraphDOWN->SetFillColor(kRed);
+	    leadingRivetMadGraphDOWN->SetLineStyle(5);
+	    leadingRivetMadGraphDOWN->Draw("l");
+	    
+	    leadingRivetMadGraphUP->SetFillColor(997);
+	    leadingRivetMadGraphUP->SetLineColor(kRed);
+	    leadingRivetMadGraphUP->SetLineStyle(5);
+	    leadingRivetMadGraphUP->Draw("l");
+	    
+	    leadingRivetMadGraphPDF1->SetFillColor(997);
+	    leadingRivetMadGraphPDF1->SetLineStyle(0);
+	    leadingRivetMadGraphPDF1->SetLineColor(kRed);
+	    leadingRivetMadGraphPDF1->Draw("l");
+	    
+	    leadingRivetMadGraphPDF2->SetFillColor(991);
+	    leadingRivetMadGraphPDF2->SetLineStyle(0);
+	    leadingRivetMadGraphPDF2->SetLineColor(kRed);
+	    leadingRivetMadGraphPDF2->Draw("l");
+	  }
+	  else{
+	    
+	    leadingRivetSherpaPDF->SetFillColor(994);
+	    leadingRivetSherpaPDF->SetLineColor(kBlue);
+	    leadingRivetSherpaPDF->SetLineWidth(2);
+	    leadingRivetSherpaPDF->Draw("l3");
+	    
+	    leadingRivetSherpa->SetFillColor(996);
+	    leadingRivetSherpa->SetLineColor(kBlue);
+	    leadingRivetSherpa->SetLineWidth(3);
+	    leadingRivetSherpa->Draw("l3");
+	    
+	    leadingRivetMadGraph->SetFillColor(999);
+	    leadingRivetMadGraph->SetLineColor(kRed);
+	    leadingRivetMadGraph->SetLineWidth(3);
+	    leadingRivetMadGraph->Draw("le");
+	    
+	    //Envelop PDF Madgraph
+	    leadingRivetMadGraphPDF->SetFillColor(991);
+	    leadingRivetMadGraphPDF->SetLineColor(kRed);
+	    leadingRivetMadGraphPDF->SetLineWidth(2);
+	    leadingRivetMadGraphPDF->Draw("l3");
+	  }
+	  
 	  leadingSystematics->Draw ("ESAME");
 	  leading->Draw ("ESAME");
 	  //-------------------------------------------
@@ -967,6 +1058,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->SetFillStyle (0);
 	    legenddx_d->SetBorderSize (0);
 	    legenddx_d->SetTextSize(.027);
+	    //legenddx_d->AddEntry (leadingRivetSherpaDOWN, "Sherpa scale down", "L");
+	    //legenddx_d->AddEntry (leadingRivetSherpaUP, "Sherpa scale up", "L");
 	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
 	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
@@ -984,7 +1077,13 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->AddEntry (leading, "Data (stat)", "PLE");
 	    legenddx_d->AddEntry (leadingSystematics, "Data (stat+syst)", "PEL");
 	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
-	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
+	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L");
+	    //legenddx_d->AddEntry (leadingRivetSherpaDOWN, "Sherpa scale up/down", "L");
+	    //legenddx_d->AddEntry (leadingRivetMadGraphDOWN, "MadGraph scale down/up", "L");
+	    //legenddx_d->AddEntry (leadingRivetSherpaPDF1, "Sherpa PDF var.", "L");
+	    //legenddx_d->AddEntry (leadingRivetMadGraphPDF1, "MadGraph PDF var.", "L");
+
+	    //legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
 	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
 	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
