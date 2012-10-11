@@ -62,11 +62,13 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   string rivetPathSherpaPDF1 ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw/out.root";
   string rivetPathSherpaPDF2 ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn/out.root";
   //  string rivetPathMadGraph ="/gpfs/cms/users/dellaric/work/cms/pythiaZ2tune/madgraph_lhe/test_full2/merged.root"; // Chiara
-  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root"; // Tomo
   //  string rivetPathMadGraphDOWN ="/gpfs/cms/users/dellaric/work/cms/pythiaZ2tune/madgraph_lhe/test_full2_scaledown/merged.root";
-  string rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
   //  string rivetPathMadGraphUP ="/gpfs/cms/users/dellaric/work/cms/pythiaZ2tune/madgraph_lhe/test_full2_scaleup/merged.root";
-  string rivetPathMadGraphUP ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
+ string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root"; // Tomo
+ string rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
+ string rivetPathMadGraphUP ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
+ string rivetPathMadGraphPDF1 = rivetPathMadGraphDOWN;
+ string rivetPathMadGraphPDF2 = rivetPathMadGraphUP;
 
   if (lepton == 2){
   rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
@@ -77,6 +79,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
   rivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
+  rivetPathMadGraphPDF1 = rivetPathMadGraphDOWN;
+  rivetPathMadGraphPDF2 = rivetPathMadGraphUP;
   }
 
   TFile *histof = TFile::Open (pathFile.c_str ());
@@ -403,11 +407,64 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 		}
 	    }
 
-	  //-------------------------------------------------------------
+	  TFile *histoRivetMadGraphPDF1 = TFile::Open (rivetPathMadGraphPDF1.c_str ());
+	  histoRivetMadGraphPDF1->cd ("");
+	  TDirectory *dirRivetMadGraphPDF1 = gDirectory;
+	  TList *mylistRivetMadGraphPDF1 = (TList *) dirRivetMadGraphPDF1->GetListOfKeys ();
+	  TIter iterRivetMadGraphPDF1 (mylistRivetMadGraphPDF1);
+	  TObject *tobjRivetMadGraphPDF1 = 0;
+	  while ((tobjRivetMadGraphPDF1 = iterRivetMadGraphPDF1.Next ()))
+	    {
+	      string nameRivetMadGraphPDF1 = tobjRivetMadGraphPDF1->GetName ();
+	      cout<<nameRivetMadGraphPDF1<<" "<<rivet_dataMG<<endl;
+	      if (nameRivetMadGraphPDF1 == rivet_dataMG)
+		{
+		  cout << "Getting MG PDF1 rivet data->" << nameRivetMadGraphPDF1 << endl;
+		  TH1D *leadingRivetMadGraphPDF1_TH1;
+		  gDirectory->GetObject (nameRivetMadGraphPDF1.c_str (), leadingRivetMadGraphPDF1_TH1);
+		  TGraphAsymmErrors *leadingRivetMadGraphPDF1;
+		  leadingRivetMadGraphPDF1 = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+		  for (int n=0;n<nthbins;n++) {
+		    leadingRivetMadGraphPDF1->SetPoint(n,leadingRivetMadGraphPDF1_TH1->GetBinCenter(n+1),leadingRivetMadGraphPDF1_TH1->GetBinContent(n+1));
+		    leadingRivetMadGraphPDF1->SetPointEXhigh(n,0.0);
+		    leadingRivetMadGraphPDF1->SetPointEXlow(n,0.0);
+		    leadingRivetMadGraphPDF1->SetPointEYhigh(n,leadingRivetMadGraphPDF1_TH1->GetBinError(n));
+		    leadingRivetMadGraphPDF1->SetPointEYlow(n,leadingRivetMadGraphPDF1_TH1->GetBinError(n));
+		  }
+		}
+	    }
 
+	  TFile *histoRivetMadGraphPDF2 = TFile::Open (rivetPathMadGraphPDF2.c_str ());
+	  histoRivetMadGraphPDF2->cd ("");
+	  TDirectory *dirRivetMadGraphPDF2 = gDirectory;
+	  TList *mylistRivetMadGraphPDF2 = (TList *) dirRivetMadGraphPDF2->GetListOfKeys ();
+	  TIter iterRivetMadGraphPDF2 (mylistRivetMadGraphPDF2);
+	  TObject *tobjRivetMadGraphPDF2 = 0;
+	  while ((tobjRivetMadGraphPDF2 = iterRivetMadGraphPDF2.Next ()))
+	    {
+	      string nameRivetMadGraphPDF2 = tobjRivetMadGraphPDF2->GetName ();
+	      if (nameRivetMadGraphPDF2 == rivet_dataMG)
+		{
+		  cout << "Getting MG PDF2 rivet data->" << nameRivetMadGraphPDF2 << endl;
+		  TH1D *leadingRivetMadGraphPDF2_TH1;
+		  gDirectory->GetObject (nameRivetMadGraphPDF2.c_str (), leadingRivetMadGraphPDF2_TH1);
+		  TGraphAsymmErrors *leadingRivetMadGraphPDF2;
+		  leadingRivetMadGraphPDF2 = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+		  for (int n=0;n<nthbins;n++) {
+		    leadingRivetMadGraphPDF2->SetPoint(n,leadingRivetMadGraphPDF2_TH1->GetBinCenter(n+1),leadingRivetMadGraphPDF2_TH1->GetBinContent(n+1));
+		    leadingRivetMadGraphPDF2->SetPointEXhigh(n,0.0);
+		    leadingRivetMadGraphPDF2->SetPointEXlow(n,0.0);
+		    leadingRivetMadGraphPDF2->SetPointEYhigh(n,leadingRivetMadGraphPDF2_TH1->GetBinError(n));
+		    leadingRivetMadGraphPDF2->SetPointEYlow(n,leadingRivetMadGraphPDF2_TH1->GetBinError(n));
+		  }
+		}
+	    }
+
+	  //-------------------------------------------------------------
+	  
 	  leadingSystematics->SetName ("leadingSystematics");
 	  if (systTmpM.size () != leadingSystematics->GetNbinsX ())
-	    cout << "WRONG NUMBER OF BINS" << endl;
+	    cout << "WRONG NUMBER OF BINS (# syst from file->" <<systTmpM.size()<<" - # bins leadingsystematics->"<<leadingSystematics->GetNbinsX()<<")"<<endl;
 	  for (int i = 0; i <= leadingSystematics->GetNbinsX (); i++)
 	    {
 	      //cout<<"jetMulti - syst = "<<leadingSystematics->GetBinError(i+1)<<endl;       
@@ -427,7 +484,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  //When use_case = Jet Multi, then the absolute cross section is required...
 	  if (absoluteNormalization){
 	    //Normalizing data to the luminosity
-	    leadingSystematics->Scale(1./4890.0); //Int Lumi 1/pb -> bimn in pb
+	    leadingSystematics->Scale(1./4890.0); //Int Lumi 1/pb -> bin in pb
 	    leading->Scale(1./4890.0);
 	  }
 
@@ -532,8 +589,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm= (21046.58) * 1000.0*( (1000000.0/969.565)/4890.0)*(1/1.23);   
-	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/967.713)/4890.0)*(1/1.23); 
+	      if (lepton ==1) dummyNorm= 2992.95 * (1000000.0/969.565)*(969.565*3/3048);   
+	      if (lepton ==2) dummyNorm= 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -542,6 +599,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaUP->SetPointEYlow(ovo,leadingRivetSherpaUP->GetErrorYlow(ovo)/dummyNorm);
 	  }
 
+	    cout<<"SherpaUP, after the rescaling, has integral -> "<<leadingRivetSherpaUP->Integral()<<endl;
+
 	  Double_t dummyNorm = 0.;
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -549,8 +608,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm= (25310.48) * 1000.0*( (1000000.0/838.298)/4890.0)*(1/1.23); 
-	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/837.477)/4890.0)*(1/1.23); 
+	      if (lepton ==1) dummyNorm=  3705.55 * (1000000.0/838.298)*(838.298*3/3048); 
+	      if (lepton ==2) dummyNorm=  0.112873 * (1000000.0/837.477)*(837.477*3/3048); //Sherpa fattore di enhancement 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -558,6 +617,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaDOWN->SetPointEYhigh(ovo,leadingRivetSherpaDOWN->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaDOWN->SetPointEYlow(ovo,leadingRivetSherpaDOWN->GetErrorYlow(ovo)/dummyNorm);
 	  }
+
+	    cout<<"SherpaDOWN, after the rescaling, has integral -> "<<leadingRivetSherpaDOWN->Integral()<<endl;
+
 	  Double_t dummyNorm = 0.;
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -565,15 +627,19 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton==1) dummyNorm= 1000.0*( (1000000.0/898.33)/4890.0)*(1/1.23);   
-	      if (lepton==2) dummyNorm= 1000.0*( (500000.0/902.862)/4890.0)*(1/1.23);   
-	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	      if (lepton==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
+	      if (lepton==2) dummyNorm=  0.114181 * (500000.0/902.862)*(902.862*3/3048);
+   
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetSherpaPDF1->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetSherpaPDF1->SetPointEYhigh(ovo,leadingRivetSherpaPDF1->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaPDF1->SetPointEYlow(ovo,leadingRivetSherpaPDF1->GetErrorYlow(ovo)/dummyNorm);
 	  }
+
+	    cout<<"SherpaPDF1, after the rescaling, has integral -> "<<leadingRivetSherpaPDF1->Integral()<<endl;
+
 	  Double_t dummyNorm = 0.;
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -581,9 +647,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1 ) dummyNorm= 1000.0*( (995000.0/896.767)/4890.0)*(1/1.23);  
-	      if (lepton ==2 ) dummyNorm= 1000.0*( (450000.0/895.164)/4890.0)*(1/1.23);  
-	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	      if (lepton ==1 ) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
+	      if (lepton ==2 ) dummyNorm=  0.150141 * (450000.0/895.164)*(895.164*3/3048);  
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
 	    leadingRivetSherpaPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -591,6 +657,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaPDF2->SetPointEYhigh(ovo,leadingRivetSherpaPDF2->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaPDF2->SetPointEYlow(ovo,leadingRivetSherpaPDF2->GetErrorYlow(ovo)/dummyNorm);
 	  }
+
+	    cout<<"SherpaPDF2, after the rescaling, has integral -> "<<leadingRivetSherpaPDF2->Integral()<<endl;
 
 	  Double_t dummyNorm = 0.;
 	  Double_t y1temp = 0.;
@@ -608,15 +676,14 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
 
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm= 1000.0*( (980000.0/911.328)/4890.0)*(1/1.23);   
-	      if (lepton ==2) dummyNorm= 1000.0*( (1000000.0/907.485)/4890.0)*(1/1.23);  
-	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	      if (lepton ==1) dummyNorm= 0.155927 *(980000.0/911.328)*(911.328*3/3048);   
+	      if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);  
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
 	    leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
-
  	    leadingRatioSherpa->SetPoint(ovo,dummyXvar,1.0);
 	    leadingRatioSherpa->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 	    leadingRatioSherpa->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
@@ -629,7 +696,12 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 
 	  }
 
-	  //leadingRivetSherpa->Draw("ap");return;
+	    /////////////////////////
+
+	    cout<<"Sherpa, after the rescaling, has integral -> "<<leadingRivetSherpa->Integral()<<endl;
+
+	    ////////////////////////
+
 
 	  // PDF envelop for Sherpa:
 	  TGraphAsymmErrors *leadingRivetSherpaPDF;
@@ -668,7 +740,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1739.04)/3048.0); // ele = mu !
-	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
 	    leadingRivetMadGraphDOWN->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
@@ -685,7 +757,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1734.13)/3048.0);
-	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
@@ -706,13 +778,12 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.35)/3048.0);// Coefficiente 10^9 che gira, piu' il fantomatico 3048/2475: il resto e' tutto consistente!
+	      dummyNorm= 2.0 * 0.000000001*( (1681.35)/3048.0);// Coefficiente 10^9 che gira...
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,x1temp,y1temp); 
 	    leadingRivetMadGraphUP->GetPoint(ovo,x2temp,y2temp); 
-
 	    leadingRivetMadGraph->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
 	    leadingRivetMadGraph->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetMadGraph->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
@@ -729,6 +800,81 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    
 	  }
 
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetMadGraphPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (absoluteNormalization) {
+	      dummyNorm= 2.0 * 0.000000001*( (1739.04)/3048.0); // ele = mu !
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
+	    }
+	    leadingRivetMadGraphPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetMadGraphPDF1->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetMadGraphPDF1->SetPointEYhigh(ovo,leadingRivetMadGraphPDF1->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetMadGraphPDF1->SetPointEYlow(ovo,leadingRivetMadGraphPDF1->GetErrorYlow(ovo)/dummyNorm);
+	  }
+
+	    cout<<"MadGraphPDF1, after the rescaling, has integral -> "<<leadingRivetMadGraphPDF1->Integral()<<endl;
+
+	  Double_t dummyNorm = 0.;
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetMadGraphPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    dummyNorm = dummyNorm + dummyYvar;
+	  }
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    if (absoluteNormalization) {
+	      dummyNorm= 2.0 * 0.000000001*( (1734.13)/3048.0);
+	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
+	    }
+	    leadingRivetMadGraphPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetMadGraphPDF2->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
+	    leadingRivetMadGraphPDF2->SetPointEYhigh(ovo,leadingRivetMadGraphPDF2->GetErrorYhigh(ovo)/dummyNorm);
+	    leadingRivetMadGraphPDF2->SetPointEYlow(ovo,leadingRivetMadGraphPDF2->GetErrorYlow(ovo)/dummyNorm);
+	  }
+
+	    cout<<"MadGraphPDF2, after the rescaling, has integral -> "<<leadingRivetMadGraphPDF2->Integral()<<endl;
+
+
+	  ///////////////////////////
+	  //PDF Envelop for Madgraph
+	  ///////////////////////////
+
+	  TGraphAsymmErrors *leadingRivetMadGraphPDF;
+	  leadingRivetMadGraphPDF = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ();
+	  TGraphAsymmErrors *leadingRatioMadGraphPDF;
+	  leadingRatioMadGraphPDF = (TGraphAsymmErrors *) leadingRatioMadGraph->Clone ();
+
+	  Double_t y1temp = 0.;
+	  Double_t y2temp = 0.;
+	  Double_t x1temp = 0.;
+	  Double_t x2temp = 0.;
+
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetMadGraphPDF->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetMadGraphPDF1->GetPoint(ovo,x1temp,y1temp); 
+	    leadingRivetMadGraphPDF2->GetPoint(ovo,x2temp,y2temp); 
+
+	    leadingRivetMadGraphPDF->SetPoint(ovo,dummyXvar,dummyYvar);
+	    leadingRivetMadGraphPDF->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar)-dummyYvar + leadingRivetMadGraph->GetErrorYhigh(ovo));
+	    leadingRivetMadGraphPDF->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar) + leadingRivetMadGraph->GetErrorYlow(ovo));
+
+ 	    leadingRatioMadGraphPDF->SetPoint(ovo,dummyXvar,1.0);
+	    leadingRatioMadGraphPDF->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar + leadingRatioMadGraph->GetErrorYhigh(ovo));
+	    leadingRatioMadGraphPDF->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar + leadingRatioMadGraph->GetErrorYlow(ovo));
+
+	  }
+
+
+	    /////////////////////////
+
+	    cout<<"Madgraph, after the rescaling, has integral -> "<<leadingRivetMadGraph->Integral()<<endl;
+	    cout<<"MadgraphUP, after the rescaling, has integral -> "<<leadingRivetMadGraphUP->Integral()<<endl;
+	    cout<<"MadgraphDOWN, after the rescaling, has integral -> "<<leadingRivetMadGraphDOWN->Integral()<<endl;
+
+	    ////////////////////////
+
 	  TColor *t = new TColor(996,0.,0.0,1.0,"blu1",0.5);
 	  TColor *t = new TColor(995,0.,0.5,1.0,"blu2",0.5);
 	  TColor *t = new TColor(994,0.,1.0,1.0,"blu3",0.5);
@@ -737,6 +883,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  TColor *t = new TColor(999,1.,0.5,0.0,"arancio1",0.5);
 	  TColor *t = new TColor(998,1.,0.0,0.0,"arancio2",0.5);
 	  TColor *t = new TColor(997,1.,1.0,0.0,"arancio3",0.5);
+	  TColor *t = new TColor(991,1.,0.5,0.4,"arancio-rosso",0.5);
 
 	  leadingRivetSherpaPDF1->SetFillColor(992);
 	  //leadingRivetSherpaPDF1->Draw("al3");
@@ -764,6 +911,12 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetMadGraph->SetLineColor(kRed);
 	  leadingRivetMadGraph->SetLineWidth(2);
 	  leadingRivetMadGraph->Draw("l3");
+
+	  //Envelop PDF Madgraph
+	  leadingRivetMadGraphPDF->SetFillColor(991);
+	  leadingRivetMadGraphPDF->SetLineColor(kRed);
+	  leadingRivetMadGraphPDF->SetLineWidth(2);
+	  leadingRivetMadGraphPDF->Draw("l3");
 
 	  leadingRivetMadGraphDOWN->SetFillColor(998);
 	  //	  leadingRivetMadGraphDOWN->Draw("3");
@@ -817,6 +970,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
 	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
+	    legenddx_d->AddEntry (leadingRivetMadGraphPDF, "MadGraph PDF var.", "F");
 	    legendsx_d->Draw ("same");
 	    legenddx_d->Draw ("same");
 	  }
@@ -834,6 +988,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
 	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
+	    legenddx_d->AddEntry (leadingRivetMadGraphPDF, "MadGraph PDF var.", "F");
 	    legenddx_d->Draw ("same");
 	  }
 
@@ -884,17 +1039,6 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  OLine->SetLineStyle(2);
 	  OLine->Draw();
 
-	  /*
-	  TLegend *legend2_d = new TLegend (0.19, 0.72, 0.44, 0.94);
-	  legend2_d->SetFillColor (0);
-	  legend2_d->SetFillStyle (0);
-	  legend2_d->SetBorderSize (0);
-	  legend2_d->AddEntry (leadingRatio, "Data Stat", "P");
-	  legend2_d->AddEntry (leadingRatioSystematics, "Data Syst", "P");
-	  legend2_d->AddEntry (leadingRatioSherpa, "SHERPA Scale uncertainties", "F");
-	  legend2_d->AddEntry (leadingRatioSherpaPDF, "SHERPA PDF uncertainties", "F");
-	  legend2_d->Draw ("same");
-	  */
 	  // -------------------------------------------
 	  TLatex *latexLabel = new TLatex();
 	  latexLabel->SetTextSize(0.1);
@@ -951,6 +1095,11 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 
 	  leadingRatio2Systematics->Draw ("E1");
 	  leadingRatio2->Draw ("E1SAME");
+
+	  leadingRatioMadGraphPDF->SetFillColor(991);
+	  leadingRatioMadGraphPDF->SetLineColor(kRed);
+	  leadingRatioMadGraphPDF->SetLineWidth(2);
+	  leadingRatioMadGraphPDF->Draw("l3");
       
 	  leadingRatioMadGraph->SetFillColor(999);
 	  leadingRatioMadGraph->SetLineColor(kRed);
@@ -968,16 +1117,6 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  latexLabel->SetTextSize(0.07);
 
 	  latexLabel->DrawLatex(0.2,0.35,"MadGraph");	  
-	  /*
-	  TLegend *legend2_d = new TLegend (0.19, 0.72, 0.44, 0.94);
-	  legend2_d->SetFillColor (0);
-	  legend2_d->SetFillStyle (0);
-	  legend2_d->SetBorderSize (0);
-	  legend2_d->AddEntry (leadingRatio2, "Data Stat", "P");
-	  legend2_d->AddEntry (leadingRatio2Systematics, "Data Syst", "P");
-	  legend2_d->AddEntry (leadingRatioMadGraph, "MADGRAPH Scale uncertainties", "F");
-	  legend2_d->Draw ("same");
-	  */
 	  
 	  string title1;
 	  if (lepton ==1) title1 = s + "DifferentialX" + stringmatch + ".png";
