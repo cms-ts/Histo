@@ -41,12 +41,14 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   bool absoluteNormalization=true;
   int lepton=whichlepton; //1 -> electron,  2-> muon
   bool noErrorsOnPad1=false;
+  bool addLumiUncertainties=true; double lumiError=0.025;
 
   int use_case = whichobservable;
   int whichjet = whichjet;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
-  string s = "/tmp/";
+  //string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/";
+  string s="/tmp/";
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   gStyle->SetOptStat (0);
 
@@ -68,8 +70,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root"; // Tomo
  string rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
  string rivetPathMadGraphUP ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
- string rivetPathMadGraphPDF1 = rivetPathMadGraphDOWN;
- string rivetPathMadGraphPDF2 = rivetPathMadGraphUP;
+ string rivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root"; 
+ string rivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
 
   if (lepton == 2){
   rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
@@ -80,8 +82,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   rivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
   rivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
-  rivetPathMadGraphPDF1 = rivetPathMadGraphDOWN;
-  rivetPathMadGraphPDF2 = rivetPathMadGraphUP;
+  rivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
+  rivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
   }
 
   TFile *histof = TFile::Open (pathFile.c_str ());
@@ -233,6 +235,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	      inM >> dat;
 	      if (!inM.good ())
 		break;
+	      if (addLumiUncertainties) {
+		dat=pow(dat*dat+lumiError*lumiError,0.5);
+	      }
 	      systTmpM.push_back (dat);
 	      //l2++;  
 	    }
@@ -467,6 +472,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    cout << "WRONG NUMBER OF BINS (# syst from file->" <<systTmpM.size()<<" - # bins leadingsystematics->"<<leadingSystematics->GetNbinsX()<<")"<<endl;
 	  for (int i = 0; i <= leadingSystematics->GetNbinsX (); i++)
 	    {
+	      cout<<"Systematics for bin "<<i+1<<" is "<<systTmpM[i]<<endl;
 	      //cout<<"jetMulti - syst = "<<leadingSystematics->GetBinError(i+1)<<endl;       
 	      double err =
 		sqrt (pow (leading->GetBinError (i + 1), 2) +
@@ -761,7 +767,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1739.04)/3048.0); // ele = mu !
+	      dummyNorm= 2.0 * 0.000000001*( (1737.42)/3048.0); // ele = mu !
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -778,7 +784,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1734.13)/3048.0);
+	      dummyNorm= 2.0 * 0.000000001*( (1737.15)/3048.0);
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -800,7 +806,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1681.35)/3048.0);// Coefficiente 10^9 che gira...
+	      dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);// Coefficiente 10^9 che gira...
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -820,8 +826,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRatio2Systematics->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatio2Systematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
-	    leadingRivetMadGraph->SetPointEYhigh(ovo,0);
-	    leadingRivetMadGraph->SetPointEYlow(ovo,0);
+	    //leadingRivetMadGraph->SetPointEYhigh(ovo,0);
+	    //leadingRivetMadGraph->SetPointEYlow(ovo,0);
 
 	    if (noErrorsOnPad1){
 	      leadingRivetMadGraphDOWN->SetPointEYhigh(ovo,0);
@@ -850,7 +856,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1739.04)/3048.0); // ele = mu !
+	      dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0); // ele = mu !
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -868,7 +874,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      dummyNorm= 2.0 * 0.000000001*( (1734.13)/3048.0);
+	      dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -923,10 +929,10 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  TColor *t = new TColor(994,0.,1.0,1.0,"blu3",0.5);
 	  TColor *t = new TColor(993,0.,1.0,0.5.,"blu4",0.5);
 	  TColor *t = new TColor(992,0.,1.0,0.0,"blu5",0.5);
-	  TColor *t = new TColor(999,1.,0.5,0.0,"arancio1",0.5);
+	  TColor *t = new TColor(999,1.,0.40,0.0,"arancio1",0.5);
 	  TColor *t = new TColor(998,1.,0.0,0.0,"arancio2",0.5);
 	  TColor *t = new TColor(997,1.,1.0,0.0,"arancio3",0.5);
-	  TColor *t = new TColor(991,1.,0.5,0.4,"arancio-rosso",0.5);
+	  TColor *t = new TColor(991,1.,0.8,0.0,"arancio-rosso",0.5);
 	  TColor *t = new TColor(000,0.,0.0,0.0,"bianco",0.0);
 
 	  bool drawPad1Withlines=false;
@@ -1006,7 +1012,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetMadGraph->SetFillColor(999);
 	    leadingRivetMadGraph->SetLineColor(kRed);
 	    leadingRivetMadGraph->SetLineWidth(3);
-	    leadingRivetMadGraph->Draw("le");
+	    leadingRivetMadGraph->Draw("l3");
 	    
 	    //Envelop PDF Madgraph
 	    leadingRivetMadGraphPDF->SetFillColor(991);
@@ -1068,7 +1074,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->Draw ("same");
 	  }
 	  else{
-	    legenddx_d = new TLegend (0.6, 0.65, 0.92, 0.88);	   
+	    legenddx_d = new TLegend (0.6, 0.60, 0.92, 0.88);	   
 	    legenddx_d->SetFillColor (0);
 	    legenddx_d->SetFillStyle (0);
 	    legenddx_d->SetBorderSize (0);
