@@ -47,8 +47,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   int whichjet = whichjet;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
-  //string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/";
-  string s="/tmp/";
+  string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/Mu/";
+  //string s="/tmp/";
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   gStyle->SetOptStat (0);
 
@@ -59,9 +60,12 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   if (lepton == 2) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
 
   //RIVET:
-  string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod/out.root";
-  string rivetPathSherpaUP ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup/out.root";
-  string rivetPathSherpaDOWN ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown/out.root";
+  //old Vieri string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod/out.root";
+  string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
+  string rivetPathSherpaUP="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup2/out.root";
+   // old vieri string rivetPathSherpaUP ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup/out.root";
+  //old veri string rivetPathSherpaDOWN ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown/out.root";
+  string rivetPathSherpaDOWN="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown2/out.root";
   string rivetPathSherpaPDF1 ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw/out.root";
   string rivetPathSherpaPDF2 ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn/out.root";
   //  string rivetPathMadGraph ="/gpfs/cms/users/dellaric/work/cms/pythiaZ2tune/madgraph_lhe/test_full2/merged.root"; // Chiara
@@ -595,7 +599,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm= 2992.95 * (1000000.0/969.565)*(969.565*3/3048);   
+	      // 	      if (lepton ==1) dummyNorm= 2992.95 * (1000000.0/969.565)*(969.565*3/3048);   
+	      if (lepton ==1) dummyNorm= 0.200477 * (1000000.0/971.754)*(971.754*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
@@ -614,7 +619,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm=  3705.55 * (1000000.0/838.298)*(838.298*3/3048); 
+	      //old Vieri if (lepton ==1) dummyNorm=  3705.55 * (1000000.0/838.298)*(838.298*3/3048); 
+	      if (lepton ==1) dummyNorm=  0.113294 * (1000000.0/838.990)*(838.990*3/3048); 
 	      if (lepton ==2) dummyNorm=  0.112873 * (1000000.0/837.477)*(837.477*3/3048); //Sherpa fattore di enhancement 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
@@ -634,7 +640,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      if (lepton==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
-	      if (lepton==2) dummyNorm=  0.114181 * (500000.0/902.862)*(902.862*3/3048);
+	      if (lepton==2) dummyNorm=  0.114067 * (1000000.0/899.787)*(899.787*3/3048);
    
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
@@ -654,7 +660,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      if (lepton ==1 ) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
-	      if (lepton ==2 ) dummyNorm=  0.150823 * (500000.0/898.071)*(898.071*3/3048);  
+	      if (lepton ==2 ) dummyNorm=  0.150439 * (1000000.0/895.779)*(895.779*3/3048);  
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
@@ -682,7 +688,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
 
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm= 0.155927 *(980000.0/911.328)*(911.328*3/3048);   
+	      if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);  
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
@@ -1224,8 +1230,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  latexLabel->DrawLatex(0.2,0.35,"MadGraph");	  
 	  
 	  string title1;
-	  if (lepton ==1) title1 = s + "DifferentialX" + stringmatch + ".png";
-	  if (lepton ==2) title1 = s + "DifferentialX" + stringmatch + "Mu.png";
+	  title1 = s + "DifferentialX" + stringmatch + ".png";
+	  
+	  //if (lepton ==2) title1 = s + "DifferentialX" + stringmatch + "Mu.png";
 
 	  cout << title1 << endl;
 	  
