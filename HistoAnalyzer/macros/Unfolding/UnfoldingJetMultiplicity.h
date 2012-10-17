@@ -1,6 +1,8 @@
 TH1D *NTrue = new TH1D ("NTrue", "N Truth", maxNJets-0.5, 0.5, maxNJets-0.5);
+TH1D *NTruepythia = new TH1D ("NTruepythia", "N Truth using pythia", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1D *NData = new TH1D ("NData", "N DATA Measured", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH2D *NMatx = new TH2D ("N hMatx", "Unfolding Matrix in # of jets + Z", maxNJets-0.5, 0.5, maxNJets-0.5, maxNJets-0.5, 0.5, maxNJets-0.5);
+TH2D *NMatxpythia = new TH2D ("N hMatxpythia", "Unfolding Matrix in # of jets + Z using pythia",maxNJets-0.5, 0.5, maxNJets-0.5, maxNJets-0.5, 0.5, maxNJets-0.5);
 TH2D *NMatxlong = new TH2D ("N hMatxlong", "Unfolding Matrix in # of jets + Z", maxNJets, 0, maxNJets, maxNJets, 0, maxNJets);
 TH1D *NMCreco = new TH1D ("N mcreco", "N mcreco", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1D *NMCrecoratio_ = new TH1D ("N mcrecoratio_", "N mcreco_", maxNJets-0.5, 0.5, maxNJets-0.5);
@@ -11,7 +13,7 @@ TH1F *JetMultiplicityUnfolded;
 int kminN=maxNJets-1;
 int kmaxN=maxNJets;
 bool spanKvaluesN=false;
-
+bool UnfoldDistributions=true; //if true, it performs the unfolding...
 
 int getNumberOfValidGenJets(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet5_pt_gen, double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen){
   int counter=0;
@@ -62,19 +64,19 @@ void Unfolding::LoopJetMultiplicity ()
   }
 
   //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-  bool indentityCheck=true;    //to perform identity check
+  bool indentityCheck=false;    //to perform identity check
   bool splitCheck=false;
   bool pythiaCheck=false;
-  bool bayesianTests=true;
+  bool bayesianTests=false;
   //////////////////////////////////////////////////////////////////
-
+  
+  if (splitCheck) indentityCheck=true;
+  if (pythiaCheck) indentityCheck=true;
+  
   if (indentityCheck) {
     correctForEff=false;
     correctForBkg=false;
   }
-
-  if (splitCheck) indentityCheck=true;
-  if (pythiaCheck) indentityCheck=true;
 
   string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
@@ -100,20 +102,21 @@ void Unfolding::LoopJetMultiplicity ()
   if (!indentityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
   //FOR closure tests
   if (indentityCheck){  
-    if (pythiaCheck) {
-      TFile *_file0 = TFile::Open(smcpythia.c_str()); 
-      _file0->cd("EPTmuoReco_MC");
-      cout<<"Activate the pythia tests->"<<smcpythia<<endl;
-      if (!isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
-      smcdir=smcpythia;
-    }
-    else{
-      fB->cd (smcdir.c_str());
-      if (!isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
-    }
+    //if (pythiaCheck) {
+    //TFile *_file0 = TFile::Open(smcpythia.c_str()); 
+    //_file0->cd("EPTmuoReco_MC");
+    //cout<<"Activate the pythia tests->"<<smcpythia<<endl;
+    //if (!isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+    //if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+    //smcdir=smcpythia;
+    //}
+    //else{
+    fB->cd (smcdir.c_str());
+    if (!isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+    if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+    //}
   }
+
   cout<<"#####################"<<endl;
   cout<<"You'are using"<<endl;
   cout<<sdatadir<<endl;
@@ -130,6 +133,57 @@ void Unfolding::LoopJetMultiplicity ()
   
   int count=0;
   int countGEN=0;  
+
+  RooUnfoldResponse unfold_secondpythia(NMCreco,NTrue);
+  RooUnfoldResponse unfold_second(NMCreco,NTrue);
+  unfold_secondpythia.UseOverflow();
+  unfold_second.UseOverflow();
+
+
+  if (pythiaCheck){
+    //fill the matrix --->
+    fPythia = new TFile (smcpythia.c_str());
+    smcpythia=smcpythia+":/EPTmuoReco_MC";
+    cout<<"-------------------------------------- Pythia check! -------------------"<<endl;
+    cout<<smcpythia<<endl;
+    fPythia->cd (smcpythia.c_str());
+    gDirectory->ls("tree*");
+    TTree *tree_fC= (TTree *) gDirectory->Get ("treeValidationJEC_");
+    if (isMu) tree_fC= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
+    //Filling the other response Matrix
+    fChain = tree_fC;
+    Init (fChain);
+    Long64_t nentries = fChain->GetEntriesFast ();
+    Long64_t nbytes = 0, nb = 0;
+    if (fChain == 0) return;
+
+    for (Long64_t jentry = 0; jentry < nentries; jentry++){
+      Long64_t ientry = LoadTree (jentry);
+      if (ientry < 0)
+	break;
+      nb = fChain->GetEntry (jentry);
+      nbytes += nb;
+      
+      if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
+      
+      if (isElectron!=isEle) {
+	cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+	return;
+      }
+      int offsetJetMultiplicity=0;
+      double thresh=15.0;
+      offsetJetMultiplicity=getNumberOfValidGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+
+      if (Jet_multiplicity > 0 || Jet_multiplicity_gen-offsetJetMultiplicity > 0){
+	NMatxpythia->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,evWeightSherpa);
+	if (Jet_multiplicity >= 1 &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_secondpythia.Fill(Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,evWeightSherpa);
+	if (Jet_multiplicity >= 1 && !( (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)) unfold_secondpythia.Fake(Jet_multiplicity,evWeightSherpa);
+	if (!(Jet_multiplicity >= 1) &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_secondpythia.Miss(Jet_multiplicity_gen-offsetJetMultiplicity,evWeightSherpa);
+      }
+    }
+  }
+
   /*costruisco la matrice di unfolding */
 
   fChain = tree_fA;	
@@ -187,6 +241,9 @@ void Unfolding::LoopJetMultiplicity ()
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
 	  NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	  if (Jet_multiplicity >= 1 &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Fill(Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	  if (Jet_multiplicity >= 1 && !( (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)) unfold_second.Fake(Jet_multiplicity,effcorrmc);
+	  if (!(Jet_multiplicity >= 1) &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Miss(Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	}
       }
       else{
@@ -248,7 +305,7 @@ void Unfolding::LoopJetMultiplicity ()
   // MC Normalization
   //////////////
   double ScaleMCData = ((double)NData->GetEntries()/(double)NMCreco->GetEntries());
- 
+  cout<<"Scale is->"<<ScaleMCData<<endl;
 
   /////////////////////////
   //  Correct for background
@@ -272,7 +329,9 @@ void Unfolding::LoopJetMultiplicity ()
   }
   
   // Fill the matrix response with the MC values, this time as histograms!
-  RooUnfoldResponse response_N(NMCreco, NTrue, NMatx); 
+  if (pythiaCheck) NMatx=NMatxpythia;
+    
+  RooUnfoldResponse response_N(NMCreco, NTrue, NMatx);
   response_N.UseOverflow();
 
   cout<<"***********************"<<endl;
@@ -289,10 +348,31 @@ void Unfolding::LoopJetMultiplicity ()
   k0=0;
   k1=1;    
   }
+
+  TH1D *NTrueSwap;
+
+  if(!differentialCrossSection){
+    response_N=unfold_second;
+  }
+  
+  if (pythiaCheck) {
+    NTrueSwap= (TH1D*) NTrue->Clone("NTrue");
+    NTrueSwap->SetName("NTrueSwap"); 
+    NTrue=NTruepythia;
+    NMatx=NMatxpythia;
+    response_N=unfold_secondpythia;
+  }
+
+  if (pythiaCheck) {
+    NTrue=NTrueSwap; //Perche' fai questo? Per riprendere la MD MC truth e confrontare con il ratio
+  }
+
   
   //Repeating each algorithm
   for (int j=k0; j<k1; j++){
     string method;
+
+    if (UnfoldDistributions){
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
 
@@ -334,6 +414,8 @@ void Unfolding::LoopJetMultiplicity ()
       }
 
       cmultip->cd ();
+
+      if (UnfoldDistributions){
       TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
       pad1->Draw ();
       pad1->cd ();
@@ -495,18 +577,27 @@ void Unfolding::LoopJetMultiplicity ()
       cmultip->Print(title3.c_str());
       num.str("");
       cout<<"PDF file saved (maybe) on "<<title3<<endl;
- 
+      }
     }
   }
+  }
+
+  if (!UnfoldDistributions) JetMultiplicityUnfolded=(TH1F*) NData->Clone();
+  JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
 
   if (saveFile){
     TFile* w = new TFile(filename.c_str(), "UPDATE");
     w->cd();
     JetMultiplicityUnfolded->Write();
     NTrue->Write();
+    NMatx->Write();
+    NData->Write();
+    NMCreco->Write();
     w->Close();
   }  
 
+
+  if (UnfoldDistributions){
   TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
   N->cd ();
   NMatx->SetStats (0);
@@ -524,7 +615,6 @@ void Unfolding::LoopJetMultiplicity ()
   NMatx->Draw ("COLZ,text");
   string title3= s+"MatrixjetMultiplicity.pdf";;
   N->Print(title3.c_str());
-
+  }
 }
-
 

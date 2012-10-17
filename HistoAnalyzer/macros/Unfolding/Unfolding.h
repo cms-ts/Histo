@@ -26,6 +26,7 @@ public :
 
    // Declaration of leaf types
    Double_t        evWeight;
+   Double_t        evWeightSherpa;
    Double_t        Z_pt;
    Double_t        Z_y;
    Int_t           Jet_multiplicity;
@@ -64,6 +65,7 @@ public :
 
    // List of branches
    TBranch        *b_evWeight;   //!
+   TBranch        *b_evWeightSherpa;   //!
    TBranch        *b_Z_pt;   //!
    TBranch        *b_Z_y;   //!
    TBranch        *b_Jet_multiplicity;   //!
@@ -182,6 +184,7 @@ void Unfolding::Init(TTree *tree)
    fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("evWeight", &evWeight, &b_evWeight);
+   fChain->SetBranchAddress("evWeightSherpa", &evWeightSherpa, &b_evWeightSherpa);
    fChain->SetBranchAddress("Z_pt", &Z_pt, &b_Z_pt);
    fChain->SetBranchAddress("Z_y", &Z_y, &b_Z_y);
    fChain->SetBranchAddress("Jet_multiplicity", &Jet_multiplicity, &b_Jet_multiplicity);

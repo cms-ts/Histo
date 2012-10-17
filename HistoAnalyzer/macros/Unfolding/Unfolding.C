@@ -52,16 +52,17 @@ std::endl;
 #endif
 
 string version="_v2_30.root";
-bool isMu=false;  
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_dytoee_pythia_2011_v2_31.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
 TFile *fA;
 TFile *fB;
+TFile *fPythia;
 
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
@@ -69,17 +70,18 @@ TFile *fB;
 //Save histos to be used afterward
 bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UnfoldedDistributionsPtDamiana_v2_32.root";//+version;
+//string filename=direct+"UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnfMu.root";//+version;
+string filename="/tmp/pippo.root";
 
 // Efficiency corrections
-bool correctForEff=false; // If true, it will take the correction factor from outside
+bool correctForEff=true; // If true, it will take the correction factor from outside
 bool useElectronsToCorrect=true;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
-bool differentialCrossSection=true;
+bool differentialCrossSection=false;
 
 // Correct for backgrounds: 
-bool correctForBkg=false;
+bool correctForBkg=true;
 // name of the root file containing background evaluation
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
@@ -87,13 +89,13 @@ string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string bkgstring=dir+"Backgrounds_v2_28.root";
 
 //File with efficiency coefficients
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";//+version;
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
 
-TFile *eff = TFile::Open(efffile.c_str()); 
+TFile *eff;
 
 //Open MC and data files to retrieve effciencies
-TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-TFile *fBeff = new TFile (efffile.c_str());  
+TFile *fAeff; // WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+TFile *fBeff; 
 
 /* Number of jet associated to a Z distribution */
 //-------------------------
@@ -132,11 +134,17 @@ Unfolding::Loop()
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
     smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_30.root";
   }
   fA = new TFile (smc.c_str());
   fB = new TFile (sdata.c_str()); 
+
+  eff = TFile::Open(efffile.c_str()); 
+
+//Open MC and data files to retrieve effciencies
+  fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  fBeff = new TFile (efffile.c_str());  
 
   cout<<"########################################"<<endl;
   cout<<"You're using:"<<endl;
@@ -147,14 +155,15 @@ Unfolding::Loop()
   cout<<"########################################"<<endl;
 
   setTDRStyle();
-  //LoopJetMultiplicity();
-  //LoopZpt();
-  //LoopZy();
 
-  int numbOfJets=2;
-  //LoopJetPt(numbOfJets);
-  //LoopHt(numbOfJets);
-  LoopJetEta(numbOfJets);
+  int numbOfJetsForLoop=1;
+  //LoopJetPt(numbOfJetsForLoop);
+  //LoopHt(numbOfJetsForLoop);
+  //LoopJetEta(numbOfJetsForLoop);
+
+  LoopJetMultiplicity();
+  
+
 }
 
 void
@@ -164,12 +173,19 @@ Unfolding::LoopOneFour()
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
     smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";//+version
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version
     bkgstring=dir+"BackgroundsMu_v2_30.root";
   }
 
   fA = new TFile (smc.c_str());
   fB = new TFile (sdata.c_str()); 
+
+  eff = TFile::Open(efffile.c_str()); 
+
+//Open MC and data files to retrieve effciencies
+  fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  fBeff = new TFile (efffile.c_str());
+
   cout<<"########################################"<<endl;
   cout<<"You're using:"<<endl;
   cout<<smc<<endl;
@@ -178,7 +194,7 @@ Unfolding::LoopOneFour()
   cout<<bkgstring<<endl;
   cout<<"########################################"<<endl;
 
-  //setTDRStyle();
+  setTDRStyle();
   //LoopJetMultiplicity();
 
   for (int i=1; i<=4; i++){

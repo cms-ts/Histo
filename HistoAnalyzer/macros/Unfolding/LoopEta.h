@@ -116,9 +116,11 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   
 
   TH1D *jTrue = new TH1D ("jTrue", "jetpT Truth",divPlot,minPtPlot,maxPtPlot);
+  TH1D *jTruepythia = new TH1D ("jTruepythia", "jetpT Truth using Pythia",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData = new TH1D ("jData", "jetpT DATA Measured",divPlot,minPtPlot,maxPtPlot);
   TH1D *jReco = new TH1D ("jReco", "jetpT Unfolded DATA",divPlot,minPtPlot,maxPtPlot);
   TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jetpT Rapidity ",divPlot,minPtPlot,maxPtPlot,divPlot,minPtPlot,maxPtPlot);
+  TH2D *jMatxpythia = new TH2D ("jMatxpythia", "Unfolding Matrix jetpT Rapidity using pythia",divPlot,minPtPlot,maxPtPlot,divPlot,minPtPlot,maxPtPlot);
   TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2",divPlot,minPtPlot,maxPtPlot);
   TH1D *jRatio_ = new TH1D ("jRatio_", "jetpTRatio",divPlot,minPtPlot,maxPtPlot);
@@ -129,21 +131,24 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   TH1F *unfoerror = new TH1F ("unfoerror", "unfoerror",divPlot,0,divPlot);
   TH1F *unfoerrormat = new TH1F ("unfoerrormat", "unfoerrormat",divPlot,0,divPlot);
   TH1F *unfoerrordiag = new TH1F ("unfoerrordiag", "unfoerrordiag",divPlot,0,divPlot);
+  TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
+  TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrectionsmc", "efficiencycorrectionsmc",60,0,3);	
   
 
  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-  bool identityCheck=true;    //to perform identity check
+  bool identityCheck=false;    //to perform identity check
   bool splitCheck=false;
   bool pythiaCheck=false;
-  bool bayesianTests=true;
+  bool bayesianTests=false;
   //////////////////////////////////////////////////////////////////
+
+  if (splitCheck) identityCheck=true;
+  if (pythiaCheck) identityCheck=true;
 
   if (identityCheck) {
     correctForEff=false;
     correctForBkg=false;
   }
-
-  if (splitCheck) identityCheck=true;
 
 
   jReco->Sumw2();
@@ -185,6 +190,85 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   RooUnfoldResponse unfold_jBayes(jMCreco,jTrue);
   unfold_jBayes.UseOverflow();
 
+  RooUnfoldResponse unfold_jBayespythia(jMCreco,jTrue);
+  unfold_jBayespythia.UseOverflow();
+
+  if (pythiaCheck){
+    //fill the matrix --->
+    string pythiaold=smcpythia;
+    fPythia = new TFile (smcpythia.c_str());
+    smcpythia=smcpythia+":/EPTmuoReco_MC";
+    cout<<"-------------------------------------- Pythia check! -------------------"<<endl;
+    cout<<smcpythia<<endl;
+    fPythia->cd (smcpythia.c_str());
+    gDirectory->ls("tree*");
+    TTree *tree_fC= (TTree *) gDirectory->Get ("treeValidationJEC_");
+    if (isMu) tree_fC= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+    
+    //Filling the other response Matrix
+    fChain = tree_fC;
+    Init (fChain);
+    Long64_t nentries = fChain->GetEntriesFast ();
+    Long64_t nbytes = 0, nb = 0;
+    if (fChain == 0) return;
+    
+    for (Long64_t jentry = 0; jentry < nentries; jentry++){
+      Long64_t ientry = LoadTree (jentry);
+      if (ientry < 0)
+	break;
+      nb = fChain->GetEntry (jentry);
+      nbytes += nb;
+      
+      if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
+      
+      if (isElectron!=isEle) {
+	cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+	return;
+      }
+      
+      int offsetJetMultiplicity=0;
+      double thresh=15.0;
+      double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+      if (correctGenJetEta==0) continue;
+      /////////////////////////
+      if(numbOfJets==1 && ( (jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || fabs(correctGenJetEta)<=2.4) ){
+	jMatxpythia->Fill(jet1_eta, correctGenJetEta);	 
+	jTruepythia->Fill (correctGenJetEta);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fill(jet1_eta, correctGenJetEta);
+	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fake(jet1_eta);
+	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Miss(correctGenJetEta);
+      }
+
+      if(numbOfJets==2 && ( (jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) || fabs(correctGenJetEta)<=2.4) ){
+	jMatxpythia->Fill(jet2_eta, correctGenJetEta);	 
+	jTruepythia->Fill (correctGenJetEta);
+	if ((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fill(jet2_eta, correctGenJetEta);
+	if ((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fake(jet2_eta);
+	if (!(jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Miss(correctGenJetEta);
+      }
+
+      if(numbOfJets==3 && ( (jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) || fabs(correctGenJetEta)<=2.4) ){
+	jMatxpythia->Fill(jet3_eta, correctGenJetEta);	 
+	jTruepythia->Fill (correctGenJetEta);
+	if ((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fill(jet3_eta, correctGenJetEta);
+	if ((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fake(jet3_eta);
+	if (!(jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Miss(correctGenJetEta);
+      }
+
+      if(numbOfJets==4 && ( (jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) || fabs(correctGenJetEta)<=2.4) ){
+	jMatxpythia->Fill(jet4_eta, correctGenJetEta);	 
+	jTruepythia->Fill (correctGenJetEta);
+	if ((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fill(jet4_eta, correctGenJetEta);
+	if ((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Fake(jet4_eta);
+	if (!(jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayespythia.Miss(correctGenJetEta);
+      }
+
+      
+      ///////////////////////
+    }
+    smcpythia=pythiaold;
+  }
+
   //Setting the errors
   jTrue->Sumw2();
   jMCreco->Sumw2();
@@ -224,16 +308,13 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 
 
       double thresh=15.0;
-   if (isElectron!=isEle) {
-      cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
-      return;
-    }
+
 
    double effcorrmc=1.0;
 
       //if (ientry>80000) continue;
       if (numbOfJets<=1){
-	double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+	double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
 
 	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || fabs(correctGenJetEta)<=2.4 ){ 
 	  //Correct for efficiencies event per event
@@ -334,11 +415,13 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       nb2 = fChain->GetEntry (jentry);
       nbytes += nb2;
 
+      double effcorrmc=1.00;
+	    
       if (numbOfJets==1){      
-	if( fabs(jet1_eta)<2.4 ){    // Old        if( jet1_eta>=0 && jet1_eta<7000 ){
+	if( jet1_pt>30 && jet1_pt<7000 && fabs(jet1_eta)){    // Old        if( jet1_eta>=0 && jet1_eta<7000 ){
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
+	    effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	    jData->Fill (jet1_eta,effcorrmc);	 
 	    jData2->Fill (jet1_eta,effcorrmc);	
 	  }
@@ -347,10 +430,11 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	    jData2->Fill (jet1_eta);
 	  }
 	}
+	efficiencycorrections->Fill(effcorrmc);
       }
 
       if (numbOfJets==2){      
-	if( fabs(jet2_eta)<2.4 ){ 
+	if( jet2_pt>30 && fabs(jet2_eta)<2.4 ){ 
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
 	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
@@ -365,7 +449,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       }
 
       if (numbOfJets==3){      
-	if( fabs(jet3_eta)<2.4 ){ 
+	if( jet3_pt>30 && fabs(jet3_eta)<2.4 ){ 
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
 	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
@@ -380,7 +464,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       }
 
       if (numbOfJets==4){      
-	if( fabs(jet4_eta)<2.4 ){ 
+	if( jet4_pt>30 && fabs(jet4_eta)<2.4 ){ 
 	  //Correct for efficiencies, event per event
 	  if (correctForEff){
 	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
@@ -434,8 +518,24 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
     }
   }
  
+
+ TH1D *jTrueSwap;
+  
+  if (pythiaCheck) {
+    jMatx=jMatxpythia;
+    jTrueSwap= (TH1D*) jTrue->Clone("jTrue");
+    jTrueSwap->SetName("jTrueSwap"); 
+    jTrue=jTruepythia;
+    unfold_jBayes=unfold_jBayespythia;
+  }
+
   RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
   response_j.UseOverflow();
+
+  if (pythiaCheck) {
+    jTrue=jTrueSwap; //Perche' fai questo? Per riprendere la MD MC truth e confrontare con il ratio
+    response_j=unfold_jBayespythia;
+  }
 
   TH1F *vstatistics=new TH1F("vstatistics","vstatistics",divPlot,0,divPlot);
   string title2,title;
@@ -825,6 +925,25 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   ///////////
   ///SAve unfolded distribution
   /////////// 
+
+ //Efficiency correction
+  TCanvas *efficiency = new TCanvas ("efficiency", "efficiency", 1000, 700);
+  efficiency->cd ();
+  efficiencycorrectionsmc->SetStats (111111);
+  efficiencycorrectionsmc->GetXaxis()->SetTitle("Coefficients");
+  efficiencycorrectionsmc->GetYaxis()->SetTitle("#");
+  efficiencycorrectionsmc->SetLineColor(kRed);
+  efficiencycorrectionsmc->Draw();
+  efficiencycorrections->SetLineColor(kBlack);
+  efficiencycorrections->Draw("SAMES");
+  
+  TLegend *legend_eff = new TLegend (0.23494, 0.696429, 0.431727, 0.895833);
+  legend_eff->SetFillColor (0);
+  legend_eff->SetFillStyle (0);
+  legend_eff->SetBorderSize (0);
+  legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
+  legend_eff->AddEntry (efficiencycorrections, "Data", "L");
+  legend_eff->Draw ("same");
       
   if (saveFile){
     TFile* w = new TFile(filename.c_str(), "UPDATE");

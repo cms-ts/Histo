@@ -7,6 +7,7 @@ bool spanKvaluesH = false;
 double thresh = 15.0;
 TH1F *HReco2;
 string numjet;
+bool UnfoldDistributionsHt=true;
 
 int
 getNumberOfValidGenJetsH (int Jet_multiplicity_gen, double thresh,double jet1_pt_gen, double jet2_pt_gen,double jet3_pt_gen, double jet4_pt_gen,double jet5_pt_gen, double jet6_pt_gen,double jet1_eta_gen, double jet2_eta_gen,double jet3_eta_gen, double jet4_eta_gen,double jet5_eta_gen, double jet6_eta_gen)
@@ -122,8 +123,7 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,double thresh,
     jetPt = pt[whichjet - 1];
   //restituisci il pt (se valido) del get che ti chiede corrispondene all'oridne che chiedsi
 
-  //if (jetPt != jet1_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_
-//      pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<jetPt<<")"<<endl;
+  //if (jetPt != jet1_pt_gen) cout<<"jet multipl->"<<Jet_multiplicity_gen<<" jet1pt->"<<jet1_pt_gen<<" jet2pt->"<<jet2_pt_gen<<" jet3_pt->"<<jet3_pt_gen<<" jet4_pt->"<<jet4_pt_gen<<" jet1eta->"<<jet1_eta_gen<<" jet2eta->"<<jet2_eta_gen<<" jet3_eta->"<<jet3_eta_gen<<" jet4_eta->"<<jet4_eta_gen<<" (return "<<jetPt<<")"<<endl;
 
   return jetPt;
 
@@ -132,13 +132,12 @@ getGenJetPtOfAGivenOrderH (int Jet_multiplicity_gen, int whichjet,double thresh,
 
 void
 Unfolding::LoopHt (int Nj)
-{
-  
+{  
   cout << endl;
   cout << "*********************************" << endl;
   cout << "Unfolding HT" << " with Nj equal to "<<Nj<<endl;
   cout << "*********************************" << endl;
-
+  
 #ifdef __CINT__
   gSystem->Load ("libRooUnfold");
 #endif
@@ -174,27 +173,29 @@ Unfolding::LoopHt (int Nj)
       Nmin = 120;
       Nmax = 630;
     }
-	TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
-	TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
-	TH2D *HMatx = new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,Nbins, Nmin, Nmax);
-	TH2D *HMatxlong = new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins+1, 0,Nmax, Nbins+1, 0, Nmax);
-	TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", Nbins, Nmin, Nmax);
-	TH1D *HMCrecoratio_ = new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
-	TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", Nbins, Nmin, Nmax);
-	TH1F *relativebkgH =  new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,0.5, maxNJets - 0.5);
-	TH1F *vstatistics=new TH1F("vstatistics","vstatistics",Nbins, Nmin, Nmax);
-	TH1F *staterror = new TH1F ("staterror", "staterror",Nbins, Nmin, Nmax);
-	TH1F *staterrorsqrt = new TH1F ("staterrorsqrt", "staterrorsqrt",Nbins, Nmin, Nmax);
-	TH1F *unfoerror = new TH1F ("unfoerror", "unfoerror",Nbins, Nmin, Nmax);
-	TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);	
-	TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
-
+  TH1D *HTrue = new TH1D ("HTrue", "H Truth", Nbins, Nmin, Nmax);
+  TH1D *HTruepythia = new TH1D ("HTruepythia", "H Truth using pythia", Nbins, Nmin, Nmax);
+  TH1D *HData = new TH1D ("HData", "H DATA Measured", Nbins, Nmin, Nmax);
+  TH2D *HMatx = new TH2D ("H hMatx", "Unfolding Matrix in # of jets + Z", Nbins, Nmin, Nmax,Nbins, Nmin, Nmax);
+  TH2D *HMatxpythia = new TH2D ("H hMatxpythia", "Unfolding Matrix in # of jets + Z using Pythia", Nbins, Nmin, Nmax,Nbins, Nmin, Nmax);
+  TH2D *HMatxlong = new TH2D ("H hMatxlong", "Unfolding Matrix in # of jets + Z", Nbins+1, 0,Nmax, Nbins+1, 0, Nmax);
+  TH1D *HMCreco = new TH1D ("H mcreco", "H mcreco", Nbins, Nmin, Nmax);
+  TH1D *HMCrecoratio_ = new TH1D ("H mcrecoratio_", "H mcreco_", Nbins, Nmin, Nmax);
+  TH1D *HData2 = new TH1D ("H data2", "H DATA Measured2", Nbins, Nmin, Nmax);
+  TH1F *relativebkgH =  new TH1F ("relativebkgH", "relativebkg bin contribution", maxNJets - 0.5,0.5, maxNJets - 0.5);
+  TH1F *vstatistics=new TH1F("vstatistics","vstatistics",Nbins, Nmin, Nmax);
+  TH1F *staterror = new TH1F ("staterror", "staterror",Nbins, Nmin, Nmax);
+  TH1F *staterrorsqrt = new TH1F ("staterrorsqrt", "staterrorsqrt",Nbins, Nmin, Nmax);
+  TH1F *unfoerror = new TH1F ("unfoerror", "unfoerror",Nbins, Nmin, Nmax);
+  TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);	
+  TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
+  
   if (spanKvaluesH)
     {
       kminH = 1;
       kmaxH = maxNJets - 2;
     }
-
+  
   bool Debug = false;		//decomment it to increase verbosity
 
 
@@ -202,10 +203,10 @@ Unfolding::LoopHt (int Nj)
   bool indentityCheck=false;    //to perform identity check
   bool splitCheck=false;
   bool pythiaCheck=false;
-  bool bayesianTest=true;
+  bool bayesianTest=false;
   //////////////////////////////////////////////////////////////////
-
-
+  
+  
   if (splitCheck) indentityCheck=true;
   if (pythiaCheck) indentityCheck=true;
 
@@ -213,23 +214,106 @@ Unfolding::LoopHt (int Nj)
     correctForEff=false;
     correctForBkg=false;
   }
-
- string sdatadir=sdata+":/validationJEC";
+  
+  string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
-
+  
   string smcdir=smc+":/EPTmuoReco_MC";   
-
+  
   if (isMu) {
     smcdir=smc+":/EPTmuoReco_MC";
   }
   if (indentityCheck) sdatadir=smcdir;
-  if (pythiaCheck) {
-    smcdir=smc+":/EPTmuoReco_MC";  
-    cout<<"Activate the pythia tests->"<<smcdir<<endl;
-  }
 
-  fA->cd (smcdir.c_str());
+  RooUnfoldResponse unfold_secondpythia(HMCreco,HTrue);
+  unfold_secondpythia.UseOverflow();
+
+if (pythiaCheck){
+  //fill the matrix --->
+  fPythia = new TFile (smcpythia.c_str());
+  string pythiaold=smcpythia;
+  smcpythia=smcpythia+":/EPTmuoReco_MC";
+  cout<<"-------------------------------------- Pythia check! -------------------"<<endl;
+  cout<<"if you see no effects, have you checked if the response matrix that you use is the one filled by the pythia loop?"<<endl;
+  cout<<smcpythia<<endl;
+  fPythia->cd (smcpythia.c_str());
   gDirectory->ls("tree*");
+  TTree *tree_fC= (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (isMu) tree_fC= (TTree *) gDirectory->Get ("treeValidationJECMu_");
+
+  //Filling the other response Matrix
+  fChain = tree_fC;
+  Init (fChain);
+  Long64_t nentries = fChain->GetEntriesFast ();
+  Long64_t nbytes = 0, nb = 0;
+  if (fChain == 0) return;
+  
+  for (Long64_t jentry = 0; jentry < nentries; jentry++){
+    Long64_t ientry = LoadTree (jentry);
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry (jentry);
+    nbytes += nb;
+    //do the analysis, basically
+    //if (ientry>375000) continue;
+    double thresh=15.0;
+    double Ht, Ht_gen;
+    double correctGenJetPt;
+    int genJet;
+    
+  if (isElectron!=isEle) {
+	cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
+	return;
+      }
+
+  if (Jet_multiplicity>100) {
+    cout<<"Very bad multiplicity! What the hell!!"<<endl;
+    continue;
+  }
+    genJet = Jet_multiplicity_gen - getNumberOfValidGenJetsH (Jet_multiplicity_gen,30.0, jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen, \
+							      jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+    
+    for (int i = 1; i <= Jet_multiplicity_gen; i++)
+      {
+	correctGenJetPt = getGenJetPtOfAGivenOrderH (Jet_multiplicity_gen, i, 15.0,
+						    jet1_pt_gen, jet2_pt_gen, jet3_pt_gen,
+						    jet4_pt_gen, jet5_pt_gen, jet6_pt_gen,
+						    jet1_eta_gen, jet2_eta_gen,
+						    jet3_eta_gen, jet4_eta_gen,
+						    jet5_eta_gen, jet6_eta_gen);
+	
+	if (Debug) cout << "pT=" << correctGenJetPt << "N=" << genJet << "multi_gen="<< Jet_multiplicity_gen <<" "<<ientry<< endl;
+	
+	if (correctGenJetPt > 0 && correctGenJetPt < 7000 && genJet >= Nj)
+	  {
+	    Ht_gen += correctGenJetPt;
+	  }
+      }                       //!
+    
+    
+    if (Jet_multiplicity >= Nj)
+      {
+	if (jet1_pt > 0 && jet1_pt < 7000) Ht += jet1_pt;
+	if (jet2_pt > 0 && jet2_pt < 7000) Ht += jet2_pt;
+	if (jet3_pt > 0 && jet3_pt < 7000) Ht += jet3_pt;
+	if (jet4_pt > 0 && jet4_pt < 7000) Ht += jet4_pt;
+	if (jet5_pt > 0 && jet5_pt < 7000) Ht += jet5_pt;
+	if (jet6_pt > 0 && jet6_pt < 7000) Ht += jet6_pt;
+      }
+
+    if (Jet_multiplicity >= Nj && genJet >= Nj) unfold_secondpythia.Fill(Ht, Ht_gen);
+    if (Jet_multiplicity >= Nj && !(genJet >= Nj)) unfold_secondpythia.Fake(Ht);
+    if (!(Jet_multiplicity >= Nj) && genJet >= Nj) unfold_secondpythia.Miss(Ht_gen);
+    if (Jet_multiplicity >= Nj || genJet >= Nj) HMatxpythia->Fill(Ht, Ht_gen);
+    if (Jet_multiplicity >= Nj || genJet >= Nj) HTruepythia->Fill(Ht_gen);
+  Ht = 0;
+  Ht_gen = 0;
+  }
+    smcpythia=pythiaold;
+ }
+
+fA->cd (smcdir.c_str());
+gDirectory->ls("tree*");
  
   TTree *tree_fA;
   if (!isMu) tree_fA = (TTree *) gDirectory->Get ("treeValidationJEC_");
@@ -263,6 +347,7 @@ Unfolding::LoopHt (int Nj)
   int count = 0;
 
   //Second way to bulid the response matriz
+
   RooUnfoldResponse unfold_second(HMCreco,HTrue);
   unfold_second.UseOverflow();
 
@@ -505,7 +590,21 @@ Unfolding::LoopHt (int Nj)
     }
 
   // Fill the matrix response with the MC values, this time as histograms!
+ 
+  TH1D *HTrueSwap;
+  
+  if (pythiaCheck) {
+    HTrueSwap= (TH1D*) HTrue->Clone("HTrue");
+    HTrueSwap->SetName("HTrueSwap"); 
+    HTrue=HTruepythia;
+    HMatx=HMatxpythia;
+    unfold_second=unfold_secondpythia;
+  }
   RooUnfoldResponse response_H (HMCreco, HTrue, HMatx);
+
+  if (pythiaCheck) {
+    HTrue=HTrueSwap; //Perche' fai questo? Per riprendere la MD MC truth e confrontare con il ratio
+  }
 
   response_H.UseOverflow ();
 
@@ -528,6 +627,8 @@ Unfolding::LoopHt (int Nj)
   stringstream num;
   stringstream numJ;
   numJ << Nj;
+
+  if (UnfoldDistributionsHt){
   //Repeating each algorithm
   for (int j = k0; j < k1; j++)
     {
@@ -563,6 +664,7 @@ Unfolding::LoopHt (int Nj)
 	  if (method == "Svd")
 	    {
 	      //RooUnfoldSvd unfold_H (&response_H, HData, myNumber);
+	      if (pythiaCheck) myNumber=4;
 	      RooUnfoldSvd unfold_H (&unfold_second, HData, myNumber);	// OR
 	      HReco = (TH1D *) unfold_H.Hreco ();
 	      // Extract covariance matrix TMatrixD m= unfold_j.Ereco();
@@ -571,6 +673,7 @@ Unfolding::LoopHt (int Nj)
 	      TVectorD vunfomat= unfold_H.ErecoV(RooUnfold::kCovariance);
 	      TVectorD vunfodiag= unfold_H.ErecoV(RooUnfold::kErrors);	
 	      std::vector<double> err;
+
 	      for (unsigned int k=0; k<HReco->GetNbinsX(); k++){
 		HReco->SetBinError(k+1,sqrt(HReco->GetBinContent(k+1)) ); //CORREGGERE QUESTA FORZATURA... E' LEFFICIENZA CHE SPARA
 		vstatistics->SetBinContent(k+1,sqrt(HData->GetBinContent(k+1)));
@@ -581,7 +684,6 @@ Unfolding::LoopHt (int Nj)
 	      } 
 	      kcontainer.push_back(err);
 	    }
-
 
 	  if (differentialCrossSection)
 	    {
@@ -775,6 +877,7 @@ Unfolding::LoopHt (int Nj)
 
 	}
     }
+  
 
   if (makeSecondaryPlots){
   ///Background and K parameter
@@ -888,7 +991,9 @@ Unfolding::LoopHt (int Nj)
   N->Print(title3.c_str());
   }
   //Save the info
+  }
 
+  if (!UnfoldDistributionsPt) HReco2=(TH1F*) HData->Clone();
 
   if (saveFile){
     TFile* w = new TFile(filename.c_str(), "UPDATE");
