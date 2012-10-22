@@ -317,6 +317,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
 
 	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || fabs(correctGenJetEta)<=2.4 ){ 
+	  if (correctGenJetEta==0 & jet1_pt>0) continue;
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);

@@ -68,10 +68,10 @@ TFile *fPythia;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
-bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-//string filename=direct+"UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnfMu.root";//+version;
-string filename="/tmp/pippo.root";
+string filename=direct+"UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnfMu.root";//+version;
+//string filename="/tmp/pippo.root";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -157,11 +157,11 @@ Unfolding::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  //LoopJetPt(numbOfJetsForLoop);
+  LoopJetPt(numbOfJetsForLoop);
   //LoopHt(numbOfJetsForLoop);
   //LoopJetEta(numbOfJetsForLoop);
 
-  LoopJetMultiplicity();
+  //LoopJetMultiplicity();
   
 
 }

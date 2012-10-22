@@ -192,6 +192,8 @@ void Unfolding::LoopJetMultiplicity ()
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
 
+  int counter3=0;
+
   if (splitCheck) {
     nentries=(int) 2.0*(nentries/3.);
     cout<<"Slitcheck is active, so Dataset A has now "<<nentries<<endl;
@@ -213,9 +215,9 @@ void Unfolding::LoopJetMultiplicity ()
       return;
     }
     
-    if (Jet_multiplicity >= 0 || Jet_multiplicity_gen >= 0){
+    if (Jet_multiplicity >= 1 || Jet_multiplicity_gen >= 0){
       double thresh=15.0;
-      
+      counter3++;
       // To control and exclude jets having energy below "thresh"
       int offsetJetMultiplicity=0;
       
@@ -242,8 +244,8 @@ void Unfolding::LoopJetMultiplicity ()
 	  NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
 	  if (Jet_multiplicity >= 1 &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Fill(Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
-	  if (Jet_multiplicity >= 1 && !( (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)) unfold_second.Fake(Jet_multiplicity,effcorrmc);
-	  if (!(Jet_multiplicity >= 1) &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Miss(Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	  //if (Jet_multiplicity >= 1 && !( (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)) unfold_second.Fake(Jet_multiplicity,effcorrmc);
+	  //if (!(Jet_multiplicity >= 1) &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Miss(Jet_multiplicity_gen-offsetJetMultiplicity);
 	}
       }
       else{
@@ -260,6 +262,7 @@ void Unfolding::LoopJetMultiplicity ()
   }
   
   cout<<"GEN >0 but <30 ->"<<countGEN<<" while RECO =0 ->"<<count<<endl;
+  cout<<"the loop on MC has selected ->"<<counter3<<endl;
   /*Loop on data */
   fChain = tree_fB;	
   Init (fChain);	
@@ -277,7 +280,7 @@ void Unfolding::LoopJetMultiplicity ()
     nbytes += nb2;
     if (Jet_multiplicity > 30) continue;
     
-    if (Jet_multiplicity >= 0){
+    if (Jet_multiplicity >= 0 && jet1_pt<330){
       if (correctForEff){
 	if (!useElectronsToCorrect){
 	  std::vector<double> valuesdata=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"Data");
@@ -390,10 +393,12 @@ void Unfolding::LoopJetMultiplicity ()
       if (method=="Bayesian") {
 	RooUnfoldBayes unfold_N (&response_N, NData, myNumber);
 	NReco = (TH1D *) unfold_N.Hreco ();
+	unfold_N.PrintTable(cout,NTrue);
       }
       if (method=="Svd"){
-	RooUnfoldSvd unfold_N (&response_N, NData, myNumber);	// OR
+	RooUnfoldSvd unfold_N (&unfold_second, NData, myNumber);	// OR
 	NReco = (TH1D *) unfold_N.Hreco ();
+	unfold_N.PrintTable(cout,NTrue);
       }
       
       NReco->Sumw2();
@@ -600,19 +605,19 @@ void Unfolding::LoopJetMultiplicity ()
   if (UnfoldDistributions){
   TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
   N->cd ();
-  NMatx->SetStats (0);
+  NMatxlong->SetStats (0);
   gPad->SetLogz (1);
   gPad->SetRightMargin(0.15);
-  NMatx->SetTitle("");
-  NMatx->GetXaxis()->SetTitle("Reconstructed # of Jets");
-  NMatx->GetYaxis()->SetTitle("Generated # of Jets");
+  NMatxlong->SetTitle("");
+  NMatxlong->GetXaxis()->SetTitle("Reconstructed # of Jets");
+  NMatxlong->GetYaxis()->SetTitle("Generated # of Jets");
   gStyle->SetPalette (1);
   gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
-  NMatx->SetMarkerColor (kBlack);
-  //double entries=1.000/(double)NMatxlong->Integral();
-  //NMatxlong->Scale(entries);
-  NMatx->Draw ("COLZ,text");
+  NMatxlong->SetMarkerColor (kBlack);
+  //double entries=1.000/(double)NMatxlonglong->Integral();
+  //NMatxlonglong->Scale(entries);
+  NMatxlong->Draw ("COLZ,text");
   string title3= s+"MatrixjetMultiplicity.pdf";;
   N->Print(title3.c_str());
   }

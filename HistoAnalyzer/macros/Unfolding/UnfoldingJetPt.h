@@ -148,7 +148,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jetpT Rapidity ",divPlot,minPtPlot,maxPtPlot,divPlot,minPtPlot,maxPtPlot);
   TH2D *jCorr = new TH2D ("jCorr", "Unfolding Matrix jetpT Rapidity ",4,0,4,4,0,4);
 
-  TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jetpT Rapidity ",divPlot+1,minPtPlot-30,maxPtPlot,divPlot+1,minPtPlot-30,maxPtPlot);
+  TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jetpT Rapidity ",divPlot+2,minPtPlot-40,maxPtPlot,divPlot+2,minPtPlot-40,maxPtPlot);
   TH2D *jMatxpythia = new TH2D ("jMatxpythia", "Unfolding Matrix jetpT Rapidity using pythia",divPlot+1,minPtPlot-30,maxPtPlot,divPlot+1,minPtPlot-30,maxPtPlot);
   TH1D *jMCreco = new TH1D ("jMCreco", "jetpT mcreco",divPlot,minPtPlot,maxPtPlot);
   TH1D *jData2 = new TH1D ("jData2", "jetpT DATA Measured2",divPlot,minPtPlot,maxPtPlot);
@@ -331,6 +331,8 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
 
+  int counter3=0;
+
   if (splitCheck) {
     nentries=(int) 2.0*(nentries/3.);
     cout<<"Slitcheck is active, so Dataset A has now "<<nentries<<endl;
@@ -348,6 +350,8 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
 
+      if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
+
    if (isElectron!=isEle) {
       cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
       return;
@@ -363,7 +367,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       //Case that were Z+0 Jets and not properly addressed!
       if ((offsetJetMultiplicity-Jet_multiplicity_gen)==0 && Jet_multiplicity==0) {
 	counter++;
-	continue;
+	//continue;
       }
 
       double effcorrmc=1.0;
@@ -371,9 +375,13 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
       if (numbOfJetsSelected<=1){
 	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-	//correctGenJetPt=jet1_pt_gen;
-	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
 
+	if ((Jet_multiplicity >= 1 ||  (Jet_multiplicity_gen) >=1) && offsetJetMultiplicity==0){
+	//if (Jet_multiplicity >= 1 && (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1 ){
+	//if (Jet_multiplicity >= 1 && !( (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)){
+	//  (!(Jet_multiplicity >= 1) &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)
+	//  ){
+	  counter3++;
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
 	    if (!useElectronsToCorrect){
@@ -381,34 +389,39 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
 	      effcorrmc=effcorrmc*1.00/valuesmc[0];	
 	      double efferrmc=valuesmc[1]/pow(valuesmc[0],2);
-	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
- 	      jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
+	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	
 	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	    else{
 	      effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	      efficiencycorrectionsmc->Fill(effcorrmc);
 	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
-	      jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
 	      jMCreco->Fill (jet1_pt,effcorrmc);
 	    }
 	  }
 	  else {
 	    jMatx->Fill (jet1_pt, correctGenJetPt);
-	    jMatxlong->Fill (jet1_pt, correctGenJetPt);
 	    jMCreco->Fill (jet1_pt);
 	  }
 	  jTrue->Fill (correctGenJetPt);
 	  supplabel="_jet1";
+	  // Questa e' quando c'e' tutto
+	  if ((Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt,effcorrmc);
+	  if (Jet_multiplicity>=1 && !(correctGenJetPt>0 && correctGenJetPt<7000)) {
+	    unfold_jBayes.Fake(jet1_pt,effcorrmc);
+	  }
+	  //Questa e' facili, c'era e non l'ho visto
+	  if (!(Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
+	  //(!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(0.,0.,effcorrmc);
 	}
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt,effcorrmc);
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt,effcorrmc);
-	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
-
-	//Old Way
-	//if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt, correctGenJetPt);
-	//if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt, correctGenJetPt);
-	//if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(jet1_pt, correctGenJetPt);
+	else{
+	  if ((Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fill(jet1_pt,effcorrmc);
+	  if (Jet_multiplicity>=1 && !(correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Fake(jet1_pt,effcorrmc);
+	  //Questa e' facili, c'era e non l'ho visto
+	  if (!(Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)) unfold_jBayes.Miss(correctGenJetPt);
+	  if ((Jet_multiplicity==0) && (Jet_multiplicity_gen-offsetJetMultiplicity)==0) unfold_jBayes.Fill(0,0,effcorrmc);
+	}
+	jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
       }
       
       if (numbOfJetsSelected==2){
@@ -508,7 +521,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   jMCreco->Sumw2();
   
   cout<<"I missed "<<counter<<" events"<<endl;
-
+  cout<<"the loop on MC has selected ->"<<counter3<<endl;
 
   fChain = tree_fB;		/* Loop Data */
   Init (fChain);	
@@ -741,7 +754,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
       if (method=="Svd"){
 	jReco->Sumw2();
-	RooUnfoldSvd unfold_j (&unfold_jBayes, jData, myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
+	RooUnfoldSvd unfold_j (&unfold_jBayes, jData,myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
 	//RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 1000);	// OR
 	jReco = (TH1F *) unfold_j.Hreco ();
 	unfold_j.PrintTable(cout,jTrue);
@@ -976,20 +989,20 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
       TCanvas *N =new TCanvas ("jet pT response matrix", "jet pT response matrix", 1000, 700);
       N->cd ();
-      jMatx->SetStats (0);
+      jMatxlong->SetStats (0);
       gPad->SetLogz (1);
       gPad->SetRightMargin(0.15);
-      jMatx->SetTitle("");
-      jMatx->GetZaxis()->SetRangeUser(0.002,1);
-      jMatx->GetXaxis()->SetTitle("Reconstructed jet pT [GeV/c]");
-      jMatx->GetYaxis()->SetTitle("Generated jet pT [GeV/c]");
+      jMatxlong->SetTitle("");
+      jMatxlong->GetZaxis()->SetRangeUser(0.002,1);
+      jMatxlong->GetXaxis()->SetTitle("Reconstructed jet pT [GeV/c]");
+      jMatxlong->GetYaxis()->SetTitle("Generated jet pT [GeV/c]");
       gStyle->SetPalette (1);
       gStyle->SetPaintTextFormat ("5.3f");
       gStyle->SetNumberContours (999);
-      jMatx->SetMarkerColor (kBlack);
-      double entries=1.000/(double)jMatx->Integral();
-      jMatx->Scale(entries);
-      jMatx->Draw ("COLZ,text");
+      jMatxlong->SetMarkerColor (kBlack);
+      double entries=1.000/(double)jMatxlong->Integral();
+      jMatxlong->Scale(entries);
+      jMatxlong->Draw ("COLZ,text");
       string title5= s+"JetPtUnfoMatrix"+method+"_"+num.str()+supplabel+".pdf";
       N->Print(title5.c_str());      
 
