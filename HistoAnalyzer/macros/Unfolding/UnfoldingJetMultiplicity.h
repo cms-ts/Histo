@@ -12,10 +12,43 @@ TH1F *relativebkgN = new TH1F("relativebkgN", "relativebkg bin contribution",max
 TH1F *JetMultiplicityUnfolded;
 int kminN=maxNJets-1;
 int kmaxN=maxNJets;
-bool spanKvaluesN=false;
+bool spanKvaluesN=true;
 bool UnfoldDistributions=true; //if true, it performs the unfolding...
 
-int getNumberOfValidGenJets(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet5_pt_gen, double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen){
+int getNumberOfValidGenJets(double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet5_pt_gen, double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen){
+  int counter=0;
+  double thresheta=2.4; 
+
+  for (int i=1;i<=6; i++){
+    if (i==1){
+      if (jet1_pt_gen>thresh && fabs(jet1_eta_gen)<thresheta ) counter++;
+    }
+    
+    if (i==2){
+      if (jet2_pt_gen>thresh && fabs(jet2_eta_gen)<thresheta ) counter++;
+    }
+
+    if (i==3){
+      if (jet3_pt_gen>thresh && fabs(jet3_eta_gen)<thresheta ) counter++;
+    }
+
+    if (i==4){
+      if (jet4_pt_gen>thresh && fabs(jet4_eta_gen)<thresheta ) counter++;
+    }
+
+    if (i==5){
+      if (jet5_pt_gen>thresh && fabs(jet5_eta_gen)<thresheta ) counter++;
+    }
+
+    if (i==6){
+      if (jet6_pt_gen>thresh && fabs(jet6_eta_gen)<thresheta ) counter++;
+    }
+    
+  }// for
+  return counter;
+}// end
+
+int getNumberOfFakeGenJets(int Jet_multiplicity_gen, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet5_pt_gen, double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen){
   int counter=0;
   for (int i=1;i<=Jet_multiplicity_gen; i++){
     if (i==1){
@@ -46,7 +79,6 @@ int getNumberOfValidGenJets(int Jet_multiplicity_gen, double thresh, double jet1
   return counter;
 }// end
 
-
 void Unfolding::LoopJetMultiplicity ()
 {
   cout<<endl;
@@ -59,8 +91,8 @@ void Unfolding::LoopJetMultiplicity ()
 #endif
 
   if (spanKvaluesN){
-    kminN=1;
-    kmaxN=maxNJets-2; 
+    kminN=2;
+    kmaxN=maxNJets; 
   }
 
   //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
@@ -140,7 +172,7 @@ void Unfolding::LoopJetMultiplicity ()
   unfold_second.UseOverflow();
 
 
-  if (pythiaCheck){
+  if (pythiaCheck){	
     //fill the matrix --->
     fPythia = new TFile (smcpythia.c_str());
     smcpythia=smcpythia+":/EPTmuoReco_MC";
@@ -172,8 +204,8 @@ void Unfolding::LoopJetMultiplicity ()
 	return;
       }
       int offsetJetMultiplicity=0;
-      double thresh=15.0;
-      offsetJetMultiplicity=getNumberOfValidGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+      double thresh=20.0;
+      offsetJetMultiplicity=getNumberOfFakeGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
 
       if (Jet_multiplicity > 0 || Jet_multiplicity_gen-offsetJetMultiplicity > 0){
 	NMatxpythia->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,evWeightSherpa);
@@ -183,6 +215,11 @@ void Unfolding::LoopJetMultiplicity ()
       }
     }
   }
+
+  int categoryCounter=0;
+  double fillCounter=0;
+  double missCounter=0;
+  double fakeCounter=0;
 
   /*costruisco la matrice di unfolding */
 
@@ -215,13 +252,19 @@ void Unfolding::LoopJetMultiplicity ()
       return;
     }
     
-    if (Jet_multiplicity >= 1 || Jet_multiplicity_gen >= 0){
-      double thresh=15.0;
+    //if (jentry>10) continue;
+
+    categoryCounter++;
+
+    double thresh=30.0;
+    double realGenJetMultiplicity=getNumberOfValidGenJets(thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+
+    if (Jet_multiplicity >= 1 ||  realGenJetMultiplicity >= 1){
       counter3++;
       // To control and exclude jets having energy below "thresh"
       int offsetJetMultiplicity=0;
-      
-      offsetJetMultiplicity=getNumberOfValidGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+      offsetJetMultiplicity=getNumberOfFakeGenJets(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+
       double effcorrmc=1.0*evWeight;
       if (indentityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
 
@@ -230,39 +273,59 @@ void Unfolding::LoopJetMultiplicity ()
 	  std::vector<double> valuesmc=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"MC");
 	  effcorrmc=effcorrmc*(1.00/valuesmc[0]);	
 	  double efferrmc=valuesmc[1]/pow(valuesmc[0],2); 
-	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
+	  NTrue->Fill (realGenJetMultiplicity);
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
-	  NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
-	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
+	  NMatx->Fill (Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
+	  NMatxlong->Fill (Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
 	}
 	else{
-	  double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-	  NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
+	  effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
-	  NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
-	  NMatxlong->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
-	  if (Jet_multiplicity >= 1 &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Fill(Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity,effcorrmc);
-	  //if (Jet_multiplicity >= 1 && !( (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1)) unfold_second.Fake(Jet_multiplicity,effcorrmc);
-	  //if (!(Jet_multiplicity >= 1) &&  (Jet_multiplicity_gen-offsetJetMultiplicity) >= 1) unfold_second.Miss(Jet_multiplicity_gen-offsetJetMultiplicity);
+	  NMatx->Fill (Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
+	  NMatxlong->Fill (Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
+	  if (Jet_multiplicity >= 1 &&  (realGenJetMultiplicity) >= 1) {
+	    unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
+	    fillCounter+=effcorrmc;
+	  NTrue->Fill (realGenJetMultiplicity);
+	  }
+	  if (Jet_multiplicity >= 1 && !( (realGenJetMultiplicity) >= 1)) {
+	    unfold_second.Fake(Jet_multiplicity,effcorrmc);
+	    fakeCounter+=1*effcorrmc;
+	  NTrue->Fill (realGenJetMultiplicity);
+	  }
+	  if (!(Jet_multiplicity >= 1) &&  (realGenJetMultiplicity) >= 1) {
+	    unfold_second.Miss(realGenJetMultiplicity);
+	    missCounter+=1*effcorrmc;
+	  NTrue->Fill (realGenJetMultiplicity);
+	  }
 	}
       }
       else{
-	NTrue->Fill (Jet_multiplicity_gen-offsetJetMultiplicity);
+	NTrue->Fill (realGenJetMultiplicity);
 	NMCreco->Fill (Jet_multiplicity);
 	NMCrecoratio_->Fill(Jet_multiplicity);
 	if (jet1_pt_gen<30) countGEN++;
 	if (jet1_pt<30) count++;	
-	NMatx->Fill (Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity);
-	NMatxlong->Fill(Jet_multiplicity, Jet_multiplicity_gen-offsetJetMultiplicity);
-	//cout<<"jet_multip_gen->"<<Jet_multiplicity_gen-offsetJetMultiplicity<<"  jet_multip->"<<Jet_multiplicity<<" jet1_pt_gen->"<<jet1_pt_gen<<" jet1_pt->"<<jet1_pt<<" jet1_eta_gen->"<<jet1_eta_gen<<"jet1_eta->"<<jet1_eta<<" jet2_pt_gen->"<<jet2_pt_gen<<" jet2_pt->"<<jet2_pt<<" jet2_eta_gen->"<<jet2_eta_gen<<endl;
+	NMatx->Fill (Jet_multiplicity, realGenJetMultiplicity);
+	NMatxlong->Fill(Jet_multiplicity, realGenJetMultiplicity);
+	//cout<<"jet_multip_gen->"<<realGenJetMultiplicity<<"  jet_multip->"<<Jet_multiplicity<<" jet1_pt_gen->"<<jet1_pt_gen<<" jet1_pt->"<<jet1_pt<<" jet1_eta_gen->"<<jet1_eta_gen<<"jet1_eta->"<<jet1_eta<<" jet2_pt_gen->"<<jet2_pt_gen<<" jet2_pt->"<<jet2_pt<<" jet2_eta_gen->"<<jet2_eta_gen<<endl;
       }
     }
   }
-  
+
   cout<<"GEN >0 but <30 ->"<<countGEN<<" while RECO =0 ->"<<count<<endl;
   cout<<"the loop on MC has selected ->"<<counter3<<endl;
+  cout<<"********************"<<endl;
+  cout<<"number of events in MC training "<<categoryCounter<<endl;
+  cout<<"number of events in MC training that fall in Fill "<<fillCounter<<endl;
+  cout<<"number of events in MC training that fall in Miss "<<missCounter<<endl;
+  cout<<"number of events in MC training that fall in Fakw "<<fakeCounter<<endl;
+  cout<<"********************"<<endl;
+
+  int dataCounter=0;
+  
   /*Loop on data */
   fChain = tree_fB;	
   Init (fChain);	
@@ -279,8 +342,8 @@ void Unfolding::LoopJetMultiplicity ()
     nb2 = fChain->GetEntry (jentry);
     nbytes += nb2;
     if (Jet_multiplicity > 30) continue;
-    
-    if (Jet_multiplicity >= 0 && jet1_pt<330){
+
+    if (Jet_multiplicity >= 0){
       if (correctForEff){
 	if (!useElectronsToCorrect){
 	  std::vector<double> valuesdata=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"Data");
@@ -396,11 +459,13 @@ void Unfolding::LoopJetMultiplicity ()
 	unfold_N.PrintTable(cout,NTrue);
       }
       if (method=="Svd"){
-	RooUnfoldSvd unfold_N (&unfold_second, NData, myNumber);	// OR
+	RooUnfoldSvd unfold_N (&unfold_second, NData, myNumber,1000);	// OR
 	NReco = (TH1D *) unfold_N.Hreco ();
 	unfold_N.PrintTable(cout,NTrue);
-      }
+	cout<<"Chi2 of this k parameter(k="<<myNumber<<")<< is "<<unfold_N.Chi2(NTrue,RooUnfold::kCovariance)<<endl;
       
+      }
+
       NReco->Sumw2();
 
       if (differentialCrossSection){
