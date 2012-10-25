@@ -52,11 +52,12 @@ std::endl;
 #endif
 
 string version="_v2_30.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
+//smc="/tmp/matteo.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
@@ -70,7 +71,7 @@ TFile *fPythia;
 //Save histos to be used afterward
 bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnfMu.root";//+version;
+string filename=direct+"UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnf.root";//+version;
 //string filename="/tmp/pippo.root";
 
 // Efficiency corrections
@@ -137,6 +138,9 @@ Unfolding::Loop()
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_30.root";
   }
+
+  //  smc="/tmp/matteo.root";
+
   fA = new TFile (smc.c_str());
   fB = new TFile (sdata.c_str()); 
 
@@ -161,7 +165,7 @@ Unfolding::Loop()
   //LoopHt(numbOfJetsForLoop);
   //LoopJetEta(numbOfJetsForLoop);
 
-  //LoopJetMultiplicity();
+  LoopJetMultiplicity();
   
 
 }
