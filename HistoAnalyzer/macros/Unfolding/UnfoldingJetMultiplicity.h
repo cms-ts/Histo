@@ -256,7 +256,7 @@ void Unfolding::LoopJetMultiplicity ()
 
     categoryCounter++;
 
-    double thresh=30.0;
+    double thresh=29.0;
     double realGenJetMultiplicity=getNumberOfValidGenJets(thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
 
     if (Jet_multiplicity >= 1 ||  realGenJetMultiplicity >= 1){

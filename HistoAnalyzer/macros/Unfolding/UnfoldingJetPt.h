@@ -8,7 +8,7 @@ double maxPtPlot=330;
 int divPlot=15;
 int kmin=1;
 int kmax=1;
-bool spanKvalues=true;
+bool spanKvalues=false;
 bool Unfold=true;
 bool UnfoldDistributionsPt=true;
 
@@ -170,7 +170,11 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   TH1F *unfoerror = new TH1F ("unfoerror", "unfoerror",divPlot,0,divPlot);
   TH1F *unfoerrormat = new TH1F ("unfoerrormat", "unfoerrormat",divPlot,0,divPlot);
   TH1F *unfoerrordiag = new TH1F ("unfoerrordiag", "unfoerrordiag",divPlot,0,divPlot);
-  
+
+  //2D...
+  TH2D *jTrue2 = new TH2D ("jTrue2", "jetpT Truth2",divPlot,minPtPlot,maxPtPlot,maxNJets-0.5,0.5,maxNJets-0.5);
+  TH2D *jData22 = new TH2D ("jData22","jetpT DATA Measured",divPlot,minPtPlot,maxPtPlot,maxNJets-0.5,0.5,maxNJets-0.5);
+  TH2D *jMCreco2 = new TH2D ("jMCreco2", "jetpT mcreco2",divPlot,minPtPlot,maxPtPlot,maxNJets-0.5,0.5,maxNJets-0.5);  
   /////////////
 
   //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
@@ -310,7 +314,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   unfold_jBayes.UseOverflow();
   RooUnfoldResponse unfold_second(NMCreco,NTrue);
   unfold_second.UseOverflow();
- 
+  //2D
+  RooUnfoldResponse unfold_jBayes2(jMCreco2,jTrue2);
+  //Non Decommentare! unfold_jBayes2.UseOverflow();
+
   cout<<"#####################"<<endl;
   cout<<"You'are using"<<endl;
   cout<<sdatadir<<endl;
@@ -364,7 +371,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
     }
 
    //if (ientry>10) continue;
-      double thresh=30.0;
+      double thresh=25.0;
       double realGenJetMultiplicity=getNumberOfValidGenJets(thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
       
       // To control and exclude jets having energy below "thresh"
@@ -415,17 +422,20 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	    unfold_jBayes.Fill(jet1_pt, correctGenJetPt,effcorrmc);
 	    fillCounter+=effcorrmc;
 	    unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
+	    unfold_jBayes2.Fill(jet1_pt,Jet_multiplicity,correctGenJetPt,realGenJetMultiplicity,effcorrmc);
 	  }
 	  if (Jet_multiplicity>=1 && !(correctGenJetPt>0 && correctGenJetPt<7000)) {
 	    unfold_jBayes.Fake(jet1_pt,effcorrmc);
 	    fakeCounter+=1*effcorrmc;
 	    unfold_second.Fake(Jet_multiplicity,effcorrmc);
+	    unfold_jBayes2.Fake(jet1_pt,Jet_multiplicity,effcorrmc);
 	  }
 	  //Questa e' facili, c'era e non l'ho visto
 	  if (!(Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)){
 	    unfold_jBayes.Miss(correctGenJetPt);
 	    missCounter+=1*effcorrmc;
 	    unfold_second.Miss(realGenJetMultiplicity);
+	    unfold_jBayes2.Miss(correctGenJetPt,realGenJetMultiplicity);
 	  }
 	}
 	else{
@@ -436,16 +446,19 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	    unfold_jBayes.Fake(jet1_pt,effcorrmc);
 	    fakeCounter+=effcorrmc;
 	    unfold_second.Fake(Jet_multiplicity,effcorrmc);
+	    unfold_jBayes2.Fake(jet1_pt,Jet_multiplicity,effcorrmc);
 	  }
 	  if (correctGenJetPt>0 && Jet_multiplicity==0){
 		unfold_jBayes.Miss(correctGenJetPt);
 		missCounter+=1*effcorrmc;
 		unfold_second.Miss(realGenJetMultiplicity);
+		unfold_jBayes2.Miss(correctGenJetPt,realGenJetMultiplicity);
 	  }
 	  if (correctGenJetPt>0 && Jet_multiplicity>0){
 	    fillCounter+=effcorrmc;
 	    unfold_jBayes.Fill(jet1_pt,correctGenJetPt,effcorrmc);
 	    unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
+	    unfold_jBayes2.Fill(jet1_pt,Jet_multiplicity,correctGenJetPt,realGenJetMultiplicity,effcorrmc);
 	  }
 	}
 	jMatxlong->Fill (jet1_pt, correctGenJetPt,effcorrmc);	 
@@ -597,6 +610,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	      jData2->Fill (jet1_pt,effcorrdata);
 	      effAnne->Fill(jet1_pt,effcorrdata);
 	      NData->Fill (Jet_multiplicity,effcorrdata);
+	      jData22->Fill (jet1_pt,Jet_multiplicity);
 	    }
 	  }
 	  else {
@@ -793,16 +807,28 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
       if (method=="Svd"){
 	jReco->Sumw2();
-	RooUnfoldSvd unfold_j (&unfold_jBayes, jData, 15, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
+	RooUnfoldSvd unfold_j (&unfold_jBayes, jData, myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
 	//RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 1000);	// OR
 	jReco = (TH1F *) unfold_j.Hreco ();
 	unfold_j.PrintTable(cout,jTrue);
-	cout<<"Chi2 of this k parameter(k="<<myNumber<<")<< is "<<unfold_j.Chi2(jTrue,RooUnfold::kCovariance)<<endl;
+	cout<<"Chi2 of this k parameter(k="<<myNumber<<")<< is "<<unfold_j.Chi2(jTrue,RooUnfold::kErrors)<<endl;
+
+	//AREA TEST: changing the observables
 	//RooUnfoldSvd unfold_j2 (&unfold_second, NData,6); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
 	//TH1D *jReco2 = (TH1D *) unfold_j2.Hreco ();
 	//cout<<"AAAAAAAAAAAAAAA"<<jReco2->Integral()/4890.0<<endl;
 	//unfold_j2.PrintTable(cout);
-
+      
+	
+	//2D Unfolding
+	RooUnfoldSvd unfold_j2 (&unfold_jBayes2, jData22, myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
+	TH2F* jReco2 = (TH2F *) unfold_j2.Hreco ();
+	jReco= (TH1F*) jReco2->ProjectionX();
+ 	TH1F *jReco2D= (TH1F*) jReco2->ProjectionY();
+	cout<<"AAAAAAAAAAAAAAA: Area X->"<<jReco->Integral()/4890.0<<endl;
+	cout<<"AAAAAAAAAAAAAAA: Area Y->"<<jReco2D->Integral()/4890.0<<endl;
+	cout<<"Chi2 of this 2D k parameter(k="<<myNumber<<")<< is "<<unfold_j.Chi2(jTrue,RooUnfold::kCovariance)<<endl;
+	
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
 	TVectorD vunfo= unfold_j.ErecoV(RooUnfold::kCovToy);
