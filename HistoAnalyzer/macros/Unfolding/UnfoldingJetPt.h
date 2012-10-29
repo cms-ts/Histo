@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include "TSVDUnfold.h"
 
 /*Leading jet pt*/
 double minPtPlot=30;
@@ -11,6 +12,7 @@ int kmax=1;
 bool spanKvalues=false;
 bool Unfold=true;
 bool UnfoldDistributionsPt=true;
+bool Unf2D=false;
 
 TCanvas cc;
 
@@ -102,6 +104,13 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   gSystem->Load ("libRooUnfold");
 #endif
 
+  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
+  bool identityCheck=false;    //to perform identity check
+  bool splitCheck=false;
+  bool pythiaCheck=false;
+  bool bayesianTests=false;
+  //////////////////////////////////////////////////////////////////
+  
   ///////////
   // Format the plots in thew proper way
   ///////////
@@ -109,6 +118,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   if (numbOfJetsSelected==1) {
     kmin=11;
     kmax=12;
+    if (bayesianTests) {
+      kmin=3;
+      kmax=4;
+    }
   }
 
   if (numbOfJetsSelected==2){
@@ -136,8 +149,8 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   }
 
   if (spanKvalues){
-    int kmin=2;
-    int kmax=divPlot; 
+    kmin=2;
+    kmax=divPlot; 
   }
   
 
@@ -175,14 +188,13 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   TH2D *jTrue2 = new TH2D ("jTrue2", "jetpT Truth2",divPlot,minPtPlot,maxPtPlot,maxNJets-0.5,0.5,maxNJets-0.5);
   TH2D *jData22 = new TH2D ("jData22","jetpT DATA Measured",divPlot,minPtPlot,maxPtPlot,maxNJets-0.5,0.5,maxNJets-0.5);
   TH2D *jMCreco2 = new TH2D ("jMCreco2", "jetpT mcreco2",divPlot,minPtPlot,maxPtPlot,maxNJets-0.5,0.5,maxNJets-0.5);  
+
+  //Module D histo
+  TH1D* modD;
+
+
   /////////////
 
-  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-  bool identityCheck=false;    //to perform identity check
-  bool splitCheck=false;
-  bool pythiaCheck=false;
-  bool bayesianTests=false;
-  //////////////////////////////////////////////////////////////////
 
   if (splitCheck) identityCheck=true;
   if (pythiaCheck) identityCheck=true;
@@ -371,7 +383,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
     }
 
    //if (ientry>10) continue;
-      double thresh=25.0;
+      double thresh=30.0;
       double realGenJetMultiplicity=getNumberOfValidGenJets(thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
       
       // To control and exclude jets having energy below "thresh"
@@ -390,6 +402,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       if (!identityCheck) effcorrmc = 1.0 * evWeight; 
       if (numbOfJetsSelected<=1){
 	double correctGenJetPt=getGenJetPtOfAGivenOrder(realGenJetMultiplicity,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+	correctGenJetPt=jet1_pt_gen;
 	effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	
 	if ((Jet_multiplicity >= 1 ||  (realGenJetMultiplicity) >=1) && offsetJetMultiplicity==0){
@@ -419,6 +432,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
 	  // Questa e' quando c'e' tutto
 	  if ((Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)) {
+	    jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	
 	    unfold_jBayes.Fill(jet1_pt, correctGenJetPt,effcorrmc);
 	    fillCounter+=effcorrmc;
 	    unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
@@ -432,6 +446,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	  }
 	  //Questa e' facili, c'era e non l'ho visto
 	  if (!(Jet_multiplicity>=1) && (correctGenJetPt>0 && correctGenJetPt<7000)){
+	    jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	
 	    unfold_jBayes.Miss(correctGenJetPt);
 	    missCounter+=1*effcorrmc;
 	    unfold_second.Miss(realGenJetMultiplicity);
@@ -443,18 +458,21 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	  //if (Jet_multiplicity == 0 && ( (realGenJetMultiplicity) ==0)) unfold_jBayes.Fill(jet1_pt,correctGenJetPt,effcorrmc); //zeri
 
 	  if (!(correctGenJetPt>0) && Jet_multiplicity>=1){
+	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	
 	    unfold_jBayes.Fake(jet1_pt,effcorrmc);
 	    fakeCounter+=effcorrmc;
 	    unfold_second.Fake(Jet_multiplicity,effcorrmc);
 	    unfold_jBayes2.Fake(jet1_pt,Jet_multiplicity,effcorrmc);
 	  }
 	  if (correctGenJetPt>0 && Jet_multiplicity==0){
+	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	
 		unfold_jBayes.Miss(correctGenJetPt);
 		missCounter+=1*effcorrmc;
 		unfold_second.Miss(realGenJetMultiplicity);
 		unfold_jBayes2.Miss(correctGenJetPt,realGenJetMultiplicity);
 	  }
 	  if (correctGenJetPt>0 && Jet_multiplicity>0){
+	      jMatx->Fill (jet1_pt, correctGenJetPt,effcorrmc);	
 	    fillCounter+=effcorrmc;
 	    unfold_jBayes.Fill(jet1_pt,correctGenJetPt,effcorrmc);
 	    unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
@@ -761,9 +779,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";
     cout<<"Running "<<method<<" method"<<endl;
+
     for (int k=kmin; k< kmax; k++){
       int myNumber=k;
-      if (j==0) myNumber=1;
+      //      if (j==0) myNumber=11;   //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH!
       stringstream num;
       //if (myNumber>=divPlot) myNumber=divPlot-1;
       num<<myNumber;
@@ -773,10 +792,11 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       
       if (method=="Bayesian") {
 	jReco->Sumw2();
-	RooUnfoldBayes unfold_j (&unfold_jBayes, jData, myNumber, 1000);
+	RooUnfoldBayes unfold_j (&unfold_jBayes, jData, myNumber);
 	//RooUnfoldBayes unfold_j (&response_j, jData, myNumber+1, 1000);
 	jReco = (TH1F *) unfold_j.Hreco ();
 	unfold_j.PrintTable(cout,jTrue);
+	cout<<"Bayes: Chi2 of this k parameter(k="<<myNumber<<")<< is "<<unfold_j.Chi2(jTrue,RooUnfold::kErrors)<<endl;
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
 	TVectorD vunfo= unfold_j.ErecoV(RooUnfold::kCovToy);
@@ -808,6 +828,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       if (method=="Svd"){
 	jReco->Sumw2();
 	RooUnfoldSvd unfold_j (&unfold_jBayes, jData, myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
+	TSVDUnfold unfold_t (jData, jTrue,jMCreco,jMatx); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
 	//RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 1000);	// OR
 	jReco = (TH1F *) unfold_j.Hreco ();
 	unfold_j.PrintTable(cout,jTrue);
@@ -818,17 +839,21 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	//TH1D *jReco2 = (TH1D *) unfold_j2.Hreco ();
 	//cout<<"AAAAAAAAAAAAAAA"<<jReco2->Integral()/4890.0<<endl;
 	//unfold_j2.PrintTable(cout);
-      
+	TH1D* unfresult = unfold_t.Unfold( myNumber );
+
+	modD = unfold_t.GetD();
 	
 	//2D Unfolding
-	RooUnfoldSvd unfold_j2 (&unfold_jBayes2, jData22, myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
-	TH2F* jReco2 = (TH2F *) unfold_j2.Hreco ();
-	jReco= (TH1F*) jReco2->ProjectionX();
- 	TH1F *jReco2D= (TH1F*) jReco2->ProjectionY();
-	cout<<"AAAAAAAAAAAAAAA: Area X->"<<jReco->Integral()/4890.0<<endl;
-	cout<<"AAAAAAAAAAAAAAA: Area Y->"<<jReco2D->Integral()/4890.0<<endl;
-	cout<<"Chi2 of this 2D k parameter(k="<<myNumber<<")<< is "<<unfold_j.Chi2(jTrue,RooUnfold::kCovariance)<<endl;
-	
+	if (Unf2D){
+	  RooUnfoldSvd unfold_j2 (&unfold_jBayes2, jData22, myNumber, 1000); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
+	  TH2F* jReco2 = (TH2F *) unfold_j2.Hreco ();
+	  jReco= (TH1F*) jReco2->ProjectionX();
+	  TH1F *jReco2D= (TH1F*) jReco2->ProjectionY();
+	  cout<<"AAAAAAAAAAAAAAA: Area X->"<<jReco->Integral()/4890.0<<endl;
+	  cout<<"AAAAAAAAAAAAAAA: Area Y->"<<jReco2D->Integral()/4890.0<<endl;
+	  cout<<"Chi2 of this 2D k parameter(k="<<myNumber<<")<< is "<<unfold_j.Chi2(jTrue,RooUnfold::kCovariance)<<endl;
+	}
+
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
 	TVectorD vunfo= unfold_j.ErecoV(RooUnfold::kCovToy);
@@ -1175,7 +1200,24 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
   legend_eff->AddEntry (efficiencycorrections, "Data", "L");
   legend_eff->Draw ("same");
-      
+
+
+  TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
+  moduloD->cd ();
+  gPad->SetLogy (1);
+  modD->SetStats (111111);
+  modD->GetXaxis()->SetTitle("K Parameters");
+  modD->GetYaxis()->SetTitle("Value");
+  modD->SetLineColor(kRed);
+  modD->Draw();
+  string whichjet="";
+  if (numbOfJetsSelected==1) whichjet="Leading "; 
+  if (numbOfJetsSelected==2) whichjet="Second leading "; 
+  if (numbOfJetsSelected==3) whichjet="Third leading "; 
+  if (numbOfJetsSelected==4) whichjet="Fourth leading "; 
+  string title7=s+"moduloD_jetPt_"+whichjet+".pdf";
+  moduloD->Print(title7.c_str()); 
+
   ///////////
   ///SAve unfolded distribution
   /////////// 

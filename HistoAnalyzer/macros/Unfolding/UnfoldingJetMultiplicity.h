@@ -1,3 +1,5 @@
+#include "TSVDUnfold.h"
+
 TH1D *NTrue = new TH1D ("NTrue", "N Truth", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1D *NTruepythia = new TH1D ("NTruepythia", "N Truth using pythia", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1D *NData = new TH1D ("NData", "N DATA Measured", maxNJets-0.5, 0.5, maxNJets-0.5);
@@ -8,6 +10,10 @@ TH1D *NMCreco = new TH1D ("N mcreco", "N mcreco", maxNJets-0.5, 0.5, maxNJets-0.
 TH1D *NMCrecoratio_ = new TH1D ("N mcrecoratio_", "N mcreco_", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1D *NData2 = new TH1D ("N data2", "N DATA Measured2", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1F *relativebkgN = new TH1F("relativebkgN", "relativebkg bin contribution",maxNJets-0.5,0.5,maxNJets-0.5);
+
+//Module D histo
+TH1D* modD;
+
 
 TH1F *JetMultiplicityUnfolded;
 int kminN=maxNJets-1;
@@ -464,6 +470,9 @@ void Unfolding::LoopJetMultiplicity ()
 	unfold_N.PrintTable(cout,NTrue);
 	cout<<"Chi2 of this k parameter(k="<<myNumber<<")<< is "<<unfold_N.Chi2(NTrue,RooUnfold::kCovariance)<<endl;
       
+	TSVDUnfold unfold_t (NData, NTrue,NMCreco,NMatx); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
+	TH1D* unfresult = unfold_t.Unfold( myNumber );
+	modD = unfold_t.GetD();
       }
 
       NReco->Sumw2();
@@ -654,6 +663,17 @@ void Unfolding::LoopJetMultiplicity ()
 
   if (!UnfoldDistributions) JetMultiplicityUnfolded=(TH1F*) NData->Clone();
   JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
+
+  TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
+  moduloD->cd ();
+  gPad->SetLogy (1);
+  modD->SetStats (111111);
+  modD->GetXaxis()->SetTitle("K Parameters");
+  modD->GetYaxis()->SetTitle("Value");
+  modD->SetLineColor(kRed);
+  modD->Draw();
+  string title7=s+"moduloD_jetMulti.pdf";
+  moduloD->Print(title7.c_str()); 
 
   if (saveFile){
     TFile* w = new TFile(filename.c_str(), "UPDATE");

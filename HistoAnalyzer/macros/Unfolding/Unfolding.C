@@ -57,7 +57,6 @@ bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
-//smc="/tmp/matteo.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
@@ -139,7 +138,7 @@ Unfolding::Loop()
     bkgstring=dir+"BackgroundsMu_v2_30.root";
   }
 
-  smc="/tmp/matteo.root";
+  //smc="/tmp/matteo.root";
 
   fA = new TFile (smc.c_str());
   fB = new TFile (sdata.c_str()); 
@@ -165,7 +164,7 @@ Unfolding::Loop()
   //LoopHt(numbOfJetsForLoop);
   //LoopJetEta(numbOfJetsForLoop);
 
-  LoopJetMultiplicity();
+  //LoopJetMultiplicity();
   
 
 }
