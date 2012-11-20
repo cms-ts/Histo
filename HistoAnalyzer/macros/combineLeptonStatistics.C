@@ -70,7 +70,10 @@ int combineLeptonStatistics () {
   string muoname;
   TH1D *elehisto;
   TH1D *muohisto;
-  // TH1D *combinehisto;
+  TH1D *combinehisto;
+
+  double wmean=0.;
+  double wsigma=0.;
 
   while ((tobj1 = iter1.Next ())) {
     elename = tobj1->GetName ();
@@ -93,6 +96,25 @@ int combineLeptonStatistics () {
 	nbins_muo = muohisto->GetNbinsX();
 	
 	if (nbins_ele != nbins_muo) {cout << "ERROR: combining histos with different binning... exit." << endl; return 0;}
+
+	//	combinehisto->Reset();
+	//	TH1D *combinehisto;
+	combinehisto = (TH1D *) elehisto->Clone ("elehisto");
+	combinehisto->SetName(muoname.c_str ());
+	combinehisto->SetTitle(muoname.c_str ());
+
+	// Compute weighted mean and sigma for every bin:
+	for (int i=1; i<(nbins_ele+1);i++) {
+	  wmean = (elehisto->GetBinContent(i)/elehisto->Integral() + muohisto->GetBinContent(i)/muohisto->Integral()) 
+	    / (elehisto->Integral() + muohisto->Integral());
+	  wsigma = sqrt(pow(elehisto->GetBinContent(i)/elehisto->Integral(),2) 
+			+ pow(muohisto->GetBinContent(i)/muohisto->Integral(),2));
+	  combinehisto->SetBinContent(i,wmean);
+	  combinehisto->SetBinError(i,wsigma);
+	}
+
+	output_file.cd();
+	combinehisto->Write();
 
       }
     }
