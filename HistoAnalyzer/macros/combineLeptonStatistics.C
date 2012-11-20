@@ -106,9 +106,9 @@ int combineLeptonStatistics () {
 	// Compute weighted mean and sigma for every bin:
 	for (int i=1; i<(nbins_ele+1);i++) {
 	  wmean = (elehisto->GetBinContent(i)/elehisto->Integral() + muohisto->GetBinContent(i)/muohisto->Integral()) 
-	    / (elehisto->Integral() + muohisto->Integral());
-	  wsigma = sqrt(pow(elehisto->GetBinContent(i)/elehisto->Integral(),2) 
-			+ pow(muohisto->GetBinContent(i)/muohisto->Integral(),2));
+	    / (1./elehisto->Integral() + 1./muohisto->Integral());
+	  wsigma = sqrt(pow(elehisto->GetBinError(i)/elehisto->Integral(),2) 
+			+ pow(muohisto->GetBinError(i)/muohisto->Integral(),2));
 	  combinehisto->SetBinContent(i,wmean);
 	  combinehisto->SetBinError(i,wsigma);
 	}
