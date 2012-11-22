@@ -28,12 +28,13 @@
 #include "TColor.h"
 #include <string.h>
 
-int combineLeptonRivet () {
+class combineLeptonRivet {
+public:
+  int letscombine ();
+  void mergewhateveruwant (bool isMadGraph, int whichobservable, string wichelepath, string wichmuopath, string wheretocombine);
+};
 
-  bool isMG = true;
-  int usecase = 1;
-
-  //  setTDRStyle ();
+int combineLeptonRivet::letscombine () {
 
   // electron datasets:
   string eleRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
@@ -59,10 +60,52 @@ int combineLeptonRivet () {
   string muoRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
   string muoRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
 
-  string elePathFile = eleRivetPathMadGraph;
-  string muoPathFile = muoRivetPathMadGraph;
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "MadGraph_central.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphDOWN, muoRivetPathMadGraphDOWN, "MadGraph_scaleDOWN.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (true, i, muoRivetPathMadGraphUP, muoRivetPathMadGraphUP, "MadGraph_scaleUP.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF1, muoRivetPathMadGraphPDF1, "MadGraph_PDF1.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "MadGraph_PDF2.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "Sherpa_central.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "Sherpa_scaleDOWN.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaUP, muoRivetPathSherpaUP, "Sherpa_scaleUP.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaPDF1, muoRivetPathSherpaPDF1, "Sherpa_PDF1.root");
+  }
+  for (int i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "Sherpa_PDF2.root");
+  }
 
-  TFile output_file("dioporcello.root","UPDATE");
+  return 0;
+}
+
+void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservable, string wichelepath, string wichmuopath, string wheretocombine) {
+
+  bool isMG = isMadGraph;
+  int usecase = whichobservable;
+
+  //  setTDRStyle ();
+
+  string elePathFile = wichelepath;
+  string muoPathFile = wichmuopath;
+  string outfile = wheretocombine;
+
+  TFile output_file(outfile.c_str (),"UPDATE");
 
   TFile *histofile1 = TFile::Open (elePathFile.c_str ());
   histofile1->cd ("");
@@ -88,8 +131,8 @@ int combineLeptonRivet () {
   TGraphAsymmErrors *combinetgraph;
 
   double wmean=0.;
-  double wsigma=0.;
 
+  // Build the string with the histo/tgraph name:
   stringstream oss1, oss2;
   if (usecase == 1)  {oss1<<"03"; oss2<<"08";}
   if (usecase == 2)  {oss1<<"01"; oss2<<"06";}
@@ -104,7 +147,6 @@ int combineLeptonRivet () {
   if (usecase == 11) {oss1<<"20"; oss2<<"24";}
   if (usecase == 12) {oss1<<"21"; oss2<<"25";}
   if (usecase == 13) {oss1<<"22"; oss2<<"26";}
-
   if (isMG) {
     elename="d"+oss1.str()+"-x01-y01";
     muoname="d"+oss2.str()+"-x01-y01";
@@ -159,7 +201,7 @@ int combineLeptonRivet () {
     nbins_muo = muotgraph->GetN();
   }
 
-  if (nbins_ele != nbins_muo) {cout << "ERROR: combining histos with different binning... exit." << endl; return 0;}
+  if (nbins_ele != nbins_muo) {cout << "ERROR: combining histos with different binning... exit." << endl;}
 
   if (isMG) {
   combinehisto = (TH1D *) elehisto->Clone ("elehisto");
@@ -201,5 +243,4 @@ int combineLeptonRivet () {
   histofile2->Close();
   output_file.Close();
   cout << "Congratulations, combination achieved!" << endl;
-  return 0;
 }
