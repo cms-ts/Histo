@@ -33,20 +33,11 @@ int combineLeptonStatistics () {
 
   //  setTDRStyle ();
 
-  // Combine DATA or MC:
-  bool isMC = false;
-
   string elePathFile;
   string muoPathFile;
 
-  // HISTOS to be combined:
-  if (!isMC) { //DATA:
-    elePathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
-    muoPathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
-  } else { //MC:
-    elePathFile="pippo.root";
-    muoPathFile="pippo.root";
-  }
+  elePathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
+  muoPathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
 
   TFile output_file("/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32_NoNormalization_Combined.root","RECREATE");
 
@@ -105,10 +96,12 @@ int combineLeptonStatistics () {
 
 	// Compute weighted mean and sigma for every bin:
 	for (int i=1; i<(nbins_ele+1);i++) {
-	  wmean = (elehisto->GetBinContent(i)/elehisto->Integral() + muohisto->GetBinContent(i)/muohisto->Integral()) 
-	    / (1./elehisto->Integral() + 1./muohisto->Integral());
-	  wsigma = sqrt(pow(elehisto->GetBinError(i)/elehisto->Integral(),2) 
-			+ pow(muohisto->GetBinError(i)/muohisto->Integral(),2));
+	  wmean =   (elehisto->GetBinContent(i)/(elehisto->GetBinError(i)*elehisto->GetBinError(i)) 
+		   + muohisto->GetBinContent(i)/(muohisto->GetBinError(i)*muohisto->GetBinError(i))) 
+	    / (1./(elehisto->GetBinError(i)*elehisto->GetBinError(i)) 
+	       + 1./(muohisto->GetBinError(i)*muohisto->GetBinError(i)));
+	  wsigma = 1./sqrt(1./(elehisto->GetBinError(i)*elehisto->GetBinError(i)) 
+			   + 1./(muohisto->GetBinError(i)*muohisto->GetBinError(i)));
 	  combinehisto->SetBinContent(i,wmean);
 	  combinehisto->SetBinError(i,wsigma);
 	}
