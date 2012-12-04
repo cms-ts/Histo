@@ -116,8 +116,8 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   ///////////
 
   if (numbOfJetsSelected==1) {
-    kmin=11;
-    kmax=12;
+    kmin=9;
+    kmax=10;
     if (bayesianTests) {
       kmin=3;
       kmax=4;
@@ -128,16 +128,24 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
     minPtPlot=30;
     maxPtPlot=330;
     divPlot=10;
-    kmin=8;
-    kmax=9;
+    kmin=4;
+    kmax=5;
+    if (bayesianTests) {
+      kmin=2;
+      kmax=3;
+    }
   }
 
   if (numbOfJetsSelected==3){
     minPtPlot=30;
     maxPtPlot=190;
     divPlot=8;
-    kmin=6;
-    kmax=7;
+    kmin=4;
+    kmax=5;
+    if (bayesianTests) {
+      kmin=2;
+      kmax=3;
+    }
   }
 
   if (numbOfJetsSelected==4){
@@ -146,6 +154,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
     divPlot=7;
     kmin=3;
     kmax=4;
+    if (bayesianTests) {
+      kmin=2;
+      kmax=3;
+    }
   }
 
   if (spanKvalues){
@@ -383,12 +395,11 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
     }
 
    //if (ientry>10) continue;
-      double thresh=30.0;
-      double realGenJetMultiplicity=getNumberOfValidGenJets(thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+   double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
       
       // To control and exclude jets having energy below "thresh"
       int offsetJetMultiplicity=0;
-      offsetJetMultiplicity=getNumberOfValidGenJetsPt(Jet_multiplicity_gen,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+      offsetJetMultiplicity=getNumberOfValidGenJetsPt(Jet_multiplicity_gen,threshPt,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
       
       //Case that were Z+0 Jets and not properly addressed!
       if ((offsetJetMultiplicity-Jet_multiplicity_gen)==0 && Jet_multiplicity==0) {
@@ -401,8 +412,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       double effcorrmc=1.0;
       if (!identityCheck) effcorrmc = 1.0 * evWeight; 
       if (numbOfJetsSelected<=1){
-	double correctGenJetPt=getGenJetPtOfAGivenOrder(realGenJetMultiplicity,1,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-	correctGenJetPt=jet1_pt_gen;
+	double correctGenJetPt=getGenJetPtOfAGivenOrder(realGenJetMultiplicity,1,threshPt,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+	correctGenJetPt=jet1_pt_gen; //<============================= Correction to jet1 no longer done
+	// e' IL JET BUON IN ETA? Se no, cosa si fa?
+	if (fabs(jet1_eta_gen)>2.4) continue;
 	effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	
 	if ((Jet_multiplicity >= 1 ||  (realGenJetMultiplicity) >=1) && offsetJetMultiplicity==0){
@@ -483,7 +496,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       }
       
       if (numbOfJetsSelected==2){
-	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJetsSelected,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+	double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJetsSelected,threshPt,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
         if((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
@@ -514,7 +527,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       }
 
       if (numbOfJetsSelected==3){
-        double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJetsSelected,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+        double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJetsSelected,threshPt,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
         if((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
@@ -545,7 +558,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       }
 
       if (numbOfJetsSelected==4){
-        double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJetsSelected,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+        double correctGenJetPt=getGenJetPtOfAGivenOrder(Jet_multiplicity_gen,numbOfJetsSelected,threshPt,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
         if((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){
 	  //Correct for efficiencies event per event
 	  if (correctForEff){
@@ -1201,23 +1214,24 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   legend_eff->AddEntry (efficiencycorrections, "Data", "L");
   legend_eff->Draw ("same");
 
-
-  TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
-  moduloD->cd ();
-  gPad->SetLogy (1);
-  modD->SetStats (111111);
-  modD->GetXaxis()->SetTitle("K Parameters");
-  modD->GetYaxis()->SetTitle("Value");
-  modD->SetLineColor(kRed);
-  modD->Draw();
-  string whichjet="";
-  if (numbOfJetsSelected==1) whichjet="Leading "; 
-  if (numbOfJetsSelected==2) whichjet="Second leading "; 
-  if (numbOfJetsSelected==3) whichjet="Third leading "; 
-  if (numbOfJetsSelected==4) whichjet="Fourth leading "; 
-  string title7=s+"moduloD_jetPt_"+whichjet+".pdf";
-  moduloD->Print(title7.c_str()); 
-
+  if (!bayesianTests){
+    TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
+    moduloD->cd ();
+    gPad->SetLogy (1);
+    modD->SetStats (111111);
+    modD->GetXaxis()->SetTitle("K Parameters");
+    modD->GetYaxis()->SetTitle("Value");
+    modD->SetLineColor(kRed);
+    modD->Draw();
+    string whichjet="";
+    if (numbOfJetsSelected==1) whichjet="Leading "; 
+    if (numbOfJetsSelected==2) whichjet="Second leading "; 
+    if (numbOfJetsSelected==3) whichjet="Third leading "; 
+    if (numbOfJetsSelected==4) whichjet="Fourth leading "; 
+    string title7=s+"moduloD_jetPt_"+whichjet+".pdf";
+    moduloD->Print(title7.c_str()); 
+  }
+  
   ///////////
   ///SAve unfolded distribution
   /////////// 

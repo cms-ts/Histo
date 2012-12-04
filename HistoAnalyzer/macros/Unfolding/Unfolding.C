@@ -56,9 +56,14 @@ bool isMu=false;
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
+//string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
+
+//For gen Jet
+double threshPt=28.5;
+double threshEta=2.45;
 
 TFile *fA;
 TFile *fB;
@@ -160,11 +165,11 @@ Unfolding::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  LoopJetPt(numbOfJetsForLoop);
+  //LoopJetPt(numbOfJetsForLoop);
   //LoopHt(numbOfJetsForLoop);
   //LoopJetEta(numbOfJetsForLoop);
 
-  //LoopJetMultiplicity();
+  LoopJetMultiplicity();
   
 
 }
@@ -204,8 +209,8 @@ Unfolding::LoopOneFour()
     //LoopHt(i);
     //LoopZpt();
     //LoopZy();
-    //LoopJetPt(i);
-    LoopJetEta(i); // ------------------------> Correggere baco, fare metodo Miss,Fake e controllare "correctGenJetEta"
+    LoopJetPt(i);
+    //LoopJetEta(i); // ------------------------> Correggere baco, fare metodo Miss,Fake e controllare "correctGenJetEta"
   }
 }
 
