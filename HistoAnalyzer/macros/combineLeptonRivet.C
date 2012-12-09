@@ -191,7 +191,10 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservabl
   int nbins_ele;
   int nbins_muo;
   double dummyXvar=0.;
-  double dummyYvar=0.;
+  double dummyYvarEle=0.;
+  double dummyYvarMuo=0.;
+  double wele=0.;
+  double wmuo=0.;
 
   if (isMG) {
     nbins_ele = elehisto->GetNbinsX();
@@ -213,17 +216,32 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservabl
   combinetgraph->SetTitle(elename.c_str ());
   }
 
+  if (isMG) {
+    wele = elehisto->GetIntegral();
+    wmuo = muohisto->GetIntegral();
+  } else {
+    for (int i=0; i<nbins_ele;i++) {
+      eletgraph->GetPoint(i,dummyXvar,dummyYvarEle);
+      muotgraph->GetPoint(i,dummyXvar,dummyYvarMuo);
+      wele = wele + dummyYvarEle;
+      wmuo = emuo + dummyYvarMuo;
+    }
+  }
+
   // Compute weighted mean and sigma for every bin:
   if (isMG) {
     for (int i=1; i<(nbins_ele+1);i++) {
-      wmean = 1.;
+      dummyYvarEle = elehisto->GetBinContent(i);
+      dummyYvarMuo = muohisto->GetBinContent(i);
+      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
       combinehisto->SetBinContent(i,wmean);
       combinehisto->SetBinError(i,0.);
     }
   } else {
-    for (int i=1; i<(nbins_ele+1);i++) {
-      eletgraph->GetPoint(i,dummyXvar,dummyYvar);
-      wmean = 1.;
+    for (int i=0; i<nbins_ele;i++) {
+      eletgraph->GetPoint(i,dummyXvar,dummyYvarEle);
+      muotgraph->GetPoint(i,dummyXvar,dummyYvarMuo);
+      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
       combinetgraph->SetPoint(i,dummyXvar,wmean);
       combinetgraph->SetPointEYhigh(i,0.);
       combinetgraph->SetPointEYlow(i,0.);
