@@ -1,36 +1,17 @@
-#include "TFile.h"
-#include "TH1.h"
-#include "TDirectory.h"
-#include "TLine.h"
-#include <TH2.h>
-#include "TF1.h"
-#include <TStyle.h>
-#include <TCanvas.h>
-#include "TRandom.h"
-#include "TH1D.h"
-#include "TFile.h"
-#include "TPaveStats.h"
-#include "TLegend.h"
-#include "TLine.h"
 #include <sstream>
-#include "TCut.h"
-#include "TLatex.h"
 #include <vector>
 #include <iostream>
-#include "tdrStyle.C"
 #include <TROOT.h>
 #include "TObject.h"
-#include <iostream>
-#include <sstream>
-#include "TTree.h"
-#include "TH2.h"
-#include "THStack.h"
-#include "TLatex.h"
-#include "TColor.h"
 #include <string.h>
 
+class combineLeptonSystematics {
+public:
+  int letscombine ();
+  std::vector<double> systSum(string eleEff, string muoEff, string eleJEC, string muoJEC, string eleUnf, string muoUnf, string elePU, string muoPU);
+};
 
-int combineLeptonSystematics () {
+int combineLeptonSystematics::letscombine () {
    
   string version="_v2_32";
   string plotpath="/gpfs/cms/users/schizzi/Systematics/";
@@ -63,32 +44,33 @@ int combineLeptonSystematics () {
 
   for (int var=0; var<variablesName.size(); var++){
 
-    output=plotpath+variablesName[var]+"FinalSyst"+version+".txt";
+    output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
     cout << "Writing " << output  << " ..."<< endl;
 
-    eleEff = plotpath+"ele/systematicsEff_"variablesName[var]+version+".txt";
-    muoEff = plotpath+"muo/systematicsEff_"variablesName[var]+version+".txt";
-    eleJEC = plotpath+"ele/systematicsJEC_"variablesName[var]+version+".txt";
-    muoJEC = plotpath+"muo/systematicsJEC_"variablesName[var]+version+".txt";
-    eleUnf = plotpath+"ele/systematicsUnfMethod_"variablesName[var]+version+".txt";
-    muoUnf = plotpath+"muo/systematicsUnfMethod_"variablesName[var]+version+".txt";
-    elePU  = plotpath+"ele/systematicsPU_"variablesName[var]+version+".txt";
-    muoPU  = plotpath+"muo/systematicsPU_"variablesName[var]+version+".txt";
+    eleEff = plotpath+"ele/systematicsEff_"+variablesName[var]+version+".txt";
+    muoEff = plotpath+"muo/systematicsEff_"+variablesName[var]+version+".txt";
+    eleJEC = plotpath+"ele/systematicsJEC_"+variablesName[var]+version+".txt";
+    muoJEC = plotpath+"muo/systematicsJEC_"+variablesName[var]+version+".txt";
+    eleUnf = plotpath+"ele/systematicsUnfMethod_"+variablesName[var]+version+".txt";
+    muoUnf = plotpath+"muo/systematicsUnfMethod_"+variablesName[var]+version+".txt";
+    elePU  = plotpath+"ele/systematicsPU_"+variablesName[var]+version+".txt";
+    muoPU  = plotpath+"muo/systematicsPU_"+variablesName[var]+version+".txt";
 
-    std::vector<double> jetSyst = systSum();   
+    std::vector<double> jetSyst = systSum(eleEff, muoEff, eleJEC, muoJEC, eleUnf, muoUnf, elePU, muoPU);   
 
     ofstream syste;
     syste.open(output.c_str());
     for (int i=0;i<jetSyst.size();i++){
       syste<<jetSyst[i]<<endl;
     }
+    syste.close();
   }
 
   return 0;
 }
 
 
-std::vector<double> systSum(string eleEff, string muoEff, string eleJEC, string muoJEC, string eleUnf, string muoUnf, string elePU, string muoPU){
+std::vector<double> combineLeptonSystematics::systSum(string eleEff, string muoEff, string eleJEC, string muoJEC, string eleUnf, string muoUnf, string elePU, string muoPU){
 	
   // Leggere nomi dei file da aprire
    
@@ -173,7 +155,7 @@ std::vector<double> systSum(string eleEff, string muoEff, string eleJEC, string 
     i++;  
   }
 
-  cou << "   Combining " << i << " bins." << endl;
+  cout << "   Combining " << i << " bins." << endl;
 
   inEleEff.close();
   inMuoEff.close();
