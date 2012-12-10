@@ -33,8 +33,7 @@
 int combineLeptonSystematics () {
    
   string version="_v2_32";
-  string plotpathIn="/gpfs/cms/users/schizzi/Systematics/";
-  string plotpathOut="/gpfs/cms/users/schizzi/Systematics/";
+  string plotpath="/gpfs/cms/users/schizzi/Systematics/";
 
   std::vector<string> variablesName;
   variablesName.clear();
@@ -52,74 +51,138 @@ int combineLeptonSystematics () {
   variablesName.push_back("jet3Ht");
   variablesName.push_back("jet4Ht");
 
+  string eleEff;
+  string muoEff;
+  string eleJEC;
+  string muoJEC;
+  string eleUnf;
+  string muoUnf;
+  string elePU;
+  string muoPU;
+  string output;
+
   for (int var=0; var<variablesName.size(); var++){
-    string nameFile = plotpathIn+variablesName[var]+"SystFile.dat";
-    std::vector<double> jetSyst = systSum(nameFile);   
-    cout << "writing ...   "<<endl;
-    string output=plotpathOut+variablesName[var]+"FinalSyst"+version+".txt";
+
+    output=plotpath+variablesName[var]+"FinalSyst"+version+".txt";
+    cout << "Writing " << output  << " ..."<< endl;
+
+    eleEff = plotpath+"ele/systematicsEff_"variablesName[var]+version+".txt";
+    muoEff = plotpath+"muo/systematicsEff_"variablesName[var]+version+".txt";
+    eleJEC = plotpath+"ele/systematicsJEC_"variablesName[var]+version+".txt";
+    muoJEC = plotpath+"muo/systematicsJEC_"variablesName[var]+version+".txt";
+    eleUnf = plotpath+"ele/systematicsUnfMethod_"variablesName[var]+version+".txt";
+    muoUnf = plotpath+"muo/systematicsUnfMethod_"variablesName[var]+version+".txt";
+    elePU  = plotpath+"ele/systematicsPU_"variablesName[var]+version+".txt";
+    muoPU  = plotpath+"muo/systematicsPU_"variablesName[var]+version+".txt";
+
+    std::vector<double> jetSyst = systSum();   
+
     ofstream syste;
     syste.open(output.c_str());
     for (int i=0;i<jetSyst.size();i++){
       syste<<jetSyst[i]<<endl;
     }
-    cout << "written   "<<output<<endl;
-    cout <<"............................................"<<endl;
   }
 
   return 0;
 }
 
 
-std::vector<double> systSum(string nameFile){
+std::vector<double> systSum(string eleEff, string muoEff, string eleJEC, string muoJEC, string eleUnf, string muoUnf, string elePU, string muoPU){
 	
-  //_______leggere nomi dei file da aprire__________________
+  // Leggere nomi dei file da aprire
    
   std::vector<double> syst;
-  std::vector<string> name;
-  name.clear();
    
-  ifstream in;
-  in.open (nameFile.c_str());
+  ifstream inEleEff;
+  inEleEff.open (eleEff.c_str());
+  ifstream inMuoEff;
+  inMuoEff.open (muoEff.c_str());
+
+  ifstream inEleJEC;
+  inEleJEC.open (eleJEC.c_str());
+  ifstream inMuoJEC;
+  inMuoJEC.open (muoJEC.c_str());
+
+  ifstream inEleUnf;
+  inEleUnf.open (eleUnf.c_str());
+  ifstream inMuoUnf;
+  inMuoUnf.open (muoUnf.c_str());
+
+  ifstream inElePU;
+  inElePU.open (elePU.c_str());
+  ifstream inMuoPU;
+  inMuoPU.open (muoPU.c_str());
    
   int i=0;
-  string nameTmp;
-  cout <<"reading the files ... "<< endl;
-  while (1) {
-    getline (in, nameTmp);
-    //cout <<i<<" "<< nameTmp<<endl;
-    if (!in.good()) break;
-    name.push_back(nameTmp);
-    cout <<i+1<<" "<< name[i]<<endl;
-    i++;
-  }
-  in.close();
-   
-  //__________leggere in un ciclo	i file corrispondenti_______
-   
-  string indi;
-  double dat;
-  int l1=0;
-   
-  for (int it=0; it< name.size(); it++) {
-    indi=name[it];
-    ifstream in;
-    in.open (indi.c_str());
-    int l2 =0;
-    while (1) {
-      in >> dat;
-      if (!in.good()) break;
-      if (l1==0){syst.push_back(dat);}
-      else {
-	double systTmp = sqrt(syst[l2]*syst[l2]+dat*dat);
-	syst[l2]=systTmp;
-      }
-      l2++;  
-    }
-      
-    in.close();      
-    l1++;
-  }
-   
-  return syst;
+  double datEleEff;
+  double datMuoEff;
+  double datEleJEC;
+  double datMuoJEC;
+  double datEleUnf;
+  double datMuoUnf;
+  double datElePU;
+  double datMuoPU;
 
+  double tmpEff;
+  double tmpJEC;
+  double tmpUnf;
+  double tmpPU;
+
+  double tmpSyst;
+
+  while (1) {
+    inEleEff >> datEleEff;
+    inMuoEff >> datMuoEff;
+    inEleJEC >> datEleJEC;
+    inMuoJEC >> datMuoJEC;
+    inEleUnf >> datEleUnf;
+    inMuoUnf >> datMuoUnf;
+    inElePU  >> datElePU;
+    inMuoPU  >> datMuoPU;
+
+    if (!inEleEff.good() && !inMuoEff.good() && !inEleJEC.good() && !inMuoJEC.good() &&
+	!inEleUnf.good() && !inMuoUnf.good() && !inElePU.good()  && !inMuoPU.good()) {
+      break;
+    }
+
+    // Dummy crosscheck on the number of bins in every file:
+    if (!inEleEff.good() || !inMuoEff.good() || !inEleJEC.good() || !inMuoJEC.good() ||
+	!inEleUnf.good() || !inMuoUnf.good() || !inElePU.good()  || !inMuoPU.good()) {
+      cout << "PROBLEM WITH BINNING, EXITING COMBINATION LOOP!!!" << endl;
+      break;
+    }
+
+    if (!inMuoEff.good()) break;
+    if (!inEleJEC.good()) break;
+    if (!inMuoJEC.good()) break;
+    if (!inEleUnf.good()) break;
+    if (!inMuoUnf.good()) break;
+    if (!inElePU.good()) break;
+    if (!inMuoPU.good()) break;
+
+    tmpEff = sqrt(datEleEff*datEleEff + datMuoEff*datMuoEff);
+    tmpJEC = (datEleJEC+datMuoJEC)/2;
+    tmpUnf = (datEleUnf+datMuoUnf)/2;
+    tmpPU  = (datElePU+datMuoPU)/2;
+
+    tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU);
+
+    syst.push_back(tmpSyst);
+
+    i++;  
+  }
+
+  cou << "   Combining " << i << " bins." << endl;
+
+  inEleEff.close();
+  inMuoEff.close();
+  inEleJEC.close();
+  inMuoJEC.close();
+  inEleUnf.close();
+  inMuoUnf.close();
+  inElePU.close();
+  inMuoPU.close();
+
+  return syst;
 }
