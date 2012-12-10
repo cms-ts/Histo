@@ -146,7 +146,7 @@ std::vector<double> combineLeptonSystematics::systSum(string eleEff, string muoE
     tmpEff = sqrt(datEleEff*datEleEff + datMuoEff*datMuoEff);
     tmpJEC = (datEleJEC+datMuoJEC)/2;
     tmpUnf = (datEleUnf+datMuoUnf)/2;
-    tmpPU  = (datElePU+datMuoPU)/2;
+    tmpPU  = sqrt(datElePU*datElePU + datMuoPU*datMuoPU);
 
     tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU);
 
