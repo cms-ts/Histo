@@ -1,20 +1,11 @@
 #include "TFile.h"
 #include "TH1.h"
 #include "TDirectory.h"
-#include "TLine.h"
 #include "TGraphAsymmErrors.h"
 #include <TH2.h>
-#include "TF1.h"
 #include <TStyle.h>
-#include <TCanvas.h>
-#include "TRandom.h"
 #include "TH1D.h"
 #include "TFile.h"
-#include "TPaveStats.h"
-#include "TLegend.h"
-#include "TLine.h"
-#include "TCut.h"
-#include "TLatex.h"
 #include <vector>
 #include "tdrStyle.C"
 #include <TROOT.h>
@@ -22,19 +13,15 @@
 #include <iostream>
 #include <sstream>
 #include "TTree.h"
-#include "TH2.h"
-#include "THStack.h"
-#include "TLatex.h"
-#include "TColor.h"
 #include <string.h>
 
 class combineLeptonRivet {
 public:
-  int letscombine ();
-  void mergewhateveruwant (bool isMadGraph, int whichobservable, string wichelepath, string wichmuopath, string wheretocombine);
+  Int_t letscombine ();
+  void mergewhateveruwant (bool isMadGraph, Int_t whichobservable, string wichelepath, string wichmuopath, string wheretocombine);
 };
 
-int combineLeptonRivet::letscombine () {
+Int_t combineLeptonRivet::letscombine () {
 
   // electron datasets:
   string eleRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
@@ -60,44 +47,44 @@ int combineLeptonRivet::letscombine () {
   string muoRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
   string muoRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
 
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "MadGraph_central.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (true, i, eleRivetPathMadGraphDOWN, muoRivetPathMadGraphDOWN, "MadGraph_scaleDOWN.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphDOWN, muoRivetPathMadGraphDOWN, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (true, i, muoRivetPathMadGraphUP, muoRivetPathMadGraphUP, "MadGraph_scaleUP.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, muoRivetPathMadGraphUP, muoRivetPathMadGraphUP, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF1, muoRivetPathMadGraphPDF1, "MadGraph_PDF1.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF1, muoRivetPathMadGraphPDF1, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "MadGraph_PDF2.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "Sherpa_central.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "Sherpa_scaleDOWN.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (false, i, eleRivetPathSherpaUP, muoRivetPathSherpaUP, "Sherpa_scaleUP.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaUP, muoRivetPathSherpaUP, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (false, i, eleRivetPathSherpaPDF1, muoRivetPathSherpaPDF1, "Sherpa_PDF1.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaPDF1, muoRivetPathSherpaPDF1, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root");
   }
-  for (int i=1;i<14;i++) {
-    mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "Sherpa_PDF2.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root");
   }
 
   return 0;
 }
 
-void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservable, string wichelepath, string wichmuopath, string wheretocombine) {
+void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobservable, string wichelepath, string wichmuopath, string wheretocombine) {
 
   bool isMG = isMadGraph;
-  int usecase = whichobservable;
+  Int_t usecase = whichobservable;
 
   //  setTDRStyle ();
 
@@ -130,7 +117,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservabl
   TGraphAsymmErrors *muotgraph;
   TGraphAsymmErrors *combinetgraph;
 
-  double wmean=0.;
+  Double_t wmean=0.;
 
   // Build the string with the histo/tgraph name:
   stringstream oss1, oss2;
@@ -188,13 +175,13 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservabl
 
   cout << "Combining " << elename << " for electrons with " << muoname << " for muons..."  << endl;
 	
-  int nbins_ele;
-  int nbins_muo;
-  double dummyXvar=0.;
-  double dummyYvarEle=0.;
-  double dummyYvarMuo=0.;
-  double wele=0.;
-  double wmuo=0.;
+  Int_t nbins_ele;
+  Int_t nbins_muo;
+  Double_t dummyXvar=0.;
+  Double_t dummyYvarEle=0.;
+  Double_t dummyYvarMuo=0.;
+  Double_t wele=0.;
+  Double_t wmuo=0.;
 
   if (isMG) {
     nbins_ele = elehisto->GetNbinsX();
@@ -220,17 +207,17 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservabl
     wele = elehisto->GetIntegral();
     wmuo = muohisto->GetIntegral();
   } else {
-    for (int i=0; i<nbins_ele;i++) {
+    for (Int_t i=0; i<nbins_ele;i++) {
       eletgraph->GetPoint(i,dummyXvar,dummyYvarEle);
       muotgraph->GetPoint(i,dummyXvar,dummyYvarMuo);
       wele = wele + dummyYvarEle;
-      wmuo = emuo + dummyYvarMuo;
+      wmuo = wmuo + dummyYvarMuo;
     }
   }
 
   // Compute weighted mean and sigma for every bin:
   if (isMG) {
-    for (int i=1; i<(nbins_ele+1);i++) {
+    for (Int_t i=1; i<(nbins_ele+1);i++) {
       dummyYvarEle = elehisto->GetBinContent(i);
       dummyYvarMuo = muohisto->GetBinContent(i);
       wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
@@ -238,7 +225,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, int whichobservabl
       combinehisto->SetBinError(i,0.);
     }
   } else {
-    for (int i=0; i<nbins_ele;i++) {
+    for (Int_t i=0; i<nbins_ele;i++) {
       eletgraph->GetPoint(i,dummyXvar,dummyYvarEle);
       muotgraph->GetPoint(i,dummyXvar,dummyYvarMuo);
       wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
