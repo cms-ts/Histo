@@ -39,7 +39,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   gStyle->SetErrorX(0);
 
   bool absoluteNormalization=true;
-  int lepton=whichlepton; //1 -> electron,  2-> muon
+  int lepton=whichlepton; //1 -> electron,  2 -> muon, 3 -> combined reults!
   bool noErrorsOnPad1=false;
   bool addLumiUncertainties=true; double lumiError=0.025;
 
@@ -49,6 +49,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
   string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/";
   if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/Mu/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/combination/";
   //string s="/tmp/";
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   gStyle->SetOptStat (0);
@@ -58,6 +59,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   //DATA:
   string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
   if (lepton == 2) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
+  if (lepton == 3) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32_NoNormalization_Combined.root";
 
   //RIVET:
   //old Vieri string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod/out.root";
@@ -90,6 +92,19 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   rivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
   }
 
+  if (lepton == 3){
+  rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
+  rivetPathSherpaUP     ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root";
+  rivetPathSherpaDOWN   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root";
+  rivetPathSherpaPDF1   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root";
+  rivetPathSherpaPDF2   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root";
+  rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
+  rivetPathMadGraphDOWN ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root";
+  rivetPathMadGraphUP   ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root";
+  rivetPathMadGraphPDF1 ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root";
+  rivetPathMadGraphPDF2 ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root";
+  }
+
   TFile *histof = TFile::Open (pathFile.c_str ());
   histof->cd ("");
   TDirectory *dir = gDirectory;
@@ -112,7 +127,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	{ // Jet Multiplicity
 	  stringmatch = "JetMultiplicityUnfolded";
 	  systPathFile = plotpath + "jetMultFinalSyst" + version + ".txt";
-	  if (lepton == 1) oss<<"03"; else oss<<"08";
+	  if (lepton == 1 || lepton == 3) oss<<"03"; else oss<<"08";
 	}
 
       if (use_case == 2) 
@@ -121,28 +136,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    {
 	      stringmatch = "jReco_leading";
 	      systPathFile = plotpath + "jet1PtFinalSyst" + version + ".txt";
-	      if (lepton == 1) oss<<"01"; else oss<<"06";
+	      if (lepton == 1 || lepton == 3) oss<<"01"; else oss<<"06";
 	    }
 	  
 	  if (whichjet == 2)
 	    {
 	      stringmatch = "jReco_subleading";
 	      systPathFile = plotpath + "jet2PtFinalSyst" + version + ".txt";
-	      if (lepton == 1) oss<<"02"; else oss<<"07";
+	      if (lepton == 1 || lepton == 3) oss<<"02"; else oss<<"07";
 	    }
 	  
 	  if (whichjet == 3)
 	    {
 	      stringmatch = "jReco_subsubleading";
 	      systPathFile = plotpath + "jet3PtFinalSyst" + version + ".txt";
-	      if (lepton == 1) oss<<"04"; else oss<<"09";
+	      if (lepton == 1 || lepton == 3) oss<<"04"; else oss<<"09";
 	    }
 	  
 	  if (whichjet == 4)
 	    {
 	      stringmatch = "jReco_subsubsubleading";
 	      systPathFile = plotpath + "jet4PtFinalSyst" + version + ".txt";
-	      if (lepton == 1) oss<<"05"; else oss<<"10";
+	      if (lepton == 1 || lepton == 3) oss<<"05"; else oss<<"10";
 	    }
 	}
       
@@ -151,28 +166,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  {
 	    stringmatch = "jReco_leadingeta";
 	    systPathFile = plotpath + "jet1EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"15"; else oss<<"11";
+	    if (lepton == 1 || lepton == 3) oss<<"15"; else oss<<"11";
 	  }
 	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "jReco_subleadingeta";
 	    systPathFile = plotpath + "jet2EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"16"; else oss<<"12";
+	    if (lepton == 1 || lepton == 3) oss<<"16"; else oss<<"12";
 	  }
 
 	if (whichjet == 3)
 	  {
 	    stringmatch = "jReco_subsubleadingeta";
 	    systPathFile = plotpath + "jet3EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"17"; else oss<<"13";
+	    if (lepton == 1 || lepton == 3) oss<<"17"; else oss<<"13";
 	  }
 	
 	if (whichjet == 4)
 	  {
 	    stringmatch = "jReco_subsubsubleadingeta";
 	    systPathFile = plotpath + "jet4EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"18"; else oss<<"14";
+	    if (lepton == 1 || lepton == 3) oss<<"18"; else oss<<"14";
 	  }
       }
       
@@ -181,28 +196,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  {
 	    stringmatch = "HReco_leading";
 	    systPathFile = plotpath + "jet1HtFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"19"; else oss<<"23";
+	    if (lepton == 1 || lepton == 3) oss<<"19"; else oss<<"23";
 	  }
 	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "HReco_subleading";
 	    systPathFile = plotpath + "jet2HtFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"20"; else oss<<"24";
+	    if (lepton == 1 || lepton == 3) oss<<"20"; else oss<<"24";
 	  }
 	
 	if (whichjet == 3)
 	  {
 	    stringmatch = "HReco_subsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"21"; else oss<<"25";
+	    if (lepton == 1 || lepton == 3) oss<<"21"; else oss<<"25";
 	  }
 
 	if (whichjet == 4)
 	  {
 	    stringmatch = "HReco_subsubsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
-	    if (lepton == 1) oss<<"22"; else oss<<"26";
+	    if (lepton == 1 || lepton == 3) oss<<"22"; else oss<<"26";
 	  }
       }
 
@@ -540,6 +555,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    else {
 	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dN");
 	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dN");
+	      if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/dN");
 	    }
 	  }
 
@@ -548,6 +564,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    else {
 	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
 	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dp_{T}");
+	      if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/dp_{T}");
 	    }
 	  }
 
@@ -556,6 +573,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    else {
 	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/d#eta");
 	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/d#eta");
+	      if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/d#eta");
 	    }
 	  }
 	  
@@ -564,6 +582,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    else {
 	      if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
 	      if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dH_{T}");
+	      if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/dH_{T}");
 	    }
 	  }
 	  
@@ -602,6 +621,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	      // 	      if (lepton ==1) dummyNorm= 2992.95 * (1000000.0/969.565)*(969.565*3/3048);   
 	      if (lepton ==1) dummyNorm= 0.200477 * (1000000.0/971.754)*(971.754*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
+	      if (lepton ==3) dummyNorm= 1.0; 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -622,6 +642,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	      //old Vieri if (lepton ==1) dummyNorm=  3705.55 * (1000000.0/838.298)*(838.298*3/3048); 
 	      if (lepton ==1) dummyNorm=  0.113294 * (1000000.0/838.990)*(838.990*3/3048); 
 	      if (lepton ==2) dummyNorm=  0.112873 * (1000000.0/837.477)*(837.477*3/3048); //Sherpa fattore di enhancement 
+	      if (lepton ==3) dummyNorm= 1.0; 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -641,7 +662,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    if (absoluteNormalization) {
 	      if (lepton==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
 	      if (lepton==2) dummyNorm=  0.114067 * (1000000.0/899.787)*(899.787*3/3048);
-   
+	      if (lepton ==3) dummyNorm= 1.0; 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -661,6 +682,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    if (absoluteNormalization) {
 	      if (lepton ==1 ) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
 	      if (lepton ==2 ) dummyNorm=  0.150439 * (1000000.0/895.779)*(895.779*3/3048);  
+	      if (lepton ==3) dummyNorm= 1.0; 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
@@ -690,6 +712,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    if (absoluteNormalization) {
 	      if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);  
+	      if (lepton ==3) dummyNorm= 1.0; 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
@@ -1038,11 +1061,13 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  if (use_case ==3){
 	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.425, 0.15);	// make fancy label
 	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.425, 0.15);	// make fancy label
+	    if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.425, 0.15);	// make fancy label
 	  }
 
 	  if (use_case ==2 || use_case ==1 || use_case == 4){
 	    if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.25, 0.3);	// make fancy label
 	    if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.25, 0.3);	// make fancy label
+	    if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.25, 0.3);	// make fancy label
 	  }
 
 	  leadingSystematics->SetMarkerColor(kBlack);
@@ -1232,8 +1257,6 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  string title1;
 	  title1 = s + "DifferentialX" + stringmatch + ".png";
 	  
-	  //if (lepton ==2) title1 = s + "DifferentialX" + stringmatch + "Mu.png";
-
 	  cout << title1 << endl;
 	  
 	  plots->Print (title1.c_str ());
