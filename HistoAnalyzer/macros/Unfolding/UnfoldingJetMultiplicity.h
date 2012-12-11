@@ -228,7 +228,6 @@ void Unfolding::LoopJetMultiplicity ()
     }
   }
 
-  return;
   int categoryCounter=0;
   double fillCounter=0;
   double missCounter=0;
@@ -259,6 +258,38 @@ void Unfolding::LoopJetMultiplicity ()
     nbytes += nb;
  
     if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
+
+    double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+    if (correctForSecondaryMigrations==true && realGenJetMultiplicity>0){
+      
+	if ( (l1_pt_gen<20 || l2_pt_gen<20) & (recoZInAcceptance==1) ){
+	  //cout<<"lepton below threshold->"<<l1_pt_gen<<" - "<<l2_pt_gen<<endl;
+	unfold_second.Fake(Jet_multiplicity);
+	continue;
+    }
+      
+      if ( (invMass_gen>111 || invMass_gen<71) & (recoZInAcceptance==1) ){
+	//cout<<"inv mass->"<<invMass_gen<<endl;
+	unfold_second.Fake(Jet_multiplicity);
+	continue;
+    }
+
+      
+      if ( (( fabs(l1_eta_gen)>1.44 & fabs(l1_eta_gen)<1.57) || (( fabs(l2_eta_gen)>1.44 & fabs(l2_eta_gen)<1.57))) && (genZInAcceptance==1) && isElectron ){
+      	//cout<<"this electorn was on the crack, not measured!"<<endl;
+	unfold_second.Miss(realGenJetMultiplicity);
+	continue;
+      }
+
+      if (recoZInAcceptance==1 && genZInAcceptance==0){
+	//cout<<"This was not a generated event!"<<endl;
+	unfold_second.Fake(Jet_multiplicity);
+	continue;
+      }
+    }
+
+    
+    if (recoZInAcceptance==0) continue;    
     
     if (isElectron!=isEle) {
       cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
@@ -268,8 +299,6 @@ void Unfolding::LoopJetMultiplicity ()
     //if (jentry>10) continue;
 
     categoryCounter++;
-
-    double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
 
     if (Jet_multiplicity >= 1 ||  realGenJetMultiplicity >= 1){
       counter3++;
@@ -293,7 +322,7 @@ void Unfolding::LoopJetMultiplicity ()
 	}
 	else{
 	  effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-	  effcorrmc=1.0;
+	  //effcorrmc=1.0;
 	  NMCreco->Fill (Jet_multiplicity,effcorrmc);
 	  NMCrecoratio_->Fill(Jet_multiplicity,effcorrmc);
 	  NMatx->Fill (Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
@@ -354,6 +383,7 @@ void Unfolding::LoopJetMultiplicity ()
       break;
     nb2 = fChain->GetEntry (jentry);
     nbytes += nb2;
+
     if (Jet_multiplicity > 30) continue;
 
     if (Jet_multiplicity >= 0){
@@ -420,7 +450,7 @@ void Unfolding::LoopJetMultiplicity ()
   NMCreco->Scale (ScaleMCData);
   NTrue->Scale (ScaleMCData);
   NMCrecoratio_->Scale (ScaleMCData);
-  
+    
   int k0=1;
   int k1=2;
   if (bayesianTests){
@@ -450,7 +480,6 @@ void Unfolding::LoopJetMultiplicity ()
   //Repeating each algorithm
   for (int j=k0; j<k1; j++){
     string method;
-
     if (UnfoldDistributions){
     if (j==0) method="Bayesian";
     if (j==1) method="Svd";

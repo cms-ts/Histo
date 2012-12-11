@@ -51,10 +51,11 @@ using
 std::endl;
 #endif
 
-string version="_v2_30.root";
-bool isMu=false;  
+string version="_v2_32.root";
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
+bool correctForSecondaryMigrations=true;
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
 //string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
@@ -62,8 +63,8 @@ string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
 //For gen Jet
-double threshPt=28.5;
-double threshEta=2.45;
+double threshPt=30;
+double threshEta=2.4;
 
 TFile *fA;
 TFile *fB;
@@ -75,7 +76,7 @@ TFile *fPythia;
 //Save histos to be used afterward
 bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnf.root";//+version;
+string filename=direct+"UlfoldedDistributions_v2_35.root";//+version;
 //string filename="/tmp/pippo.root";
 
 // Efficiency corrections
@@ -137,10 +138,12 @@ Unfolding::Loop()
 {
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
+    //smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
+    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_30.root";
+    filename=direct+"UlfoldedDistributionsMu_v2_35.root";//+version;
   }
 
   //smc="/tmp/matteo.root";
@@ -165,11 +168,11 @@ Unfolding::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  //LoopJetPt(numbOfJetsForLoop);
+  LoopJetPt(numbOfJetsForLoop);
   //LoopHt(numbOfJetsForLoop);
   //LoopJetEta(numbOfJetsForLoop);
 
-  LoopJetMultiplicity();
+  //LoopJetMultiplicity();
   
 
 }
@@ -203,7 +206,7 @@ Unfolding::LoopOneFour()
   cout<<"########################################"<<endl;
 
   setTDRStyle();
-  //LoopJetMultiplicity();
+  LoopJetMultiplicity();
 
   for (int i=1; i<=4; i++){
     //LoopHt(i);

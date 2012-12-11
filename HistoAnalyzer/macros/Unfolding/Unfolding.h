@@ -62,6 +62,14 @@ public :
    Double_t        e1_pt;
    Double_t        e2_pt;
    Bool_t          isElectron;
+   Double_t        invMass_gen;
+   Double_t        l1_eta_gen;
+   Double_t        l2_eta_gen;
+   Double_t        l1_pt_gen;
+   Double_t        l2_pt_gen;
+   Int_t           genZInAcceptance;
+   Int_t           recoZInAcceptance;
+
 
    // List of branches
    TBranch        *b_evWeight;   //!
@@ -101,6 +109,14 @@ public :
    TBranch        *b_e1_pt;
    TBranch        *b_e2_pt;
    TBranch        *b_isElectron;
+   TBranch        *b_invMass_gen;   //!
+   TBranch        *b_l1_eta_gen;   //!
+   TBranch        *b_l2_eta_gen;   //!
+   TBranch        *b_l1_pt_gen;   //!
+   TBranch        *b_l2_pt_gen;   //!
+   TBranch        *b_genZInAcceptance;   //!
+   TBranch        *b_recoZInAcceptance;   //!
+
 
 
    Unfolding(TTree *tree=0);
@@ -222,6 +238,13 @@ void Unfolding::Init(TTree *tree)
    fChain->SetBranchAddress("e1_pt", &e1_pt, &b_e1_pt);
    fChain->SetBranchAddress("e2_pt", &e2_pt, &b_e2_pt);
    fChain->SetBranchAddress("isElectron", &isElectron, &b_isElectron);
+   fChain->SetBranchAddress("invMass_gen", &invMass_gen, &b_invMass_gen);
+   fChain->SetBranchAddress("l1_eta_gen", &l1_eta_gen, &b_l1_eta_gen);
+   fChain->SetBranchAddress("l2_eta_gen", &l2_eta_gen, &b_l2_eta_gen);
+   fChain->SetBranchAddress("l1_pt_gen", &l1_pt_gen, &b_l1_pt_gen);
+   fChain->SetBranchAddress("l2_pt_gen", &l2_pt_gen, &b_l2_pt_gen);
+   fChain->SetBranchAddress("genZInAcceptance", &genZInAcceptance, &b_genZInAcceptance);
+   fChain->SetBranchAddress("recoZInAcceptance", &recoZInAcceptance, &b_recoZInAcceptance);
   
 
    Notify();

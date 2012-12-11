@@ -1,3 +1,5 @@
+#include "TSVDUnfold.h"
+
 double getGenJetEtaOfAGivenOrder(int Jet_multiplicity_gen, int whichjet, double thresh, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen){
 
   double jetPt=0.0;
@@ -86,8 +88,8 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   ///////////
 
   if (numbOfJets==1) {
-    kmin=20;
-    kmax=21;
+    kmin=9;
+    kmax=10;
     divPlot=24;
   }
 
@@ -134,6 +136,8 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
   TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrectionsmc", "efficiencycorrectionsmc",60,0,3);	
   
+  //Module D histo
+  TH1D* modD;
 
  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
   bool identityCheck=false;    //to perform identity check
@@ -156,6 +160,11 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   jData->Sumw2();
   jMCreco->Sumw2();
   jTrue->Sumw2();
+
+  int categoryCounter=0;
+  double fillCounter=0;
+  double missCounter=0;
+  double fakeCounter=0;
 
   string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
@@ -301,50 +310,170 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
 
+      if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
+
+      if (correctForSecondaryMigrations){
+	//double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+	double jet_eta_gen=0;
+	double jet_eta=0;
+	
+	if (numbOfJets==1) {
+	  jet_eta_gen=jet1_eta_gen;
+	  jet_eta=jet1_eta;
+	}
+	if (numbOfJets==2) {
+	  jet_eta_gen=jet2_eta_gen;
+	  jet_eta=jet2_eta;
+	}
+	if (numbOfJets==3) {
+	  jet_eta_gen=jet3_eta_gen;
+	  jet_eta=jet3_eta;
+	}
+	if (numbOfJets==4) {
+	  jet_eta_gen=jet4_eta_gen;
+	  jet_eta=jet4_eta;
+	}
+	
+	if ( (l1_pt_gen<20 || l2_pt_gen<20) & (recoZInAcceptance==1) ){
+	  unfold_jBayes.Fake(jet_eta);
+	  continue;
+	}
+	
+	if ( (invMass_gen>111 || invMass_gen<71) & (recoZInAcceptance==1) ){
+	  unfold_jBayes.Fake(jet_eta);
+	  continue;
+	}
+	
+	
+	if ( ( fabs(l1_eta_gen)>1.44 & fabs(l1_eta_gen)<1.57) && (( fabs(l2_eta_gen)>1.44 & fabs(l2_eta_gen)<1.57)) && (recoZInAcceptance==0) && isElectron ){
+	  unfold_jBayes.Miss(jet_eta_gen);
+	  continue;
+	}
+	
+	if (recoZInAcceptance==1 && genZInAcceptance==0){
+	  unfold_jBayes.Fake(jet_eta);
+	  continue;
+	}
+      }
+      
+    
+      if (recoZInAcceptance==0) continue;  
+
    if (isElectron!=isEle) {
       cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
       return;
     }
 
-
-      double thresh=15.0;
-
+   double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+   
+   // To control and exclude jets having energy below "thresh"
+   int offsetJetMultiplicity=0;
+   offsetJetMultiplicity=getNumberOfValidGenJetsPt(Jet_multiplicity_gen,threshPt,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+   
+   double thresh=threshPt;
+   double correctGenJetEta=0;
 
    double effcorrmc=1.0;
+   if (!identityCheck) effcorrmc = 1.0 * evWeight; 
 
-      //if (ientry>80000) continue;
       if (numbOfJets<=1){
-	double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-
-	if((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || fabs(correctGenJetEta)<=2.4 ){ 
-	  if (correctGenJetEta==0 & jet1_pt>0) continue;
-	  //Correct for efficiencies event per event
-	  if (correctForEff){
-	    effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-	    jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	 
-	    jMCreco->Fill (jet1_eta,effcorrmc);
-	  }
-	  else {
-	    jMatx->Fill (jet1_eta, jet1_eta_gen);
-	    jMCreco->Fill (jet1_eta);
-	  }
-	  jTrue->Fill (jet1_eta_gen);
-	  supplabel="_jet1";
-	}
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayes.Fill(jet1_pt, correctGenJetEta,effcorrmc);
-	if ((jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) unfold_jBayes.Fake(jet1_pt,effcorrmc);
-	if (!(jet1_pt>0 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) unfold_jBayes.Miss(correctGenJetEta);
+	correctGenJetEta=jet1_eta_gen; //<============================= Correction to jet1 no longer done
+	if (correctForEff) effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 	
+	if ((Jet_multiplicity >= 1 ||  (realGenJetMultiplicity) >=1) && offsetJetMultiplicity==0){
+   categoryCounter++;
+	  jTrue->Fill (correctGenJetEta);
+	  supplabel="_jet1";
+	  
+	  // Questa e' quando c'e' tutto
+	  if ((Jet_multiplicity>=1 && jet1_pt>30) && fabs(correctGenJetEta)<=2.4 ) {
+	    jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	
+	    unfold_jBayes.Fill(jet1_eta, correctGenJetEta,effcorrmc);
+	    fillCounter+=effcorrmc;
+	  }
+	  if ((Jet_multiplicity>=1 && jet1_pt>30 ) && !(fabs(correctGenJetEta)<=2.4) ) {
+	    unfold_jBayes.Fake(jet1_eta,effcorrmc);
+	    fakeCounter+=1*effcorrmc;
+	  }
+	  //Questa e' facili, c'era e non l'ho visto
+	  if (!(Jet_multiplicity>=1 && jet1_pt>30) && (fabs(correctGenJetEta)<=2.4) ){
+	    jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	
+	    unfold_jBayes.Miss(correctGenJetEta);
+	    missCounter+=1*effcorrmc;
+	  }
+	}
+	else{
+	  if (!(fabs(correctGenJetEta)<=2.4 && jet1_pt_gen>30) && Jet_multiplicity>=1){
+	      jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	
+	      unfold_jBayes.Fake(jet1_eta,effcorrmc);
+	    fakeCounter+=effcorrmc;
+	  }
+	  if (((fabs(correctGenJetEta)<=2.4) && jet1_pt_gen>30 )  && Jet_multiplicity==0){
+	    jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	
+	    unfold_jBayes.Miss(correctGenJetEta);
+	    missCounter+=1*effcorrmc;
+	  }
+	  if (((fabs(correctGenJetEta)<=2.4)  && jet1_pt_gen>30) && Jet_multiplicity>0){
+	    jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	
+	    fillCounter+=effcorrmc;
+	    unfold_jBayes.Fill(jet1_eta,correctGenJetEta,effcorrmc);
+	  }
+	}
       }
 
-      if (numbOfJets==2){
-	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+   /**************   
+   if (numbOfJets<=1){
+     double correctGenJetEta=jet1_eta_gen;
+     //     if ((Jet_multiplicity >= 1 ||  (realGenJetMultiplicity) >=1) && offsetJetMultiplicity==0){
+       //	double correctGenJetEta=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
 
-	if((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
-	  //Correct for efficiencies event per event
+       effcorrmc=effcorrmc*1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);	
+       
+       if((jet1_pt>30 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) || fabs(correctGenJetEta)<=2.4 ){ 
+	 //if (correctGenJetEta==0 & jet1_pt>0) continue;
+	 //Correct for efficiencies event per event
+	 if (correctForEff){
+	   jMatx->Fill (jet1_eta, correctGenJetEta,effcorrmc);	 
+	 jMCreco->Fill (jet1_eta,effcorrmc);
+	 }
+	 else {
+	   jMatx->Fill (jet1_eta, jet1_eta_gen);
+	   jMCreco->Fill (jet1_eta);
+	 }
+	 jTrue->Fill (jet1_eta_gen);
+	 supplabel="_jet1";
+       }
+       if ((jet1_pt>30 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) {
+	 unfold_jBayes.Fill(jet1_eta, correctGenJetEta,effcorrmc);
+	 fillCounter+=effcorrmc;
+       }
+       if ((jet1_pt>30 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && !fabs(correctGenJetEta)<=2.4 ) {
+	 unfold_jBayes.Fake(jet1_eta,effcorrmc);
+	 fakeCounter+=effcorrmc;
+       }
+       if (!(jet1_pt>30 && jet1_pt<7000 && fabs(jet1_eta)<=2.4) && fabs(correctGenJetEta)<=2.4 ) {
+	 unfold_jBayes.Miss(correctGenJetEta);
+	 missCounter+=effcorrmc;
+       }
+   }
+   // }
+  //   else{
+  // if (!(jet1_eta_gen>0) && Jet_multiplicity>=1){
+  //   jMatx->Fill (jet1_eta, jet1_eta_gen,effcorrmc);	
+  //   unfold_jBayes.Fake(jet1_eta,effcorrmc);
+  // }
+   //}
+   ***************************/
+
+   if (numbOfJets==2){
+     //	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+     double correctGenJetEta=jet2_eta_gen;
+     double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+     
+     if((jet2_pt>0 && jet2_pt<7000 && fabs(jet2_eta)<=2.4) ){
+       //Correct for efficiencies event per event
 	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-	    jMatx->Fill (jet2_eta, correctGenJetPt,effcorrmc);	 
+	    jMatx->Fill (jet2_eta, correctGenJetEta,effcorrmc);	 
 	    jMCreco->Fill (jet2_eta,effcorrmc);
 	  }
 	  else {
@@ -353,51 +482,58 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	  }
 	  jTrue->Fill (jet2_eta_gen);
 	  supplabel="_jet2";
-	}
-      }
-
-      if (numbOfJets==3){
-	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-
-	  if((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
-	  //Correct for efficiencies event per event
-	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-	    jMatx->Fill (jet3_eta, correctGenJetPt,effcorrmc);	 
+     }
+   }
+   
+   if (numbOfJets==3){
+     //	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+     double correctGenJetEta=jet3_eta_gen;
+     double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+     
+     if((jet3_pt>0 && jet3_pt<7000 && fabs(jet3_eta)<=2.4) ){
+       //Correct for efficiencies event per event
+       if (correctForEff){
+	 jMatx->Fill (jet3_eta, correctGenJetEta,effcorrmc);	 
 	    jMCreco->Fill (jet3_eta,effcorrmc);
-	  }
-	  else {
-	    jMatx->Fill (jet3_eta, jet3_eta_gen);
-	    jMCreco->Fill (jet3_eta);
-	  }
-	  jTrue->Fill (jet3_eta_gen);
-	  supplabel="_jet3";
-	}
-      }
-
-      if (numbOfJets==4){
-	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
-
-	  if((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) || (correctGenJetPt>0 && correctGenJetPt<7000)){ 
-	    //Correct for efficiencies event per event
-	  if (correctForEff){
-	    double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-	    jMatx->Fill (jet4_eta, correctGenJetPt,effcorrmc);	 
-	    jMCreco->Fill (jet4_eta,effcorrmc);
-	  }
-	  else {
-	    jMatx->Fill (jet4_eta, jet4_eta_gen);
-	    jMCreco->Fill (jet4_eta);
-	  }
-	  jTrue->Fill (jet4_eta_gen);
-	  supplabel="_jet4";
-	}
-      }
+       }
+       else {
+	 jMatx->Fill (jet3_eta, jet3_eta_gen);
+	 jMCreco->Fill (jet3_eta);
+       }
+       jTrue->Fill (jet3_eta_gen);
+       supplabel="_jet3";
+     }
+   }
+   
+   if (numbOfJets==4){
+     //	double correctGenJetPt=getGenJetEtaOfAGivenOrder(Jet_multiplicity_gen,numbOfJets,thresh,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
+     double correctGenJetEta=jet4_eta_gen;
+     double effcorrmc=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+     if((jet4_pt>0 && jet4_pt<7000 && fabs(jet4_eta)<=2.4) ){
+       //Correct for efficiencies event per event
+       if (correctForEff){
+	 jMatx->Fill (jet4_eta, correctGenJetEta,effcorrmc);	 
+	 jMCreco->Fill (jet4_eta,effcorrmc);
+       }
+       else {
+	 jMatx->Fill (jet4_eta, jet4_eta_gen);
+	 jMCreco->Fill (jet4_eta);
+       }
+       jTrue->Fill (jet4_eta_gen);
+       supplabel="_jet4";
+     }
+   }
     }
   
   jTrue->Sumw2();
   jMCreco->Sumw2();
   
+  cout<<"********************"<<endl;
+  cout<<"number of events in MC training "<<categoryCounter<<endl;
+  cout<<"number of events in MC training that fall in Fill "<<fillCounter<<endl;
+  cout<<"number of events in MC training that fall in Miss "<<missCounter<<endl;
+  cout<<"number of events in MC training that fall in Fakw "<<fakeCounter<<endl;
+  cout<<"********************"<<endl;
   
   fChain = tree_fB;		/* Loop Data */
   Init (fChain);	
@@ -564,8 +700,8 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
       
       if (Unfold){
       if (method=="Bayesian") {
-	//RooUnfoldBayes unfold_j (&unfold_jBayes, jData, myNumber, 1000);
-	RooUnfoldBayes unfold_j(&response_j, jData, myNumber, 1000);
+	RooUnfoldBayes unfold_j (&unfold_jBayes, jData, myNumber, 1000);
+	//RooUnfoldBayes unfold_j(&response_j, jData, myNumber, 1000);
 	jReco = (TH1D *) unfold_j.Hreco ();
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
@@ -597,7 +733,8 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 
       if (method=="Svd"){
 	jReco->Sumw2();
-	RooUnfoldSvd unfold_j (&response_j, jData, myNumber, 1000);	// OR
+	RooUnfoldSvd unfold_j (&unfold_jBayes, jData, myNumber, 1000);	// OR
+	TSVDUnfold unfold_t (jData, jTrue,jMCreco,jMatx); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
 	jReco = (TH1D *) unfold_j.Hreco ();
 	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
 	TVectorD vstat= unfold_j.ErecoV();
@@ -605,6 +742,9 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	TVectorD vunfomat= unfold_j.ErecoV(RooUnfold::kCovariance);
 	TVectorD vunfodiag= unfold_j.ErecoV(RooUnfold::kErrors);
 	
+	TH1D* unfresult = unfold_t.Unfold( myNumber );
+	modD = unfold_t.GetD();
+
 	for (unsigned int p=0;p<jData->GetNbinsX();p++){
 	  cout<<vstat[p]<<" "<<vunfo[p]<<endl;
 	  staterrorsqrt->SetBinContent(p+1,sqrt(jData->GetBinContent(p+1))/jData->GetBinContent(p+1));
@@ -624,6 +764,7 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
 	  //kCovariance	
 	  //kCovToy	
 	}
+
 	/////////////////////
 	/// Error treatment
 	/////////////////////
@@ -945,7 +1086,25 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
   legend_eff->AddEntry (efficiencycorrections, "Data", "L");
   legend_eff->Draw ("same");
-      
+
+   if (!bayesianTests){
+    TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
+    moduloD->cd ();
+    gPad->SetLogy (1);
+    modD->SetStats (111111);
+    modD->GetXaxis()->SetTitle("K Parameters");
+    modD->GetYaxis()->SetTitle("Value");
+    modD->SetLineColor(kRed);
+    modD->Draw();
+    string whichjet="";
+    if (numbOfJets==1) whichjet="Leading "; 
+    if (numbOfJets==2) whichjet="Second leading "; 
+    if (numbOfJets==3) whichjet="Third leading "; 
+    if (numbOfJets==4) whichjet="Fourth leading "; 
+    string title7=s+"moduloD_jetEta_"+whichjet+".pdf";
+    moduloD->Print(title7.c_str()); 
+  }     
+
   if (saveFile){
     TFile* w = new TFile(filename.c_str(), "UPDATE");
     w->cd();

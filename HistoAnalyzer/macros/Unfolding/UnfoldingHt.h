@@ -375,12 +375,16 @@ gDirectory->ls("tree*");
       nb = fChain->GetEntry (jentry);
       nbytes += nb;
 
+      if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
+
    if (isElectron!=isEle) {
       cout<<"is_Electron(rootupla) is ->"<<isElectron<<", while the isElectron(unfolding) is "<<isEle<<" You are using the wrong TTree, ele instead of muons or viceversa..exit"<<endl;
       return;
     }
 
       double Ht, Ht_gen;
+      Ht = 0;
+      Ht_gen = 0;
       double correctGenJetPt;
       int genJet;
 
@@ -419,6 +423,32 @@ gDirectory->ls("tree*");
       double effcorrmc=1.0*evWeight;
       if (indentityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
       double efferrmc=0.0;
+
+      if (correctForSecondaryMigrations){
+	if ( (l1_pt_gen<20 || l2_pt_gen<20) & (recoZInAcceptance==1) ){
+	  unfold_second.Fake(Ht);
+	  continue;
+	}
+	
+	if ( (invMass_gen>111 || invMass_gen<71) & (recoZInAcceptance==1) ){
+	  unfold_second.Fake(Ht);
+	  continue;
+	}
+	
+	
+	if ( ( fabs(l1_eta_gen)>1.44 & fabs(l1_eta_gen)<1.57) && (( fabs(l2_eta_gen)>1.44 & fabs(l2_eta_gen)<1.57)) && (recoZInAcceptance==0) && isElectron ){
+	  unfold_second.Miss(Ht_gen);
+	  continue;
+      }
+	
+	if (recoZInAcceptance==1 && genZInAcceptance==0){
+	  unfold_second.Fake(Ht);
+	  continue;
+	}
+    }
+    
+    
+    if (recoZInAcceptance==0) continue;  
 
       if (correctForEff)
 	{
