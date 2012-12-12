@@ -1,8 +1,6 @@
-#include <sstream>
 #include <vector>
 #include <iostream>
-#include <TROOT.h>
-#include "TObject.h"
+#include <fstream>
 #include <string.h>
 
 class combineLeptonSystematics {
