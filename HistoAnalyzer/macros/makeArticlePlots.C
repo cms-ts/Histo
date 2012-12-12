@@ -618,10 +618,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      // 	      if (lepton ==1) dummyNorm= 2992.95 * (1000000.0/969.565)*(969.565*3/3048);   
 	      if (lepton ==1) dummyNorm= 0.200477 * (1000000.0/971.754)*(971.754*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
-	      if (lepton ==3) dummyNorm= 1.0; 
+	      if (lepton ==3) dummyNorm= 0.200477 * (1000000.0/971.754)*(971.754*3/3048) + 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -639,10 +638,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      //old Vieri if (lepton ==1) dummyNorm=  3705.55 * (1000000.0/838.298)*(838.298*3/3048); 
 	      if (lepton ==1) dummyNorm=  0.113294 * (1000000.0/838.990)*(838.990*3/3048); 
 	      if (lepton ==2) dummyNorm=  0.112873 * (1000000.0/837.477)*(837.477*3/3048); //Sherpa fattore di enhancement 
-	      if (lepton ==3) dummyNorm= 1.0; 
+	      if (lepton ==3) dummyNorm=  0.113294 * (1000000.0/838.990)*(838.990*3/3048) + 0.112873 * (1000000.0/837.477)*(837.477*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetSherpaDOWN->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -660,9 +658,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
-	      if (lepton==2) dummyNorm=  0.114067 * (1000000.0/899.787)*(899.787*3/3048);
-	      if (lepton ==3) dummyNorm= 1.0; 
+	      if (lepton ==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
+	      if (lepton ==2) dummyNorm=  0.114067 * (1000000.0/899.787)*(899.787*3/3048);
+	      if (lepton ==3) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048) + 0.114067 * (1000000.0/899.787)*(899.787*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -680,9 +678,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1 ) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
-	      if (lepton ==2 ) dummyNorm=  0.150439 * (1000000.0/895.779)*(895.779*3/3048);  
-	      if (lepton ==3) dummyNorm= 1.0; 
+	      if (lepton ==1) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
+	      if (lepton ==2) dummyNorm=  0.150439 * (1000000.0/895.779)*(895.779*3/3048);  
+	      if (lepton ==3) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048) + 0.150439 * (1000000.0/895.779)*(895.779*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
@@ -712,7 +710,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    if (absoluteNormalization) {
 	      if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);  
-	      if (lepton ==3) dummyNorm= 1.0; 
+	      if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
@@ -797,6 +795,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1737.42)/3048.0); // ele = mu !
+	      if (lepton ==3) dummyNorm = dummyNorm*2; // Combinazione alla "pisello di babbuino moscio"
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphDOWN->GetPoint(ovo,dummyXvar,dummyYvar);
@@ -814,6 +813,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1737.15)/3048.0);
+	      if (lepton ==3) dummyNorm = dummyNorm*2;
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphUP->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -836,6 +836,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);// Coefficiente 10^9 che gira...
+	      if (lepton ==3) dummyNorm = dummyNorm*2;
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
 	    leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -886,6 +887,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0); // ele = mu !
+	      if (lepton ==3) dummyNorm = dummyNorm*2;
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -904,6 +906,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
 	      dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);
+	      if (lepton ==3) dummyNorm = dummyNorm*2;
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetMadGraphPDF2->GetPoint(ovo,dummyXvar,dummyYvar); 
