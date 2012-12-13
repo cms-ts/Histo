@@ -62,6 +62,12 @@ string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
+//Normalizations...
+// The choice of the K value can affect the normalization. The following list of XS supersede the one in data
+bool activateXSSuperseding=false;
+double XSElectron[4]={49.64,10.93,2.078,0.395};
+double XSMuon[4]={48.42,10.85,2.030,0.353};
+
 //For gen Jet
 double threshPt=30;
 double threshEta=2.4;
