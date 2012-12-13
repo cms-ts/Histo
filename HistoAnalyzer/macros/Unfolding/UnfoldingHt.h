@@ -1023,6 +1023,20 @@ gDirectory->ls("tree*");
   //Save the info
   }
 
+  double unfarea=HReco2->Integral()/4890.0;
+  cout<<"Your unfolding has an integral value of "<<unfarea<<endl;
+  
+  if (activateXSSuperseding){
+    if (!isMu) {
+      cout<<"Rescaled to "<<XSElectron[Nj-1]<<endl;
+      HReco2->Scale(XSElectron[Nj-1]/unfarea);
+    }
+    if (isMu) {
+      cout<<"Rescaled to "<<XSMuon[Nj-1]<<endl;
+      HReco2->Scale(XSMuon[Nj-1]/unfarea);
+    }
+  }
+  
   if (!UnfoldDistributionsPt) HReco2=(TH1F*) HData->Clone();
 
   if (saveFile){
