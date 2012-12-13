@@ -260,7 +260,7 @@ void Unfolding::LoopJetMultiplicity ()
     if (Jet_multiplicity > 30 || Jet_multiplicity_gen > 30 ) continue;
 
     double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
-    if (correctForSecondaryMigrations==true && realGenJetMultiplicity>0){
+    if (correctForSecondaryMigrations==true && (realGenJetMultiplicity>0) ){
       
 	if ( (l1_pt_gen<20 || l2_pt_gen<20) & (recoZInAcceptance==1) ){
 	  //cout<<"lepton below threshold->"<<l1_pt_gen<<" - "<<l2_pt_gen<<endl;
@@ -275,7 +275,7 @@ void Unfolding::LoopJetMultiplicity ()
     }
 
       
-      if ( (( fabs(l1_eta_gen)>1.44 & fabs(l1_eta_gen)<1.57) || (( fabs(l2_eta_gen)>1.44 & fabs(l2_eta_gen)<1.57))) && (genZInAcceptance==1) && isElectron ){
+      if ( (( fabs(l1_eta_gen)>1.442 & fabs(l1_eta_gen)<1.566) || (( fabs(l2_eta_gen)>1.442 & fabs(l2_eta_gen)<1.566))) && (genZInAcceptance==1)  && (recoZInAcceptance==0) && isElectron ){
       	//cout<<"this electorn was on the crack, not measured!"<<endl;
 	unfold_second.Miss(realGenJetMultiplicity);
 	continue;
@@ -367,6 +367,7 @@ void Unfolding::LoopJetMultiplicity ()
   cout<<"********************"<<endl;
 
   int dataCounter=0;
+  double sumOnData=0;
   
   /*Loop on data */
   fChain = tree_fB;	
@@ -386,7 +387,7 @@ void Unfolding::LoopJetMultiplicity ()
 
     if (Jet_multiplicity > 30) continue;
 
-    if (Jet_multiplicity >= 0){
+    if (Jet_multiplicity >= 1){
       if (correctForEff){
 	if (!useElectronsToCorrect){
 	  std::vector<double> valuesdata=getEfficiencyCorrectionJetMultiplicity(fAeff,fBeff,Jet_multiplicity,"Data");
@@ -399,6 +400,7 @@ void Unfolding::LoopJetMultiplicity ()
 	  double effcorrdata=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
 	  NData->Fill (Jet_multiplicity,effcorrdata);
 	  NData2->Fill (Jet_multiplicity,effcorrdata);
+	  sumOnData+=effcorrdata;
 	}
       }
       else{
@@ -415,6 +417,7 @@ void Unfolding::LoopJetMultiplicity ()
   //////////////
   double ScaleMCData = ((double)NData->GetEntries()/(double)NMCreco->GetEntries());
   cout<<"Scale is->"<<ScaleMCData<<endl;
+  cout<<"In data your integral-efficinecy is "<<sumOnData<<endl;
 
   /////////////////////////
   //  Correct for background
@@ -695,6 +698,20 @@ void Unfolding::LoopJetMultiplicity ()
       }
     }
   }
+  }
+
+  double unfarea=JetMultiplicityUnfolded->Integral()/4890.0;
+  cout<<"Your unfolding has an integral value of "<<unfarea<<endl;
+  
+  if (activateXSSuperseding){
+    if (!isMu) {
+      cout<<"Rescaled to "<<XSElectron[0]<<endl;
+      JetMultiplicityUnfolded->Scale(XSElectron[0]/unfarea);
+    }
+    if (isMu) {
+      cout<<"Rescaled to "<<XSMuon[0]<<endl;
+      JetMultiplicityUnfolded->Scale(XSMuon[0]/unfarea);
+    }
   }
 
   if (!UnfoldDistributions) JetMultiplicityUnfolded=(TH1F*) NData->Clone();
