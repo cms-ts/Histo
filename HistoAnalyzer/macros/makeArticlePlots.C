@@ -52,6 +52,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   if (lepton==3) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/combination/";
   //string s="/tmp/";
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
+  if (lepton == 2) plotpath = "/gpfs/cms/data/2011/Uncertainties/muons/";
+  if (lepton == 3) plotpath = "/gpfs/cms/users/schizzi/Systematics/combination/";
   gStyle->SetOptStat (0);
 
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
@@ -500,11 +502,6 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	      leadingSystematics->SetBinError (i + 1, err);
 	    }
 
-	  if ( (!absoluteNormalization) && (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999)) {
-	    cout << "Warning: DATA is NOT NORMALIZED CORRECTLY! I will fix it...";
-	    leadingSystematics->Scale(1./leadingSystematics->Integral());
-	    leading->Scale(1./leading->Integral());
-	  }
 
 	  //When use_case = Jet Multi, then the absolute cross section is required...
 	  if (absoluteNormalization){
