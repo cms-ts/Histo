@@ -2,6 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include "TFile.h"
+#include "TH1.h"
+#include "TDirectory.h"
+#include "TH1D.h"
+#include "TObject.h"
+#include "TCollection.h"
 
 class combineLeptonSystematics {
 public:
@@ -9,10 +15,13 @@ public:
   int printLatex (std::vector<double>, std::vector<double>, std::vector<double>, 
 		  std::vector<double>, std::vector<double>, std::vector<double>, 
 		  std::vector<double>, std::vector<double>, std::vector<double>, 
-		  std::vector<double>, std::vector<double>, string, string);
-  std::vector<double> systSum(string, string, string, string, string, string, string, string);
-  std::vector<double> systPar(string, string, string, string);
+		  std::vector<double>, std::vector<double>, std::vector<double>, 
+		  std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, TH1D*, TH1D*, TH1D*,string, string);
+  std::vector<double> systSum(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
+  std::vector<double> systPar(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
   std::vector<double> systOne(string);
+  std::vector<double> systUnfArea(int, string, string);
+  TH1D* getDataHisto(int, string);
 };
 
 int combineLeptonSystematics::letscombine () {
@@ -44,7 +53,19 @@ int combineLeptonSystematics::letscombine () {
   string muoUnf;
   string elePU;
   string muoPU;
+  string eleBkg;
+  string muoBkg;
   string output;
+
+  TH1D* datahisto_ele;
+  TH1D* datahisto_muo;
+  TH1D* datahisto_combi;
+
+  // Get systematics from UnfArea:
+  std::vector<double> jetEleUnfArea = combineLeptonSystematics::systUnfArea(1,plotpath,version);
+  std::vector<double> jetMuoUnfArea = combineLeptonSystematics::systUnfArea(2,plotpath,version);
+
+  // Define proper vstrings for systematics
 
   for (int var=0; var<variablesName.size(); var++){
 
@@ -60,25 +81,82 @@ int combineLeptonSystematics::letscombine () {
     muoUnf = plotpath+"muo/systematicsUnfMethod_"+variablesName[var]+version+".txt";
     elePU  = plotpath+"ele/systematicsPU_"+variablesName[var]+version+".txt";
     muoPU  = plotpath+"muo/systematicsPU_"+variablesName[var]+version+".txt";
+    eleBkg = plotpath+"ele/BkgCrossSection_"+variablesName[var]+version+".txt";
+    muoBkg = plotpath+"muo/BkgCrossSection_"+variablesName[var]+version+".txt";
 
-    cout << "   -> Computing combined systematics..." << endl;
-    std::vector<double> jetSyst = combineLeptonSystematics::systSum(eleEff, muoEff, eleJEC, muoJEC, eleUnf, muoUnf, elePU, muoPU);   
-    cout << "   -> Computing global systematics for electrons and muons..." << endl;
-    std::vector<double> jetEleS = combineLeptonSystematics::systPar(eleEff, eleJEC, eleUnf, elePU);   
-    std::vector<double> jetMuoS = combineLeptonSystematics::systPar(muoEff, muoJEC, muoUnf, muoPU);   
+    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root");
+    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root");
+    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root");
+
+    datahisto_ele->Sumw2();
+    datahisto_muo->Sumw2();
+    datahisto_combi->Sumw2();
+
+    datahisto_ele->Scale(1./4890.0);
+    datahisto_muo->Scale(1./4890.0);
+    datahisto_combi->Scale(1./4890.0);
 
     cout << "   -> Writing exclusive systematics..." << endl;
-    std::vector<double> jetEleEff = combineLeptonSystematics::systOne(eleEff);   
-    std::vector<double> jetMuoEff = combineLeptonSystematics::systOne(muoEff);   
-    std::vector<double> jetEleJEC = combineLeptonSystematics::systOne(eleJEC);   
-    std::vector<double> jetMuoJEC = combineLeptonSystematics::systOne(muoJEC);   
-    std::vector<double> jetEleUnf = combineLeptonSystematics::systOne(eleUnf);   
-    std::vector<double> jetMuoUnf = combineLeptonSystematics::systOne(muoUnf);   
-    std::vector<double> jetElePU  = combineLeptonSystematics::systOne(elePU);   
-    std::vector<double> jetMuoPU  = combineLeptonSystematics::systOne(muoPU);   
+    std::vector<double> jetEleEff = combineLeptonSystematics::systOne(eleEff);
+    std::vector<double> jetMuoEff = combineLeptonSystematics::systOne(muoEff);
+    std::vector<double> jetEleJEC = combineLeptonSystematics::systOne(eleJEC);
+    std::vector<double> jetMuoJEC = combineLeptonSystematics::systOne(muoJEC);
+    std::vector<double> jetEleUnf = combineLeptonSystematics::systOne(eleUnf);
+    std::vector<double> jetMuoUnf = combineLeptonSystematics::systOne(muoUnf);
+    std::vector<double> jetElePU  = combineLeptonSystematics::systOne(elePU); 
+    std::vector<double> jetMuoPU  = combineLeptonSystematics::systOne(muoPU); 
+    std::vector<double> jetEleBkg = combineLeptonSystematics::systOne(eleBkg);
+    std::vector<double> jetMuoBkg = combineLeptonSystematics::systOne(muoBkg);
+
+    std::vector<double> jetEff;
+    jetEff.clear();
+    std::vector<double> jetEffOld;
+    jetEffOld.clear();
+    std::vector<double> jetStat;
+    jetStat.clear();
+
+    // Correct Unfolding syst for Area uncertainty:
+    for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
+      jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + pow(jetEleUnfArea[var] * datahisto_ele->GetBinContent(nel+1),2));
+      jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + pow(jetMuoUnfArea[var] * datahisto_muo->GetBinContent(nel+1),2));
+    }
+
+    // Compute the right contrib from efficiency:
+    double epsilon=0.1;
+    double dplus2ele=0.0;
+    double dminus2ele=0.0;
+    double dplus2muo=0.0;
+    double dminus2muo=0.0;
+    double sigmaplus2=0.0;
+    double sigmaminus2=0.0;
+    for (Int_t nec=0;nec<jetMuoUnf.size();nec++) {
+      dplus2ele  = (1+epsilon)*(1+epsilon)*jetEleEff[nec]*jetEleEff[nec];
+      dminus2ele = (1-epsilon)*(1-epsilon)*jetEleEff[nec]*jetEleEff[nec];
+      dplus2muo  = (1+epsilon)*(1+epsilon)*jetMuoEff[nec]*jetMuoEff[nec];
+      dminus2muo = (1-epsilon)*(1-epsilon)*jetMuoEff[nec]*jetMuoEff[nec];
+
+      sigmaplus2  = 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + dplus2ele) 
+		     + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dplus2muo));
+      sigmaminus2 = 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + dminus2ele) 
+		     + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dminus2muo));
+
+      jetEff.push_back(sqrt((sigmaplus2 - sigmaminus2)/(4*epsilon)));
+      jetStat.push_back(sqrt( 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetEleEff[nec]*jetEleEff[nec]) 
+				 + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + jetMuoEff[nec]*jetMuoEff[nec]))
+			     - (sigmaplus2 - sigmaminus2)/(4*epsilon)));
+      jetEffOld.push_back(sqrt(1/(1/(jetEleEff[nec]*jetEleEff[nec]) + 1/(jetMuoEff[nec]*jetMuoEff[nec]))));
+    }
+
+    cout << "   -> Computing combined systematics..." << endl;
+    std::vector<double> jetSyst = combineLeptonSystematics::systSum(jetEff,jetEleJEC,jetEleUnf,jetElePU,jetEleBkg,jetEff,jetMuoJEC,jetMuoUnf,jetMuoPU,jetMuoBkg);   
+    cout << "   -> Computing global systematics for electrons and muons..." << endl;
+    std::vector<double> jetEleS = combineLeptonSystematics::systPar(jetEleEff,jetEleJEC,jetEleUnf,jetElePU,jetEleBkg);   
+    std::vector<double> jetMuoS = combineLeptonSystematics::systPar(jetMuoEff,jetMuoJEC,jetMuoUnf,jetMuoPU,jetMuoBkg);   
 
     if ((jetSyst.size() != jetEleS.size()) || (jetSyst.size() != jetMuoS.size())) 
-      cout << "Muon, electron and combined histos have different binnings!!! That may be a problem..." << endl;
+      cout << "Muon, electron and combined histos have different binnings!!! That may be a problem..."  << jetSyst.size() << "  " << jetEleS.size() << "  " << jetMuoS.size() << endl;
+
+    if (datahisto_combi->GetNbinsX() != jetSyst.size()) cout << "TH1D's have different size from std::vector's!!!" << " TH1D: " << datahisto_ele->GetNbinsX() << " std::vector: " << jetSyst.size() << endl;
 
     // Write Systematics combination to file!!
     ofstream syste;
@@ -100,163 +178,98 @@ int combineLeptonSystematics::letscombine () {
 					  jetEleUnf, 
 					  jetMuoUnf, 
 					  jetElePU , 
-					  jetMuoPU , varnameforlatex, version);
+					  jetMuoPU , 
+					  jetEleBkg , 
+					  jetMuoBkg , 
+					  jetEff , 
+					  jetStat , 
+					  jetEffOld , 
+					  datahisto_ele, 
+					  datahisto_muo,
+					  datahisto_combi,
+					  varnameforlatex, version);
     
   }
 
   return 0;
 }
 
+std::vector<double> combineLeptonSystematics::systUnfArea(int isEleOrMuo, string plotpath, string version){
 
-std::vector<double> combineLeptonSystematics::systSum(string eleEff, string muoEff, string eleJEC, string muoJEC, string eleUnf, string muoUnf, string elePU, string muoPU){
-	
-  // Leggere nomi dei file da aprire
-   
+  std::vector<string> variablesUnfArea;
+  variablesUnfArea.clear();
+  variablesUnfArea.push_back("Jet1");
+  variablesUnfArea.push_back("Jet2");
+  variablesUnfArea.push_back("Jet3");
+  variablesUnfArea.push_back("Jet4");
+
+  std::vector<double> jetUnfArea;   
+  jetUnfArea.clear();
+
+  string UnfArea;
+  double centralValue, rms;
+  ifstream inUnfArea;
+
+  if (isEleOrMuo == 1) UnfArea = plotpath+"ele/systematicsUnfArea_"+variablesUnfArea[1]+version+".txt";
+  if (isEleOrMuo == 2) UnfArea = plotpath+"muo/systematicsUnfArea_"+variablesUnfArea[1]+version+".txt";
+  inUnfArea.open (UnfArea.c_str());
+  inUnfArea >> centralValue >> rms;
+  inUnfArea.close ();
+  jetUnfArea.push_back(fabs(rms/centralValue));
+
+  for (Int_t n=0;n<3;n++) {
+    for (Int_t m=0;m<4;m++) {
+      if (isEleOrMuo == 1) UnfArea = plotpath+"ele/systematicsUnfArea_"+variablesUnfArea[m]+version+".txt";
+      if (isEleOrMuo == 2) UnfArea = plotpath+"muo/systematicsUnfArea_"+variablesUnfArea[m]+version+".txt";
+      inUnfArea.open (UnfArea.c_str());
+      inUnfArea >> centralValue >> rms;
+      inUnfArea.close ();
+      jetUnfArea.push_back(fabs(rms/centralValue));
+    }
+  }
+
+  return jetUnfArea;
+}
+
+
+std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEleEff, std::vector<double> jetEleJEC, std::vector<double> jetEleUnf, std::vector<double> jetElePU, std::vector<double> jetEleBkg,std::vector<double> jetMuoEff, std::vector<double> jetMuoJEC, std::vector<double> jetMuoUnf, std::vector<double> jetMuoPU, std::vector<double> jetMuoBkg){
+
   std::vector<double> syst;
-   
-  ifstream inEleEff;
-  inEleEff.open (eleEff.c_str());
-  ifstream inMuoEff;
-  inMuoEff.open (muoEff.c_str());
-
-  ifstream inEleJEC;
-  inEleJEC.open (eleJEC.c_str());
-  ifstream inMuoJEC;
-  inMuoJEC.open (muoJEC.c_str());
-
-  ifstream inEleUnf;
-  inEleUnf.open (eleUnf.c_str());
-  ifstream inMuoUnf;
-  inMuoUnf.open (muoUnf.c_str());
-
-  ifstream inElePU;
-  inElePU.open (elePU.c_str());
-  ifstream inMuoPU;
-  inMuoPU.open (muoPU.c_str());
-   
-  int i=0;
-  double datEleEff;
-  double datMuoEff;
-  double datEleJEC;
-  double datMuoJEC;
-  double datEleUnf;
-  double datMuoUnf;
-  double datElePU;
-  double datMuoPU;
-
   double tmpEff;
   double tmpJEC;
   double tmpUnf;
   double tmpPU;
-
+  double tmpBkg;
   double tmpSyst;
 
-  while (1) {
-    inEleEff >> datEleEff;
-    inMuoEff >> datMuoEff;
-    inEleJEC >> datEleJEC;
-    inMuoJEC >> datMuoJEC;
-    inEleUnf >> datEleUnf;
-    inMuoUnf >> datMuoUnf;
-    inElePU  >> datElePU;
-    inMuoPU  >> datMuoPU;
+  for (Int_t i=0;i<jetEleUnf.size();i++) {
 
-    if (!inEleEff.good() && !inMuoEff.good() && !inEleJEC.good() && !inMuoJEC.good() &&
-	!inEleUnf.good() && !inMuoUnf.good() && !inElePU.good()  && !inMuoPU.good()) {
-      break;
-    }
+    tmpEff = jetEleEff[i];
+    tmpJEC = (jetEleJEC[i] + jetMuoJEC[i])/2;
+    tmpUnf = (jetEleUnf[i] + jetMuoUnf[i])/2;
+    tmpPU  = (jetElePU[i]  + jetMuoPU[i]) /2;
+    tmpBkg = (jetEleBkg[i] + jetMuoBkg[i])/2;
 
-    // Dummy crosscheck on the number of bins in every file:
-    if (!inEleEff.good() || !inMuoEff.good() || !inEleJEC.good() || !inMuoJEC.good() ||
-	!inEleUnf.good() || !inMuoUnf.good() || !inElePU.good()  || !inMuoPU.good()) {
-      cout << "PROBLEM WITH BINNING, EXITING COMBINATION LOOP!!!" << endl;
-      break;
-    }
-
-    tmpEff = sqrt(datEleEff*datEleEff + datMuoEff*datMuoEff);
-    tmpJEC = (datEleJEC+datMuoJEC)/2;
-    tmpUnf = (datEleUnf+datMuoUnf)/2;
-    tmpPU  = sqrt(datElePU*datElePU + datMuoPU*datMuoPU);
-
-    tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU);
+    tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU + tmpBkg*tmpBkg);
 
     syst.push_back(tmpSyst);
-
-    i++;  
   }
 
-  cout << "   -> Combining " << i << " bins." << endl;
-
-  inEleEff.close();
-  inMuoEff.close();
-  inEleJEC.close();
-  inMuoJEC.close();
-  inEleUnf.close();
-  inMuoUnf.close();
-  inElePU.close();
-  inMuoPU.close();
 
   return syst;
 }
 
 
-std::vector<double> combineLeptonSystematics::systPar(string parEff, string parJEC, string parUnf, string parPU){
+std::vector<double> combineLeptonSystematics::systPar(std::vector<double> jetEff, std::vector<double> jetJEC, std::vector<double> jetUnf, std::vector<double> jetPU, std::vector<double> jetBkg){
 	
-  // Leggere nomi dei file da aprire
-   
   std::vector<double> syst;
-   
-  ifstream inParEff;
-  inParEff.open (parEff.c_str());
-
-  ifstream inParJEC;
-  inParJEC.open (parJEC.c_str());
-
-  ifstream inParUnf;
-  inParUnf.open (parUnf.c_str());
-
-  ifstream inParPU;
-  inParPU.open (parPU.c_str());
-   
-  int i=0;
-  double datParEff;
-  double datParJEC;
-  double datParUnf;
-  double datParPU;
-
   double tmpSyst;
 
-  while (1) {
-    inParEff >> datParEff;
-    inParJEC >> datParJEC;
-    inParUnf >> datParUnf;
-    inParPU  >> datParPU;
+  for (Int_t i=0;i<jetUnf.size();i++) {
 
-    if (!inParEff.good() && !inParJEC.good() &&
-	!inParUnf.good() && !inParPU.good()) {
-      break;
-    }
-
-    // Dummy crosscheck on the number of bins in every file:
-    if (!inParEff.good() || !inParJEC.good() ||
-	!inParUnf.good() || !inParPU.good()) {
-      cout << "PROBLEM WITH BINNING, EXITING COMBINATION LOOP!!!" << endl;
-      break;
-    }
-
-    tmpSyst = sqrt(datParEff*datParEff + datParJEC*datParJEC + datParUnf*datParUnf + datParPU*datParPU);
-
+    tmpSyst = sqrt(jetEff[i]*jetEff[i] + jetJEC[i]*jetJEC[i] + jetUnf[i]*jetUnf[i] + jetPU[i]*jetPU[i] + jetBkg[i]*jetBkg[i]);
     syst.push_back(tmpSyst);
-
-    i++;  
   }
-
-  cout << "   -> Combining " << i << " bins." << endl;
-
-  inParEff.close();
-  inParJEC.close();
-  inParUnf.close();
-  inParPU.close();
 
   return syst;
 }
@@ -286,8 +299,6 @@ std::vector<double> combineLeptonSystematics::systOne(string oneSyst){
     i++;  
   }
 
-  cout << "   -> Writing " << i << " bins." << endl;
-
   inSyst.close();
 
   return syst;
@@ -304,7 +315,16 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 					  std::vector<double> jetEleUnf, 
 					  std::vector<double> jetMuoUnf, 
 					  std::vector<double> jetElePU , 
-					  std::vector<double> jetMuoPU , string variablesName, string version) {
+					  std::vector<double> jetMuoPU , 
+					  std::vector<double> jetEleBkg , 
+					  std::vector<double> jetMuoBkg , 
+					  std::vector<double> jetEff , 
+					  std::vector<double> jetStat , 
+					  std::vector<double> jetEffOld , 
+					  TH1D* datahisto_ele,
+					  TH1D* datahisto_muo,
+					  TH1D* datahisto_combi,
+					  string variablesName, string version) {
   
   ofstream textfile;
   string tablepath = "/gpfs/cms/users/schizzi/Systematics/tables/systematics_"+variablesName+version+".tex";
@@ -313,22 +333,56 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
   textfile.precision(2);
 
   textfile << "\\documentclass{article}" << endl;
-  textfile << "\\begin{document}" << endl;
   textfile << "\\usepackage{rotating}" << endl;
+  textfile << "\\oddsidemargin=0.0mm" << endl;
+  textfile << "\\evensidemargin=0.0mm" << endl;
+  textfile << "\\topmargin=0.0mm " << endl;
+  textfile << "\\headheight=0mm " << endl;
+  textfile << "\\headsep=0mm " << endl;
+  textfile << "\\textheight=271,5mm " << endl;
+  textfile << "\\textwidth=200mm " << endl;
+  textfile << "\\begin{document}" << endl;
+
+  // singular systs
   textfile << "\\begin{sidewaystable}[htbH]" << endl
 	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}" << endl
            << "\\hline" << endl 
-    	   << "\\multicolumn{4}{|c|}{Electron Systematics} \t&\t \\multicolumn{4}{|c|}{Muon Systematics} \t&\t \\multicolumn{3}{|c|}{Global Systematics} \t\\\\" << endl
+    	   << "\\multicolumn{5}{|c|}{Electron Systematics} \t&\t \\multicolumn{5}{|c|}{Muon Systematics} \t\\\\" << endl
            << "\\hline" << endl; 
 
-  textfile << "Efficiency \t&\t JEC \t&\t Unfolding \t&\t PU \t&\t Efficiency \t&\t JEC \t&\t Unfolding \t&\t PU \t&\t Electrons \t&\t Muons \t&\t Combination \t\\\\" << endl
+  textfile << "Efficiency \t&\t JEC \t&\t Unfolding \t&\t PU \t&\t Bkg subtr. \t&\t Efficiency \t&\t JEC \t&\t Unfolding \t&\t PU \t&\t Bkg subtr. \t\\\\" << endl
 	   << "\\hline" << endl; 
 
   for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile << jetEleEff[i] << "\t&\t" << jetEleJEC[i] << "\t&\t" << jetEleUnf[i] << "\t&\t" << jetElePU[i] << "\t&\t" 
-  	     << jetMuoEff[i] << "\t&\t" << jetMuoJEC[i] << "\t&\t" << jetMuoUnf[i] << "\t&\t" << jetMuoPU[i] << "\t&\t" 
-  	     << jetEleS[i]   << "\t&\t" << jetMuoS[i]   << "\t&\t" << jetSyst[i]   << "\t\\\\" << endl;
+    textfile.precision(3);
+    textfile << jetEleEff[i] << "\t&\t" << jetEleJEC[i] << "\t&\t" << jetEleUnf[i] << "\t&\t" << jetElePU[i] << "\t&\t" << jetEleBkg[i] << "\t&\t"
+  	     << jetMuoEff[i] << "\t&\t" << jetMuoJEC[i] << "\t&\t" << jetMuoUnf[i] << "\t&\t" << jetMuoPU[i] << "\t&\t" << jetMuoBkg[i] << "\t\\\\" << endl;
+  }
+  
+  // combination systs
+  textfile << "\\hline" << endl
+           << "\\end{tabular}" << endl
+           << "\\caption{" << variablesName << "}" << endl
+           << "\\label{tab:systematicstab}" << endl
+	   << "\\end{center}" << endl
+           << "\\end{sidewaystable}" << endl;
+
+  textfile << "\\begin{sidewaystable}[htbH]" << endl
+	   << "\\begin{center}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
+           << "\\hline" << endl 
+    	   << "\\multicolumn{3}{|c|}{DATA xsec (/pb)} \t&\t \\multicolumn{4}{|c|}{Data Uncertainties} \t&\t \\multicolumn{5}{|c|}{Global Systematics} \t\\\\" << endl
+           << "\\hline" << endl; 
+
+  textfile << "Electrons \t&\t Muons \t&\t Combined \t&\t Electrons \t&\t Muons \t&\t Combined \t&\t Combined 2 \t&\t Efficiency comb. \t&\t Efficiency comb.2 \t&\t Electrons \t&\t Muons \t&\t Combined \t\\\\" << endl
+	   << "\\hline" << endl; 
+
+  for (Int_t i=0; i<jetSyst.size(); i++) {
+    textfile.precision(3);
+    textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
+    textfile << datahisto_ele->GetBinError(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)  << "\t&\t" <<  datahisto_combi->GetBinError(i+1)  << "\t&\t" <<  jetStat[i]  << "\t&\t" ;
+    textfile << jetEffOld[i] << "\t&\t" << jetEff[i] << "\t&\t" << jetEleS[i]  << "\t&\t" << jetMuoS[i]   << "\t&\t" << jetSyst[i]   << "\t\\\\" << endl;
   }
   
   textfile << "\\hline" << endl
@@ -342,4 +396,44 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 
   textfile.close();
   return 0;
+}
+
+
+TH1D* combineLeptonSystematics::getDataHisto (int whichHisto, string datapath) {
+
+  TFile *histofile1 = TFile::Open (datapath.c_str ());
+  histofile1->cd ("");
+  TDirectory *dir1 = gDirectory;
+  TList *mylist1 = (TList *) dir1->GetListOfKeys ();
+  TIter iter1 (mylist1);
+  TObject *tobj1 = 0;
+
+  std::vector<string> histosName;
+  histosName.clear();
+  histosName.push_back("JetMultiplicityUnfolded");
+  histosName.push_back("jReco_leading");
+  histosName.push_back("jReco_subleading");
+  histosName.push_back("jReco_subsubleading");
+  histosName.push_back("jReco_subsubsubleading");
+  histosName.push_back("jReco_leadingeta");
+  histosName.push_back("jReco_subleadingeta");
+  histosName.push_back("jReco_subsubleadingeta");
+  histosName.push_back("jReco_subsubsubleadingeta");
+  histosName.push_back("HReco_leading");
+  histosName.push_back("HReco_subleading");
+  histosName.push_back("HReco_subsubleading");
+  histosName.push_back("HReco_subsubsubleading");
+
+  string histoname;
+  TH1D *histo;
+
+  while ((tobj1 = iter1.Next ())) {
+    histoname = tobj1->GetName ();
+    if (histoname == histosName[whichHisto]) {
+      histofile1->cd ("");
+      gDirectory->GetObject (histoname.c_str (), histo); // Save ele histogram!
+    }
+  }
+
+  return histo;
 }
