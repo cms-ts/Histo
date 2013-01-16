@@ -64,7 +64,7 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=false;
+bool activateXSSuperseding=true;
 double XSElectron[4]={49.64,10.93,2.078,0.395};
 double XSMuon[4]={48.42,10.85,2.030,0.353};
 
@@ -80,7 +80,7 @@ TFile *fPythia;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
-bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
 string filename=direct+"UlfoldedDistributions_v2_35.root";//+version;
 //string filename="/tmp/pippo.root";
@@ -98,7 +98,7 @@ bool correctForBkg=true;
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
 //string bkgstring=dir+"Backgrounds"+version;
-string bkgstring=dir+"Backgrounds_v2_28.root";
+string bkgstring=dir+"Backgrounds_v2_33.root";
 
 //File with efficiency coefficients
 string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
@@ -108,6 +108,9 @@ TFile *eff;
 //Open MC and data files to retrieve effciencies
 TFile *fAeff; // WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 TFile *fBeff; 
+
+//Save info about MC stat error
+bool MCstatError=true;
 
 /* Number of jet associated to a Z distribution */
 //-------------------------
@@ -173,10 +176,10 @@ Unfolding::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=1;
-  LoopJetPt(numbOfJetsForLoop);
+  int numbOfJetsForLoop=2;
+  //LoopJetPt(numbOfJetsForLoop);
   //LoopHt(numbOfJetsForLoop);
-  //LoopJetEta(numbOfJetsForLoop);
+  LoopJetEta(numbOfJetsForLoop);
 
   //LoopJetMultiplicity();
   
@@ -191,7 +194,7 @@ Unfolding::LoopOneFour()
     smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version
-    bkgstring=dir+"BackgroundsMu_v2_30.root";
+    bkgstring=dir+"BackgroundsMu_v2_33.root";
   }
 
   fA = new TFile (smc.c_str());
@@ -212,15 +215,17 @@ Unfolding::LoopOneFour()
   cout<<"########################################"<<endl;
 
   setTDRStyle();
-  LoopJetMultiplicity();
 
   for (int i=1; i<=4; i++){
-    //LoopHt(i);
+    LoopHt(i);
     //LoopZpt();
     //LoopZy();
     LoopJetPt(i);
-    //LoopJetEta(i); // ------------------------> Correggere baco, fare metodo Miss,Fake e controllare "correctGenJetEta"
+    LoopJetEta(i); // ------------------------> Correggere baco, fare metodo Miss,Fake e controllare "correctGenJetEta"
   }
+
+  LoopJetMultiplicity();
+
 }
 
 

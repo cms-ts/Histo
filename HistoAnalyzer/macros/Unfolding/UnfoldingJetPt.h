@@ -402,13 +402,13 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
     double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
     if (correctForSecondaryMigrations==true && (realGenJetMultiplicity>0) ){
-	double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+
 	double jet_pt_gen=0;
 	double jet_pt=0;
 
 	if (numbOfJetsSelected==1) {
-	  jet_pt_gen=jet1_pt_gen;
-	  jet_pt=jet1_pt;
+	  if (jet_pt_gen<7000) jet_pt_gen=jet1_pt_gen;
+	  if (jet_pt<7000) jet_pt=jet1_pt;
 	}
 	if (numbOfJetsSelected==2) {
 	  jet_pt_gen=jet2_pt_gen;
@@ -424,10 +424,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	}
 
       //Case that were Z+0 Jets and not properly addressed!
-      if ((offsetJetMultiplicity-Jet_multiplicity_gen)==0 && Jet_multiplicity==0) {
-	counter++;
-	continue;
-      }
+      //if ((offsetJetMultiplicity-Jet_multiplicity_gen)==0 && Jet_multiplicity==0) {
+	//counter++;
+	//continue;
+	//}
 	
 	if ( (l1_pt_gen<20 || l2_pt_gen<20) & (recoZInAcceptance==1) ){
 	  unfold_second.Fake(jet_pt);
@@ -508,10 +508,10 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 
       //correctGenJetPt=getGenJetPtOfAGivenOrder(realGenJetMultiplicity,1,25,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen);
       
-      if (fabs(correctGenJetEta)>2.42 && correctJetPt>=30 ) {
-      unfold_jBayes.Fake(correctJetPt);
-      continue;
-      }
+      //if (fabs(correctGenJetEta)>2.42 && correctJetPt>=30 ) {
+      //unfold_jBayes.Fake(correctJetPt);
+      //continue;
+      //}
 
       // e' IL JET BUON IN ETA? Se no, cosa si fa?
       
@@ -520,7 +520,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       double effcorrmc=1.0*evWeight;
       if (identityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
      
-      if ((Jet_multiplicity >= 1 ||  (realGenJetMultiplicity) >=1)){
+      if ((Jet_multiplicity >=numbOfJetsSelected  ||  (realGenJetMultiplicity) >=numbOfJetsSelected)){
 	counter3++;
 	//Correct for efficiencies event per event
 	if (correctForEff){
@@ -553,6 +553,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	  unfold_jBayes2.Fill(correctJetPt,Jet_multiplicity,correctGenJetPt,realGenJetMultiplicity,effcorrmc);
 	}
 	if ( (correctJetPt>30 && fabs(correctJetEta)<2.4) && !(correctGenJetPt>30 && correctGenJetPt<7000 &&  fabs(correctGenJetEta)<2.4)) {
+	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc);
 	  unfold_jBayes.Fake(correctJetPt,effcorrmc);
 	  fakeCounter+=1*effcorrmc;
 	  unfold_second.Fake(Jet_multiplicity,effcorrmc);
@@ -569,29 +570,31 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
       }
       else{
 	counter3++;
-	//if (Jet_multiplicity == 0 && ( (realGenJetMultiplicity) ==0)) unfold_jBayes.Fill(jet1_pt,correctGenJetPt,effcorrmc); //zeri
+	if (Jet_multiplicity == 0 && ( (realGenJetMultiplicity) ==0)) unfold_jBayes.Fill(correctJetPt,correctGenJetPt,effcorrmc); //zeri
 	jTrue->Fill (correctGenJetPt);
-	if (!(correctGenJetPt>30 && fabs(correctGenJetEta)<2.4) && (correctJetPt>30 && fabs(correctJetEta)<2.4) ){
-	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc);
-	  unfold_jBayes.Fake(correctJetPt,effcorrmc);
-	  fakeCounter+=effcorrmc;
-	  unfold_second.Fake(Jet_multiplicity,effcorrmc);
-	  unfold_jBayes2.Fake(correctJetPt,Jet_multiplicity,effcorrmc);
-	}
-	if (correctGenJetPt>30 && fabs(correctGenJetEta)<2.4 && !(correctJetPt>30 && fabs(correctJetEta)<2.4)){
-	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc);
-	  unfold_jBayes.Miss(correctGenJetPt);
-	  missCounter+=1*effcorrmc;
-	  unfold_second.Miss(realGenJetMultiplicity);
-	  unfold_jBayes2.Miss(correctGenJetPt,realGenJetMultiplicity);
-	}
-	if (correctGenJetPt>30  && fabs(correctGenJetEta)<2.4 && (correctJetPt>30 && fabs(correctJetEta)<2.4)){
-	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc);
-	  fillCounter+=effcorrmc;
-	  unfold_jBayes.Fill(correctJetPt,correctGenJetPt,effcorrmc);
-	  unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc);
-	  unfold_jBayes2.Fill(correctJetPt,Jet_multiplicity,correctGenJetPt,realGenJetMultiplicity,effcorrmc);
-	}
+	//if (Jet_multiplicity_gen>1 &&correctGenJetPt>25)  unfold_jBayes.Miss(correctGenJetPt);
+
+/* 	if (!(correctGenJetPt>30 && fabs(correctGenJetEta)<2.4) && (correctJetPt>30 && fabs(correctJetEta)<2.4) ){ */
+/* 	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc); */
+/* 	  //unfold_jBayes.Fake(correctJetPt,effcorrmc); */
+/* 	  fakeCounter+=effcorrmc; */
+/* 	  unfold_second.Fake(Jet_multiplicity,effcorrmc); */
+/* 	  unfold_jBayes2.Fake(correctJetPt,Jet_multiplicity,effcorrmc); */
+/* 	} */
+/* 	if (correctGenJetPt>30 && fabs(correctGenJetEta)<2.4 && !(correctJetPt>30 && fabs(correctJetEta)<2.4)){ */
+/* 	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc); */
+/* 	  //unfold_jBayes.Miss(correctGenJetPt); */
+/* 	  missCounter+=1*effcorrmc; */
+/* 	  unfold_second.Miss(realGenJetMultiplicity); */
+/* 	  unfold_jBayes2.Miss(correctGenJetPt,realGenJetMultiplicity); */
+/* 	} */
+/* 	if (correctGenJetPt>30  && fabs(correctGenJetEta)<2.4 && (correctJetPt>30 && fabs(correctJetEta)<2.4)){ */
+/* 	  jMatx->Fill (correctJetPt, correctGenJetPt,effcorrmc); */
+/* 	  fillCounter+=effcorrmc; */
+/* 	  //unfold_jBayes.Fill(correctJetPt,correctGenJetPt,effcorrmc); */
+/* 	  unfold_second.Fill(Jet_multiplicity, realGenJetMultiplicity,effcorrmc); */
+/* 	  unfold_jBayes2.Fill(correctJetPt,Jet_multiplicity,correctGenJetPt,realGenJetMultiplicity,effcorrmc); */
+/* 	} */
       }
       jMatxlong->Fill (correctJetPt, correctGenJetPt,effcorrmc);	 
       
@@ -760,23 +763,44 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
   /////////////////////////
   
   if (correctForBkg){
-    std::vector<double> bckcoeff;
-    if (numbOfJetsSelected==1) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT");
-    if (numbOfJetsSelected==2) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT2");
-    if (numbOfJetsSelected==3) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT3");
-    if (numbOfJetsSelected==4) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT4");
+    ofstream backSignificance;
 
+    std::vector<double> bckcoeff;
+    if (numbOfJetsSelected==1) {
+      bckcoeff=getBackgroundContributions(bkgstring,"jet_pT");
+      if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet1Pt.txt");
+      if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet1PtMu.txt");
+    }
+    if (numbOfJetsSelected==2) {
+      if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet2Pt.txt");
+      if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet2PtMu.txt");
+      if (MCstatError) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT2");
+    }
+    if (numbOfJetsSelected==3) {
+      bckcoeff=getBackgroundContributions(bkgstring,"jet_pT3");
+      if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet3Pt.txt");
+      if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet3PtMu.txt");
+    }
+    if (numbOfJetsSelected==4) {
+      bckcoeff=getBackgroundContributions(bkgstring,"jet_pT4");
+      if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet4Pt.txt");
+      if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet4PtMu.txt");
+    }
     for (unsigned int k=0; k<divPlot; k++){
       jData->SetBinContent(k+1, jData->GetBinContent(k+1) - bckcoeff[k]);
       jData2->SetBinContent(k+1, jData2->GetBinContent(k+1) - bckcoeff[k]);	
+      double backvalue=bckcoeff[k];
       if (jData->GetBinContent(k+1)>0) {
+	if (bckcoeff[k]<0.000000001) backvalue=0.0;
 	relativebkg->SetBinContent(k+1,bckcoeff[k]/jData->GetBinContent(k+1));
 	cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is "<<bckcoeff[k]/jData->GetBinContent(k+1)<<endl;	
       }
       else {
+	if (bckcoeff[k]<0.000000001) backvalue=0.0;
 	relativebkg->SetBinContent(k+1,0);
 	cout<<"Data:"<<jData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is 0"<<endl;
       }
+      if (MCstatError) backSignificance<<jData->GetBinContent(k+1)<<" "<<backvalue<<endl;
       cout<<"after "<<bckcoeff[k]/jData->GetBinContent(k+1)<<endl;
     }
   }
@@ -920,7 +944,7 @@ void Unfolding::LoopJetPt (int numbOfJetsSelected)
 	std::vector<double> err;
 	for (unsigned int k=0; k<jData->GetNbinsX(); k++){
 	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
-	  jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
+	  //jReco->SetBinError(k+1,vunfo[k] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
 	  jReco->SetBinError(k+1,sqrt(jReco->GetBinContent(k+1))); //FIXME!!!!!!!!!!!!!!!!!!!!!
 	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2))));
 	  err.push_back(vunfo[k]);

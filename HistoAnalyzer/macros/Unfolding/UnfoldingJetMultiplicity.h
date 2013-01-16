@@ -1,4 +1,7 @@
 #include "TSVDUnfold.h"
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 TH1D *NTrue = new TH1D ("NTrue", "N Truth", maxNJets-0.5, 0.5, maxNJets-0.5);
 TH1D *NTruepythia = new TH1D ("NTruepythia", "N Truth using pythia", maxNJets-0.5, 0.5, maxNJets-0.5);
@@ -424,22 +427,34 @@ void Unfolding::LoopJetMultiplicity ()
   /////////////////////////
   
   if (correctForBkg){
+// To save analysis on background statistical significance
+    ofstream backSignificance;
+    if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJetMulti.txt");
+    if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJetMultiMu.txt");
+
     std::vector<double> bckcoeff;
     bckcoeff=getBackgroundContributions(bkgstring,"jet_Multiplicity");
     for (unsigned int k=0; k< maxNJets; k++){
       NData->SetBinContent(k+1, NData->GetBinContent(k+1) - bckcoeff[k]);  //K+1 perche' c'e' il bkgr a 0 Jets...
       if (NData->GetBinContent(k+1)>0) {
+	double backvalue=bckcoeff[k];
+	if (bckcoeff[k]<0.000000001) backvalue=0.0;
 	relativebkgN->SetBinContent(k+1,bckcoeff[k]/NData->GetBinContent(k+1));
 	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;	
+	if (MCstatError) backSignificance<<NData->GetBinContent(k+1)<<" "<<backvalue<<endl;
       }
       else {
+	double backvalue=bckcoeff[k];
+	if (bckcoeff[k]<0.000000001) backvalue=0.0;
 	relativebkgN->SetBinContent(k+1,0);
 	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is 0"<<endl;
+	if (MCstatError) backSignificance<<NData->GetBinContent(k+1)<<" "<<backvalue<<endl;
       }
       cout<<"after "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;
     }
+    backSignificance.close();
   }
-  
+
   // Fill the matrix response with the MC values, this time as histograms!
   if (pythiaCheck) NMatx=NMatxpythia;
     
@@ -479,7 +494,7 @@ void Unfolding::LoopJetMultiplicity ()
     NTrue=NTrueSwap; //Perche' fai questo? Per riprendere la MD MC truth e confrontare con il ratio
   }
 
-  
+
   //Repeating each algorithm
   for (int j=k0; j<k1; j++){
     string method;

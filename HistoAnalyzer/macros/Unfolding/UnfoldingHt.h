@@ -435,12 +435,12 @@ gDirectory->ls("tree*");
 	  continue;
 	}
 	
-	
-	if ( ( fabs(l1_eta_gen)>1.44 & fabs(l1_eta_gen)<1.57) && (( fabs(l2_eta_gen)>1.44 & fabs(l2_eta_gen)<1.57)) && (recoZInAcceptance==0) && isElectron ){
-	  unfold_second.Miss(Ht_gen);
+	//account for the gap!
+	if ( (( fabs(l1_eta_gen)>1.442 & fabs(l1_eta_gen)<1.566 && fabs(l2_eta_gen)<2.4) || ( fabs(l2_eta_gen)>1.442 & fabs(l2_eta_gen)<1.566)&& fabs(l1_eta_gen)<2.4) && Jet_multiplicity==0 && isElectron){
+	  unfold_second.Miss(Ht);
 	  continue;
-      }
-	
+	}
+
 	if (recoZInAcceptance==1 && genZInAcceptance==0){
 	  unfold_second.Fake(Ht);
 	  continue;
@@ -479,10 +479,48 @@ gDirectory->ls("tree*");
 	  if (Jet_multiplicity >= Nj || genJet >= Nj) HMatx->Fill (Ht, Ht_gen, 1);
 	  if (Jet_multiplicity >= Nj || genJet >= Nj) HMatxlong->Fill (Ht, Ht_gen, 1);
 	}
-      
-      if (Jet_multiplicity >= Nj && genJet >= Nj) unfold_second.Fill(Ht, Ht_gen,effcorrmc);
-      if (Jet_multiplicity >= Nj && !(genJet >= Nj)) unfold_second.Fake(Ht,effcorrmc);
-      if (!(Jet_multiplicity >= Nj) && genJet >= Nj) unfold_second.Miss(Ht_gen);
+
+    double realGenJetMultiplicity=getNumberOfValidGenJets(threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
+      double correctGenJetEta=0.0;
+      double correctJetPt=0.0;
+      double correctJetEta=0.0;
+
+      if (Nj<=1){
+	correctGenJetPt=jet1_pt_gen;
+	correctJetPt=jet1_pt;
+	correctGenJetEta=jet1_eta_gen;
+	correctJetEta=jet1_eta;
+      }
+
+      if (Nj==2){
+	correctGenJetPt=jet2_pt_gen;
+	correctJetPt=jet2_pt;
+	correctGenJetEta=jet2_eta_gen;
+	correctJetEta=jet2_eta;
+      }
+
+      if (Nj==3){
+	correctGenJetPt=jet3_pt_gen;
+	correctJetPt=jet3_pt;
+	correctGenJetEta=jet3_eta_gen;
+	correctJetEta=jet3_eta;
+      }
+
+      if (Nj==4){
+	correctGenJetPt=jet4_pt_gen;
+	correctJetPt=jet4_pt;
+	correctGenJetEta=jet4_eta_gen;
+	correctJetEta=jet4_eta;
+      }
+
+      if ((Jet_multiplicity >=Nj  ||  (realGenJetMultiplicity) >=Nj)){      
+	if ((correctJetPt>30 && fabs(correctJetEta)<2.4) && (correctGenJetPt>30 && correctGenJetPt<7000 &&  fabs(correctGenJetEta)<2.4)) unfold_second.Fill(Ht, Ht_gen,effcorrmc);
+	if ( (correctJetPt>30 && fabs(correctJetEta)<2.4) && !(correctGenJetPt>30 && correctGenJetPt<7000 &&  fabs(correctGenJetEta)<2.4)) unfold_second.Fake(Ht,effcorrmc);
+	if (!(correctJetPt>30 && fabs(correctJetEta)<2.4) && (correctGenJetPt>30 && correctGenJetPt<7000 &&  fabs(correctGenJetEta)<2.4)) unfold_second.Miss(Ht_gen);
+      }
+      else{
+	if (Jet_multiplicity == 0 && ( (realGenJetMultiplicity) ==0)) unfold_second.Fill(correctJetPt,correctGenJetPt,effcorrmc); //zeri
+      }
       efficiencycorrectionsmc->Fill(effcorrmc); //Save the corrections that you applyed
       Ht = 0;
       Ht_gen = 0;
@@ -593,15 +631,31 @@ gDirectory->ls("tree*");
   if (correctForBkg)
     {
       std::vector < double >bckcoeff2;
-
-      if (Nj == 1) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT1");
-      if (Nj == 2) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT2");
-      if (Nj == 3) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT3");
-      if (Nj == 4) bckcoeff2 = getBackgroundContributions ("/gpfs/cms/data/2011/BackgroundEvaluation/Backgrounds_v2_28.root", "HT4");
-
-
+    ofstream backSignificance;
+      if (Nj == 1){
+	bckcoeff2 = getBackgroundContributions (bkgstring, "HT1");
+	if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet1Ht.txt");
+	if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet1HtMu.txt");
+      }      
+      if (Nj == 2){
+	bckcoeff2 = getBackgroundContributions (bkgstring, "HT2");
+	if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet2Ht.txt");
+	if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet2HtMu.txt");
+      }
+      if (Nj == 3){
+	bckcoeff2 = getBackgroundContributions (bkgstring, "HT3");
+	if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet3Ht.txt");
+	if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet3HtMu.txt");
+      }
+      if (Nj == 4){
+	bckcoeff2 = getBackgroundContributions (bkgstring, "HT4");
+	if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet4Ht.txt");
+	if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet4HtMu.txt");
+      }
+      
       for (unsigned int k = 0; k < Nbins; k++)
 	{
+	  double backvalue=bckcoeff2[k];
 	  HData->SetBinContent (k + 1, HData->GetBinContent (k + 1) - bckcoeff2[k]);
 	  HData2->SetBinContent (k + 1,HData2->GetBinContent (k + 1) - bckcoeff2[k]);
 	  if (HData->GetBinContent (k + 1) > 0)
@@ -615,12 +669,13 @@ gDirectory->ls("tree*");
 	      cout << "Data:" << HData->GetBinContent (k +1) << " bck:" <<bckcoeff2[k] << " (coefficient is " << bckcoeff2[k] <<"). Relative bin ratio is 0" << endl;
 	    }
 	  cout << "after " << bckcoeff2[k] / HData->GetBinContent (k + 1) << endl;
+	  if (MCstatError) backSignificance<<HData->GetBinContent(k+1)<<" "<<backvalue<<endl;
 	}
 
     }
 
   // Fill the matrix response with the MC values, this time as histograms!
- 
+  
   TH1D *HTrueSwap;
   
   if (pythiaCheck) {
