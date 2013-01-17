@@ -17,7 +17,7 @@ public:
 		  std::vector<double>, std::vector<double>, std::vector<double>, 
 		  std::vector<double>, std::vector<double>, std::vector<double>, 
 		  std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, TH1D*, TH1D*, TH1D*,string, string);
-  std::vector<double> systSum(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
+  std::vector<double> systSum(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, TH1D*, TH1D*);
   std::vector<double> systPar(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
   std::vector<double> systOne(string);
   std::vector<double> systUnfArea(int, string, string);
@@ -57,6 +57,9 @@ int combineLeptonSystematics::letscombine () {
   string muoBkg;
   string output;
 
+  string eleBkgStat;
+  string muoBkgStat;
+
   TH1D* datahisto_ele;
   TH1D* datahisto_muo;
   TH1D* datahisto_combi;
@@ -73,6 +76,8 @@ int combineLeptonSystematics::letscombine () {
     cout << "-------------------------" << endl;
     cout << "Writing " << output  << " ..."<< endl;
 
+    //    Systematics file paths:
+
     eleEff = plotpath+"ele/systematicsEff_"+variablesName[var]+version+".txt";
     muoEff = plotpath+"muo/systematicsEff_"+variablesName[var]+version+".txt";
     eleJEC = plotpath+"ele/systematicsJEC_"+variablesName[var]+version+".txt";
@@ -83,6 +88,10 @@ int combineLeptonSystematics::letscombine () {
     muoPU  = plotpath+"muo/systematicsPU_"+variablesName[var]+version+".txt";
     eleBkg = plotpath+"ele/BkgCrossSection_"+variablesName[var]+version+".txt";
     muoBkg = plotpath+"muo/BkgCrossSection_"+variablesName[var]+version+".txt";
+
+    //    Statistical errors file paths:
+    eleBkgStat = plotpath+"ele/backgroundStatError_"+variablesName[var]+version+".txt";
+    muoBkgStat = plotpath+"muo/backgroundStatError_"+variablesName[var]+version+".txt";
 
     datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root");
     datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root");
@@ -121,6 +130,41 @@ int combineLeptonSystematics::letscombine () {
       jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + pow(jetMuoUnfArea[var] * datahisto_muo->GetBinContent(nel+1),2));
     }
 
+    // Statistical uncertainties (data and bkg):
+    std::vector<double> jetEleDataStat;
+    jetEleDataStat.clear();
+    std::vector<double> jetEleBkgStat;
+    jetEleBkgStat.clear();
+    ifstream inStat1;
+    inStat1.open (eleBkgStat.c_str());
+    double tmpStat1;
+    double tmpStat2;
+    while (1) {
+      inStat1 >> tmpStat1 >> tmpStat2;
+      if (!inStat1.good()) {
+	break;
+      }
+      jetEleDataStat.push_back(sqrt(tmpStat1)/4890.0);
+      jetEleBkgStat.push_back(sqrt(tmpStat2)/4890.0);
+    }
+    inStat1.close();
+
+    std::vector<double> jetMuoDataStat;
+    jetMuoDataStat.clear();
+    std::vector<double> jetMuoBkgStat;
+    jetMuoBkgStat.clear();
+    ifstream inStat2;
+    inStat2.open (muoBkgStat.c_str());
+    while (1) {
+      inStat2 >> tmpStat1 >> tmpStat2;
+      if (!inStat2.good()) {
+	break;
+      }
+      jetMuoDataStat.push_back(sqrt(tmpStat1)/4890.0);
+      jetMuoBkgStat.push_back(sqrt(tmpStat2)/4890.0);
+    }
+    inStat2.close();
+
     // Compute the right contrib from efficiency:
     double epsilon=0.1;
     double dplus2ele=0.0;
@@ -136,19 +180,28 @@ int combineLeptonSystematics::letscombine () {
       dminus2muo = (1-epsilon)*(1-epsilon)*jetMuoEff[nec]*jetMuoEff[nec];
 
       sigmaplus2  = 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + dplus2ele) 
-		     + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dplus2muo));
+			 + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dplus2muo));
       sigmaminus2 = 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + dminus2ele) 
-		     + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dminus2muo));
+			 + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dminus2muo));
+      //      sigmaplus2  = 1.0/(1.0/(jetEleDataStat[nec]*jetEleDataStat[nec] + jetEleBkgStat[nec]*jetEleBkgStat[nec] + dplus2ele) 
+      //		     + 1.0/(jetMuoDataStat[nec]*jetMuoDataStat[nec] + jetMuoBkgStat[nec]*jetMuoBkgStat[nec] + dplus2muo));
+      //      sigmaminus2 = 1.0/(1.0/(jetEleDataStat[nec]*jetEleDataStat[nec] + jetEleBkgStat[nec]*jetEleBkgStat[nec] + dminus2ele) 
+      //		     + 1.0/(jetMuoDataStat[nec]*jetMuoDataStat[nec] + jetMuoBkgStat[nec]*jetMuoBkgStat[nec] + dminus2muo));
 
       jetEff.push_back(sqrt((sigmaplus2 - sigmaminus2)/(4*epsilon)));
+      //      jetStat.push_back(sqrt( 1.0/(1.0/(jetEleDataStat[nec]*jetEleDataStat[nec] + jetEleBkgStat[nec]*jetEleBkgStat[nec] + jetEleEff[nec]*jetEleEff[nec]) 
+      //				 + 1.0/(jetMuoDataStat[nec]*jetMuoDataStat[nec] + jetMuoBkgStat[nec]*jetMuoBkgStat[nec] + jetMuoEff[nec]*jetMuoEff[nec]))
+      //			     - (sigmaplus2 - sigmaminus2)/(4*epsilon)));
       jetStat.push_back(sqrt( 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetEleEff[nec]*jetEleEff[nec]) 
-				 + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + jetMuoEff[nec]*jetMuoEff[nec]))
-			     - (sigmaplus2 - sigmaminus2)/(4*epsilon)));
+				 + 1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetMuoEff[nec]*jetMuoEff[nec]))
+			      - (sigmaplus2 - sigmaminus2)/(4*epsilon)));
       jetEffOld.push_back(sqrt(1/(1/(jetEleEff[nec]*jetEleEff[nec]) + 1/(jetMuoEff[nec]*jetMuoEff[nec]))));
+
+      if (variablesName[var] == "jetMult") cout << "jetEleDataStat = " << jetEleDataStat[nec] << " jetMuoDataStat = " << jetMuoDataStat[nec] << " jetEleBkgStat = " << jetEleBkgStat[nec] << " jetMuoBkgStat = " << jetMuoBkgStat[nec]  << endl;
     }
 
     cout << "   -> Computing combined systematics..." << endl;
-    std::vector<double> jetSyst = combineLeptonSystematics::systSum(jetEff,jetEleJEC,jetEleUnf,jetElePU,jetEleBkg,jetEff,jetMuoJEC,jetMuoUnf,jetMuoPU,jetMuoBkg);   
+    std::vector<double> jetSyst = combineLeptonSystematics::systSum(jetEff,jetEleJEC,jetEleUnf,jetElePU,jetEleBkg,jetEff,jetMuoJEC,jetMuoUnf,jetMuoPU,jetMuoBkg,datahisto_ele,datahisto_muo);   
     cout << "   -> Computing global systematics for electrons and muons..." << endl;
     std::vector<double> jetEleS = combineLeptonSystematics::systPar(jetEleEff,jetEleJEC,jetEleUnf,jetElePU,jetEleBkg);   
     std::vector<double> jetMuoS = combineLeptonSystematics::systPar(jetMuoEff,jetMuoJEC,jetMuoUnf,jetMuoPU,jetMuoBkg);   
@@ -232,7 +285,7 @@ std::vector<double> combineLeptonSystematics::systUnfArea(int isEleOrMuo, string
 }
 
 
-std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEleEff, std::vector<double> jetEleJEC, std::vector<double> jetEleUnf, std::vector<double> jetElePU, std::vector<double> jetEleBkg,std::vector<double> jetMuoEff, std::vector<double> jetMuoJEC, std::vector<double> jetMuoUnf, std::vector<double> jetMuoPU, std::vector<double> jetMuoBkg){
+std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEleEff, std::vector<double> jetEleJEC, std::vector<double> jetEleUnf, std::vector<double> jetElePU, std::vector<double> jetEleBkg,std::vector<double> jetMuoEff, std::vector<double> jetMuoJEC, std::vector<double> jetMuoUnf, std::vector<double> jetMuoPU, std::vector<double> jetMuoBkg, TH1D* datahisto_ele, TH1D* datahisto_muo){
 
   std::vector<double> syst;
   double tmpEff;
@@ -245,10 +298,10 @@ std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEle
   for (Int_t i=0;i<jetEleUnf.size();i++) {
 
     tmpEff = jetEleEff[i];
-    tmpJEC = (jetEleJEC[i] + jetMuoJEC[i])/2;
-    tmpUnf = (jetEleUnf[i] + jetMuoUnf[i])/2;
-    tmpPU  = (jetElePU[i]  + jetMuoPU[i]) /2;
-    tmpBkg = (jetEleBkg[i] + jetMuoBkg[i])/2;
+    tmpJEC = (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+    tmpUnf = (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+    tmpPU  = (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+    tmpBkg = (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
 
     tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU + tmpBkg*tmpBkg);
 
