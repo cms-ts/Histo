@@ -36,10 +36,10 @@ int combineLeptonStatistics () {
   string elePathFile;
   string muoPathFile;
 
-  elePathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
-  muoPathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
+  elePathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root";
+  muoPathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root";
 
-  TFile output_file("/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32_NoNormalization_Combined.root","RECREATE");
+  TFile output_file("/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root","RECREATE");
 
   // BEGIN COMBINATION:
 
@@ -68,12 +68,14 @@ int combineLeptonStatistics () {
 
   while ((tobj1 = iter1.Next ())) {
     elename = tobj1->GetName ();
+    if (elename == "N hMatx" || elename == "jTrue" || elename == "jMatx") continue;
     histofile1->cd ("");
     gDirectory->GetObject (elename.c_str (), elehisto); // Save ele histogram!
     
     iter2.Reset();
     while ((tobj2 = iter2.Next ())) {
       muoname = tobj2->GetName ();
+      if (muoname == "N hMatx" || muoname == "jTrue" || muoname == "jMatx") continue;
       if (muoname == elename) {
 	histofile2->cd ("");
 	gDirectory->GetObject (muoname.c_str (), muohisto); // Save muo histogram!

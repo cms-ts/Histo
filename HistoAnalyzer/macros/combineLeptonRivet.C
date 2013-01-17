@@ -2,17 +2,10 @@
 #include "TH1.h"
 #include "TDirectory.h"
 #include "TGraphAsymmErrors.h"
-#include <TH2.h>
-#include <TStyle.h>
 #include "TH1D.h"
-#include "TFile.h"
 #include <vector>
-#include "tdrStyle.C"
-#include <TROOT.h>
-#include "TObject.h"
 #include <iostream>
 #include <sstream>
-#include "TTree.h"
 #include <string.h>
 
 class combineLeptonRivet {
@@ -85,8 +78,6 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
 
   bool isMG = isMadGraph;
   Int_t usecase = whichobservable;
-
-  //  setTDRStyle ();
 
   string elePathFile = wichelepath;
   string muoPathFile = wichmuopath;
@@ -203,7 +194,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
   combinetgraph->SetTitle(elename.c_str ());
   }
 
-  if (isMG) {
+  if (isMG) { // Update: il seguente if e' utile come una merda sotto la suola della scarpa!
     wele = elehisto->GetIntegral();
     wmuo = muohisto->GetIntegral();
   } else {
@@ -220,7 +211,8 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
     for (Int_t i=1; i<(nbins_ele+1);i++) {
       dummyYvarEle = elehisto->GetBinContent(i);
       dummyYvarMuo = muohisto->GetBinContent(i);
-      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
+      //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
+      wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
       combinehisto->SetBinContent(i,wmean);
       combinehisto->SetBinError(i,0.);
     }
@@ -228,7 +220,8 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
     for (Int_t i=0; i<nbins_ele;i++) {
       eletgraph->GetPoint(i,dummyXvar,dummyYvarEle);
       muotgraph->GetPoint(i,dummyXvar,dummyYvarMuo);
-      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
+      //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
+      wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
       combinetgraph->SetPoint(i,dummyXvar,wmean);
       combinetgraph->SetPointEYhigh(i,0.);
       combinetgraph->SetPointEYlow(i,0.);
