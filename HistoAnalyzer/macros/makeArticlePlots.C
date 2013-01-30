@@ -39,7 +39,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   gStyle->SetErrorX(0);
 
   bool absoluteNormalization=true;
-  int lepton=whichlepton; //1 -> electron,  2 -> muon, 3 -> combined reults!
+  int lepton=whichlepton; //1 -> electron,  2-> muon , 3 -> combined reults!
   bool noErrorsOnPad1=false;
   bool addLumiUncertainties=true; double lumiError=0.025;
 
@@ -47,22 +47,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   int whichjet = whichjet;
   string version = "_v2_32";
   //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
-  string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/";
-  if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/Mu/";
-  if (lepton==3) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v32/FinalTheoryComparison/combination/";
+  string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v35/FinalTheoryComparison/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v35/FinalTheoryComparison/Mu/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v35/FinalTheoryComparison/combination/";
+
   //string s="/tmp/";
+  //string plotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   if (lepton == 2) plotpath = "/gpfs/cms/data/2011/Uncertainties/muons/";
+  //if (lepton == 2) plotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
   if (lepton == 3) plotpath = "/gpfs/cms/users/schizzi/Systematics/combination/";
+
   gStyle->SetOptStat (0);
 
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalization.root";
-  if (lepton == 2) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationMu.root";
-  if (lepton == 3) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32_NoNormalization_Combined.root";
+  string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root";
 
+  if (lepton == 2) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root";
+  if (lepton == 3) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root";
+  
+  // pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnfMu.root";
   //RIVET:
   //old Vieri string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod/out.root";
   string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
@@ -81,6 +87,11 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
  string rivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root"; 
  string rivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
 
+ string rivetPathPoweg ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root"; // Tomo
+ //rivetPathPoweg ="/gpfs/cms/users/candelis/Rivet/powheg.2/test_ee/out.root";
+ bool isPowheg=true;
+ if (isPowheg) rivetPathSherpa=rivetPathPoweg;
+
   if (lepton == 2){
   rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
   rivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup_mu/out.root";
@@ -92,20 +103,23 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   rivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   rivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
   rivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
+  rivetPathPoweg ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root"; // Tomo
+  //rivetPathPoweg="/gpfs/cms/users/candelis/Rivet/powheg.2/test_mm/out.root";
+  if (isPowheg) rivetPathSherpa=rivetPathPoweg;
   }
 
-  if (lepton == 3){
-  rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
-  rivetPathSherpaUP     ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root";
-  rivetPathSherpaDOWN   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root";
-  rivetPathSherpaPDF1   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root";
-  rivetPathSherpaPDF2   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root";
-  rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
-  rivetPathMadGraphDOWN ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root";
-  rivetPathMadGraphUP   ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root";
-  rivetPathMadGraphPDF1 ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root";
-  rivetPathMadGraphPDF2 ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root";
-  }
+if (lepton == 3){
+   rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
+   rivetPathSherpaUP     ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root";
+   rivetPathSherpaDOWN   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root";
+   rivetPathSherpaPDF1   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root";
+   rivetPathSherpaPDF2   ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root";
+   rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
+   rivetPathMadGraphDOWN ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root";
+   rivetPathMadGraphUP   ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root";
+   rivetPathMadGraphPDF1 ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root";
+   rivetPathMadGraphPDF2 ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root";
+ }
 
   TFile *histof = TFile::Open (pathFile.c_str ());
   histof->cd ("");
@@ -129,7 +143,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	{ // Jet Multiplicity
 	  stringmatch = "JetMultiplicityUnfolded";
 	  systPathFile = plotpath + "jetMultFinalSyst" + version + ".txt";
-	  if (lepton == 1 || lepton == 3) oss<<"03"; else oss<<"08";
+	  if (lepton == 1  || lepton == 3) oss<<"03"; else oss<<"08";
 	}
 
       if (use_case == 2) 
@@ -138,28 +152,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    {
 	      stringmatch = "jReco_leading";
 	      systPathFile = plotpath + "jet1PtFinalSyst" + version + ".txt";
-	      if (lepton == 1 || lepton == 3) oss<<"01"; else oss<<"06";
+	      if (lepton == 1 || lepton ==3) oss<<"01"; else oss<<"06";
 	    }
 	  
 	  if (whichjet == 2)
 	    {
 	      stringmatch = "jReco_subleading";
 	      systPathFile = plotpath + "jet2PtFinalSyst" + version + ".txt";
-	      if (lepton == 1 || lepton == 3) oss<<"02"; else oss<<"07";
+	      if (lepton == 1 || lepton ==3) oss<<"02"; else oss<<"07";
 	    }
 	  
 	  if (whichjet == 3)
 	    {
 	      stringmatch = "jReco_subsubleading";
 	      systPathFile = plotpath + "jet3PtFinalSyst" + version + ".txt";
-	      if (lepton == 1 || lepton == 3) oss<<"04"; else oss<<"09";
+	      if (lepton == 1 || lepton ==3) oss<<"04"; else oss<<"09";
 	    }
 	  
 	  if (whichjet == 4)
 	    {
 	      stringmatch = "jReco_subsubsubleading";
 	      systPathFile = plotpath + "jet4PtFinalSyst" + version + ".txt";
-	      if (lepton == 1 || lepton == 3) oss<<"05"; else oss<<"10";
+	      if (lepton == 1 || lepton ==3) oss<<"05"; else oss<<"10";
 	    }
 	}
       
@@ -168,28 +182,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  {
 	    stringmatch = "jReco_leadingeta";
 	    systPathFile = plotpath + "jet1EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"15"; else oss<<"11";
+	    if (lepton == 1 || lepton ==3) oss<<"15"; else oss<<"11";
 	  }
 	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "jReco_subleadingeta";
 	    systPathFile = plotpath + "jet2EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"16"; else oss<<"12";
+	    if (lepton == 1 || lepton ==3) oss<<"16"; else oss<<"12";
 	  }
 
 	if (whichjet == 3)
 	  {
 	    stringmatch = "jReco_subsubleadingeta";
 	    systPathFile = plotpath + "jet3EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"17"; else oss<<"13";
+	    if (lepton == 1 || lepton ==3) oss<<"17"; else oss<<"13";
 	  }
 	
 	if (whichjet == 4)
 	  {
 	    stringmatch = "jReco_subsubsubleadingeta";
 	    systPathFile = plotpath + "jet4EtaFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"18"; else oss<<"14";
+	    if (lepton == 1 || lepton ==3) oss<<"18"; else oss<<"14";
 	  }
       }
       
@@ -198,28 +212,28 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  {
 	    stringmatch = "HReco_leading";
 	    systPathFile = plotpath + "jet1HtFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"19"; else oss<<"23";
+	    if (lepton == 1 || lepton ==3) oss<<"19"; else oss<<"23";
 	  }
 	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "HReco_subleading";
 	    systPathFile = plotpath + "jet2HtFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"20"; else oss<<"24";
+	    if (lepton == 1 || lepton ==3) oss<<"20"; else oss<<"24";
 	  }
 	
 	if (whichjet == 3)
 	  {
 	    stringmatch = "HReco_subsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"21"; else oss<<"25";
+	    if (lepton == 1 || lepton ==3) oss<<"21"; else oss<<"25";
 	  }
 
 	if (whichjet == 4)
 	  {
 	    stringmatch = "HReco_subsubsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
-	    if (lepton == 1 || lepton == 3) oss<<"22"; else oss<<"26";
+	    if (lepton == 1 || lepton ==3) oss<<"22"; else oss<<"26";
 	  }
       }
 
@@ -257,7 +271,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	      if (!inM.good ())
 		break;
 	      if (addLumiUncertainties) {
-		dat=pow(dat*dat+lumiError*lumiError,0.5);
+		//dat=pow(dat*dat+lumiError*lumiError,0.5);
 	      }
 	      systTmpM.push_back (dat);
 	      //l2++;  
@@ -495,20 +509,23 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    {
 	      cout<<"Systematics for bin "<<i+1<<" is "<<systTmpM[i]<<endl;
 	      //cout<<"jetMulti - syst = "<<leadingSystematics->GetBinError(i+1)<<endl;       
-	      double err =
-		sqrt (pow (leading->GetBinError (i + 1), 2) +
-		      pow (systTmpM[i] *
-			   leadingSystematics->GetBinContent (i + 1), 2));
+	      double err = sqrt (pow (leading->GetBinError (i + 1), 2) + pow (systTmpM[i] * leadingSystematics->GetBinContent (i + 1), 2));
 	      leadingSystematics->SetBinError (i + 1, err);
 	    }
 
+	  if ( (!absoluteNormalization) && (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999)) {
+	    cout << "Warning: DATA is NOT NORMALIZED CORRECTLY! I will fix it...";
+	    leadingSystematics->Scale(1./leadingSystematics->Integral());
+	    leading->Scale(1./leading->Integral());
+	  }
 
 	  //When use_case = Jet Multi, then the absolute cross section is required...
 	  if (absoluteNormalization){
 	    //Normalizing data to the luminosity
-	    leadingSystematics->Scale(1./4890.0); //Int Lumi 1/pb -> bin in pb
-	    leading->Scale(1./4890.0);
+	    leadingSystematics->Scale(1./(4890.0)); //Int Lumi 1/pb -> bin in pb
+	    leading->Scale(1./(4890.0));
 	  }
+	  cout<<"data integral is->"<<leading->Integral()<<" pb"<<endl;
 
 	  plots->cd ();
 	  TPad *pad1 = new TPad("pad1","pad1",0.01,0.50,0.99,0.99);
@@ -615,12 +632,15 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
+	      // 	      if (lepton ==1) dummyNorm= 2992.95 * (1000000.0/969.565)*(969.565*3/3048);   
 	      if (lepton ==1) dummyNorm= 0.200477 * (1000000.0/971.754)*(971.754*3/3048);   
 	      if (lepton ==2) dummyNorm= 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
 	      if (lepton ==3) dummyNorm= 0.200477 * (1000000.0/971.754)*(971.754*3/3048) + 0.200097 *(1000000.0/967.713)*(967.713*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
 	    }
-	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
+	    // get The data bin value bin value
+	    cout<<"Data content (pb) in bin "<<ovo+1<<" is ->"<<leading->GetBinContent(ovo+1)<<endl;
+ 	    leadingRivetSherpaUP->GetPoint(ovo,dummyXvar,dummyYvar);
 	    leadingRivetSherpaUP->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm); 
 	    leadingRivetSherpaUP->SetPointEYhigh(ovo,leadingRivetSherpaUP->GetErrorYhigh(ovo)/dummyNorm);
 	    leadingRivetSherpaUP->SetPointEYlow(ovo,leadingRivetSherpaUP->GetErrorYlow(ovo)/dummyNorm);
@@ -635,6 +655,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
+	      //old Vieri if (lepton ==1) dummyNorm=  3705.55 * (1000000.0/838.298)*(838.298*3/3048); 
 	      if (lepton ==1) dummyNorm=  0.113294 * (1000000.0/838.990)*(838.990*3/3048); 
 	      if (lepton ==2) dummyNorm=  0.112873 * (1000000.0/837.477)*(837.477*3/3048); //Sherpa fattore di enhancement 
 	      if (lepton ==3) dummyNorm=  0.113294 * (1000000.0/838.990)*(838.990*3/3048) + 0.112873 * (1000000.0/837.477)*(837.477*3/3048); 
@@ -655,9 +676,9 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
-	      if (lepton ==2) dummyNorm=  0.114067 * (1000000.0/899.787)*(899.787*3/3048);
-	      if (lepton ==3) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048) + 0.114067 * (1000000.0/899.787)*(899.787*3/3048); 
+	      if (lepton==1) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048);   
+	      if (lepton==2) dummyNorm=  0.114067 * (1000000.0/899.787)*(899.787*3/3048);
+	      if (lepton ==3) dummyNorm=  0.113644 * (1000000.0/898.33)*(898.33*3/3048) + 0.114067 * (1000000.0/899.787)*(899.787*3/3048);
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 	    leadingRivetSherpaPDF1->GetPoint(ovo,dummyXvar,dummyYvar); 
@@ -675,8 +696,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
-	      if (lepton ==2) dummyNorm=  0.150439 * (1000000.0/895.779)*(895.779*3/3048);  
+	      if (lepton ==1 ) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048);    
+	      if (lepton ==2 ) dummyNorm=  0.150439 * (1000000.0/895.779)*(895.779*3/3048);  
 	      if (lepton ==3) dummyNorm=  0.150566 * (995000.0/896.767)*(896.767*3/3048) + 0.150439 * (1000000.0/895.779)*(895.779*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
@@ -704,9 +725,15 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaDOWN->GetPoint(ovo,x1temp,y1temp); 
 	    leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
 
+
 	    if (absoluteNormalization) {
-	      if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
-	      if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);  
+	      if (lepton ==1 && !isPowheg) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
+	      //if (lepton ==1 && isPowheg) dummyNorm= (1246130.0/196900) *(4602659.0/276.761)*(276.761*3/4998.0);   //Powheg
+	      if (lepton ==1 && isPowheg) dummyNorm= (4602659.0/276.761);   //Powheg
+	      //if (lepton ==1 && isPowheg) dummyNorm= (10000./276.761);   //Powheg
+	      if (lepton ==2 && !isPowheg) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
+	      if (lepton ==2 && isPowheg) dummyNorm= (5719233.0/276.603);   //Powheg  
+	      //if (lepton ==2 && isPowheg) dummyNorm= (10000/276.603);   //Powheg  
 	      if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
@@ -717,13 +744,20 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
  	    leadingRatioSherpa->SetPoint(ovo,dummyXvar,1.0);
 	    leadingRatioSherpa->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 	    leadingRatioSherpa->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
-
+	    
 	    leadingRatio->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
 	    leadingRatioSystematics->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	    leadingRatioSystematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
+	    if (isPowheg){
+	      leadingRivetSherpa->SetPointEYhigh(ovo,0);
+	      leadingRivetSherpa->SetPointEYlow(ovo,0);
+	      leadingRivetSherpa->SetPointEXhigh(ovo,0.);
+	      leadingRivetSherpa->SetPointEXlow(ovo,0.);
+	    }
+	    
 	    if (noErrorsOnPad1){
 	      leadingRivetSherpa->SetPointEYhigh(ovo,0);
 	      leadingRivetSherpa->SetPointEYlow(ovo,0);
@@ -970,20 +1004,20 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaPDF1->SetFillColor(992);
 	    leadingRivetSherpaPDF1->SetLineStyle(0);
 	    leadingRivetSherpaPDF1->SetLineColor(kBlue);
-	    leadingRivetSherpaPDF1->Draw("l");
+	    if (!isPowheg) leadingRivetSherpaPDF1->Draw("l");
 	    
 	    leadingRivetSherpaPDF2->SetFillColor(993);
 	    leadingRivetSherpaPDF2->SetLineStyle(0);
 	    leadingRivetSherpaPDF2->SetLineColor(kBlue);
-	    leadingRivetSherpaPDF2->Draw("l");
+	    if (!isPowheg) leadingRivetSherpaPDF2->Draw("l");
 	    
 	    leadingRivetSherpaUP->SetLineStyle(5);
 	    leadingRivetSherpaUP->SetLineColor(994);
-	    leadingRivetSherpaUP->Draw("l");
+	    if (!isPowheg) leadingRivetSherpaUP->Draw("l");
 	    
 	    leadingRivetSherpaDOWN->SetLineStyle(5);
 	    leadingRivetSherpaDOWN->SetLineColor(994);
-	    leadingRivetSherpaDOWN->Draw("l");
+	    if (!isPowheg) leadingRivetSherpaDOWN->Draw("l");
 	    
 	    leadingRivetSherpaPDF->SetFillColor(994);
 	    leadingRivetSherpaPDF->SetLineColor(kBlue);
@@ -1031,7 +1065,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    leadingRivetSherpaPDF->SetFillColor(994);
 	    leadingRivetSherpaPDF->SetLineColor(kBlue);
 	    leadingRivetSherpaPDF->SetLineWidth(2);
-	    leadingRivetSherpaPDF->Draw("l3");
+	    if (!isPowheg) leadingRivetSherpaPDF->Draw("l3");
 	    
 	    leadingRivetSherpa->SetFillColor(996);
 	    leadingRivetSherpa->SetLineColor(kBlue);
@@ -1089,7 +1123,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legendsx_d->SetTextSize(.027);
 	    legendsx_d->AddEntry (leading, "Data (stat)", "PLE");
 	    legendsx_d->AddEntry (leadingSystematics, "Data (stat+syst)", "PEL");
-	    legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
+	    if (!isPowheg) legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
+	    if (isPowheg) legendsx_d->AddEntry (leadingRivetSherpa, "Powheg ref.", "L");
 	    legendsx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
 	    legenddx_d->SetFillColor (0);
 	    legenddx_d->SetFillStyle (0);
@@ -1097,8 +1132,10 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->SetTextSize(.027);
 	    //legenddx_d->AddEntry (leadingRivetSherpaDOWN, "Sherpa scale down", "L");
 	    //legenddx_d->AddEntry (leadingRivetSherpaUP, "Sherpa scale up", "L");
-	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
-	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
+	    if (!isPowheg){
+	      legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
+	      legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
+	    }
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
 	    legenddx_d->AddEntry (leadingRivetMadGraphPDF, "MadGraph PDF var.", "F");
 	    legendsx_d->Draw ("same");
@@ -1113,16 +1150,19 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    legenddx_d->SetTextSize(.030);
 	    legenddx_d->AddEntry (leading, "Data (stat)", "PLE");
 	    legenddx_d->AddEntry (leadingSystematics, "Data (stat+syst)", "PEL");
-	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
+	    if (!isPowheg) legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
+	    if (isPowheg) legenddx_d->AddEntry (leadingRivetSherpa, "Powheg ref.", "L");
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L");
 	    //legenddx_d->AddEntry (leadingRivetSherpaDOWN, "Sherpa scale up/down", "L");
 	    //legenddx_d->AddEntry (leadingRivetMadGraphDOWN, "MadGraph scale down/up", "L");
 	    //legenddx_d->AddEntry (leadingRivetSherpaPDF1, "Sherpa PDF var.", "L");
 	    //legenddx_d->AddEntry (leadingRivetMadGraphPDF1, "MadGraph PDF var.", "L");
 
-	    //legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
-	    legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
-	    legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
+	    //legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L");
+	    if (!isPowheg){
+	      legenddx_d->AddEntry (leadingRivetSherpa, "Sherpa scale var.", "F");
+	      legenddx_d->AddEntry (leadingRivetSherpaPDF, "Sherpa PDF var.", "F");
+	    }
 	    legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph scale var.", "F");
 	    legenddx_d->AddEntry (leadingRivetMadGraphPDF, "MadGraph PDF var.", "F");
 	    legenddx_d->Draw ("same");
@@ -1160,12 +1200,12 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRatioSherpaPDF->SetFillColor(994);
 	  leadingRatioSherpaPDF->SetLineColor(kBlue);
 	  leadingRatioSherpaPDF->SetLineWidth(2);
-	  leadingRatioSherpaPDF->Draw("l3");
+	  if (!isPowheg) leadingRatioSherpaPDF->Draw("l3");
 
 	  leadingRatioSherpa->SetFillColor(995);
 	  leadingRatioSherpa->SetLineColor(kBlue);
 	  leadingRatioSherpa->SetLineWidth(2);
-	  leadingRatioSherpa->Draw("l3");
+	  if (!isPowheg) leadingRatioSherpa->Draw("l3");
 
 	  leadingRatioSystematics->Draw ("E1SAME");
 	  leadingRatio->Draw ("E1SAME");
@@ -1181,7 +1221,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  latexLabel->SetTextFont(42);
 	  latexLabel->SetLineWidth(2);
 	  latexLabel->SetNDC();
-	  latexLabel->DrawLatex(0.2,0.09,"Sherpa");	  
+	  if (!isPowheg) latexLabel->DrawLatex(0.2,0.09,"Sherpa");	  
+	  if (isPowheg) latexLabel->DrawLatex(0.2,0.09,"Powheg");	  
 	  plots->cd();
 	  TPad *pad3 = new TPad("pad3","pad3",0.01,0.01,0.99,0.30);
 	  pad3->Draw();
@@ -1223,10 +1264,10 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	    if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet #eta");
 	  }
 	  if (use_case ==4) {
-	    if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("leading jet H_{T} [GeV/c]");
-	    if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subleading jet H_{T} [GeV/c]");
-	    if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubleading jet H_{T} [GeV/c]");
-	    if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet H_{T} [GeV/c]");
+	    if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV/c]");
+	    if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 2 [GeV/c]");
+	    if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 3 [GeV/c]");
+	    if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 4 [GeV/c]");
 	  }
 
 	  leadingRatio2Systematics->Draw ("E1");
@@ -1257,6 +1298,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 	  string title1;
 	  title1 = s + "DifferentialX" + stringmatch + ".png";
 	  
+	  //if (lepton ==2) title1 = s + "DifferentialX" + stringmatch + "Mu.png";
+
 	  cout << title1 << endl;
 	  
 	  plots->Print (title1.c_str ());
