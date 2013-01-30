@@ -34,8 +34,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
       kmin=9;
       kmax=10;
       if (bayesianTests) {
-	kmin=3;
-	kmax=4;
+	kmin=5;
+	kmax=6;
       }
     }
     if (numbOfJetsSelected==2){
@@ -240,7 +240,6 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
   return;
 }
 
-
 void setObservablesData(int numbOfJetsSelected, string whichtype, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity){
 
   if (whichtype=="Pt"){
@@ -294,6 +293,8 @@ void setObservablesData(int numbOfJetsSelected, string whichtype, double jet1_pt
 
   return;
 }
+
+
 
 TH1F* performUnfolding(string whichalgo, int kvalue, TH1F *jData, TH1F *jTrue, RooUnfoldResponse response_j) //Specify which algo
 {
@@ -793,6 +794,10 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   /*costruisco la matrice di unfolding */
   ///////////////////////////////////////
 
+  //New style for unfolding
+  RooUnfoldResponse response_fillfake(jMCreco,jTrue);
+  response_fillfake.UseOverflow();
+  
   /* Loop Montecarlo */
   fChain = tree_fA;             
   Init (fChain);
@@ -817,18 +822,29 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       jet_Obs=0;
       
       if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
-      // Initialize the Observables
-      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity);
 
       // Get Efficiency
       double effcorrmc=1.00;
       if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
       if (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 
+      // Initialize the Observables
+      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity);
+
       //Filling histograms
       jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
       jTrue->Fill (jet_Obs_gen);
       jMCreco->Fill (jet_Obs,effcorrmc);  
+
+      if (recoZInAcceptance && genZInAcceptance){
+	response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
+      }
+      if (recoZInAcceptance && !genZInAcceptance){
+	response_fillfake.Fake(jet_Obs); 
+      }
+      if (!recoZInAcceptance && genZInAcceptance){
+	response_fillfake.Miss(jet_Obs_gen,effcorrmc); 
+      }
     }
   //End Loop MC
   
@@ -868,10 +884,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   response_j.UseOverflow();
   stringstream num;
 
-  //New style for unfolding
-  RooUnfoldResponse response_fillfake(jMCreco,jTrue);
-  response_fillfake.UseOverflow();
-
   if (Unfold){
     string method=whichalgo;
     cout<<"Running "<<method<<" method"<<endl;
@@ -880,7 +892,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       int myNumber=k; num<<myNumber;
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
-      jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j); //Specify which algo
+      //jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j); //Specify which algo
+      jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake);
       num.str("");
     } 
   }
