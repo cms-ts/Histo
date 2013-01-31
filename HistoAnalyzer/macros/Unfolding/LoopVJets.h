@@ -19,10 +19,37 @@ double jet_Obs_gen=0;
 double jet_Obs=0;
 
 TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPlot,0,divPlot);
-TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);	
-TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
+TH1D *errors = new TH1D ("errors", "jet DATA Measured",divPlot,0,divPlot);
+TH1D *errorstat = new TH1D ("errorstat", "errors",divPlot,0,divPlot);
 
-TCanvas *c;
+TCanvas *c; TH1D* modD; 
+
+int getNumberOfValidJets(int Jet_multiplicity, double thresh, double thresheta, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt, double jet5_pt, double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta){
+  int counter=0;
+  for (int i=1;i<=Jet_multiplicity; i++){
+    if (i==1){
+      if (jet1_pt>thresh && fabs(jet1_eta)<thresheta ) counter++;
+    }    
+    if (i==2){
+      if (jet2_pt>thresh && fabs(jet2_eta)<thresheta ) counter++;
+    }
+    if (i==3){
+      if (jet3_pt>thresh && fabs(jet3_eta)<thresheta ) counter++;
+    }
+    if (i==4){
+      if (jet4_pt>thresh && fabs(jet4_eta)<thresheta ) counter++;
+    }
+    if (i==5){
+      if (jet5_pt>thresh && fabs(jet5_eta)<thresheta ) counter++;
+    }
+    if (i==6){
+      if (jet6_pt>thresh && fabs(jet6_eta)<thresheta ) counter++;
+    }
+
+  }// for
+  return counter;
+}// end
+
 
 void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string whichalgo)
 {
@@ -34,8 +61,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
       kmin=9;
       kmax=10;
       if (bayesianTests) {
-	kmin=5;
-	kmax=6;
+	kmin=3;
+	kmax=4;
       }
     }
     if (numbOfJetsSelected==2){
@@ -45,8 +72,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
       kmin=4;
       kmax=5;
       if (bayesianTests) {
-	kmin=2;
-	kmax=3;
+	kmin=1;
+	kmax=2;
       }
     }
     if (numbOfJetsSelected==3){
@@ -296,15 +323,14 @@ void setObservablesData(int numbOfJetsSelected, string whichtype, double jet1_pt
 
 
 
-TH1F* performUnfolding(string whichalgo, int kvalue, TH1F *jData, TH1F *jTrue, RooUnfoldResponse response_j) //Specify which algo
+TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, RooUnfoldResponse response_j, TH1D* jMCreco, TH2D* jMatx) //Specify which algo
 {
-  TH1F *unf;
+  TH1D *unf;
   RooUnfoldBayes unfold_b (&response_j, jData, kvalue);  //NEVER,NEVER,NEVER set the parameter "1000" for the testing if you want to perform identity tests
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
 
-
   if (whichalgo=="Bayes") {
-    unf = (TH1F *) unfold_b.Hreco ();
+    unf = (TH1D *) unfold_b.Hreco ();
     unfold_b.PrintTable(cout,jTrue);
     cout<<"Bayes: Chi2 of this k parameter(k="<<kvalue<<")<< is "<<unfold_b.Chi2(jTrue,RooUnfold::kErrors)<<endl;
     TVectorD vstat= unfold_b.ErecoV();
@@ -313,26 +339,26 @@ TH1F* performUnfolding(string whichalgo, int kvalue, TH1F *jData, TH1F *jTrue, R
     TVectorD vunfodiag= unfold_b.ErecoV(RooUnfold::kErrors);
   }
   else{
-    unf = (TH1F *) unfold_s.Hreco ();
+    unf = (TH1D *) unfold_s.Hreco ();
     unfold_s.PrintTable(cout,jTrue);
     TVectorD vstat= unfold_s.ErecoV();
     TVectorD vunfo= unfold_s.ErecoV(RooUnfold::kCovToy);
     TVectorD vunfomat= unfold_s.ErecoV(RooUnfold::kCovariance);
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
+    TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
+    TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
   }
 
+  cout<<"Set the error!!!!!!!!!!!"<<endl;
   for (unsigned int p=0;p<unf->GetNbinsX();p++){
-    //cout<<"Set the error!!!!!!!!!!!"<<vstat[p]<<" "<<vunfo[p]<<endl;
+    errors->SetBinContent(p+1,unf->GetBinError(p+1)); errorstat->SetBinContent(p+1,sqrt(unf->GetBinContent(p+1)));
   }
   //Returns vector of unfolding errors computed according to the withError flag:
   //0: Errors are the square root of the bin content
   //1: Errors from the diagonals of the covariance matrix given by the unfolding
   //2: Errors from the covariance matrix given by the unfolding
   //3: Errors from the covariance matrix from the variation of the results in toy MC tests
-  // enum ErrorTreatment {      kNoError        
-  //kErrors     
-  //kCovariance 
-  //kCovToy     
+  // enum ErrorTreatment {      kNoError          //kErrors     //kCovariance //kCovToy     
   return unf;
 } 
 
@@ -341,205 +367,236 @@ TH1F* performUnfolding(string whichalgo, int kvalue, TH1F *jData, TH1F *jTrue, R
 ///////////////////////
 
 
-TCanvas* drawPlots(TH1F *jReco,TH1F* jData, TH1F *jTrue, TH1F* jMCreco, int numbOfJetsSelected, string whichtype, string whichalgo, int k){
-TCanvas *c=new TCanvas("c", "c", 1000, 700);
-      c->cd ();
-      TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
-      pad1->Draw ();
-      pad1->cd ();
-      gPad->SetLogy (1);
-      pad1->SetTopMargin(0.1);
-      pad1->SetBottomMargin(0.01);
-      pad1->SetRightMargin(0.1);
-      pad1->SetFillStyle(0);
+TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, int numbOfJetsSelected, string whichtype, string whichalgo, int k){
+  TCanvas *c=new TCanvas("c", "c", 1000, 700);
+  c->cd ();
+  TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
+  pad1->Draw ();
+  pad1->cd ();
+  gPad->SetLogy (1);
+  pad1->SetTopMargin(0.1);
+  pad1->SetBottomMargin(0.01);
+  pad1->SetRightMargin(0.1);
+  pad1->SetFillStyle(0);
+  
+  string whichjet="";
+  if (numbOfJetsSelected==1) whichjet="Leading "; 
+  if (numbOfJetsSelected==2) whichjet="Second leading "; 
+  if (numbOfJetsSelected==3) whichjet="Third leading "; 
+  if (numbOfJetsSelected==4) whichjet="Fourth leading "; 
+  string title2=whichjet+"jet pT diff xsec distribution. "+whichtype;
+  jReco->SetTitle (title2.c_str());
+  jReco->GetXaxis ()->SetTitle ("");
+  if (!isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
+  if (isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d p_{T}");
+  jReco->SetMarkerStyle (20);
+  jData->SetMarkerStyle (21);
+  jData->SetLineColor(kGreen);
+  
+  if (differentialCrossSection){
+    jReco->Scale(1./jReco->Integral());             
+    jTrue->Scale(1./jTrue->Integral());
+    jMCreco->Scale(1./jMCreco->Integral());
+    jData->Scale(1./jData->Integral());
+  }
+  
+  cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
+  
+  jReco->SetMarkerStyle (20);
+  jMCreco->SetStats(0);
+  jData->SetStats(0);
+  jTrue->SetStats(0);
+  jReco->SetStats(0);
+  jReco->GetXaxis()->SetTitle("jet pT [GeV/c]");
+  jReco->SetLineColor (kBlack); 
+  
+  jReco->SetLabelSize(0.0);
+  jReco->GetXaxis()->SetTitleSize(0.00);
+  jReco->GetYaxis()->SetLabelSize(0.07);
+  jReco->GetYaxis()->SetTitleSize(0.08);
+  jReco->GetYaxis()->SetTitleOffset(0.76);
+  jReco->SetTitle("");
+  jReco->Draw("EP");        //risultato dell'unfolding
+  
+  jMCreco->SetLineColor (kBlue + 1);
+  jMCreco->SetLineStyle (2);
+  jMCreco->SetLineWidth (2); 
+  if (!pythiaCheck) jMCreco->Draw("HISTSAMES");
+  jTrue->SetLineColor (kRed);
+  jTrue->SetLineWidth (2);
+  jTrue->Draw ("HISTSAME");
+  jData->SetLineColor(kGreen+1);
+  pad1->SetLogy (1);
+  jData->SetMarkerStyle (4);
+  jData->SetMarkerColor(kGreen+1);
+  jData->SetStats(0);
+  jData->Draw("EPSAME");
+  
+  //pad1->SetBottomMargin (0.1);
+  
+  TLegend *legend_d = new TLegend (0.73494, 0.63, 0.931727, 0.83);
+  legend_d->SetFillColor (0);
+  legend_d->SetFillStyle (0);
+  legend_d->SetBorderSize (0);
+  legend_d->AddEntry (jReco, "Data Unfolded", "P20");
+  legend_d->AddEntry (jTrue, "MC truth", "L");
+  if (!pythiaCheck) legend_d->AddEntry (jMCreco, "MC reco", "L");
+  legend_d->AddEntry(jData,"Data Folded","P20");
+  legend_d->Draw ("same");
+  
+  TLatex *latexLabel=CMSPrel(4.890,""); // make fancy label
+  latexLabel->Draw("same");   
+  pad1->Update();      
+  c->cd ();
+  
+  TPad *pad2 = new TPad ("pad2", "pad2",0.01,0.01,0.99,0.32);
+  pad2->SetTopMargin (0);
+  pad2->Draw ();
+  pad2->cd ();
+  pad2->SetTopMargin(0.01);
+  pad2->SetBottomMargin(0.3);
+  pad2->SetRightMargin(0.1);
+  pad2->SetFillStyle(0);
+  
+  TH1D *jRecoClone= (TH1D*) jReco->Clone("jReco");
+  jRecoClone->SetName("jRecoClone");      
+  jRecoClone->SetStats(0);
+  jRecoClone->GetXaxis ()->SetLabelSize (0.1);
+  jRecoClone->GetYaxis ()->SetLabelSize (0.08);
+  jRecoClone->Divide(jTrue);
+  jRecoClone->SetMarkerStyle (6);
+  jRecoClone->GetXaxis ()->SetLabelSize (0.06);
+  jRecoClone->GetYaxis ()->SetLabelSize (0.06);
+  jRecoClone->GetXaxis ()->SetTitleSize (0);
+  jRecoClone->GetYaxis ()->SetTitleSize (0.06);
+  jRecoClone->GetYaxis ()->SetTitleOffset (0.5);
+  
+  jRecoClone->GetYaxis ()->SetRangeUser (0.5, 1.5);
+  jRecoClone->GetXaxis ()->SetRangeUser (0, 5);
+  jRecoClone->GetYaxis ()->SetTitle ("Ratios");
+  jRecoClone->GetXaxis ()->SetTitle("jet pT [GeV/c]");
+  jRecoClone->SetMarkerStyle (20);
+  jRecoClone->SetLineWidth (0);
+  jRecoClone->SetTitle ("");
+  double max=jRecoClone->GetMaximum();
+  double min=jRecoClone->GetMinimum();
+  jRecoClone->GetYaxis()->SetRangeUser(min,max);
+  jRecoClone->GetYaxis()->SetNdivisions(5);
+  jRecoClone->GetXaxis()->SetTitleSize(0.14);
+  jRecoClone->GetXaxis()->SetLabelSize(0.14);
+  jRecoClone->GetYaxis()->SetLabelSize(0.11);
+  jRecoClone->GetYaxis()->SetTitleSize(0.11);
+  jRecoClone->GetYaxis()->SetTitleOffset(0.28);
+  jRecoClone->GetYaxis()->SetTitle("ratio data/MC");
+  jRecoClone->Draw();
+  
+  TH1D *jDataClone= (TH1D*) jReco->Clone("jReco");
+  jDataClone->SetName("jDataClone"); 
+  jDataClone->Divide(jData);
+  jDataClone->SetLineStyle (2); 
+  jDataClone->SetMarkerSize (0);       
+  jDataClone->SetLineWidth (0.05);
+  jDataClone->SetLineColor(kViolet);
+  jDataClone->Draw ("E1HISTSAME");
+  jDataClone->SetLineWidth (0.1);
+  
+  TF1 *f = new TF1("f","1",0,410);
+  f->SetLineWidth(1);
+  f->Draw("SAMES");
+  
+  TLegend *legend_w = new TLegend(0.197791, 0.736607, 0.394578, 0.9375);
+  legend_w->SetFillColor (0);
+  legend_w->SetFillStyle (0);
+  legend_w->SetBorderSize (0);
+  legend_w->AddEntry (jRecoClone, "Data Unfolded / MC truth", "P20");
+  //legend_w->AddEntry (jMCRecoClone, "MC reco / MC truth", "L");
+  legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
+  legend_w->Draw ("same");
+  //pad2->Update();
+  stringstream num;
+  num<<k;
+  string whichjetname="";
+  if (numbOfJetsSelected==1) whichjetname="Leading"; 
+  if (numbOfJetsSelected==2) whichjetname="Second leading "; 
+  if (numbOfJetsSelected==3) whichjetname="Third leading "; 
+  if (numbOfJetsSelected==4) whichjetname="Fourth leading ";
+  string title3= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";
+  num.str("");
+  c->cd ();
+  c->Print(title3.c_str());
+  
+  if (whichalgo == "SVD"){
+    TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
+    moduloD->cd ();
+    gPad->SetLogy (1); modD->SetStats (111111);
+    modD->GetXaxis()->SetTitle("K Parameters"); modD->GetYaxis()->SetTitle("Value");
+    modD->SetLineColor(kRed);
+    modD->Draw(); 
+    string title= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_moduloD.pdf";
+    moduloD->Print(title.c_str()); 
+  }
 
-      string whichjet="";
-      if (numbOfJetsSelected==1) whichjet="Leading "; 
-      if (numbOfJetsSelected==2) whichjet="Second leading "; 
-      if (numbOfJetsSelected==3) whichjet="Third leading "; 
-      if (numbOfJetsSelected==4) whichjet="Fourth leading "; 
-      string title2=whichjet+"jet pT diff xsec distribution. "+whichtype;
-      jReco->SetTitle (title2.c_str());
-      jReco->GetXaxis ()->SetTitle ("");
-      if (!isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d #sigma/d p_{T}");
-      if (isMu) jReco->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d #sigma/d p_{T}");
-      jReco->SetMarkerStyle (20);
-      jData->SetMarkerStyle (21);
-      jData->SetLineColor(kGreen);
+  TCanvas *errCanv= new TCanvas ("errCanv", "errCanv", 1000, 700);
+  errCanv->cd ();
+  gPad->SetLogy (1); errors->SetStats (111111);
+  errors->GetXaxis()->SetTitle("Bin"); errors->GetYaxis()->SetTitle("Error");
+  errors->SetLineColor(kRed);
+  errors->Draw(); 
+  errorstat->Draw("SAMES");
+  TLegend *legend_ = new TLegend(0.697791, 0.736607, 0.894578, 0.9375);
+  legend_->SetFillColor (0); legend_w->SetFillStyle (0); legend_w->SetBorderSize (0);
+  legend_->AddEntry (errors, "Unfolding error", "L");
+  legend_->AddEntry (errorstat, "Stat Error", "L");
+  legend_->Draw("");
+  string titlerr= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_errors.pdf";
+  errCanv->Print(titlerr.c_str()); 
 
-      if (differentialCrossSection){
-        jReco->Scale(1./jReco->Integral());             
-        jTrue->Scale(1./jTrue->Integral());
-        jMCreco->Scale(1./jMCreco->Integral());
-        jData->Scale(1./jData->Integral());
-      }
-
-      cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
-      
-      jReco->SetMarkerStyle (20);
-      jMCreco->SetStats(0);
-      jData->SetStats(0);
-      jTrue->SetStats(0);
-      jReco->SetStats(0);
-      jReco->GetXaxis()->SetTitle("jet pT [GeV/c]");
-      jReco->SetLineColor (kBlack); 
-      
-      jReco->SetLabelSize(0.0);
-      jReco->GetXaxis()->SetTitleSize(0.00);
-      jReco->GetYaxis()->SetLabelSize(0.07);
-      jReco->GetYaxis()->SetTitleSize(0.08);
-      jReco->GetYaxis()->SetTitleOffset(0.76);
-      jReco->SetTitle("");
-      jReco->Draw("EP");        //risultato dell'unfolding
-
-      jMCreco->SetLineColor (kBlue + 1);
-      jMCreco->SetLineStyle (2);
-      jMCreco->SetLineWidth (2); 
-      if (!pythiaCheck) jMCreco->Draw("HISTSAMES");
-      jTrue->SetLineColor (kRed);
-      jTrue->SetLineWidth (2);
-      jTrue->Draw ("HISTSAME");
-      jData->SetLineColor(kGreen+1);
-      pad1->SetLogy (1);
-      jData->SetMarkerStyle (4);
-      jData->SetMarkerColor(kGreen+1);
-      jData->SetStats(0);
-      jData->Draw("EPSAME");
-   
-      //pad1->SetBottomMargin (0.1);
-      
-      TLegend *legend_d = new TLegend (0.73494, 0.63, 0.931727, 0.83);
-      legend_d->SetFillColor (0);
-      legend_d->SetFillStyle (0);
-      legend_d->SetBorderSize (0);
-      legend_d->AddEntry (jReco, "Data Unfolded", "P20");
-      legend_d->AddEntry (jTrue, "MC truth", "L");
-      if (!pythiaCheck) legend_d->AddEntry (jMCreco, "MC reco", "L");
-      legend_d->AddEntry(jData,"Data Folded","P20");
-      legend_d->Draw ("same");
- 
-      TLatex *latexLabel=CMSPrel(4.890,""); // make fancy label
-      latexLabel->Draw("same");   
-      pad1->Update();      
-      c->cd ();
-
-      TPad *pad2 = new TPad ("pad2", "pad2",0.01,0.01,0.99,0.32);
-      pad2->SetTopMargin (0);
-      pad2->Draw ();
-      pad2->cd ();
-      pad2->SetTopMargin(0.01);
-      pad2->SetBottomMargin(0.3);
-      pad2->SetRightMargin(0.1);
-      pad2->SetFillStyle(0);
-      
-      TH1F *jRecoClone= (TH1F*) jReco->Clone("jReco");
-      jRecoClone->SetName("jRecoClone");      
-      jRecoClone->SetStats(0);
-      jRecoClone->GetXaxis ()->SetLabelSize (0.1);
-      jRecoClone->GetYaxis ()->SetLabelSize (0.08);
-      jRecoClone->Divide(jTrue);
-      jRecoClone->SetMarkerStyle (6);
-      jRecoClone->GetXaxis ()->SetLabelSize (0.06);
-      jRecoClone->GetYaxis ()->SetLabelSize (0.06);
-      jRecoClone->GetXaxis ()->SetTitleSize (0);
-      jRecoClone->GetYaxis ()->SetTitleSize (0.06);
-      jRecoClone->GetYaxis ()->SetTitleOffset (0.5);
-      
-      jRecoClone->GetYaxis ()->SetRangeUser (0.5, 1.5);
-      jRecoClone->GetXaxis ()->SetRangeUser (0, 5);
-      jRecoClone->GetYaxis ()->SetTitle ("Ratios");
-      jRecoClone->GetXaxis ()->SetTitle("jet pT [GeV/c]");
-      jRecoClone->SetMarkerStyle (20);
-      jRecoClone->SetLineWidth (0);
-      jRecoClone->SetTitle ("");
-      double max=jRecoClone->GetMaximum();
-      double min=jRecoClone->GetMinimum();
-      jRecoClone->GetYaxis()->SetRangeUser(min,max);
-      jRecoClone->GetYaxis()->SetNdivisions(5);
-      jRecoClone->GetXaxis()->SetTitleSize(0.14);
-      jRecoClone->GetXaxis()->SetLabelSize(0.14);
-      jRecoClone->GetYaxis()->SetLabelSize(0.11);
-      jRecoClone->GetYaxis()->SetTitleSize(0.11);
-      jRecoClone->GetYaxis()->SetTitleOffset(0.28);
-      jRecoClone->GetYaxis()->SetTitle("ratio data/MC");
-      jRecoClone->Draw();
-
-      TH1F *jDataClone= (TH1F*) jReco->Clone("jReco");
-      jDataClone->SetName("jDataClone"); 
-      jDataClone->Divide(jData);
-      jDataClone->SetLineStyle (2); 
-      jDataClone->SetMarkerSize (0);       
-      jDataClone->SetLineWidth (0.05);
-      jDataClone->SetLineColor(kViolet);
-      jDataClone->Draw ("E1HISTSAME");
-      jDataClone->SetLineWidth (0.1);
-      
-      TF1 *f = new TF1("f","1",0,410);
-      f->SetLineWidth(1);
-      f->Draw("SAMES");
-      
-      TLegend *legend_w = new TLegend(0.197791, 0.736607, 0.394578, 0.9375);
-      legend_w->SetFillColor (0);
-      legend_w->SetFillStyle (0);
-      legend_w->SetBorderSize (0);
-      legend_w->AddEntry (jRecoClone, "Data Unfolded / MC truth", "P20");
-      //legend_w->AddEntry (jMCRecoClone, "MC reco / MC truth", "L");
-      legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
-      legend_w->Draw ("same");
-      //pad2->Update();
-      stringstream num;
-      num<<k;
-      string title3= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+".pdf";
-      cout<<"Image saved in "<<title3<<endl;
-      num.str("");
-      c->cd ();
-      c->Print(title3.c_str());
-      return c;
+  return c;
 }
 
 //////
 // Save File
 ///////
 
-void saveIntoFile(int numbOfJetsSelected, string whichtype, TH1F* jReco, TH1F* jTrue, TH2F* jMatx, TH1F* jMCreco, TH1F* jData){
+void saveIntoFile(int numbOfJetsSelected, string whichtype, TH1D* jReco, TH1D* jTrue, TH2D* jMatx, TH1D* jMCreco, TH1D* jData){
   TFile* w = new TFile(filename.c_str(), "UPDATE");
   w->cd();
   
   if (whichtype=="Pt"){
     if (numbOfJetsSelected==1) {
-      TH1F *jReco_leading= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_leading= (TH1D*) jReco->Clone("jReco");
       jReco_leading->SetName("jReco_leading");
       jReco_leading->Write();
-      TH1F *jTrue_leading= (TH1F*) jTrue->Clone("jTrue");
+      TH1D *jTrue_leading= (TH1D*) jTrue->Clone("jTrue");
       jTrue_leading->Write();
-      TH2F *jMatx_leading= (TH2F*) jMatx->Clone("jMatx");
+      TH2D *jMatx_leading= (TH2D*) jMatx->Clone("jMatx");
       jMatx_leading->Write();
-      TH1F *jData_leading= (TH1F*) jData->Clone("jData");
+      TH1D *jData_leading= (TH1D*) jData->Clone("jData");
       jData_leading->Write();
-      TH1F *jMCreco_leading= (TH1F*) jMCreco->Clone("jMCreco");
+      TH1D *jMCreco_leading= (TH1D*) jMCreco->Clone("jMCreco");
       jMCreco_leading->Write();
     }
     if (numbOfJetsSelected==2) {
-      TH1F *jReco_subleading= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_subleading= (TH1D*) jReco->Clone("jReco");
       jReco_subleading->SetName("jReco_subleading");
       jReco_subleading->Write();
-      TH1F *jTrue_subleading= (TH1F*) jTrue->Clone("jTrue");
+      TH1D *jTrue_subleading= (TH1D*) jTrue->Clone("jTrue");
       jTrue_subleading->Write();
       
     }
     if (numbOfJetsSelected==3) {
-      TH1F *jReco_subsubleading= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_subsubleading= (TH1D*) jReco->Clone("jReco");
       jReco_subsubleading->SetName("jReco_subsubleading");
       jReco_subsubleading->Write();
-      TH1F *jTrue_subsubleading= (TH1F*) jTrue->Clone("jTrue");
+      TH1D *jTrue_subsubleading= (TH1D*) jTrue->Clone("jTrue");
       jTrue_subsubleading->Write();
       
     }
     if (numbOfJetsSelected==4) {
-      TH1F *jReco_subsubsubleading= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_subsubsubleading= (TH1D*) jReco->Clone("jReco");
       jReco_subsubsubleading->SetName("jReco_subsubsubleading");
       jReco_subsubsubleading->Write();
-      TH1F *jTrue_subsubsubleading= (TH1F*) jTrue->Clone("jTrue");
+      TH1D *jTrue_subsubsubleading= (TH1D*) jTrue->Clone("jTrue");
       jTrue_subsubsubleading->Write();
       
     }
@@ -547,22 +604,22 @@ void saveIntoFile(int numbOfJetsSelected, string whichtype, TH1F* jReco, TH1F* j
 
   if (whichtype=="Eta"){
     if (numbOfJetsSelected==1) {
-      TH1F *jReco_leadingeta= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_leadingeta= (TH1D*) jReco->Clone("jReco");
       jReco_leadingeta->SetName("jReco_leadingeta");
       jReco_leadingeta->Write();
     }
     if (numbOfJetsSelected==2) {
-      TH1F *jReco_subleadingeta= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_subleadingeta= (TH1D*) jReco->Clone("jReco");
       jReco_subleadingeta->SetName("jReco_subleadingeta");
       jReco_subleadingeta->Write();
     }
     if (numbOfJetsSelected==3) {
-      TH1F *jReco_subsubleadingeta= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_subsubleadingeta= (TH1D*) jReco->Clone("jReco");
       jReco_subsubleadingeta->SetName("jReco_subsubleadingeta");
       jReco_subsubleadingeta->Write();
     }
     if (numbOfJetsSelected==4) {
-      TH1F *jReco_subsubsubleadingeta= (TH1F*) jReco->Clone("jReco");
+      TH1D *jReco_subsubsubleadingeta= (TH1D*) jReco->Clone("jReco");
       jReco_subsubsubleadingeta->SetName("jReco_subsubsubleadingeta");
       jReco_subsubsubleadingeta->Write();
     }
@@ -571,22 +628,22 @@ void saveIntoFile(int numbOfJetsSelected, string whichtype, TH1F* jReco, TH1F* j
 
   if (whichtype=="Ht"){
     if (numbOfJetsSelected==1) {
-     TH1F *HReco_leading= (TH1F*) jReco->Clone("jReco");
+     TH1D *HReco_leading= (TH1D*) jReco->Clone("jReco");
       HReco_leading->SetName("HReco_leading");
       HReco_leading->Write();
     }
     if (numbOfJetsSelected==2) {
-      TH1F *HReco_subleading= (TH1F*) jReco->Clone("jReco");
+      TH1D *HReco_subleading= (TH1D*) jReco->Clone("jReco");
       HReco_subleading->SetName("HReco_subleading");
       HReco_subleading->Write();
     }
     if (numbOfJetsSelected==3) {
-      TH1F *HReco_subsubleading= (TH1F*) jReco->Clone("jReco");
+      TH1D *HReco_subsubleading= (TH1D*) jReco->Clone("jReco");
       HReco_subsubleading->SetName("HReco_subsubleading");
       HReco_subsubleading->Write();
     }
     if (numbOfJetsSelected==4) {
-      TH1F *HReco_subsubsubleading= (TH1F*) jReco->Clone("jReco");
+      TH1D *HReco_subsubsubleading= (TH1D*) jReco->Clone("jReco");
       HReco_subsubsubleading->SetName("HReco_subsubsubleading");
       HReco_subsubsubleading->Write();
     }
@@ -594,7 +651,7 @@ void saveIntoFile(int numbOfJetsSelected, string whichtype, TH1F* jReco, TH1F* j
   }
 
   if (whichtype=="Multiplicity"){
-    TH1F* JetMultiplicityUnfolded=(TH1F*) jReco->Clone("jReco");
+    TH1D* JetMultiplicityUnfolded=(TH1D*) jReco->Clone("jReco");
     JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
     JetMultiplicityUnfolded->Write();
     jTrue->Write();
@@ -608,7 +665,7 @@ void saveIntoFile(int numbOfJetsSelected, string whichtype, TH1F* jReco, TH1F* j
 
 //Background
 
-void correctForBackground(int numbOfJetsSelected, string whichtype, TH1F* jData, bool verbose){
+void correctForBackground(int numbOfJetsSelected, string whichtype, TH1D* jData, bool verbose){
   ofstream backSignificance;
   std::vector<double> bckcoeff;
 
@@ -621,7 +678,7 @@ void correctForBackground(int numbOfJetsSelected, string whichtype, TH1F* jData,
     if (numbOfJetsSelected==2) {
       if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet2Pt.txt");
       if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJet2PtMu.txt");
-      if (MCstatError) bckcoeff=getBackgroundContributions(bkgstring,"jet_pT2");
+      bckcoeff=getBackgroundContributions(bkgstring,"jet_pT2");
     }
     if (numbOfJetsSelected==3) {
       bckcoeff=getBackgroundContributions(bkgstring,"jet_pT3");
@@ -688,9 +745,10 @@ void correctForBackground(int numbOfJetsSelected, string whichtype, TH1F* jData,
   }
 
   for (unsigned int k=0; k<divPlot; k++){
+    cout<<bckcoeff[k]<<endl;
       jData->SetBinContent(k+1, jData->GetBinContent(k+1) - bckcoeff[k]);
       jData->SetBinError(k+1, sqrt(pow(jData->GetBinError(k+1),2) + pow(sqrt(bckcoeff[k]),2)) );  //Set also the error
-
+      
       double backvalue=bckcoeff[k];
       if (jData->GetBinContent(k+1)>0) {
         if (bckcoeff[k]<0.000000001) backvalue=0.0;
@@ -706,7 +764,7 @@ void correctForBackground(int numbOfJetsSelected, string whichtype, TH1F* jData,
   }
 }
 
-void loopAndDumpEntries(TH1F *jData){
+void loopAndDumpEntries(TH1D *jData){
   for (unsigned int p=0;p<jData->GetNbinsX();p++){
     cout<<"Bin "<<p+1<<" has "<<jData->GetBinContent(p+1)<<" and error "<<jData->GetBinError(p+1)<<endl;;
   }
@@ -734,13 +792,13 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   
   // Set the kmin, kmax, minObsPlot, maxObsPlot (those are global variables)
   setPlotsDivisionsAndRanges(numbOfJetsSelected,whichtype,whichalgo);
-  cout<<"Automatic histograms allocation ("<<whichtype<<"). divPlot->"<<divPlot<<" min->"<<minObsPlot<<" max->"<<maxObsPlot<<" kmin->"<<kmin<<" kmax->"<<kmax<<endl;
+  cout<<"Automatic histograms allocation ("<<whichtype<<"-"<<numbOfJetsSelected<<" jets). divPlot->"<<divPlot<<" min->"<<minObsPlot<<" max->"<<maxObsPlot<<" kmin->"<<kmin<<" kmax->"<<kmax<<endl;
 
-  TH1F *jTrue = new TH1F ("jTrue", "jet Truth",divPlot,minObsPlot,maxObsPlot);
-  TH1F *jData = new TH1F ("jData", "jet DATA Measured",divPlot,minObsPlot,maxObsPlot);
-  TH1F *jReco = new TH1F ("jReco", "jet Unfolded DATA",divPlot,minObsPlot,maxObsPlot);
-  TH2F *jMatx = new TH2F ("jMatx", "Unfolding Matrix jeet",divPlot,minObsPlot,maxObsPlot,divPlot,minObsPlot,maxObsPlot);
-  TH1F *jMCreco = new TH1F ("jMCreco", "jet mcreco",divPlot,minObsPlot,maxObsPlot);
+  TH1D *jTrue = new TH1D ("jTrue", "jet Truth",divPlot,minObsPlot,maxObsPlot);
+  TH1D *jData = new TH1D ("jData", "jet DATA Measured",divPlot,minObsPlot,maxObsPlot);
+  TH1D *jReco = new TH1D ("jReco", "jet Unfolded DATA",divPlot,minObsPlot,maxObsPlot);
+  TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jeet",divPlot,minObsPlot,maxObsPlot,divPlot,minObsPlot,maxObsPlot);
+  TH1D *jMCreco = new TH1D ("jMCreco", "jet mcreco",divPlot,minObsPlot,maxObsPlot);
 
   jData->Sumw2(); jTrue->Sumw2(); jReco->Sumw2(); jMatx->Sumw2(); jMCreco->Sumw2();
 
@@ -823,6 +881,12 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       
       if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
 
+      int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 30.0, 2.4, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+      
+      int ValidRecoJets=getNumberOfValidJets(Jet_multiplicity, 30.0, 2.4, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta);
+
+      //if (ValidGenJets <numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
+
       // Get Efficiency
       double effcorrmc=1.00;
       if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
@@ -830,7 +894,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity);
-
+     
       //Filling histograms
       jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
       jTrue->Fill (jet_Obs_gen);
@@ -870,7 +934,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   }
 
   /// Background Sub
-
+ 
   if (correctForBkg) correctForBackground(numbOfJetsSelected,whichtype,jData,true); //bool -> activate verbosity
   
   //////////////////////////////
@@ -878,7 +942,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   ///     Unfolding Core
   ///
   //////////////////////////////
-
+  
   //Old stile to perform the unfolding
   RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
   response_j.UseOverflow();
@@ -892,8 +956,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       int myNumber=k; num<<myNumber;
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
-      //jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j); //Specify which algo
-      jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake);
+      if (whichalgo=="Bayes") jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j,jMCreco, jMatx); //Specify which algo
+      //jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       num.str("");
     } 
   }
@@ -915,16 +979,16 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   
   if (activateXSSuperseding){
     if (!isMu) {
-      cout<<"Rescaled to "<<XSElectron[0]<<endl;
+      cout<<"Rescaled to "<<XSElectron[numbOfJetsSelected-1]<<endl;
       jReco->Scale(XSElectron[numbOfJetsSelected-1]/unfarea);
     }
     if (isMu) {
-      cout<<"Rescaled to "<<XSMuon[0]<<endl;
+      cout<<"Rescaled to "<<XSMuon[numbOfJetsSelected-1]<<endl;
       jReco->Scale(XSMuon[numbOfJetsSelected-1]/unfarea);
     }
   }
   
-  if (!Unfold) jReco=(TH1F*) jData->Clone();
+  if (!Unfold) jReco=(TH1D*) jData->Clone();
   if (saveFile) saveIntoFile(numbOfJetsSelected, whichtype, jReco, jTrue, jMatx, jMCreco, jData);
 
 #ifdef __CINT__
