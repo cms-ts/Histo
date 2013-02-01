@@ -150,6 +150,8 @@ if (numbOfJetsSelected == 1){
       kmax = 6;
     }
   if (numbOfJetsSelected == 2){
+      minObsPlot = 60;
+      maxObsPlot = 630;
       kmin = 7;
       kmax = 8;
     }
