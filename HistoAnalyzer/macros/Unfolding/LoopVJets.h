@@ -121,14 +121,14 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     }
     
     if (numbOfJetsSelected==3){
-      kmin=20;
-      kmax=21;
+      kmin=8;
+      kmax=9;
       divPlot=16;
     }
     
     if (numbOfJetsSelected==4){
-      kmin=20;
-      kmax=21;
+      kmin=8;
+      kmax=9;
       divPlot=12;
     } 
       if (bayesianTests) {
@@ -146,18 +146,12 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     kmax = 12;
 
 if (numbOfJetsSelected == 1){
-      kmin = 10;
-      kmax = 11;
-      divPlot = 12;
-      minObsPlot = 30;
-      maxObsPlot = 630;
+      kmin = 5;
+      kmax = 6;
     }
   if (numbOfJetsSelected == 2){
-      kmin = 8;
-      kmax = 9;
-      divPlot = 12;
-      minObsPlot = 60;
-      maxObsPlot = 630;
+      kmin = 7;
+      kmax = 8;
     }
   if (numbOfJetsSelected == 3){
       kmin = 7;
@@ -248,21 +242,21 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
 
   if (whichtype=="Ht"){
     if (Jet_multiplicity >= numbOfJetsSelected ){
-        if (jet1_pt > 0 && jet1_pt < 7000) jet_Obs += jet1_pt;
-        if (jet2_pt > 0 && jet2_pt < 7000) jet_Obs += jet2_pt;
-        if (jet3_pt > 0 && jet3_pt < 7000) jet_Obs += jet3_pt;
-        if (jet4_pt > 0 && jet4_pt < 7000) jet_Obs += jet4_pt;
-        if (jet5_pt > 0 && jet5_pt < 7000) jet_Obs += jet5_pt;
-        if (jet6_pt > 0 && jet6_pt < 7000) jet_Obs += jet6_pt;
+      if (jet1_pt > 30 && jet1_pt < 7000 && fabs(jet1_eta)<2.4 ) jet_Obs += jet1_pt;
+        if (jet2_pt > 30 && jet2_pt < 7000 && fabs(jet2_eta)<2.4) jet_Obs += jet2_pt;
+        if (jet3_pt > 30 && jet3_pt < 7000 && fabs(jet3_eta)<2.4) jet_Obs += jet3_pt;
+        if (jet4_pt > 30 && jet4_pt < 7000 && fabs(jet4_eta)<2.4) jet_Obs += jet4_pt;
+        if (jet5_pt > 30 && jet5_pt < 7000 && fabs(jet5_eta)<2.4) jet_Obs += jet5_pt;
+        if (jet6_pt > 30 && jet6_pt < 7000 && fabs(jet6_eta)<2.4) jet_Obs += jet6_pt;
       }
 
     if (Jet_multiplicity_gen >= numbOfJetsSelected ){
-        if (jet1_pt_gen > 0 && jet1_pt_gen < 7000) jet_Obs_gen += jet1_pt_gen;
-        if (jet2_pt_gen > 0 && jet2_pt_gen < 7000) jet_Obs_gen += jet2_pt_gen;
-        if (jet3_pt_gen > 0 && jet3_pt_gen < 7000) jet_Obs_gen += jet3_pt_gen;
-        if (jet4_pt_gen > 0 && jet4_pt_gen < 7000) jet_Obs_gen += jet4_pt_gen;
-        if (jet5_pt_gen > 0 && jet5_pt_gen < 7000) jet_Obs_gen += jet5_pt_gen;
-        if (jet6_pt_gen > 0 && jet6_pt_gen < 7000) jet_Obs_gen += jet6_pt_gen;
+        if (jet1_pt_gen > 30 && jet1_pt_gen < 7000 && fabs(jet1_eta_gen)<2.4) jet_Obs_gen += jet1_pt_gen;
+        if (jet2_pt_gen > 30 && jet2_pt_gen < 7000 && fabs(jet2_eta_gen)<2.4) jet_Obs_gen += jet2_pt_gen;
+        if (jet3_pt_gen > 30 && jet3_pt_gen < 7000 && fabs(jet3_eta_gen)<2.4) jet_Obs_gen += jet3_pt_gen;
+        if (jet4_pt_gen > 30 && jet4_pt_gen < 7000 && fabs(jet4_eta_gen)<2.4) jet_Obs_gen += jet4_pt_gen;
+        if (jet5_pt_gen > 30 && jet5_pt_gen < 7000 && fabs(jet5_eta_gen)<2.4) jet_Obs_gen += jet5_pt_gen;
+        if (jet6_pt_gen > 30 && jet6_pt_gen < 7000 && fabs(jet6_eta_gen)<2.4) jet_Obs_gen += jet6_pt_gen;
       }
     return;
   }
@@ -307,17 +301,18 @@ void setObservablesData(int numbOfJetsSelected, string whichtype, double jet1_pt
     if (numbOfJetsSelected==4) {
       jet_Obs=jet4_eta;
     }
+    if (jet_Obs==0) jet_Obs=-99; //To avoid peak
     return;
   }
 
   if (whichtype=="Ht"){
     if (Jet_multiplicity >= numbOfJetsSelected ){
-        if (jet1_pt > 0 && jet1_pt < 7000) jet_Obs += jet1_pt;
-        if (jet2_pt > 0 && jet2_pt < 7000) jet_Obs += jet2_pt;
-        if (jet3_pt > 0 && jet3_pt < 7000) jet_Obs += jet3_pt;
-        if (jet4_pt > 0 && jet4_pt < 7000) jet_Obs += jet4_pt;
-        if (jet5_pt > 0 && jet5_pt < 7000) jet_Obs += jet5_pt;
-        if (jet6_pt > 0 && jet6_pt < 7000) jet_Obs += jet6_pt;
+        if (jet1_pt > 30 && jet1_pt < 7000 && fabs(jet1_eta)<2.4) jet_Obs += jet1_pt;
+        if (jet2_pt > 30 && jet2_pt < 7000 && fabs(jet2_eta)<2.4) jet_Obs += jet2_pt;
+        if (jet3_pt > 30 && jet3_pt < 7000 && fabs(jet3_eta)<2.4) jet_Obs += jet3_pt;
+        if (jet4_pt > 30 && jet4_pt < 7000 && fabs(jet4_eta)<2.4) jet_Obs += jet4_pt;
+        if (jet5_pt > 30 && jet5_pt < 7000 && fabs(jet5_eta)<2.4) jet_Obs += jet5_pt;
+        if (jet6_pt > 30 && jet6_pt < 7000 && fabs(jet6_eta)<2.4) jet_Obs += jet6_pt;
       }
     return;
   }
@@ -898,13 +893,21 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       // Get Efficiency
       double effcorrmc=1.00;
       if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
-      if (!correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+      if (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 
       //Fake Fill method
       int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 30.0, 2.4, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
       int ValidRecoJets=getNumberOfValidJets(Jet_multiplicity, 30.0, 2.4, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta);
 
       if (ValidGenJets <numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
+
+      if (jet_Obs==0 && whichtype=="Eta") {
+	jet_Obs=-99;
+      } 
+
+      if (jet_Obs_gen==0 && whichtype=="Eta") {
+	jet_Obs_gen=-99;
+      } 
 
       //If there are no Z generated, it is a fake!
       if (recoZInAcceptance && !genZInAcceptance){
@@ -940,7 +943,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-
+	  
       if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
       }
@@ -982,12 +985,12 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
     setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
     double effcorrdata=1.0;
+
     if (correctForEff && isEle) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
     if (Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
-  }
+  }//End loop Data
 
   /// Background Sub
- 
   if (correctForBkg) correctForBackground(numbOfJetsSelected,whichtype,jData,true); //bool -> activate verbosity
   
   //////////////////////////////
