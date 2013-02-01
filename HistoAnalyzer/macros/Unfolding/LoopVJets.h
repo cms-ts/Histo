@@ -923,17 +923,17 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       }
 
       if ( (l1_pt_gen<20 || l2_pt_gen<20) & (recoZInAcceptance) ){
-	//if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
+	if (ValidRecoJets >=numbOfJetsSelected && isElectron) response_fillfake.Fake(jet_Obs); 
 	continue;
       }
 
       if ( (fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4) & (recoZInAcceptance) ){
-	//if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
+	if (ValidRecoJets >=numbOfJetsSelected && isElectron) response_fillfake.Fake(jet_Obs); 
 	continue;
       }
       
       if ( (invMass_gen>111 || invMass_gen<71) & (recoZInAcceptance) ){
-	//if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
+	if (ValidRecoJets >=numbOfJetsSelected && isElectron) response_fillfake.Fake(jet_Obs); 
 	continue;
       }
       

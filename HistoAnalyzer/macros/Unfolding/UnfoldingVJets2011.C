@@ -51,7 +51,7 @@ std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
@@ -64,7 +64,7 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
 bool activateXSSuperseding=true;
 double XSElectron[4]={50.49,10.05,1.81,0.269}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
-double XSMuon[4]={48.42,10.85,2.030,0.353};
+double XSMuon[4]={48.44,10.72,1.89,0.303};
 
 //For gen Jet
 double threshPt=30;
@@ -84,9 +84,9 @@ bool pythiaCheck=false;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/";
 
 //Save histos to be used afterward
-bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-//string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root";//+version;
+//string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Bayes_v2_35.root";//+version;
 string filename=direct+"test.root";
 
 // Efficiency corrections
@@ -173,7 +173,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Ht";
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 
