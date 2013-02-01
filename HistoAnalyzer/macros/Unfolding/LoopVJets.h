@@ -932,14 +932,30 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	continue;
       }
       
+      //account for the gap!
+      if ( (( fabs(l1_eta_gen)>1.442 & fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 & fabs(l2_eta_gen)<1.566)) && isElectron && !recoZInAcceptance){
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen); 
+        continue;
+      }
+
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-      
+
       if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
       }
       if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
       if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) response_fillfake.Miss(jet_Obs_gen); 
+
+      /*      
+      if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
+	if (jet1_pt>30 && fabs(jet1_eta<2.4) && (jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4) ) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
+	if (!(jet1_pt>30 && fabs(jet1_eta<2.4)) && (jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4) ) response_fillfake.Miss(jet_Obs_gen); 
+	if (jet1_pt>30 && fabs(jet1_eta<2.4) && !((jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4)) ) response_fillfake.Fake(jet_Obs); 
+      }
+      if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected && jet1_pt>30 && fabs(jet1_eta<2.4)) response_fillfake.Fake(jet_Obs); 
+      if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected) && jet1_pt_gen>30 && fabs(jet1_eta_gen<2.4)) response_fillfake.Miss(jet_Obs_gen); 
+      */
 
       //Filling histograms, old way, before the cuts...
       jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
@@ -966,7 +982,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
     setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
     double effcorrdata=1.0;
-    if (!correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
+    if (correctForEff && isEle) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
     if (Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
   }
 
