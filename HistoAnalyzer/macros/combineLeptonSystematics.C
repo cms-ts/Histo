@@ -20,6 +20,7 @@ public:
   std::vector<double> systSum(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, TH1D*, TH1D*);
   std::vector<double> systPar(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
   std::vector<double> systOne(string);
+  std::vector<double> systOneCent(string);
   std::vector<double> systUnfArea(int, string, string);
   TH1D* getDataHisto(int, string);
 };
@@ -89,9 +90,9 @@ int combineLeptonSystematics::letscombine () {
     eleBkg = plotpath+"ele/BkgCrossSection_"+variablesName[var]+version+".txt";
     muoBkg = plotpath+"muo/BkgCrossSection_"+variablesName[var]+version+".txt";
 
-    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root");
-    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root");
-    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root");
+    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3_v2_35.root");
+    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root");
+    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Combined_v2_35.root");
 
     datahisto_ele->Sumw2();
     datahisto_muo->Sumw2();
@@ -106,8 +107,8 @@ int combineLeptonSystematics::letscombine () {
     std::vector<double> jetMuoEff = combineLeptonSystematics::systOne(muoEff);
     std::vector<double> jetEleJEC = combineLeptonSystematics::systOne(eleJEC);
     std::vector<double> jetMuoJEC = combineLeptonSystematics::systOne(muoJEC);
-    std::vector<double> jetEleUnf = combineLeptonSystematics::systOne(eleUnf);
-    std::vector<double> jetMuoUnf = combineLeptonSystematics::systOne(muoUnf);
+    std::vector<double> jetEleUnf = combineLeptonSystematics::systOneCent(eleUnf);
+    std::vector<double> jetMuoUnf = combineLeptonSystematics::systOneCent(muoUnf);
     std::vector<double> jetElePU  = combineLeptonSystematics::systOne(elePU); 
     std::vector<double> jetMuoPU  = combineLeptonSystematics::systOne(muoPU); 
     std::vector<double> jetEleBkg = combineLeptonSystematics::systOne(eleBkg);
@@ -281,6 +282,7 @@ std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEle
   double tmpBkg;
   double tmpSyst;
 
+
   for (Int_t i=0;i<jetEleUnf.size();i++) {
 
     tmpEff = jetEleEff[i];
@@ -288,6 +290,8 @@ std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEle
     tmpUnf = (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
     tmpPU  = (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
     tmpBkg = (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+
+    cout << "Eff = " << tmpEff*100. << "; JEC = " << tmpJEC*100. << "; Unf = " << tmpUnf*100. << "; PU = " << tmpPU*100. << "; Bkg = " << tmpBkg*100. << endl;
 
     tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU + tmpBkg*tmpBkg);
 
@@ -334,6 +338,38 @@ std::vector<double> combineLeptonSystematics::systOne(string oneSyst){
     }
 
     syst.push_back(tmpSyst);
+
+    i++;  
+  }
+
+  inSyst.close();
+
+  return syst;
+}
+
+
+std::vector<double> combineLeptonSystematics::systOneCent(string oneSyst){
+	
+  // Leggere nomi dei file da aprire
+   
+  std::vector<double> syst;
+   
+  ifstream inSyst;
+  inSyst.open (oneSyst.c_str());
+   
+  int i=0;
+  double tmpSyst;
+
+  cout << "Attento mona, stai tirando su delle sistematiche percentuali, sapevatelo!" << endl;
+
+  while (1) {
+    inSyst >> tmpSyst;
+
+    if (!inSyst.good()) {
+      break;
+    }
+
+    syst.push_back(tmpSyst/100.);
 
     i++;  
   }
@@ -402,14 +438,61 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
   	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t&\t";
     textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
   }
-  
   textfile << "\\hline" << endl
            << "\\end{tabular}" << endl
            << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:systematicstab}" << endl
+           << "\\label{tab:finalsupersystematicstab}" << endl
 	   << "\\end{center}" << endl
            << "\\end{sidewaystable}" << endl;
 
+
+  // SYSTEMATICS ONLY:
+  textfile << "\\begin{table}[htbH]" << endl
+	   << "\\begin{center}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}" << endl
+           << "\\hline" << endl 
+    	   << "\\multicolumn{5}{|c|}{Electron Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)} \t\\\\" << endl
+           << "\\hline" << endl; 
+
+  textfile << "Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t\\\\" << endl
+	   << "\\hline" << endl; 
+
+  for (Int_t i=0; i<jetSyst.size(); i++) {
+    textfile.precision(2);
+    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
+  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t\\\\" << endl;
+  }
+  textfile << "\\hline" << endl
+           << "\\end{tabular}" << endl
+           << "\\caption{" << variablesName << "}" << endl
+           << "\\label{tab:systematicstab" << variablesName << "}" << endl
+	   << "\\end{center}" << endl
+           << "\\end{table}" << endl;
+
+  // XSECTIONS ONLY:
+  textfile << "\\begin{table}[htbH]" << endl
+	   << "\\begin{center}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|}" << endl
+           << "\\hline" << endl 
+    	   << "\\multicolumn{3}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Data Uncertainties (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Global Syst. (\\%)} \t\\\\" << endl
+           << "\\hline" << endl; 
+
+  textfile << "Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Comb. \t\\\\" << endl
+	   << "\\hline" << endl; 
+
+  for (Int_t i=0; i<jetSyst.size(); i++) {
+    textfile.precision(3);
+    textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
+    textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
+    textfile.precision(2);
+    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+  }
+  textfile << "\\hline" << endl
+           << "\\end{tabular}" << endl
+           << "\\caption{" << variablesName << "}" << endl
+           << "\\label{tab:finalxsectab" << variablesName << "}" << endl
+	   << "\\end{center}" << endl
+           << "\\end{table}" << endl;
 
   textfile << "\\end{document}" << endl;
 

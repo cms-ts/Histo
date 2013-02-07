@@ -27,6 +27,7 @@ Int_t combineLeptonRivet::letscombine () {
   string eleRivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   string eleRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root"; 
   string eleRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
+  string eleRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
 
   // muon datasets:
   string muoRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
@@ -39,6 +40,7 @@ Int_t combineLeptonRivet::letscombine () {
   string muoRivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   string muoRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
   string muoRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
+  string muoRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
 
   for (Int_t i=1;i<14;i++) {
     mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root");
@@ -69,6 +71,9 @@ Int_t combineLeptonRivet::letscombine () {
   }
   for (Int_t i=1;i<14;i++) {
     mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathPowheg, muoRivetPathPowheg, "/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root");
   }
 
   return 0;
@@ -214,7 +219,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
       //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
       wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
       combinehisto->SetBinContent(i,wmean);
-      combinehisto->SetBinError(i,0.);
+      combinehisto->SetBinError(i,sqrt(pow(elehisto->GetBinError(i),2)+pow(muohisto->GetBinError(i),2))); // Errori alla "Gesu bambino che caca nutella"
     }
   } else {
     for (Int_t i=0; i<nbins_ele;i++) {
@@ -223,8 +228,8 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
       //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
       wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
       combinetgraph->SetPoint(i,dummyXvar,wmean);
-      combinetgraph->SetPointEYhigh(i,0.);
-      combinetgraph->SetPointEYlow(i,0.);
+      combinetgraph->SetPointEYhigh(i,sqrt(pow(eletgraph->GetErrorYhigh(i),2)+pow(muotgraph->GetErrorYhigh(i),2))); // Errori alla "Gesu bambino che caca nutella"
+      combinetgraph->SetPointEYlow(i,sqrt(pow(eletgraph->GetErrorYlow(i),2)+pow(muotgraph->GetErrorYlow(i),2)));
     }
   }
 

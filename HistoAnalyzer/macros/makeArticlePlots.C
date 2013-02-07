@@ -1,4 +1,3 @@
-#include "Unfolding/tdrstyle.C"
 #include "TFile.h"
 #include "TH1.h"
 #include "TDirectory.h"
@@ -37,6 +36,8 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 
   setTDRStyle ();
   gStyle->SetErrorX(0);
+  gStyle->SetPadGridX(0);
+  gStyle->SetPadGridY(0);
 
   bool absoluteNormalization=true;
   int lepton=whichlepton; //1 -> electron,  2-> muon , 3 -> combined reults!
@@ -46,16 +47,12 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   int use_case = whichobservable;
   int whichjet = whichjet;
   string version = "_v2_32";
-  //string s = "/home/schizzi/CMSSW_4_4_2/src/Histo/HistoAnalyzer/macros/plotArticleEle" + version + "/";
-  string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v35/FinalTheoryComparison/";
-  if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v35/FinalTheoryComparison/Mu/";
-  if (lepton==3) string s = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v35/FinalTheoryComparison/combination/";
+  string s                = "/gpfs/cms/users/schizzi/PreApprovalPlots/ele_oldbands/";
+  if (lepton==2) string s = "/gpfs/cms/users/schizzi/PreApprovalPlots/muo_oldbands/";
+  if (lepton==3) string s = "/gpfs/cms/users/schizzi/PreApprovalPlots/combined_oldbands/";
 
-  //string s="/tmp/";
-  //string plotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
   string plotpath = "/gpfs/cms/data/2011/Uncertainties/";
   if (lepton == 2) plotpath = "/gpfs/cms/data/2011/Uncertainties/muons/";
-  //if (lepton == 2) plotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
   if (lepton == 3) plotpath = "/gpfs/cms/users/schizzi/Systematics/combination/";
 
   gStyle->SetOptStat (0);
@@ -63,11 +60,10 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root";
+  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3_v2_35.root";
+  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root";
+  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Combined_v2_35.root";
 
-  if (lepton == 2) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root";
-  if (lepton == 3) pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root";
-  
   // pathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_32ApprovalNoNormalizationEtaUnfMu.root";
   //RIVET:
   //old Vieri string rivetPathSherpa ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod/out.root";
@@ -89,7 +85,7 @@ makeArticlePlots (int whichobservable, int whichjet, int whichlepton)
 
  string rivetPathPoweg ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root"; // Tomo
  //rivetPathPoweg ="/gpfs/cms/users/candelis/Rivet/powheg.2/test_ee/out.root";
- bool isPowheg=true;
+ bool isPowheg=false;
  if (isPowheg) rivetPathSherpa=rivetPathPoweg;
 
   if (lepton == 2){
@@ -271,7 +267,7 @@ if (lepton == 3){
 	      if (!inM.good ())
 		break;
 	      if (addLumiUncertainties) {
-		//dat=pow(dat*dat+lumiError*lumiError,0.5);
+		dat=pow(dat*dat+lumiError*lumiError,0.5);
 	      }
 	      systTmpM.push_back (dat);
 	      //l2++;  
@@ -1298,8 +1294,6 @@ if (lepton == 3){
 	  string title1;
 	  title1 = s + "DifferentialX" + stringmatch + ".png";
 	  
-	  //if (lepton ==2) title1 = s + "DifferentialX" + stringmatch + "Mu.png";
-
 	  cout << title1 << endl;
 	  
 	  plots->Print (title1.c_str ());

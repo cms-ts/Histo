@@ -1,7 +1,7 @@
 TLatex* CMSPrel(Float_t Lumi,TString _decaychannel){
   
   TLatex *latexLabel = new TLatex();
-  latexLabel->SetTextSize(0.0275);
+  latexLabel->SetTextSize(0.0355);
   latexLabel->SetTextFont(42);
   latexLabel->SetLineWidth(2);
   latexLabel->SetNDC();
@@ -21,7 +21,7 @@ TLatex* CMSPrel(Float_t Lumi,TString _decaychannel){
 TLatex* CMSPrel(Float_t Lumi,TString _decaychannel,double x, double y){
 
   TLatex *latexLabel = new TLatex();
-  latexLabel->SetTextSize(0.0275);
+  latexLabel->SetTextSize(0.0355);
   latexLabel->SetTextFont(42);
   latexLabel->SetLineWidth(2);
   latexLabel->SetNDC();

@@ -29,6 +29,11 @@
 #include "TColor.h"
 #include <string.h>
 
+// INSTRUCTIONS:
+// .L combineLeptonStatistics.C++
+// combineLeptonStatistics()
+// CONGRATULATIONS!
+
 int combineLeptonStatistics () {
 
   //  setTDRStyle ();
@@ -36,10 +41,10 @@ int combineLeptonStatistics () {
   string elePathFile;
   string muoPathFile;
 
-  elePathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root";
-  muoPathFile="/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root";
+  elePathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3_v2_35.root";
+  muoPathFile="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root";
 
-  TFile output_file("/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root","RECREATE");
+  TFile output_file("/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Combined_v2_35.root","RECREATE");
 
   // BEGIN COMBINATION:
 
@@ -68,14 +73,14 @@ int combineLeptonStatistics () {
 
   while ((tobj1 = iter1.Next ())) {
     elename = tobj1->GetName ();
-    if (elename == "N hMatx" || elename == "jTrue" || elename == "jMatx") continue;
+    if (elename == "N hMatx" || elename == "jTrue" || elename == "jMatx" || elename == "jData" || elename == "jMCreco") continue;
     histofile1->cd ("");
     gDirectory->GetObject (elename.c_str (), elehisto); // Save ele histogram!
     
     iter2.Reset();
     while ((tobj2 = iter2.Next ())) {
       muoname = tobj2->GetName ();
-      if (muoname == "N hMatx" || muoname == "jTrue" || muoname == "jMatx") continue;
+      if (muoname == "N hMatx" || muoname == "jTrue" || muoname == "jMatx" || muoname == "jData" || muoname == "jMCreco") continue;
       if (muoname == elename) {
 	histofile2->cd ("");
 	gDirectory->GetObject (muoname.c_str (), muohisto); // Save muo histogram!
