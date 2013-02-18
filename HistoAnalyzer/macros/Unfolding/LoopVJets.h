@@ -14,7 +14,6 @@ int divPlot=15;
 int kmin=1;
 int kmax=1;
 bool spanKvalues=false;
-bool Unfold=true;      
 double jet_Obs_gen=0;
 double jet_Obs=0;
 
@@ -333,7 +332,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
   TH1D *unf;
   RooUnfoldBayes unfold_b (&response_j, jData, kvalue);  //NEVER,NEVER,NEVER set the parameter "1000" for the testing if you want to perform identity tests
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
-
+  
   if (whichalgo=="Bayes") {
     unf = (TH1D *) unfold_b.Hreco ();
     unfold_b.PrintTable(cout,jTrue);
@@ -353,7 +352,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
     TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
   }
-
+  
   cout<<"Set the error!!!!!!!!!!!"<<endl;
   for (unsigned int p=0;p<unf->GetNbinsX();p++){
     errors->SetBinContent(p+1,unf->GetBinError(p+1)); errorstat->SetBinContent(p+1,sqrt(unf->GetBinContent(p+1)));
@@ -365,7 +364,8 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
   //3: Errors from the covariance matrix from the variation of the results in toy MC tests
   // enum ErrorTreatment {      kNoError          //kErrors     //kCovariance //kCovToy     
   return unf;
-} 
+}
+
 
 //////////////////////
 //Draw options
@@ -540,7 +540,6 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, int numb
     string title= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_moduloD.pdf";
     moduloD->Print(title.c_str()); 
   }
-
   TCanvas *errCanv= new TCanvas ("errCanv", "errCanv", 1000, 700);
   errCanv->cd ();
   gPad->SetLogy (1); errors->SetStats (111111);
@@ -879,7 +878,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     cout<<"Splitcheck is active, so Dataset A (MC) has now "<<nentries<<endl;
   }
 
-  if (fChain == 0) return;
+  if (fChain == 0) return; if (!doUnfold) nentries=0;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
@@ -1006,22 +1005,24 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   response_j.UseOverflow();
   stringstream num;
 
-  if (Unfold){
-    string method=whichalgo;
-    cout<<"Running "<<method<<" method"<<endl;
-    
-    for (int k=kmin; k< kmax; k++){
-      int myNumber=k; num<<myNumber;
+  string method=whichalgo;
+  cout<<"Running "<<method<<" method"<<endl;
+  
+  for (int k=kmin; k< kmax; k++){
+    int myNumber=k; num<<myNumber;
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       //if (whichalgo=="Bayes") jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j,jMCreco, jMatx); //Specify which algo
       //if (whichalgo=="SVD") jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
-      jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+      if (doUnfold) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+      else{
+	jReco=(TH1D*) jData->Clone("jData");
+	jReco->SetName("jReco");
+      }
       //jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j,jMCreco, jMatx); //Specify which algo
       num.str("");
-    } 
-  }
-  
+  } 
+
   if (identityCheck || splitCheck || pythiaCheck){
     jReco->Scale(1./jReco->Integral());             
     jTrue->Scale(1./jTrue->Integral());
@@ -1030,14 +1031,14 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   }
 
   //Drawing Histograms
-  c= drawPlots(jReco,jData,jTrue,jMCreco,numbOfJetsSelected,whichtype, whichalgo, kmin);
-  c->Draw();
+  if (doUnfold) { c= drawPlots(jReco,jData,jTrue,jMCreco,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }
 
   //Normalization 
+
   double unfarea=jReco->Integral()/4890.0;
   cout<<"Your unfolding has an integral value of "<<unfarea<<endl;
-  
-  if (activateXSSuperseding){
+
+  if (activateXSSuperseding && doUnfold){
     if (!isMu) {
       cout<<"Rescaled to "<<XSElectron[numbOfJetsSelected-1]<<endl;
       jReco->Scale(XSElectron[numbOfJetsSelected-1]/unfarea);
@@ -1047,8 +1048,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       jReco->Scale(XSMuon[numbOfJetsSelected-1]/unfarea);
     }
   }
-  
-  if (!Unfold) jReco=(TH1D*) jData->Clone();
+
   if (saveFile) saveIntoFile(numbOfJetsSelected, whichtype, jReco, jTrue, jMatx, jMCreco, jData);
 
 #ifdef __CINT__
