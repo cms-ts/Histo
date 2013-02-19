@@ -31,6 +31,9 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   bool Debug=false;
 
+  double genJetPtThreshold=15.0;
+  double genJetEtaThreshold=2.5;
+
   ////////
   //  Get The Weights
   ///////
@@ -583,32 +586,6 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       /// Create a JetGenContainer, as done for the RecoJets, to create the jetpt variable, afterwards
       ////////////////////
 
-      if (usingMC){
-	edm::Handle<reco::GenJetCollection> genJets;
-	iEvent.getByLabel(genJetsCollection, genJets );
-	
-	for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
-
-	  // check if the jet is equal to one of the isolated electrons 
-	   deltaPhi = fabs(jet->phi()-e1.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
-
-	   deltaPhi = fabs(jet->phi()-e2.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
-
-	  if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
-	      // cut on the jet pt 
-	      //&& jet->pt()> minPtJets //No Cut on Energy!!!!!
-	      //&& fabs(jet->eta())<maxEtaJets
-	      ){ 
-	    GenJetContainer.push_back(jet->p4()); 
-	  }
-	}
-	std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GreaterPt()); 
-      }
-
       ///////////////////////////////////////
 
       Jet_multiplicity=totJets;
@@ -631,6 +608,38 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet4_eta_gen=-9999;
       jet5_eta_gen=-9999;
       jet6_eta_gen=-9999;
+      
+      if (usingMC){
+	edm::Handle<reco::GenJetCollection> genJets;
+	iEvent.getByLabel(genJetsCollection, genJets );
+	int numbOfJets=0;      
+	
+	for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
+
+	  // check if the jet is equal to one of the isolated electrons 
+	   deltaPhi = fabs(jet->phi()-e1.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
+
+	   deltaPhi = fabs(jet->phi()-e2.Phi());
+	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
+
+	  if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
+	      // cut on the jet pt 
+	      && jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
+	      && fabs(jet->eta())<genJetEtaThreshold //A minimux allowed eeta for GEN-JET!!!!!
+	      ){ 
+	    GenJetContainer.push_back(jet->p4()); 
+	    numbOfJets++;
+	    if (Debug) cout<<"Jet has energy:"<<jet->pt()<<" and eta:"<<jet->eta()<<endl;
+	  }
+	}
+	if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
+	if (numbOfJets<100) Jet_multiplicity_gen=numbOfJets;
+	std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GreaterPt()); 
+      }
+
 
       ////// Checking also if the Z boson has decayed int taus or muons, and then misreconstructed!
 
@@ -662,7 +671,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (Z_gen.Rapidity()<7000) Z_y_gen=Z_gen.Rapidity();
 	if (Debug) cout<<"Z pt (GEN) is "<<Z_pt_gen<<" and y is "<<Z_y_gen<<endl;
 	
-	int numbOfJets=0;      
+
 	//Number of GenJet
 	edm::Handle<reco::GenJetCollection> genJets;
 	iEvent.getByLabel(genJetsCollection, genJets );
@@ -675,40 +684,11 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   ele_gen_vec.push_back(ele_gen);
 	   ele_gen_vec.push_back(ele_gen);
 	}
-
-	for (reco::GenJetCollection::const_iterator iter=genJets->begin();iter!=genJets->end();++iter){
-	  if (ele_gen_vec.size()==2){  // Only jets reaching the detector are allowed...
-	    // check if the jet is equal to one of the isolated electrons
-	    //spacchetto
-	    std::vector<edm::Ptr<reco::Candidate> > particles = iter->getJetConstituents();
-	    for (UInt_t j=0; j<particles.size(); j++){
-	      if (Debug) cout<<"jet constituent status is ->"<<particles[j]->status()<<" and pt is->"<<particles[j]->pt()<<endl; }
-	    double ptgen = (*iter).pt();
-	    double etagen = (*iter).eta();
-	    double phigen = (*iter).phi();
-	    deltaPhi = fabs(phigen-ele_gen_vec[0].Phi());
-	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	    double deltaR1= sqrt( pow(etagen-ele_gen_vec[0].Eta(),2)+pow(deltaPhi,2) );
-	    deltaPhi = fabs(phigen-ele_gen_vec[1].Phi());
-	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	    double deltaR2= sqrt( pow(etagen-ele_gen_vec[1].Eta(),2)+pow(deltaPhi,2) );
-	    if (Debug) cout<<"ptgen "<<ptgen<<" etagen "<<etagen<<" deltaR1 "<<deltaR1<<" deltaR2 "<<deltaR2<<" phigen "<<phigen<<endl;
-	    if (deltaR1 > deltaRCone && deltaR2 > deltaRCone && ptgen>minPtJets
-		//aggiungi
-		){ 
-	      numbOfJets++;
-	    }
-	  }
-	}
-	if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
-	if (numbOfJets<100) Jet_multiplicity_gen=numbOfJets;
       }
-      //DONE
-
       ///////////////////
       ///// Matching Gen-RECO
       ///////////////////
-
+      
       if (usingMC){
 	// Loop sui RecoGet ordinati in pt
 	std::vector <double> jetpt_gen; 
@@ -720,8 +700,10 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  double matchedGJetpt=9999;
           double matchedGJeteta=9999;
 
+	  if (Debug) cout<<"reco jet pt in the loop. Starting the match "<<endl;
 	  //jetPtVector.push_back(jet->Pt());
 	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
+
 	     deltaPhi = fabs(jet->phi()-gjet->phi());
 	     if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 	     double deltaRswap= sqrt( pow(jet->eta()-gjet->eta(),2)+pow(deltaPhi,2) );
@@ -744,7 +726,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
 	    if (Debug) cout<<"gen jet pt->"<<gjet->Pt()<<" and eta->"<<gjet->Eta()<<endl;
 	    bool isAgoodJet=false;
-	    if (gjet->Pt()>30 && fabs(gjet->Eta())<2.4 ){ // it should be above thresholds.. ADD the CHARGE information!
+	    if (gjet->Pt()>genJetPtThreshold && fabs(gjet->Eta())<genJetEtaThreshold ){ // it should be above thresholds.. ADD the CHARGE information!
 	      isAgoodJet=true; // it has at least one charged track
 	    }
 	    if (isAgoodJet){
@@ -765,7 +747,8 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
 	int gvectorsize=jetpt_gen.size();
-	
+	if (Debug) cout<<"Gen Jet found->"<<gvectorsize<<" size of JetContainer->"<<JetContainer.size()<<endl;
+
 	//genJetPtVector=jetpt_gen; // If works, cancel th following lines
 
 	if (gvectorsize>0) {
