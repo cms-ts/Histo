@@ -53,7 +53,59 @@ int getEtaRangeElectron(double ele_eta){
   return x;
 }
 
+double getEfficiencyElectronLovedeepEle(double pt ,double eta){
+  //double matrix[6][5]={0.349,0.369,0.288,0.153,0.114,
+  //                   0.556,0.467,0.312,0.285,0.383,
+  //                   0.664,0.632,0.343,0.465,0.524,
+  //                   0.802,0.758,0.515,0.585,0.616,
+  //                   0.851,0.832,0.673,0.693,0.691,
+  //                   0.862,0.855,0.692,0.743,0.738};
 
+  double matrix[6][5]={0.418,0.502,0.664,0.343,0.363,
+		       0.620,0.608,0.485,0.506,0.559,
+		       0.775,0.765,0.559,0.688,0.684,
+		       0.858,0.858,0.723,0.787,0.749,
+		       0.981,0.903,0.834,0.845,0.798,
+		       0.896,0.908,0.854,0.863,0.816,
+                       
+  };
+
+
+  int idy=-1; int isoy=-1;
+
+  if (eta<=0.8) {
+    idy  =0;
+  } else if (TMath::Abs(eta)>0.8 && TMath::Abs(eta)<=1.442) {   
+    idy  =1;
+  } else if (TMath::Abs(eta)>1.442 && TMath::Abs(eta)<=1.566) {
+    idy  =2;
+  } else if (TMath::Abs(eta)>1.566 && TMath::Abs(eta)<=2.0) {
+    idy  =3;
+  } else if (TMath::Abs(eta)>2.0 && TMath::Abs(eta)<=2.5) {
+    idy =4;
+  }
+
+  if (pt<=15){
+    isoy=0;
+  } else if (pt > 15 && pt <=20){
+    isoy=1;
+  }
+  else if (pt > 20 && pt <=30){
+    isoy=2;
+  }
+  else if (pt > 30 && pt <=40){
+    isoy=3;
+  }
+  else if (pt > 40 && pt <=50){
+    isoy=4;
+  }
+  else if (pt > 50){
+    isoy=5;
+  }
+
+  return matrix[isoy][idy];
+
+}
 
 double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_pt ,double ele1_eta, double ele2_pt, double ele2_eta, string dataOrMC, bool isElectron)
 {
@@ -119,9 +171,10 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
       WP80_effPt->GetBinContent(eta2,pt2)*
       RECO_effPt->GetBinContent(eta1,pt1)*
       RECO_effPt->GetBinContent(eta2,pt2)*
-      (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
-       ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
-       ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
+      (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2)// +
+       //ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
+       //ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2)
+       );
   } else {
     eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
       WP80_effPt->GetBinContent(eta2,pt2)*
