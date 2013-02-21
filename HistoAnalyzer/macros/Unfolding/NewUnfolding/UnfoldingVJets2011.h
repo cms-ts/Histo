@@ -126,8 +126,8 @@ public :
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
-   virtual void     LoopText(string algo, string type, int numbJets);
-   virtual void     LoopOneFour();
+   virtual void     LoopText(string algo, string type, int numbJets,bool isMuon);
+   virtual void     LoopOneFour(bool isMuon);
    virtual void     LoopVJets(int numbOfJets, string whichtype, string whichalgo);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);

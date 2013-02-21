@@ -113,5 +113,7 @@
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TProfile2D.h
 ./UnfoldingVJets2011_C.so: getEfficiencyCorrection.C tdrstyle.C
 ./UnfoldingVJets2011_C.so: MakePlotLumiLabel.C LoopVJets.h TSVDUnfold.h
+./UnfoldingVJets2011_C.so: SetObs.h DrawUnfolding.h BackgroundRemoval.h
+./UnfoldingVJets2011_C.so: SaveUnfolding.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/cintdictversion.h /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/RVersion.h
 UnfoldingVJets2011_C__ROOTBUILDVERSION= 5.27/06b

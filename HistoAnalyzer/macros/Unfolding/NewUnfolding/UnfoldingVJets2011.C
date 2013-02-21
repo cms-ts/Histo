@@ -46,8 +46,7 @@
 
 using
 std::cout;
-using
-std::endl;
+using std::endl;
 #endif
 
 string version="_v2_32.root";
@@ -55,15 +54,15 @@ bool isMu=true;
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
-bool doUnfold=false; //if false, it does not perform unfolding
+bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=true;
+bool activateXSSuperseding=false;
 double XSElectron[4]={50.49,10.05,1.81,0.269}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
 double XSMuon[4]={48.44,10.72,1.89,0.303};
 
@@ -85,10 +84,11 @@ bool pythiaCheck=false;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/";
 
 //Save histos to be used afterward
-bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
 //string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Bayes_v2_35.root";//+version;
-string filename=direct+"UnfoldedVJets2011DistributionsNoUnfoldingMu_v2_35.root";
+//string filename=direct+"UnfoldedVJets2011DistributionsNoUnfolding_v2_35";
+string filename=direct+"test";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -108,8 +108,8 @@ string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string bkgstring=dir+"Backgrounds_v2_33.root";
 
 //File with efficiency coefficients
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
-
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
 TFile *eff;
 
 //Open MC and data files to retrieve effciencies
@@ -145,14 +145,16 @@ void UnfoldingVJets2011::Loop()
 {
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
+    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
-    //filename=direct+"UnfoldedVJets2011DistributionsMuBayes_v2_35.root";//+version;
+    filename=filename+"Mu.root";//+version;
   }
-
-  //smc="/tmp/matteo.root";
+  else{
+    filename=filename+".root";//+version;
+  }
 
   fA = new TFile (smc.c_str());
   fB = new TFile (sdata.c_str()); 
@@ -173,25 +175,27 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=4;
-  string whichtype="Eta";
+  int numbOfJetsForLoop=1;
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
-
 }
 
-void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets)
+void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets,bool isMuon)
 {
+  isMu=isMuon;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
+    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
-    //filename=direct+"UnfoldedVJets2011DistributionsMuBayes_v2_35.root";//+version;
+    filename=filename+"Mu.root";//+version;
   }
-
-  //smc="/tmp/matteo.root";
+  else{
+    filename=filename+".root";//+version;
+  }
 
   fA = new TFile (smc.c_str());
   fB = new TFile (sdata.c_str()); 
@@ -212,19 +216,22 @@ void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets)
 
   setTDRStyle();
   LoopVJets(numbJets,type, algo);
-
 }
 
-void
-UnfoldingVJets2011::LoopOneFour()
+void UnfoldingVJets2011::LoopOneFour(bool isMuon)
 {
+  isMu=isMuon;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
+    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
-    //filename=direct+"UnfoldedVJets2011DistributionsMuBayes_v2_35.root";//+version;
+    filename=filename+"Mu.root";//+version;
+  }
+  else{
+    filename=filename+".root";//+version;
   }
 
   fA = new TFile (smc.c_str());
@@ -249,18 +256,18 @@ UnfoldingVJets2011::LoopOneFour()
   //string whichalgo="Bayes";
   string whichalgo="SVD";
       
-  //LoopVJets(1,"Multiplicity", whichalgo);
-  //LoopVJets(1,"Pt", whichalgo);
-  //LoopVJets(2,"Pt", whichalgo);
-  //LoopVJets(3,"Pt", whichalgo);
-  //LoopVJets(4,"Pt", whichalgo);
-  //LoopVJets(1,"Ht", whichalgo);
-  //LoopVJets(2,"Ht", whichalgo);
-  //LoopVJets(3,"Ht", whichalgo);
-  //LoopVJets(4,"Ht", whichalgo);
-  //LoopVJets(1,"Eta", whichalgo);
-  //LoopVJets(2,"Eta", whichalgo);
-  //LoopVJets(3,"Eta", whichalgo);
+  LoopVJets(1,"Multiplicity", whichalgo);
+  LoopVJets(1,"Pt", whichalgo);
+  LoopVJets(2,"Pt", whichalgo);
+  LoopVJets(3,"Pt", whichalgo);
+  LoopVJets(4,"Pt", whichalgo);
+  LoopVJets(1,"Ht", whichalgo);
+  LoopVJets(2,"Ht", whichalgo);
+  LoopVJets(3,"Ht", whichalgo);
+  LoopVJets(4,"Ht", whichalgo);
+  LoopVJets(1,"Eta", whichalgo);
+  LoopVJets(2,"Eta", whichalgo);
+  LoopVJets(3,"Eta", whichalgo);
   LoopVJets(4,"Eta", whichalgo);
 }
 
