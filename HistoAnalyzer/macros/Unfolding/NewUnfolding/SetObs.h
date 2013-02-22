@@ -7,6 +7,7 @@
 
 int getNumberOfValidJets(int Jet_multiplicity, double thresh, double thresheta, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt, double jet5_pt, double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta){
   int counter=0;
+
   for (int i=1;i<=Jet_multiplicity; i++){
     if (i==1){
       if (jet1_pt>thresh && fabs(jet1_eta)<thresheta ) counter++;
@@ -26,7 +27,6 @@ int getNumberOfValidJets(int Jet_multiplicity, double thresh, double thresheta, 
     if (i==6){
       if (jet6_pt>thresh && fabs(jet6_eta)<thresheta ) counter++;
     }
-
   }// for
   return counter;
 }// end
@@ -102,8 +102,8 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
   }
 
   if (whichtype=="Multiplicity"){
-    jet_Obs_gen=getNumberOfValidJets(Jet_multiplicity_gen, 30.0, 2.4, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
-    jet_Obs=getNumberOfValidJets(Jet_multiplicity, 30.0, 2.4, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta);
+    jet_Obs_gen=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+    jet_Obs=Jet_multiplicity;//getNumberOfValidJets(Jet_multiplicity, 30.0, 2.4, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta);
   }
 
   return;
@@ -302,8 +302,8 @@ if (numbOfJetsSelected == 1){
     minObsPlot=1;
     maxObsPlot=maxNJets-1;
 
-    kmin=2;
-    kmax=3;
+    kmin=4;
+    kmax=5;
     
     if (bayesianTests) {
       kmin=3;

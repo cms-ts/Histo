@@ -20,6 +20,8 @@ double jet_Obs=0;
 TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPlot,0,divPlot);
 TH1D *errors = new TH1D ("errors", "jet DATA Measured",divPlot,0,divPlot);
 TH1D *errorstat = new TH1D ("errorstat", "errors",divPlot,0,divPlot);
+TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);       
+TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
 TH1D* modD; 
 
 #include "SetObs.h" //Contains SetObservablesMC, SetObservablesData, SetPlotDiviisons, getNumberOfValidJets
@@ -28,6 +30,7 @@ TH1D* modD;
 #include "SaveUnfolding.h" // COntains correctForBackgrounds
 
 TCanvas *c; 
+
 
 TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, RooUnfoldResponse response_j, TH1D* jMCreco, TH2D* jMatx) //Specify which algo
 {
@@ -109,9 +112,10 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   TH1D *jData = new TH1D ("jData", "jet DATA Measured",divPlot2,minObsPlot2,maxObsPlot2);
   TH1D *jReco = new TH1D ("jReco", "jet Unfolded DATA",divPlot2,minObsPlot2,maxObsPlot2);
   TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jeet",divPlot2,minObsPlot2,maxObsPlot2,divPlot2,minObsPlot2,maxObsPlot2);
+  TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jeet long",divPlot2+1,minObsPlot2-((maxObsPlot2-minObsPlot2)/divPlot2),maxObsPlot2,divPlot2+1,minObsPlot2-((maxObsPlot2-minObsPlot2)/divPlot2),maxObsPlot2);
   TH1D *jMCreco = new TH1D ("jMCreco", "jet mcreco",divPlot2,minObsPlot2,maxObsPlot2);
 
-  jData->Sumw2(); jTrue->Sumw2(); jReco->Sumw2(); jMatx->Sumw2(); jMCreco->Sumw2();
+  jData->Sumw2(); jTrue->Sumw2(); jReco->Sumw2(); jMatx->Sumw2(); jMatxlong->Sumw2(); jMCreco->Sumw2();
 
   //////////////////////////
   //Instanciate trees and CO
@@ -119,11 +123,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   string sdatadir=sdata+":/validationJEC";
   if (isMu) sdatadir=sdata+":/EPTmuoReco";
-  
-  string smcdir=smc+":/EPTmuoReco_MC";  
-  if (isMu) {
-    smcdir=smc+":/EPTmuoReco_MC";
-  }
+    string smcdir=smc+":/EPTmuoReco_MC";  
+  if (isMu) {smcdir=smc+":/EPTmuoReco_MC";}
   
   fA->cd (smcdir.c_str());
   gDirectory->ls("tree*");
@@ -176,7 +177,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   
   Long64_t nentries = fChain->GetEntriesFast ();
   Long64_t nbytes = 0, nb = 0;
-  int inTheGap=0; int recoButPtLow=0; int recoButEtaHigh=0; int recoButInvMassOut=0; int recoButNotGenerated=0; int genButNotReco=0; int recostructedEvents=0; int genOutsideTheLimits=0; int notGenNotReco=0;//Simpatici counter 
+  int inTheGap=0; int recoButPtLow=0; int recoButEtaHigh=0; int recoButInvMassOut=0; int recoButNotGenerated=0; int genButNotReco=0; int recostructedEvents=0; int genOutsideTheLimits=0; int notGenNotReco=0; int recoinTheGap=0; int genRecoAfterGenCorr=0; int noGenRecoAfterGenCorr=0; int genNoRecoAfterGenCorr=0;//Simpatici counter 
 
   if (splitCheck) {
     nentries=(int) 20.0*(nentries/100.);
@@ -200,12 +201,21 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       double effcorrmc=1.00;
       if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
       if (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+      efficiencycorrectionsmc->Fill(effcorrmc);
+      if (effcorrmc<1){
+	cout<<"Low <1 correction for Eta1=>"<<e1_eta<<" Pt1=>"<<e1_pt<<" Et22=>"<<e2_eta<<" Pt2=>"<<e2_pt<<endl;
+   	return;
+      }
 
       //Fake Fill method
-      int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 30.0, 2.4, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
-      int ValidRecoJets=getNumberOfValidJets(Jet_multiplicity, 30.0, 2.4, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta);
-
-      if (ValidGenJets <numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
+      int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+      int ValidRecoJets=Jet_multiplicity;
+      
+      if (ValidGenJets<numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
+   
+      // Initialize the Observables
+      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
+		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
 
       if (jet_Obs==0 && whichtype=="Eta") {
 	jet_Obs=-99;
@@ -215,18 +225,20 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	jet_Obs_gen=-99;
       } 
 
+      //////////////////////////////////
+      // Statistics
+      //////////////////////////////////
+
       // Generated outside the accpetance!
       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
       // Generated Outside acceptance and not reco. skipped
       if ( (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) && !recoZInAcceptance) {notGenNotReco++; continue;}
       //Generated Outside and Reco
-      if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; if (recoZInAcceptance) recostructedEvents++;
+      if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; //accounted afterwards! low pt , invmass, etc
+      if (recoZInAcceptance) recostructedEvents++; 
       
-      // Generated outside the accpetance!
-
-
       //account for the gap!
-      if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && l1_pt_gen>20 && l2_pt_gen>20 && (invMass_gen<111 && invMass_gen>71) && isElectron && !recoZInAcceptance){
+      if ( (fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566 && fabs(l2_eta_gen)<2.4) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566 && fabs(l1_eta_gen)<2.4) && l1_pt_gen>20 && l2_pt_gen>20 && (invMass_gen<111 && invMass_gen>71) && isElectron && !recoZInAcceptance){
 	if (ValidGenJets >=numbOfJetsSelected) {
 	  response_fillfake.Miss(jet_Obs_gen); 
 	  inTheGap++; 
@@ -236,41 +248,37 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       // If there are no Z reco, it is a miss. 
       if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){
-	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
-	genButNotReco++; 
+	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
+	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
 	continue;
       }
 
       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
-	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
 	recoButPtLow++; continue;
       }
 
       if ( (fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4) && (recoZInAcceptance) ){
-	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
 	recoButEtaHigh++; continue;
       }
       
       if ( (invMass_gen>111 || invMass_gen<71) && (recoZInAcceptance) ){
-	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs);  
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc);  
 	recoButInvMassOut++; continue;
       }
       
       if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
-	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
-	inTheGap++; continue;
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+      recoinTheGap++; continue;
       }
-
-      // Initialize the Observables
-      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-
       
       if (whichtype=="Multiplicity"){
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
-	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
+	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); genRecoAfterGenCorr++;
 	}
-	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
-	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) response_fillfake.Miss(jet_Obs_gen); 
+	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {response_fillfake.Fake(jet_Obs,effcorrmc); noGenRecoAfterGenCorr++;}
+	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) {response_fillfake.Miss(jet_Obs_gen); genNoRecoAfterGenCorr++;}
       }
       else{
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
@@ -284,13 +292,15 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       //Filling histograms, old way, before the cuts...
       jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
+      jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
       jTrue->Fill (jet_Obs_gen);
       jMCreco->Fill (jet_Obs,effcorrmc);
     }
-  
+
   cout<<"Total Number of events inside the rootupla==>"<<nentries<<endl;
-  cout<<"Generated Outside the detector limits=>"<<genOutsideTheLimits<<", of which "<<recoButNotGenerated<<" reconstructed."<<"So,"<<notGenNotReco<<" not reco not gen"<<endl;
-  cout<<"<Reconstructed events==>"<<recostructedEvents<<". Reco but gen in the gap=>"<<inTheGap<<" gen low pt=>"<<recoButPtLow<<" gen high eta=>"<<recoButEtaHigh<<" gen outInvMass=>"<<recoButInvMassOut<<" recoNotGen=>"<<recoButNotGenerated<<" genNotReco=>"<<genButNotReco<<endl;
+  cout<<"Generated Outside the detector limits=>"<<genOutsideTheLimits<<", of which "<<recoButNotGenerated<<" reconstructed."<<"So,"<<notGenNotReco<<" not reco not gen. Filling gap for ele with "<<inTheGap<<endl;
+  cout<<"<Reconstructed events==>"<<recostructedEvents<<". Reco but gen in the gap=>"<<recoinTheGap<<" gen low pt=>"<<recoButPtLow<<" gen high eta=>"<<recoButEtaHigh<<" gen outInvMass=>"<<recoButInvMassOut<<" recoNotGen=>"<<recoButNotGenerated<<" genNotReco=>"<<genButNotReco<<endl;
+  cout<<"Gen & Reco after GEN Level Correction=>"<<genRecoAfterGenCorr<<"Gen & !Reco=>"<<genNoRecoAfterGenCorr<<"!Gen & Reco=>"<<noGenRecoAfterGenCorr<<endl;
   //End Loop MC 
 
   /* Loop Data */
@@ -307,11 +317,12 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     jet_Obs=0;
 
     if (Jet_multiplicity > 10) continue;
+    //if (fabs(e1_eta)<1.566 || fabs(e2_eta)<1.566 ) continue;
 
     setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
-
     double effcorrdata=1.0;
     if (correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
+    efficiencycorrections->Fill(effcorrdata);
     if (Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
   }//End loop Data
 
@@ -354,7 +365,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   }
 
   //Drawing Histograms
-  if (doUnfold) { c= drawPlots(jReco,jData,jTrue,jMCreco,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }
+  if (doUnfold) { c= drawPlots(jReco,jData,jTrue,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }
 
   //Normalization 
 

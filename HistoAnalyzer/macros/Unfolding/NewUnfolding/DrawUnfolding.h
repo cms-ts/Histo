@@ -2,7 +2,7 @@
 //Draw options
 ///////////////////////
 
-TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, int numbOfJetsSelected, string whichtype, string whichalgo, int k){
+TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jMatx, int numbOfJetsSelected, string whichtype, string whichalgo, int k){
   TCanvas *c=new TCanvas("c", "c", 1000, 700);
   c->cd ();
   TPad *pad1 = new TPad ("pad1", "pad1",0.01,0.33,0.99,0.99);
@@ -184,6 +184,44 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, int numb
   legend_->Draw("");
   string titlerr= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_errors.pdf";
   errCanv->Print(titlerr.c_str()); 
+
+  TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
+  N->cd ();
+  jMatx->SetStats (0);
+  gPad->SetLogz (1);
+  gPad->SetRightMargin(0.15);
+  jMatx->SetTitle("");
+  jMatx->GetXaxis()->SetTitle("Reconstructed # of Jets");
+  jMatx->GetYaxis()->SetTitle("Generated # of Jets");
+  gStyle->SetPalette (1);
+  gStyle->SetPaintTextFormat ("5.3f");
+  gStyle->SetNumberContours (999);
+  jMatx->SetMarkerColor (kBlack);
+  //double entries=1.000/(double)NMatxlonglong->Integral();
+  //NMatxlonglong->Scale(entries);
+  jMatx->Draw ("COLZ,text");
+  string titlem= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_matrix.pdf";
+  N->Print(titlem.c_str());
+
+  TCanvas *efficiency = new TCanvas ("efficiency", "efficiency", 1000, 700);
+  efficiency->cd ();
+  efficiencycorrectionsmc->SetStats (111111);
+  efficiencycorrectionsmc->GetXaxis()->SetTitle("Coefficients");
+  efficiencycorrectionsmc->GetYaxis()->SetTitle("#");
+  efficiencycorrectionsmc->SetLineColor(kRed);
+  efficiencycorrectionsmc->Draw();
+  efficiencycorrections->SetLineColor(kBlack);
+  efficiencycorrections->Draw("SAMES");
+  
+  TLegend *legend_eff = new TLegend (0.23494, 0.696429, 0.431727, 0.895833);
+  legend_eff->SetFillColor (0);
+  legend_eff->SetFillStyle (0);
+  legend_eff->SetBorderSize (0);
+  legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
+  legend_eff->AddEntry (efficiencycorrections, "Data", "L");
+  legend_eff->Draw ("same");
+  string titleeff= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_efficiencies.pdf";
+  efficiency->Print(titleeff.c_str());
 
   return c;
 }

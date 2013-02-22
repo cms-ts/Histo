@@ -27,7 +27,6 @@
 #include "TLatex.h"
 #include <vector>
 #include <iostream>
-//#include "tdrStyle.C"
 #include <TROOT.h>
 #include "TObject.h"
 #include <iostream>
@@ -50,7 +49,7 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
@@ -67,7 +66,7 @@ double XSElectron[4]={50.49,10.05,1.81,0.269}; //Old one double XSElectron[4]={4
 double XSMuon[4]={48.44,10.72,1.89,0.303};
 
 //For gen Jet
-double threshPt=30;
+double threshPt=25;
 double threshEta=2.4;
 
 TFile *fA;
@@ -78,7 +77,6 @@ TFile *fPythia;
 bool identityCheck=false;    //to perform identity check
 bool splitCheck=false;
 bool pythiaCheck=false;
-
 
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/";
@@ -94,7 +92,7 @@ string filename=direct+"test";
 bool correctForEff=true; // If true, it will take the correction factor from outside
 
 //MC reweighting Correction
-bool correctForMCReweighting=true;
+bool correctForMCReweighting=false;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
 bool differentialCrossSection=false;
@@ -108,8 +106,9 @@ string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string bkgstring=dir+"Backgrounds_v2_33.root";
 
 //File with efficiency coefficients
-//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreviewTEST.root";
 TFile *eff;
 
 //Open MC and data files to retrieve effciencies
@@ -145,10 +144,10 @@ void UnfoldingVJets2011::Loop()
 {
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
+    //smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
   }
@@ -186,10 +185,10 @@ void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets,bool is
   isMu=isMuon;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
+    //smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreviewTEST.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
   }
@@ -223,10 +222,11 @@ void UnfoldingVJets2011::LoopOneFour(bool isMuon)
   isMu=isMuon;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
+    //smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreviewTEST.root";
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
   }
