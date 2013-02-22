@@ -302,8 +302,14 @@ if (numbOfJetsSelected == 1){
     minObsPlot=1;
     maxObsPlot=maxNJets-1;
 
-    kmin=4;
-    kmax=5;
+    if (isEle){
+      kmin=4;
+      kmax=5;
+    }
+    else{
+      kmin=5;
+      kmax=6;
+    }
     
     if (bayesianTests) {
       kmin=3;

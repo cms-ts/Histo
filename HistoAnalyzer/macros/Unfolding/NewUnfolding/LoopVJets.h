@@ -250,7 +250,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){
 	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
-	continue;
+	//continue; //<================= check removing it
       }
 
       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
@@ -280,15 +280,15 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {response_fillfake.Fake(jet_Obs,effcorrmc); noGenRecoAfterGenCorr++;}
 	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) {response_fillfake.Miss(jet_Obs_gen); genNoRecoAfterGenCorr++;}
       }
-      else{
-	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
-	  if (jet1_pt>30 && fabs(jet1_eta<2.4) && (jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4) ) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
-	  if (!(jet1_pt>30 && fabs(jet1_eta<2.4)) && (jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4) ) response_fillfake.Miss(jet_Obs_gen); 
-	  if (jet1_pt>30 && fabs(jet1_eta<2.4) && !((jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4)) ) response_fillfake.Fake(jet_Obs); 
-	}
-	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected && jet1_pt>30 && fabs(jet1_eta<2.4)) response_fillfake.Fake(jet_Obs); 
-	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected) && jet1_pt_gen>30 && fabs(jet1_eta_gen<2.4)) response_fillfake.Miss(jet_Obs_gen); 
-      }
+      //else{
+      //if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
+      //  if (jet1_pt>30 && fabs(jet1_eta<2.4) && (jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4) ) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); 
+      //  if (!(jet1_pt>30 && fabs(jet1_eta<2.4)) && (jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4) ) response_fillfake.Miss(jet_Obs_gen); 
+      //  if (jet1_pt>30 && fabs(jet1_eta<2.4) && !((jet1_pt_gen>30 && fabs(jet1_eta_gen)<2.4)) ) response_fillfake.Fake(jet_Obs); 
+      //}
+      //if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected && jet1_pt>30 && fabs(jet1_eta<2.4)) response_fillfake.Fake(jet_Obs); 
+      //if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected) && jet1_pt_gen>30 && fabs(jet1_eta_gen<2.4)) response_fillfake.Miss(jet_Obs_gen); 
+      //}
 
       //Filling histograms, old way, before the cuts...
       jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
