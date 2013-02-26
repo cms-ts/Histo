@@ -204,16 +204,18 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
       efficiencycorrectionsmc->Fill(effcorrmc);
 
-      //Fake Fill method
-      int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+      //In this way, jets with more than 25 GeV are accounted!! --> getNumberOfValidJets to change it offline..
+      int ValidGenJets=Jet_multiplicity_gen;//getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
       int ValidRecoJets=Jet_multiplicity;
-      
+
+      //Check if the gen jets has at least 25 GeV (first if). Then, Valid gen is considered only if 30 > Gev     
       if (ValidGenJets<numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
-   
+      ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 30, 2.4, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);   
+
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
 		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-
+      //Eta Case...
       if (jet_Obs==0 && whichtype=="Eta") {
 	jet_Obs=-99;
       } 
@@ -279,7 +281,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       }
       else{
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
-	  genRecoAfterGenCorr++; response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
 	  if (jet_Obs_pt>threshPt && fabs(jet_Obs_eta<threshEta) && (jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta) )    {genRecoAfterGenCorr++; response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);}
 	  if (!(jet_Obs_pt>threshPt && fabs(jet_Obs_eta<threshEta)) && (jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta) ) {genNoRecoAfterGenCorr++; response_fillfake.Miss(jet_Obs_gen);}
 	  if (jet_Obs_pt>threshPt && fabs(jet_Obs_eta<threshEta) && !((jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta)) ) {noGenRecoAfterGenCorr++; response_fillfake.Fake(jet_Obs,effcorrmc);}

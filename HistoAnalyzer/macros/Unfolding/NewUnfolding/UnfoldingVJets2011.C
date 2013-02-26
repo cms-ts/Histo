@@ -145,8 +145,8 @@ void UnfoldingVJets2011::Loop()
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
   }
@@ -174,7 +174,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Multiplicity";
+  string whichtype="Eta";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
