@@ -23,15 +23,14 @@ TH1D *errors = new TH1D ("errors", "jet DATA Measured",divPlot,0,divPlot);
 TH1D *errorstat = new TH1D ("errorstat", "errors",divPlot,0,divPlot);
 TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);       
 TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
-TH1D* modD; 
+TH1D* modD; TCanvas *c; 
 
 #include "SetObs.h" //Contains SetObservablesMC, SetObservablesData, SetPlotDiviisons, getNumberOfValidJets
 #include "DrawUnfolding.h" //Contains DrawPlots
 #include "BackgroundRemoval.h" // COntains correctForBackgrounds
 #include "SaveUnfolding.h" // COntains correctForBackgrounds
 
-TCanvas *c; 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, RooUnfoldResponse response_j, TH1D* jMCreco, TH2D* jMatx) //Specify which algo
 {
@@ -170,7 +169,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   //New style for unfolding
   RooUnfoldResponse response_fillfake(jMCreco,jTrue);
-  response_fillfake.UseOverflow();            //<============================== HIPOTHESIS: IF YOU USE, FAKE MISS, YOU DON"T USE OverFlow!
+  response_fillfake.UseOverflow();           
   
   /* Loop Montecarlo */
   fChain = tree_fA;             
@@ -215,7 +214,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
 		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-      //Eta Case...
+
+      //Eta Case...by default, events missed can be =0, removed by hands
       if (jet_Obs==0 && whichtype=="Eta") {
 	jet_Obs=-99;
       } 
@@ -225,18 +225,23 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       } 
 
       //////////////////////////////////
-      // Statistics
+      // Gen Level Correction
       //////////////////////////////////
 
       // Generated outside the accpetance!
       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
+
+
       // Generated Outside acceptance and not reco. skipped
       if ( (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) && !recoZInAcceptance) {notGenNotReco++; continue;}
+
       //Generated Outside and Reco
       if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; //accounted afterwards! low pt , invmass, etc
       if (recoZInAcceptance) recostructedEvents++; 
       
+      ///////////////////////////////////
       //account for the gap!
+      //////////////////////////////////
       if ( ((fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566 && fabs(l2_eta_gen)<2.4) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566 && fabs(l1_eta_gen)<2.4)) && l1_pt_gen>20 && l2_pt_gen>20 && (invMass_gen<111 && invMass_gen>71) && isElectron && !recoZInAcceptance){
 	if (ValidGenJets >=numbOfJetsSelected) {
 	  response_fillfake.Miss(jet_Obs_gen); 
@@ -245,7 +250,9 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	continue;
       }
 
-      // If there are no Z reco, it is a miss. 
+      ////////////////////////////////////////
+      // If there are no Z reco, it is a miss. We prefer to account for it using the efficieny derived from data, that's why I don't fill any matrixes!
+      //////////////////////////////////////// 
       if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){
 	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
@@ -285,22 +292,22 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	  if (!(jet_Obs_pt>threshPt && fabs(jet_Obs_eta<threshEta)) && (jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta) ) {genNoRecoAfterGenCorr++; response_fillfake.Miss(jet_Obs_gen);}
 	  if (jet_Obs_pt>threshPt && fabs(jet_Obs_eta<threshEta) && !((jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta)) ) {noGenRecoAfterGenCorr++; response_fillfake.Fake(jet_Obs,effcorrmc);}
 	}
-	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected)                      {noGenRecoAfterGenCorr++; response_fillfake.Fake(jet_Obs,effcorrmc);}
-	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected))                      {genNoRecoAfterGenCorr++; response_fillfake.Miss(jet_Obs_gen);}
+	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {noGenRecoAfterGenCorr++; response_fillfake.Fake(jet_Obs,effcorrmc);}
+	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) {genNoRecoAfterGenCorr++; response_fillfake.Miss(jet_Obs_gen);}
       }
       
-      //Filling histograms, old way, before the cuts...
+      //Filling histograms, old way... Kept as a reference
       jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
       jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc);        
       jTrue->Fill (jet_Obs_gen);
       jMCreco->Fill (jet_Obs,effcorrmc);
     }
 
+  //Numbers for debug.. Output in our code
   cout<<"Total Number of events inside the rootupla==>"<<nentries<<endl;
   cout<<"Generated Outside the detector limits=>"<<genOutsideTheLimits<<", of which "<<recoButNotGenerated<<" reconstructed."<<"So,"<<notGenNotReco<<" not reco not gen. Filling gap for ele with "<<inTheGap<<endl;
   cout<<"<Reconstructed events==>"<<recostructedEvents<<". Reco but gen in the gap=>"<<recoinTheGap<<" gen low pt=>"<<recoButPtLow<<" gen high eta=>"<<recoButEtaHigh<<" gen outInvMass=>"<<recoButInvMassOut<<" recoNotGen=>"<<recoButNotGenerated<<" genNotReco=>"<<genButNotReco<<endl;
   cout<<"Gen & Reco after GEN Level Correction=>"<<genRecoAfterGenCorr<<"Gen & !Reco=>"<<genNoRecoAfterGenCorr<<"!Gen & Reco=>"<<noGenRecoAfterGenCorr<<endl;
-  //End Loop MC 
 
   /* Loop Data */
   fChain = tree_fB;
@@ -346,8 +353,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     int myNumber=k; num<<myNumber;
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
-      //if (whichalgo=="Bayes") jReco=performUnfolding(whichalgo, k, jData, jTrue, response_j,jMCreco, jMatx); //Specify which algo
-      //if (whichalgo=="SVD") jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       if (doUnfold) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       else{
       jReco=(TH1D*) jData->Clone("jData");

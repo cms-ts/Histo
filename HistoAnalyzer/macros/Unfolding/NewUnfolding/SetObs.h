@@ -264,8 +264,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     }
     
     if (numbOfJetsSelected==4){
-      kmin=8;
-      kmax=9;
+      kmin=3;
+      kmax=4;
       divPlot=12;
     } 
       if (bayesianTests) {
@@ -283,8 +283,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     kmax = 12;
 
 if (numbOfJetsSelected == 1){
-      kmin = 6;
-      kmax = 7;
+      kmin = 7;
+      kmax = 8;
     }
   if (numbOfJetsSelected == 2){
       minObsPlot = 60;
