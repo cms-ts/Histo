@@ -55,7 +55,7 @@ bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 
@@ -66,7 +66,7 @@ double XSElectron[4]={50.49,10.05,1.81,0.269}; //Old one double XSElectron[4]={4
 double XSMuon[4]={48.44,10.72,1.89,0.303};
 
 //For gen Jet
-double threshPt=25;
+double threshPt=30;
 double threshEta=2.4;
 
 TFile *fA;
@@ -106,8 +106,8 @@ string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string bkgstring=dir+"Backgrounds_v2_33.root";
 
 //File with efficiency coefficients
-//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreviewTEST.root";
 TFile *eff;
 
@@ -144,7 +144,6 @@ void UnfoldingVJets2011::Loop()
 {
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
-    //smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_36.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;

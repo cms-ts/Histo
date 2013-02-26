@@ -183,7 +183,6 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
       ele17_effPt->GetBinContent(eta1,pt1)*
       ele17_effPt->GetBinContent(eta2,pt2);
   }
-  if (eff_global >1) cout<<"AAAAAAAAAAAAAAAAAAA"<<endl;
   if (eff_global>0) return eff_global;
   return 1;
 }

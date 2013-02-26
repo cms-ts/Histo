@@ -38,6 +38,17 @@ int getNumberOfValidJets(int Jet_multiplicity, double thresh, double thresheta, 
 
 void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen,  double jet5_pt_gen,  double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen, int Jet_multiplicity_gen, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity){
 
+  if (numbOfJetsSelected==1){jet_Obs_pt_gen=jet1_pt_gen;jet_Obs_eta_gen=jet1_eta_gen;}
+  if (numbOfJetsSelected==2){jet_Obs_pt_gen=jet2_pt_gen;jet_Obs_eta_gen=jet2_eta_gen;}
+  if (numbOfJetsSelected==3){jet_Obs_pt_gen=jet3_pt_gen;jet_Obs_eta_gen=jet3_eta_gen;}
+  if (numbOfJetsSelected==4){jet_Obs_pt_gen=jet4_pt_gen;jet_Obs_eta_gen=jet4_eta_gen;}
+
+  if (numbOfJetsSelected==1){jet_Obs_pt=jet1_pt;jet_Obs_eta=jet1_eta;}
+  if (numbOfJetsSelected==2){jet_Obs_pt=jet2_pt;jet_Obs_eta=jet2_eta;}
+  if (numbOfJetsSelected==3){jet_Obs_pt=jet3_pt;jet_Obs_eta=jet3_eta;}
+  if (numbOfJetsSelected==4){jet_Obs_pt=jet4_pt;jet_Obs_eta=jet4_eta;}
+
+
   if (whichtype=="Pt"){
     if (numbOfJetsSelected==1) {
       jet_Obs_gen=jet1_pt_gen;
@@ -116,6 +127,13 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
 
 void setObservablesData(int numbOfJetsSelected, string whichtype, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity){
 
+  if (numbOfJetsSelected==1){jet_Obs_pt=jet1_pt;jet_Obs_eta=jet1_eta;}
+  if (numbOfJetsSelected==2){jet_Obs_pt=jet2_pt;jet_Obs_eta=jet2_eta;}
+  if (numbOfJetsSelected==3){jet_Obs_pt=jet3_pt;jet_Obs_eta=jet3_eta;}
+  if (numbOfJetsSelected==4){jet_Obs_pt=jet4_pt;jet_Obs_eta=jet4_eta;}
+
+  jet_Obs_pt=56.0;
+
   if (whichtype=="Pt"){
     if (numbOfJetsSelected==1) {
       jet_Obs=jet1_pt;
@@ -180,8 +198,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
 
   if (whichtype=="Pt"){
     if (numbOfJetsSelected==1) {
-      kmin=9;
-      kmax=10;
+      kmin=10;
+      kmax=11;
       if (bayesianTests) {
 	kmin=3;
 	kmax=4;
@@ -230,21 +248,21 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     kmax=5;
 
     if (numbOfJetsSelected==1) {
-      kmin=9;
-      kmax=10;
+      kmin=8;
+      kmax=9;
       divPlot=24;
 
     }
     
     if (numbOfJetsSelected==2){
-      kmin=20;
-      kmax=21;
+      kmin=11;
+      kmax=12;
       divPlot=20;
     }
     
     if (numbOfJetsSelected==3){
-      kmin=8;
-      kmax=9;
+      kmin=6;
+      kmax=7;
       divPlot=16;
     }
     
@@ -268,8 +286,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     kmax = 12;
 
 if (numbOfJetsSelected == 1){
-      kmin = 5;
-      kmax = 6;
+      kmin = 6;
+      kmax = 7;
     }
   if (numbOfJetsSelected == 2){
       minObsPlot = 60;
