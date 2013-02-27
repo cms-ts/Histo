@@ -28,13 +28,6 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jData->SetMarkerStyle (21);
   jData->SetLineColor(kGreen);
   
-  if (differentialCrossSection){
-    jReco->Scale(1./jReco->Integral());             
-    jTrue->Scale(1./jTrue->Integral());
-    jMCreco->Scale(1./jMCreco->Integral());
-    jData->Scale(1./jData->Integral());
-  }
-  
   cout<<"area jReco:"<<jReco->Integral()<<" and MCreco "<<jMCreco->Integral()<<endl;
   
   jReco->SetMarkerStyle (20);

@@ -228,13 +228,15 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       // Gen Level Correction
       //////////////////////////////////
 
+      //Filling histograms, old way... Kept as a reference
+      jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
 	  
       // Generated outside the accpetance!
       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
 
 
       // Generated Outside acceptance and not reco. skipped
-      if ( (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) && !recoZInAcceptance) {notGenNotReco++; continue;}
+      if ( (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) && !recoZInAcceptance) {notGenNotReco++; 	continue;}
 
       //Generated Outside and Reco
       if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; //accounted afterwards! low pt , invmass, etc
@@ -247,7 +249,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	if (ValidGenJets >=numbOfJetsSelected) {
 	  response_fillfake.Miss(jet_Obs_gen); 
 	  inTheGap++;
-	  jTrue->Fill (jet_Obs_gen);
 	}
 	continue;
       }
@@ -260,7 +261,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
 	continue; //<================= check removing it
       }
-      
+
+     
       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
 	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
 	recoButPtLow++; continue;
@@ -281,7 +283,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       recoinTheGap++; continue;
       }
       
-      jTrue->Fill (jet_Obs_gen);
       if (whichtype=="Multiplicity"){
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); genRecoAfterGenCorr++;
@@ -298,10 +299,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	if (!(ValidGenJets >=numbOfJetsSelected && jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta) &&  (ValidRecoJets >= numbOfJetsSelected && jet_Obs_pt>threshPt && fabs(jet_Obs_eta)<threshEta) ) {noGenRecoAfterGenCorr++; response_fillfake.Fake(jet_Obs,effcorrmc);}
 	if ( (ValidGenJets >=numbOfJetsSelected && jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta) && !(ValidRecoJets >= numbOfJetsSelected && jet_Obs_pt>threshPt && fabs(jet_Obs_eta)<threshEta) ) {genNoRecoAfterGenCorr++; response_fillfake.Miss(jet_Obs_gen);}
       }
-
-
-      //Filling histograms, old way... Kept as a reference
-      jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
     }
 
   //Numbers for debug.. Output in our code
@@ -332,10 +329,10 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     double effcorrdata=1.0;
     if (correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
     efficiencycorrections->Fill(effcorrdata);
-    if (Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
+    if (!identityCheck && Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
   
     //When the identity check is performed, things has to change a little bit!
-    if (identityCheck && Jet_multiplicity >= numbOfJetsSelected && recoZInAcceptance) {
+    if (identityCheck && Jet_multiplicity >= numbOfJetsSelected &&recoZInAcceptance) {
       jData->Fill (jet_Obs,effcorrdata);
       numbOfEventsInData++;
     }
@@ -363,7 +360,10 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     int myNumber=k; num<<myNumber;
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
-      if (doUnfold) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+      if (doUnfold) {
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
+	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+      }
       else{
       jReco=(TH1D*) jData->Clone("jData");
       jReco->SetName("jReco");
