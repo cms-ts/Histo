@@ -107,7 +107,6 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jRecoClone->GetYaxis ()->SetTitleOffset (0.5);
   
   jRecoClone->GetYaxis ()->SetRangeUser (0.5, 1.5);
-  jRecoClone->GetXaxis ()->SetRangeUser (0, 5);
   jRecoClone->GetYaxis ()->SetTitle ("Ratios");
   jRecoClone->GetXaxis ()->SetTitle("jet pT [GeV/c]");
   jRecoClone->SetMarkerStyle (20);

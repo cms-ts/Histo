@@ -57,7 +57,8 @@ bool doUnfold=true; //if false, it does not perform unfolding
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
+//string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_powh_2011_v2_37.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
@@ -85,8 +86,8 @@ bool pythiaCheck=false;
 bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
 //string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Bayes_v2_35.root";//+version;
-//string filename=direct+"UnfoldedVJets2011DistributionsNoUnfolding_v2_35";
-string filename=direct+"test";
+string filename=direct+"UnfoldedVJets2011DistributionsNoUnfolding_v2_35";
+//string filename=direct+"test";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -145,8 +146,8 @@ void UnfoldingVJets2011::Loop()
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
   }
@@ -174,7 +175,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Ht";
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
