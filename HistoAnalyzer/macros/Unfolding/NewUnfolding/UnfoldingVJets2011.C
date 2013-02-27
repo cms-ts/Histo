@@ -58,7 +58,7 @@ bool doUnfold=true; //if false, it does not perform unfolding
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_powh_2011_v2_37.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_powh_2011Mu_v2_37.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
@@ -175,7 +175,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Pt";
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }

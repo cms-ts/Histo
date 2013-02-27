@@ -23,7 +23,7 @@ TH1D *errors = new TH1D ("errors", "jet DATA Measured",divPlot,0,divPlot);
 TH1D *errorstat = new TH1D ("errorstat", "errors",divPlot,0,divPlot);
 TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);       
 TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
-TH1D* modD; TCanvas *c; 
+TH1D* modD; TCanvas *c; TCanvas *d; 
 
 #include "SetObs.h" //Contains SetObservablesMC, SetObservablesData, SetPlotDiviisons, getNumberOfValidJets
 #include "DrawUnfolding.h" //Contains DrawPlots
@@ -109,13 +109,14 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   }
 
   TH1D *jTrue = new TH1D ("jTrue", "jet Truth",divPlot2,minObsPlot2,maxObsPlot2);
+  TH1D *jTruePythia = new TH1D ("jTruePythia", "jet Truth other MC generator",divPlot2,minObsPlot2,maxObsPlot2);
   TH1D *jData = new TH1D ("jData", "jet DATA Measured",divPlot2,minObsPlot2,maxObsPlot2);
   TH1D *jReco = new TH1D ("jReco", "jet Unfolded DATA",divPlot2,minObsPlot2,maxObsPlot2);
   TH2D *jMatx = new TH2D ("jMatx", "Unfolding Matrix jeet",divPlot2,minObsPlot2,maxObsPlot2,divPlot2,minObsPlot2,maxObsPlot2);
   TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jeet long",divPlot2+1,minObsPlot2-((maxObsPlot2-minObsPlot2)/divPlot2),maxObsPlot2,divPlot2+1,minObsPlot2-((maxObsPlot2-minObsPlot2)/divPlot2),maxObsPlot2);
   TH1D *jMCreco = new TH1D ("jMCreco", "jet mcreco",divPlot2,minObsPlot2,maxObsPlot2);
 
-  jData->Sumw2(); jTrue->Sumw2(); jReco->Sumw2(); jMatx->Sumw2(); jMatxlong->Sumw2(); jMCreco->Sumw2();
+  jData->Sumw2(); jTrue->Sumw2(); jReco->Sumw2(); jMatx->Sumw2(); jMatxlong->Sumw2(); jMCreco->Sumw2(); jTruePythia->Sumw2();
 
   //////////////////////////
   //Instanciate trees and CO
@@ -136,7 +137,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
 
   // Configure various closure tests, if you want to do it
-  if (identityCheck || splitCheck || pythiaCheck){  
+  if (identityCheck || splitCheck || pythiaCheck){
+    identityCheck=true;
     correctForEff=false; correctForMCReweighting=false; correctForBkg=false;
     fB->cd (smcdir.c_str());
     tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
@@ -180,7 +182,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   int inTheGap=0; int recoButPtLow=0; int recoButEtaHigh=0; int recoButInvMassOut=0; int recoButNotGenerated=0; int genButNotReco=0; int recostructedEvents=0; int genOutsideTheLimits=0; int notGenNotReco=0; int recoinTheGap=0; int genRecoAfterGenCorr=0; int noGenRecoAfterGenCorr=0; int genNoRecoAfterGenCorr=0;//Simpatici counter 
 
   if (splitCheck) {
-    nentries=(int) 20.0*(nentries/100.);
+    nentries=(int) 50.0*(nentries/100.);
     cout<<"Splitcheck is active, so Dataset A (MC) has now "<<nentries<<endl;
   }
 
@@ -324,22 +326,33 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     if (Jet_multiplicity > 10) continue;
     //if ((fabs(e1_eta)>1.442 && fabs(e1_eta)<1.566) || (fabs(e2_eta)>1.442 && fabs(e2_eta)<1.566))  continue;
     //if ((fabs(e1_eta)>2.0) || (fabs(e2_eta)>2.0))  continue;
-
+        
     setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
     double effcorrdata=1.0;
     if (correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
     efficiencycorrections->Fill(effcorrdata);
+    
+    //Normal Filling
     if (!identityCheck && Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
-  
-    //When the identity check is performed, things has to change a little bit!
+    
+    //When the identity check is performed, things haVE to change a little bit!
     if (identityCheck && Jet_multiplicity >= numbOfJetsSelected &&recoZInAcceptance) {
       jData->Fill (jet_Obs,effcorrdata);
       numbOfEventsInData++;
+      //When performing the pyhtia/sherpas/powheg test, here you run over the MC, and you need to save jTrue
+      if (pythiaCheck) {
+	setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen,Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity);  
+	jTruePythia->Fill(jet_Obs_gen); 
+      }
     }
   }//End loop Data
- 
+  
   cout<<"Recorded "<<numbOfEventsInData<<" events as Data"<<endl;
+
+  ////////////////////////
   /// Background Sub
+  /////////////////////////
+
   if (correctForBkg) correctForBackground(numbOfJetsSelected,whichtype,jData,true); //bool -> activate verbosity
   
   //////////////////////////////
@@ -376,10 +389,12 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     jTrue->Scale(1./jTrue->Integral());
     jMCreco->Scale(1./jMCreco->Integral());
     jData->Scale(1./jData->Integral());
+    if (pythiaCheck) jTruePythia->Scale(1./jTruePythia->Integral());
   }
 
   //Drawing Histograms
-  if (doUnfold) { c= drawPlots(jReco,jData,jTrue,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }
+  if (doUnfold && !pythiaCheck) { c= drawPlots(jReco,jData,jTrue,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }
+  if (doUnfold && pythiaCheck) { d= drawPlots(jReco,jData,jTruePythia,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); d->Draw(); }
 
   //Normalization 
 
