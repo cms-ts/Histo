@@ -1361,35 +1361,35 @@ process.ToolInizialization = cms.Path(
 #         )
 ####===============================================
 
-process.EPTAnalysisEleWP80 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle8*
-    process.trgmatchPatElectronsEle17*
-    process.EPTeleWp80
-    )
-
-process.EPTAnalysisHLTele8NOTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsNOTEle17*
-    process.trgmatchPatElectronsEle8NOTEle17*
-    process.trgmatchPatElectronsReco*
-    process.EPThltele8NOTele17
-    )
-
-
-process.EPTAnalysisHLTele17 = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle17*    
-    process.trgmatchPatElectronsReco*
-    process.EPThltele17
-    )
-
-process.EPTAnalysisEleRECO = cms.Path(
-    process.goodOfflinePrimaryVertices*
-    process.trgmatchPatElectronsEle8*
-    process.trgmatchPatElectronsReco*
-    process.EPTeleReco
-    )
+# process.EPTAnalysisEleWP80 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle8*
+#     process.trgmatchPatElectronsEle17*
+#     process.EPTeleWp80
+#     )
+# 
+# process.EPTAnalysisHLTele8NOTele17 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsNOTEle17*
+#     process.trgmatchPatElectronsEle8NOTEle17*
+#     process.trgmatchPatElectronsReco*
+#     process.EPThltele8NOTele17
+#     )
+# 
+# 
+# process.EPTAnalysisHLTele17 = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle17*    
+#     process.trgmatchPatElectronsReco*
+#     process.EPThltele17
+#     )
+# 
+# process.EPTAnalysisEleRECO = cms.Path(
+#     process.goodOfflinePrimaryVertices*
+#     process.trgmatchPatElectronsEle8*
+#     process.trgmatchPatElectronsReco*
+#     process.EPTeleReco
+#     )
 
 process.EPTAnalysisMuoWP80 = cms.Path(
     process.goodOfflinePrimaryVertices*
