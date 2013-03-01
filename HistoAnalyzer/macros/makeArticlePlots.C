@@ -723,17 +723,19 @@ if (lepton == 3){
 
 
 	    if (absoluteNormalization) {
-	      if (lepton ==1 && !isPowheg) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
+	      if (lepton ==1 && !isPowheg) dummyNorm= 0.155390 *(1000000.0/906.826);//*(906.826*3/3048);   
 	      //if (lepton ==1 && isPowheg) dummyNorm= (1246130.0/196900) *(4602659.0/276.761)*(276.761*3/4998.0);   //Powheg
 	      if (lepton ==1 && isPowheg) dummyNorm= (4602659.0/276.761);   //Powheg
 	      //if (lepton ==1 && isPowheg) dummyNorm= (10000./276.761);   //Powheg
-	      if (lepton ==2 && !isPowheg) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
+	      if (lepton ==2 && !isPowheg) dummyNorm= 0.155456 *(1000000.0/907.485);//*(907.485*3/3048);
 	      if (lepton ==2 && isPowheg) dummyNorm= (5719233.0/276.603);   //Powheg  
 	      //if (lepton ==2 && isPowheg) dummyNorm= (10000/276.603);   //Powheg  
 	      if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
 	      dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	    }
 
+	    leadingRivetSherpaDOWN->Draw();
+	    leadingRivetSherpaUP->Draw("SAME");return;
 	    leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
 	    leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);

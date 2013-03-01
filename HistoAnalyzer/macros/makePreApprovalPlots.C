@@ -341,10 +341,10 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingSystematics->SetMinimum((0.5-0.05*(whichjet-1))*leadingSystematics->GetMinimum());
 	  leadingSystematics->SetMaximum((1.25+0.35*(whichjet-1))*leadingSystematics->GetMaximum());
 	}
-	leadingSystematics->SetLineColor (kRed);
+	leadingSystematics->SetLineColor (kRed+1);
 	leadingSystematics->SetMarkerStyle (20);
-	leadingSystematics->SetFillColor (kRed);
-	leadingSystematics->SetMarkerColor (kRed);
+	leadingSystematics->SetFillColor (kRed+1);
+	leadingSystematics->SetMarkerColor (kRed+1);
 
 	leadingSystematics->GetXaxis ()->SetTitleOffset (1.1);
 	leadingSystematics->GetXaxis ()->SetTitleSize (0.05);
@@ -449,12 +449,12 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 
 	  leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  leadingRivetSherpa->SetPointEYhigh(ovo,sqrt(pow(leadingRivetSherpa->GetErrorYhigh(ovo)/dummyNorm,2) + pow(0.06*dummyYvar/dummyNorm,2)));
-	  leadingRivetSherpa->SetPointEYlow(ovo,sqrt(pow(leadingRivetSherpa->GetErrorYlow(ovo)/dummyNorm,2) + pow(0.06*dummyYvar/dummyNorm,2)));
+	  leadingRivetSherpa->SetPointEYhigh(ovo,leadingRivetSherpa->GetErrorYhigh(ovo)/dummyNorm);
+	  leadingRivetSherpa->SetPointEYlow(ovo,leadingRivetSherpa->GetErrorYlow(ovo)/dummyNorm);
 
 	  leadingRatioSherpa->SetPoint(ovo,dummyXvar,1.0);
-	  leadingRatioSherpa->SetPointEYhigh(ovo,sqrt(pow(leadingRivetSherpa->GetErrorYhigh(ovo)*dummyNorm/dummyYvar,2) + pow(0.06,2)));
-	  leadingRatioSherpa->SetPointEYlow(ovo,sqrt(pow(leadingRivetSherpa->GetErrorYlow(ovo)*dummyNorm/dummyYvar,2) + pow(0.06,2)));
+	  leadingRatioSherpa->SetPointEYhigh(ovo,leadingRivetSherpa->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
+	  leadingRatioSherpa->SetPointEYlow(ovo,leadingRivetSherpa->GetErrorYlow(ovo)*dummyNorm/dummyYvar);
 	    
 	  leadingRatio->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	  leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
@@ -491,12 +491,12 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  }
 
 	  leadingRivetPowheg->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  leadingRivetPowheg->SetPointEYhigh(ovo,sqrt(pow(leadingRivetPowheg->GetErrorYhigh(ovo)/dummyNorm,2) + pow(0.06*dummyYvar/dummyNorm,2)));
-	  leadingRivetPowheg->SetPointEYlow(ovo,sqrt(pow(leadingRivetPowheg->GetErrorYlow(ovo)/dummyNorm,2) + pow(0.06*dummyYvar/dummyNorm,2)));
+	  leadingRivetPowheg->SetPointEYhigh(ovo,leadingRivetPowheg->GetErrorYhigh(ovo)/dummyNorm);
+	  leadingRivetPowheg->SetPointEYlow(ovo,leadingRivetPowheg->GetErrorYlow(ovo)/dummyNorm);
 
 	  leadingRatioPowheg->SetPoint(ovo,dummyXvar,1.0);
-	  leadingRatioPowheg->SetPointEYhigh(ovo,sqrt(pow(leadingRivetPowheg->GetErrorYhigh(ovo)*dummyNorm/dummyYvar,2) + pow(0.06,2)));
-	  leadingRatioPowheg->SetPointEYlow(ovo,sqrt(pow(leadingRivetPowheg->GetErrorYlow(ovo)*dummyNorm/dummyYvar,2) + pow(0.06,2)));
+	  leadingRatioPowheg->SetPointEYhigh(ovo,leadingRivetPowheg->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
+	  leadingRatioPowheg->SetPointEYlow(ovo,leadingRivetPowheg->GetErrorYlow(ovo)*dummyNorm/dummyYvar);
 	    
 	  leadingRatio3->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	  leadingRatio3->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
@@ -526,12 +526,14 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  leadingRivetMadGraph->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  leadingRivetMadGraph->SetPointEYhigh(ovo,sqrt(pow(leadingRivetMadGraph->GetErrorYhigh(ovo)/dummyNorm,2) + pow(0.06*dummyYvar/dummyNorm,2)));
-	  leadingRivetMadGraph->SetPointEYlow(ovo,sqrt(pow(leadingRivetMadGraph->GetErrorYlow(ovo)/dummyNorm,2) + pow(0.06*dummyYvar/dummyNorm,2)));
+	  leadingRivetMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)/dummyNorm);
+	  leadingRivetMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)/dummyNorm);
 
 	  leadingRatioMadGraph->SetPoint(ovo,dummyXvar,1.0);
-	  leadingRatioMadGraph->SetPointEYhigh(ovo,sqrt(pow(leadingRivetMadGraph->GetErrorYhigh(ovo)*dummyNorm/dummyYvar,2) + pow(0.06,2)));
-	  leadingRatioMadGraph->SetPointEYlow(ovo,sqrt(pow(leadingRivetMadGraph->GetErrorYlow(ovo)*dummyNorm/dummyYvar,2) + pow(0.06,2)));
+	  leadingRatioMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
+	  leadingRatioMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)*dummyNorm/dummyYvar);
+
+	  cout << " MAdGraph unc. DEBUGGING, rel error = " << leadingRivetMadGraph->GetErrorYhigh(ovo)*dummyNorm/dummyYvar << endl;
 
 	  leadingRatio2->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	  leadingRatio2->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
@@ -548,22 +550,27 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRivetSherpa->SetFillStyle(3004);
 	leadingRivetSherpa->SetLineColor(kBlue-4);
 	leadingRivetSherpa->SetMarkerColor(kBlue-4);
+	leadingRivetSherpa->SetMarkerStyle(22);
 	leadingRivetSherpa->SetLineWidth(1);
 	leadingRivetSherpa->Draw("2");
 	leadingRivetSherpa->Draw("pz");
 
-	leadingRivetPowheg->SetFillColor(kGreen+2);
-	leadingRivetPowheg->SetFillStyle(3006);
-	leadingRivetPowheg->SetLineColor(kGreen+2);
-	leadingRivetPowheg->SetMarkerColor(kGreen+2);
+	leadingRivetPowheg->SetFillColor(kGreen+3);
+	leadingRivetPowheg->SetFillStyle(3001);
+	leadingRivetPowheg->SetLineColor(kGreen+3);
+	leadingRivetPowheg->SetMarkerColor(kGreen+3);
+	leadingRivetPowheg->SetMarkerStyle(21);
+	leadingRivetPowheg->SetMarkerSize(0.7);
 	leadingRivetPowheg->SetLineWidth(1);
 	leadingRivetPowheg->Draw("2");
 	leadingRivetPowheg->Draw("pz");
 
-	leadingRivetMadGraph->SetFillColor(kOrange+7);
+	leadingRivetMadGraph->SetFillColor(kOrange+10);
 	leadingRivetMadGraph->SetFillStyle(3005);
-	leadingRivetMadGraph->SetLineColor(kOrange+7);
-	leadingRivetMadGraph->SetMarkerColor(kOrange+7);
+	leadingRivetMadGraph->SetLineColor(kOrange+10);
+	leadingRivetMadGraph->SetMarkerColor(kOrange+10);
+	leadingRivetMadGraph->SetMarkerStyle(25);
+	leadingRivetMadGraph->SetMarkerSize(1.2);
 	leadingRivetMadGraph->SetLineWidth(1);
 	leadingRivetMadGraph->Draw("2");
 	leadingRivetMadGraph->Draw("pz");
@@ -577,15 +584,15 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	TLatex *latexLabel;
 
 	if (use_case ==3){
-	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.425, 0.15);	// make fancy label
-	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.425, 0.15);	// make fancy label
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.425, 0.15);	// make fancy label
+	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.425, 0.19);	// make fancy label
+	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.425, 0.19);	// make fancy label
+	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.425, 0.19);	// make fancy label
 	}
 
 	if (use_case ==2 || use_case ==1 || use_case == 4){
-	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.25, 0.3);	// make fancy label
-	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.25, 0.3);	// make fancy label
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.25, 0.3);	// make fancy label
+	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.20, 0.21);	// make fancy label
+	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.20, 0.21);	// make fancy label
+	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.20, 0.21);	// make fancy label
 	}
 
 	leadingSystematics->SetMarkerColor(kBlack);
@@ -595,18 +602,18 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	latexLabel->Draw ("same");
 	  
 	TLegend *legendsx_d;
-	legendsx_d = new TLegend (0.6, 0.75, 0.92, 0.88);	   
+	legendsx_d = new TLegend (0.74, 0.6, 0.98, 0.88);	   
 
-	legendsx_d->SetFillColor (0);
-	legendsx_d->SetFillStyle (0);
-	legendsx_d->SetBorderSize (0);
+	legendsx_d->SetFillColor (kWhite);
+	//	legendsx_d->SetFillStyle (0);
+	legendsx_d->SetBorderSize (1);
 	legendsx_d->SetNColumns(1);
-	legendsx_d->SetTextSize(.030);
-	legendsx_d->AddEntry (leading, "Data (stat)", "PLE");
+	legendsx_d->SetTextSize(.040);
+	legendsx_d->AddEntry (leading, "Data (stat)", "PEL");
 	legendsx_d->AddEntry (leadingSystematics, "Data (stat+syst)", "PEL");
-	legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa ref.", "L");
-	legendsx_d->AddEntry (leadingRivetMadGraph, "MadGraph ref.", "L"); 
-	legendsx_d->AddEntry (leadingRivetPowheg, "Powheg ref.", "L"); 
+	legendsx_d->AddEntry (leadingRivetSherpa, "Sherpa", "PELF");
+	legendsx_d->AddEntry (leadingRivetMadGraph, "MadGraph", "PELF"); 
+	legendsx_d->AddEntry (leadingRivetPowheg, "Powheg", "PELF"); 
 	legendsx_d->Draw ("same");
 
 	// Draw the ratio plot: ----------------------
@@ -654,7 +661,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	OLine->Draw();
 
 	TLatex *latexLabel = new TLatex();
-	latexLabel->SetTextSize(0.1);
+	latexLabel->SetTextSize(0.15);
 	latexLabel->SetTextFont(42);
 	latexLabel->SetLineWidth(2);
 	latexLabel->SetNDC();
@@ -686,10 +693,10 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio3Systematics->Draw ("E1");
 	leadingRatio3->Draw ("E1SAME");
 
-	leadingRatioPowheg->SetFillColor(kGreen+2);
-	leadingRatioPowheg->SetFillStyle(3006);
-	leadingRatioPowheg->SetLineColor(kGreen+2);
-	leadingRatioPowheg->SetMarkerColor(kGreen+2);
+	leadingRatioPowheg->SetFillColor(kGreen+3);
+	leadingRatioPowheg->SetFillStyle(3001);
+	leadingRatioPowheg->SetLineColor(kGreen+3);
+	leadingRatioPowheg->SetMarkerColor(kGreen+3);
 	leadingRatioPowheg->SetLineWidth(1);
 	leadingRatioPowheg->Draw("2");
 	leadingRatioPowheg->Draw("pz");
@@ -703,7 +710,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	OLine->Draw();
 
 	TLatex *latexLabel = new TLatex();
-	latexLabel->SetTextSize(0.1);
+	latexLabel->SetTextSize(0.15);
 	latexLabel->SetTextFont(42);
 	latexLabel->SetLineWidth(2);
 	latexLabel->SetNDC();
@@ -737,19 +744,19 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioMadGraph->SetTitle("");	  
 
 	if (use_case ==1) {
-	  leadingRatio2Systematics->GetXaxis ()->SetTitle ("jet multiplicity");
+	  leadingRatio2Systematics->GetXaxis ()->SetTitle ("Exclusive jet multiplicity");
 	}
 	if (use_case ==2) {
-	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("leading jet p_{T} [GeV/c]");
-	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subleading jet p_{T} [GeV/c]");
-	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubleading jet p_{T} [GeV/c]");
-	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet p_{T} [GeV/c]");
+	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Leading jet p_{T} [GeV/c]");
+	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Second jet p_{T} [GeV/c]");
+	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Third jet p_{T} [GeV/c]");
+	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Fourth jet p_{T} [GeV/c]");
 	}
 	if (use_case ==3) {
-	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("leading jet #eta");
-	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subleading jet #eta");
-	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubleading jet #eta");
-	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("subsubsubleading jet #eta");
+	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Leading jet #eta");
+	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Second jet #eta");
+	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Third jet #eta");
+	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Fourth jet #eta");
 	}
 	if (use_case ==4) {
 	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV/c]");
@@ -761,10 +768,10 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio2Systematics->Draw ("E1");
 	leadingRatio2->Draw ("E1SAME");
 	  
-	leadingRatioMadGraph->SetFillColor(kOrange+7);
+	leadingRatioMadGraph->SetFillColor(kOrange+10);
 	leadingRatioMadGraph->SetFillStyle(3005);
-	leadingRatioMadGraph->SetLineColor(kOrange+7);
-	leadingRatioMadGraph->SetMarkerColor(kOrange+7);
+	leadingRatioMadGraph->SetLineColor(kOrange+10);
+	leadingRatioMadGraph->SetMarkerColor(kOrange+10);
 	leadingRatioMadGraph->SetLineWidth(1);
 	leadingRatioMadGraph->Draw("2");
 	leadingRatioMadGraph->Draw("pz");
@@ -777,7 +784,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	OLine2->SetLineStyle(2);
 	OLine2->Draw();
 	  
-	latexLabel->SetTextSize(0.07);
+	latexLabel->SetTextSize(0.09);
 	latexLabel->DrawLatex(0.2,0.35,"MadGraph");	  
 
 	/////////////////////////////////////////////////////

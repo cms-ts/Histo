@@ -8,6 +8,12 @@
 #include <sstream>
 #include <string.h>
 
+// INSTRUCTIONS:
+// .L combineLeptonStatistics.C
+// combineLeptonStatistics t
+// t.letscombine()
+// CONGRATULATIONS!
+
 class combineLeptonRivet {
 public:
   Int_t letscombine ();
@@ -42,37 +48,37 @@ Int_t combineLeptonRivet::letscombine () {
   string muoRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
   string muoRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
 
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (true, i, eleRivetPathMadGraphDOWN, muoRivetPathMadGraphDOWN, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (true, i, muoRivetPathMadGraphUP, muoRivetPathMadGraphUP, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (true, i, eleRivetPathMadGraphPDF1, muoRivetPathMadGraphPDF1, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (false, i, eleRivetPathSherpaUP, muoRivetPathSherpaUP, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (false, i, eleRivetPathSherpaPDF1, muoRivetPathSherpaPDF1, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root");
   }
-  for (Int_t i=1;i<14;i++) {
+  for (Int_t i=1;i<15;i++) {
     mergewhateveruwant (false, i, eleRivetPathPowheg, muoRivetPathPowheg, "/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root");
   }
 
@@ -130,6 +136,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
   if (usecase == 11) {oss1<<"20"; oss2<<"24";}
   if (usecase == 12) {oss1<<"21"; oss2<<"25";}
   if (usecase == 13) {oss1<<"22"; oss2<<"26";}
+  if (usecase == 14) {oss1<<"27"; oss2<<"28";}
   if (isMG) {
     elename="d"+oss1.str()+"-x01-y01";
     muoname="d"+oss2.str()+"-x01-y01";
