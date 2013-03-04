@@ -77,7 +77,7 @@ TFile *fPythia;
 //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
 bool identityCheck=true;    //to perform identity check
 bool splitCheck=false;
-bool pythiaCheck=true;
+bool pythiaCheck=false;
 
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/";
@@ -143,7 +143,7 @@ std::vector<double> getBackgroundContributions(string filebkg, string str); // r
 
 void UnfoldingVJets2011::Loop()
 {
-  //  smcpythia=smc;
+  smcpythia=smc;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
@@ -175,8 +175,8 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=1;
-  string whichtype="Multiplicity";
+  int numbOfJetsForLoop=4;
+  string whichtype="Pt";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
