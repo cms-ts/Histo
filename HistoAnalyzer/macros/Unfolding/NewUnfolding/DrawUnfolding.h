@@ -35,7 +35,8 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jData->SetStats(0);
   jTrue->SetStats(0);
   jReco->SetStats(0);
-  jReco->GetXaxis()->SetTitle("jet pT [GeV/c]");
+  if (whichtype=="Multiplicity") jReco->GetXaxis()->SetTitle("jet Multiplicity");
+  else jReco->GetXaxis()->SetTitle("jet  pT [GeV/c]"); 
   jReco->SetLineColor (kBlack); 
   
   jReco->SetLabelSize(0.0);
@@ -101,7 +102,8 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   
   jRecoClone->GetYaxis ()->SetRangeUser (0.5, 1.5);
   jRecoClone->GetYaxis ()->SetTitle ("Ratios");
-  jRecoClone->GetXaxis ()->SetTitle("jet pT [GeV/c]");
+  if (whichtype=="Multiplicity") jRecoClone->GetXaxis()->SetTitle("jet Multiplicity");
+  else jRecoClone->GetXaxis()->SetTitle("jet  pT [GeV/c]"); 
   jRecoClone->SetMarkerStyle (20);
   jRecoClone->SetLineWidth (0);
   jRecoClone->SetTitle ("");

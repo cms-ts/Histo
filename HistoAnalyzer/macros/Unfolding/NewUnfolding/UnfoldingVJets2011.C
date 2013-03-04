@@ -49,7 +49,7 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=false;  
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
@@ -75,9 +75,9 @@ TFile *fB;
 TFile *fPythia;
 
 //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-bool identityCheck=false;    //to perform identity check
+bool identityCheck=true;    //to perform identity check
 bool splitCheck=false;
-bool pythiaCheck=false;
+bool pythiaCheck=true;
 
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/";
@@ -143,6 +143,7 @@ std::vector<double> getBackgroundContributions(string filebkg, string str); // r
 
 void UnfoldingVJets2011::Loop()
 {
+  //  smcpythia=smc;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
