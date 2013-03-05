@@ -150,6 +150,8 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   if (numbOfJetsSelected==3) whichjetname="Third leading "; 
   if (numbOfJetsSelected==4) whichjetname="Fourth leading ";
   string title3= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";   
+  if (identityCheck) title3= s+"/IdentityTest/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";
+  if (pythiaCheck) title3= s+"/PowhegTest/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";      
   num.str("");
   c->cd ();
   c->Print(title3.c_str());

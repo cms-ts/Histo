@@ -325,25 +325,28 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     if (Jet_multiplicity > 10) continue;
     //if ((fabs(e1_eta)>1.442 && fabs(e1_eta)<1.566) || (fabs(e2_eta)>1.442 && fabs(e2_eta)<1.566))  continue;
     //if ((fabs(e1_eta)>2.0) || (fabs(e2_eta)>2.0))  continue;
-        
-    setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
+    
+    //When you test pythia or identity, this dataset becomes a MC one... So it requires some more gym
+    if (!identityCheck) setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
+
+    if (identityCheck){
+      int ValidGenJets=Jet_multiplicity_gen;      int ValidRecoJets=Jet_multiplicity;
+      ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);    
+      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets); 
+    }
+    
     double effcorrdata=1.0;
     if (correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
     efficiencycorrections->Fill(effcorrdata);
     
     //Normal Filling
-    if (Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
-    
-    //When performing the pyhtia/sherpas/powheg test, here you run over the MC, and you need to save jTrue using the same cuts as in the previous loop!
-    if (pythiaCheck) {
-      if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
-      int ValidGenJets=Jet_multiplicity_gen;      int ValidRecoJets=Jet_multiplicity;
-      if (ValidGenJets<numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
-      ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);    
-      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-      
-      jTruePythia->Fill(jet_Obs_gen);
+    if (!identityCheck && Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
+
+    //Filling for tests
+    if (identityCheck && Jet_multiplicity >= numbOfJetsSelected && jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4 && recoZInAcceptance) {
+      jData->Fill (jet_Obs,effcorrdata); 
     }
+    if (pythiaCheck) jTruePythia->Fill(jet_Obs_gen);
   }//End loop Data
   
   cout<<"Recorded "<<numbOfEventsInData<<" events as Data"<<endl;
