@@ -129,7 +129,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jDataClone->Draw ("E1HISTSAME");
   jDataClone->SetLineWidth (0.1);
   
-  TF1 *f = new TF1("f","1",0,410);
+  TF1 *f = new TF1("f","1",-1000,1000);
   f->SetLineWidth(1);
   f->Draw("SAMES");
   
