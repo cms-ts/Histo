@@ -92,6 +92,7 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
   }
 
   if (whichtype=="Ht"){
+    jet_Obs_gen=jet_Obs=0.0;
     if (Jet_multiplicity >= numbOfJetsSelected ){
       if (jet1_pt > 30 && jet1_pt < 7000 && fabs(jet1_eta)<2.4 ) jet_Obs += jet1_pt;
         if (jet2_pt > 30 && jet2_pt < 7000 && fabs(jet2_eta)<2.4) jet_Obs += jet2_pt;
@@ -102,7 +103,7 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
       }
 
     if (Jet_multiplicity_gen >= numbOfJetsSelected ){
-        if (jet1_pt_gen > 30 && jet1_pt_gen < 7000 && fabs(jet1_eta_gen)<2.4) jet_Obs_gen += jet1_pt_gen;
+        if (jet1_pt_gen > 30 && jet1_pt_gen < 7000 && fabs(jet1_eta_gen)<2.4) jet_Obs_gen += jet1_pt_gen;;
         if (jet2_pt_gen > 30 && jet2_pt_gen < 7000 && fabs(jet2_eta_gen)<2.4) jet_Obs_gen += jet2_pt_gen;
         if (jet3_pt_gen > 30 && jet3_pt_gen < 7000 && fabs(jet3_eta_gen)<2.4) jet_Obs_gen += jet3_pt_gen;
         if (jet4_pt_gen > 30 && jet4_pt_gen < 7000 && fabs(jet4_eta_gen)<2.4) jet_Obs_gen += jet4_pt_gen;
