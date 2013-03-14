@@ -34,7 +34,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-bool isMu=true;
+bool isMu=false;
 
 string plotpath;
 string datafile;
@@ -80,9 +80,19 @@ std::vector<double> bckg_2leadingJetPt;
 std::vector<double> bckg_3leadingJetPt;
 std::vector<double> bckg_4leadingJetPt;
 
+std::vector<double> bckg_leadingJetEta;
+std::vector<double> bckg_2leadingJetEta;
+std::vector<double> bckg_3leadingJetEta;
+std::vector<double> bckg_4leadingJetEta;
+
 std::vector<double> bckg_JetMultiplicity;
 std::vector<double> bckg_HT;
+std::vector<double> bckg_HT1;
+std::vector<double> bckg_HT2;
+std::vector<double> bckg_HT3;
+std::vector<double> bckg_HT4;
 
+std::vector<double> bckg_PhiStar;
 
 TCanvas * CanvPlot;
 bool cold=true;
@@ -106,10 +116,13 @@ void DrawComparisonJetMCData(void){
 
 
 
-  version="_v2_30.root";  // which version you wonna analize
-  if (!isMu) version="_v2_28.root"; 
+  version="_v2_33.root";  // which version you wonna analize
+  string versionMu="Mu"+version;
+  if (!isMu) version="_v2_33.root"; 
   if (isMu) version="Mu"+version;
-  if (isMu) dataLumi2011Apix=2136.00; 
+  if (isMu) {
+    dataLumi2011Apix=2136.00; 
+  }
   //storing background infos in:
   string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
   string bkg=dir+"Backgrounds"+version;
@@ -118,9 +131,9 @@ void DrawComparisonJetMCData(void){
   
 plotpath		="/tmp/marone/"; //put here the path where you want the plots
 datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
- mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version;
+ mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+versionMu;
 
-back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+version;
+back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+versionMu;
 back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_27.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
 qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
@@ -130,9 +143,9 @@ qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.ro
 qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
-WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011"+version;
-ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011"+version;
-WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
+WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011"+versionMu;
+ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011"+versionMu;
+WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+versionMu;
 
 // if (isMu) datafile      ="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu_v2_28.root";
 //if (isMu) mcfile        ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_28.root";
@@ -144,8 +157,16 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
   treeBKG_->Branch("bckg_3leadingJetPt",&bckg_3leadingJetPt);
   treeBKG_->Branch("bckg_4leadingJetPt",&bckg_4leadingJetPt);
   treeBKG_->Branch("bckg_JetMultiplicity",&bckg_JetMultiplicity);
+  treeBKG_->Branch("bckg_leadingJetEta",&bckg_leadingJetEta);
+  treeBKG_->Branch("bckg_2leadingJetEta",&bckg_2leadingJetEta);
+  treeBKG_->Branch("bckg_3leadingJetEta",&bckg_3leadingJetEta);
+  treeBKG_->Branch("bckg_4leadingJetEta",&bckg_4leadingJetEta);
   treeBKG_->Branch("bckg_HT",&bckg_HT);
-
+  treeBKG_->Branch("bckg_HT",&bckg_HT1);
+  treeBKG_->Branch("bckg_HT",&bckg_HT2);
+  treeBKG_->Branch("bckg_HT",&bckg_HT3);
+  treeBKG_->Branch("bckg_HT",&bckg_HT4);
+  treeBKG_->Branch("bckg_PhiStar",&bckg_PhiStar);
 
   gROOT->Reset();
   gROOT->ForceStyle();
@@ -177,6 +198,12 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
   TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
   cout<<"correct in line 138 the right directroy, when we move to v28!!!"<<endl;
 
+  cout<<"##############################"<<endl;
+  cout<<"Angular Analisis (and background)->"<<isAngularAnalysis<<endl;
+  cout<<"isMu->"<<isMu<<endl;
+  cout<<version<<endl;
+  cout<<"##############################"<<endl;
+
   if (isAngularAnalysis) {
     if (!isMu) mcf->cd("validationJEC/");
     if (isMu) mcf->cd("validationJECmu/");
@@ -192,10 +219,9 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
   // Use TIter::Next() to get each TObject mom owns.
   TObject* tobj = 0;
   string tmpname;
-
+  int countw=0;
   int i=0; // solo di servizio quando debuggo...
-  while ( (tobj = iter.Next()) ) {
-    
+  while ( (tobj = iter.Next()) ) {    
     gROOT->Reset();
     gROOT->ForceStyle();
     tdrStyle();
@@ -203,17 +229,18 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
 
     string name=tobj->GetName();
     TString temp = (TString)name;
-    
+    cout<<name<<endl;
     //int num=tobj->GetUniqueID();
 
-    if(temp.Contains("weight")){
+    if(temp.Contains("weight") && countw==0){
+      countw++;
       mcf = TFile::Open(mcfile.c_str()); 
       TFile *ttbarf = TFile::Open(back_ttbar.c_str()); 
       TFile *wf = TFile::Open(back_w.c_str());
       TFile *wzf = TFile::Open(WZ.c_str());
       TFile *zzf = TFile::Open(ZZ.c_str());
       TFile *wwf = TFile::Open(WW.c_str());
-
+    
       TCanvas * Canvweight = new TCanvas("Canvweight","Canvweight",0,0,800,600);
       //if (Canv) delete Canv;
       //Canv = new TCanvas("Canv","Canv",0,0,800,600);
@@ -222,13 +249,13 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+version;
 	
       //---- weights
       mcf->cd("validationJEC");
-
+    
       if (isAngularAnalysis) {
 	if (!isMu) mcf->cd("validationJEC/");
 	if (isMu) mcf->cd("validationJECmu/");
       }
       else {
-	mcf->cd("validationJEC/");
+	if (!isMu) mcf->cd("validationJEC/");
 	if (isMu) mcf->cd("validationJECmu/");
       }
 
@@ -429,7 +456,7 @@ void comparisonJetMCData(string plot,int rebin){
   TObject * obj;
   gDirectory->GetObject(plot.c_str(),obj);
 
-  TH1 *data; 
+  TH1 *data;
   TH2F *data2; 
   TH1D *data3; 
 
@@ -466,7 +493,6 @@ void comparisonJetMCData(string plot,int rebin){
     pad1->SetBottomMargin(0.01);
     pad1->SetRightMargin(0.1);
     pad1->SetFillStyle(0);
-
     pad1->SetLogy(1);
     TString str=data->GetTitle();
     if (str.Contains("jet") && !str.Contains("zMass") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("meanPtZVsNjet")) {
@@ -490,13 +516,15 @@ void comparisonJetMCData(string plot,int rebin){
     data->GetYaxis()->SetTitleSize(0.08);
     data->GetYaxis()->SetTitleOffset(0.76);
     data->SetTitle("");
+    gStyle->SetOptStat(0);
     data->Draw("E1");
 
-    TLegend* legend = new TLegend(0.725,0.37,0.85,0.62);
+
+    TLegend* legend = new TLegend(0.725,0.47,0.85,0.72);
     legend->SetFillColor(0);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
-    legend->SetTextSize(0.024);
+    legend->SetTextSize(0.036);
     legend->AddEntry(data,"data","p");
 
     // hack to calculate some yields in restricted regions...
@@ -632,15 +660,23 @@ void comparisonJetMCData(string plot,int rebin){
       //////////
       //Storing the bckgrounds!
       //////////
-
+      cout<<str<<endl;
       if (isAngularAnalysis){
       if(str=="jet_pT") evaluateAndFillBackgrounds(ttbar,"jet_pT");
       if(str=="jet_pT2") evaluateAndFillBackgrounds(ttbar,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(ttbar,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(ttbar,"jet_pT4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(ttbar,"jet_Multiplicity");
+      if(str=="jet_eta") evaluateAndFillBackgrounds(ttbar,"jet_eta");
+      if(str=="jet_eta2") evaluateAndFillBackgrounds(ttbar,"jet_eta2");
+      if(str=="jet_eta3") evaluateAndFillBackgrounds(ttbar,"jet_eta3");
+      if(str=="jet_eta4") evaluateAndFillBackgrounds(ttbar,"jet_eta4");
       if(str=="HT") evaluateAndFillBackgrounds(ttbar,"HT");
-
+      if(str=="HT_1j") evaluateAndFillBackgrounds(ttbar,"HT1");
+      if(str=="HT_2j") evaluateAndFillBackgrounds(ttbar,"HT2");
+      if(str=="HT_3j") evaluateAndFillBackgrounds(ttbar,"HT3");
+      if(str=="HT_4j") evaluateAndFillBackgrounds(ttbar,"HT4");
+      if(str=="Phi_star") evaluateAndFillBackgrounds(ttbar,"PhiStar");
       }
     }
 
@@ -746,8 +782,17 @@ void comparisonJetMCData(string plot,int rebin){
       if(str=="jet_pT2") evaluateAndFillBackgrounds(wz,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(wz,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(wz,"jet_pT4");
+      if(str=="jet_eta") evaluateAndFillBackgrounds(wz,"jet_eta");
+      if(str=="jet_eta2") evaluateAndFillBackgrounds(wz,"jet_eta2");
+      if(str=="jet_eta3") evaluateAndFillBackgrounds(wz,"jet_eta3");
+      if(str=="jet_eta4") evaluateAndFillBackgrounds(wz,"jet_eta4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(wz,"jet_Multiplicity");
       if(str=="HT") evaluateAndFillBackgrounds(wz,"HT");
+      if(str=="HT_1j") evaluateAndFillBackgrounds(wz,"HT1");
+      if(str=="HT_2j") evaluateAndFillBackgrounds(wz,"HT2");
+      if(str=="HT_3j") evaluateAndFillBackgrounds(wz,"HT3");
+      if(str=="HT_4j") evaluateAndFillBackgrounds(wz,"HT4");
+      if(str=="Phi_star") evaluateAndFillBackgrounds(wz,"PhiStar");
      }
     }
     
@@ -806,8 +851,17 @@ void comparisonJetMCData(string plot,int rebin){
       if(str=="jet_pT2") evaluateAndFillBackgrounds(zz,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(zz,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(zz,"jet_pT4");
+      if(str=="jet_eta") evaluateAndFillBackgrounds(zz,"jet_eta");
+      if(str=="jet_eta2") evaluateAndFillBackgrounds(zz,"jet_eta2");
+      if(str=="jet_eta3") evaluateAndFillBackgrounds(zz,"jet_eta3");
+      if(str=="jet_eta4") evaluateAndFillBackgrounds(zz,"jet_eta4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(zz,"jet_Multiplicity");
       if(str=="HT") evaluateAndFillBackgrounds(zz,"HT");
+      if(str=="HT_1j") evaluateAndFillBackgrounds(zz,"HT1");
+      if(str=="HT_2j") evaluateAndFillBackgrounds(zz,"HT2");
+      if(str=="HT_3j") evaluateAndFillBackgrounds(zz,"HT3");
+      if(str=="HT_4j") evaluateAndFillBackgrounds(zz,"HT4");
+      if(str=="Phi_star") evaluateAndFillBackgrounds(zz,"PhiStar");
      }  
     }
     
@@ -865,8 +919,17 @@ void comparisonJetMCData(string plot,int rebin){
       if(str=="jet_pT2") evaluateAndFillBackgrounds(ww,"jet_pT2");
       if(str=="jet_pT3") evaluateAndFillBackgrounds(ww,"jet_pT3");
       if(str=="jet_pT4") evaluateAndFillBackgrounds(ww,"jet_pT4");
+      if(str=="jet_eta") evaluateAndFillBackgrounds(ww,"jet_eta");
+      if(str=="jet_eta2") evaluateAndFillBackgrounds(ww,"jet_eta2");
+      if(str=="jet_eta3") evaluateAndFillBackgrounds(ww,"jet_eta3");
+      if(str=="jet_eta4") evaluateAndFillBackgrounds(ww,"jet_eta4");
       if(str=="Jet_multi") evaluateAndFillBackgrounds(ww,"jet_Multiplicity");
       if(str=="HT") evaluateAndFillBackgrounds(ww,"HT");
+      if(str=="HT_1j") evaluateAndFillBackgrounds(ww,"HT1");
+      if(str=="HT_2j") evaluateAndFillBackgrounds(ww,"HT2");
+      if(str=="HT_3j") evaluateAndFillBackgrounds(ww,"HT3");
+      if(str=="HT_4j") evaluateAndFillBackgrounds(ww,"HT4");
+      if(str=="Phi_star") evaluateAndFillBackgrounds(ww,"PhiStar");
      }
     }
 
@@ -979,25 +1042,25 @@ void comparisonJetMCData(string plot,int rebin){
     if (wz)         hs->Add(wz);
     if(mc)		hs->Add(mc); //Z+Jets
 
-		
     // per avere le statistiche
-    if(lumiweights==1) hsum->Draw("HISTO SAMES");
+    if(lumiweights==1) hsum->Draw("HISTO SAME");
 
 
     //======================
     // Setting the stats
-    pad1->Update(); // altrimenti non becchi la stat
-    TPaveStats *r2;
-    if(lumiweights==0) r2 = (TPaveStats*)mc->FindObject("stats");
-    if(lumiweights==1) r2 = (TPaveStats*)hsum->FindObject("stats");
+    //pad1->Update(); // altrimenti non becchi la stat
+    
+    //TPaveStats *r2;
+    //if(lumiweights==0) r2 = (TPaveStats*)mc->FindObject("stats");
+    //if(lumiweights==1) r2 = (TPaveStats*)hsum->FindObject("stats");
     //r2->SetY1NDC(0.875);     //Uncomment if you wonna add your statistics in the top right corner
     //r2->SetY2NDC(0.75); 
     //r2->SetTextColor(kRed);
 		
     if(lumiweights==1) hs->Draw("HISTO SAME");
     gPad->RedrawAxis();
-    data->Draw("E1 SAMES");
-    r2->Draw();
+    data->Draw("E1 SAME");
+    //r2->Draw(); //here to reactivate the stats
     legend->Draw();
     TLegend* lumi = new TLegend(0.45,0.3,0.75,0.2);
     lumi->SetFillColor(0);
@@ -1036,7 +1099,7 @@ void comparisonJetMCData(string plot,int rebin){
     ratio->SetMarkerSize(.5);
     ratio->SetLineColor(kBlack);
     ratio->SetMarkerColor(kBlack);
-    gStyle->SetOptStat("m");
+    //gStyle->SetOptStat("m");
     TH1F* sumMC;
     hs->Draw("nostack");
     sumMC=(TH1F*) hs->GetHistogram();
@@ -1087,15 +1150,15 @@ void comparisonJetMCData(string plot,int rebin){
     //label->AddEntry((TObject*)0,labeltext.c_str(),""); // mean on Y
     //label->Draw();
 		
-    TPaveStats *r3 = (TPaveStats*)ratio->FindObject("stats");
-    r3->SetX1NDC(0.01);
-    r3->SetX2NDC(0.10); 
-    r3->SetY1NDC(0.20);
-    r3->SetY2NDC(0.50); 
-    gStyle->SetOptStat("mr");
-    r3->SetTextColor(kWhite);
-    r3->SetLineColor(kWhite);
-    r3->Draw();
+    //TPaveStats *r3 = (TPaveStats*)ratio->FindObject("stats");
+    //r3->SetX1NDC(0.01);
+    //r3->SetX2NDC(0.10); 
+    //r3->SetY1NDC(0.20);
+    //r3->SetY2NDC(0.50); 
+    //gStyle->SetOptStat("mr");
+    //r3->SetTextColor(kWhite);
+    //r3->SetLineColor(kWhite);
+    //r3->Draw();
     CanvPlot->Update();
 
     tmp=plotpath+plot+".png";
@@ -1140,10 +1203,10 @@ void comparisonJetMCData(string plot,int rebin){
     data2->Draw("COLZ");
 
     gPad->Update(); // altrimenti non becchi la stat
-    TPaveStats *r2 = (TPaveStats*)data2->FindObject("stats");
-    r2->SetX1NDC(0.70);
-    r2->SetX2NDC(0.85); 
-    r2->Draw();
+    //TPaveStats *r2 = (TPaveStats*)data2->FindObject("stats");
+    //r2->SetX1NDC(0.70);
+    //r2->SetX2NDC(0.85); 
+    //r2->Draw();
     CanvPlot->Update();
 
     tmp=plotpath+plot+"mc.png";
@@ -1170,7 +1233,7 @@ void comparisonJetMCData(string plot,int rebin){
   ZZf->Close();
   
   if (isAngularAnalysis){
-    if (bckg_leadingJetPt.size()>0 && bckg_2leadingJetPt.size()>0 && bckg_3leadingJetPt.size()>0 && bckg_4leadingJetPt.size()>0  && bckg_JetMultiplicity.size()>0 && bckg_HT.size()>0 && cold){
+    if (bckg_leadingJetPt.size()>0 && bckg_2leadingJetPt.size()>0 && bckg_3leadingJetPt.size()>0 && bckg_4leadingJetPt.size()>0  && bckg_JetMultiplicity.size()>0 && bckg_HT.size()>0 && bckg_leadingJetEta.size()>0 && bckg_PhiStar.size()>0 && cold){
       fzj->cd();
       treeBKG_->Fill();
       treeBKG_->Write();
@@ -1179,8 +1242,19 @@ void comparisonJetMCData(string plot,int rebin){
       TH1F *leadhisto3=new TH1F("leadhisto3","subsubleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
       TH1F *leadhisto4=new TH1F("leadhisto4","subsubsubleading jet background contribution",bckg_leadingJetPt.size(),0,bckg_leadingJetPt.size());
       TH1F *multiphisto=new TH1F("multiphisto","jet multiplicity background contribution",bckg_JetMultiplicity.size(),0,bckg_JetMultiplicity.size());
-      TH1F *HT=new TH1F("HT","HT background contribution",bckg_HT.size(),0,bckg_HT.size());
 
+      TH1F *HT=new TH1F("HT","HT background contribution",bckg_HT.size(),0,bckg_HT.size());
+      TH1F *HT1=new TH1F("HT1","HT background contribution when >= 1 jet",bckg_HT1.size(),0,bckg_HT1.size());
+      TH1F *HT2=new TH1F("HT2","HT background contribution when >= 2 jets",bckg_HT2.size(),0,bckg_HT2.size());
+      TH1F *HT3=new TH1F("HT3","HT background contribution when >= 3 jets",bckg_HT3.size(),0,bckg_HT3.size());
+      TH1F *HT4=new TH1F("HT4","HT background contribution when >= 4 jets",bckg_HT4.size(),0,bckg_HT4.size());
+
+      TH1F *leadhistoeta=new TH1F("leadhistoeta","leading jet background contribution",bckg_leadingJetEta.size(),0,bckg_leadingJetEta.size());
+      TH1F *leadhistoeta2=new TH1F("leadhistoeta2","subleading jet background contribution",bckg_leadingJetEta.size(),0,bckg_leadingJetEta.size());
+      TH1F *leadhistoeta3=new TH1F("leadhistoeta3","subsubleading jet background contribution",bckg_leadingJetEta.size(),0,bckg_leadingJetEta.size());
+      TH1F *leadhistoeta4=new TH1F("leadhistoeta4","subsubsubleading jet background contribution",bckg_leadingJetEta.size(),0,bckg_leadingJetEta.size());
+
+      TH1F *PhiStar=new TH1F("PhiStar","PhiStar background contribution",bckg_PhiStar.size(),0,bckg_PhiStar.size());
 
       for (int i=0; i< bckg_leadingJetPt.size(); i++){
 	leadhisto->Fill(i,bckg_leadingJetPt[i]);
@@ -1192,16 +1266,56 @@ void comparisonJetMCData(string plot,int rebin){
       leadhisto2->Write();
       leadhisto3->Write();
       leadhisto4->Write();
+
+      for (int i=0; i< bckg_leadingJetEta.size(); i++){
+	leadhistoeta->Fill(i,bckg_leadingJetEta[i]);
+	leadhistoeta2->Fill(i,bckg_2leadingJetEta[i]);
+	leadhistoeta3->Fill(i,bckg_3leadingJetEta[i]);
+	leadhistoeta4->Fill(i,bckg_4leadingJetEta[i]);
+      }
+      leadhistoeta->Write();
+      leadhistoeta2->Write();
+      leadhistoeta3->Write();
+      leadhistoeta4->Write();
       //fzj->Close();
+
       for (int i=0; i< bckg_JetMultiplicity.size(); i++){
 	multiphisto->Fill(i,bckg_JetMultiplicity[i]);
       }
-    multiphisto->Write();
+      multiphisto->Write();
+      
+      ///////////////
 
-    for (int i=0; i< bckg_HT.size(); i++){
-      HT->Fill(i,bckg_HT[i]);
-    }
-    HT->Write();
+      for (int i=0; i< bckg_HT.size(); i++){
+	HT->Fill(i,bckg_HT[i]);
+      }
+      HT->Write();
+      
+      for (int i=0; i< bckg_HT1.size(); i++){
+	HT1->Fill(i,bckg_HT1[i]);
+      }
+      HT1->Write();
+      
+      for (int i=0; i< bckg_HT2.size(); i++){
+	HT2->Fill(i,bckg_HT2[i]);
+      }
+      HT2->Write();
+      
+      for (int i=0; i< bckg_HT3.size(); i++){
+	HT3->Fill(i,bckg_HT3[i]);
+      }
+      HT3->Write();
+      
+      for (int i=0; i< bckg_HT4.size(); i++){
+	HT4->Fill(i,bckg_HT4[i]);
+      }
+      HT4->Write();
+
+      //Phi star
+      for (int i=0; i< bckg_PhiStar.size(); i++){
+	PhiStar->Fill(i,bckg_PhiStar[i]);
+      }
+      PhiStar->Write();
 
     cold=false;
     }
@@ -1265,6 +1379,60 @@ void evaluateAndFillBackgrounds(TH1* histo, string str){
     }
   }
 
+  //Jet Eta
+  if(str=="jet_eta"){
+    if (bckg_leadingJetEta.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_leadingJetEta.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_leadingJetEta[j]+=histo->GetBinContent(j+1);
+	
+      }
+    }
+      }
+  if(str=="jet_eta2"){
+    if (bckg_2leadingJetEta.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_2leadingJetEta.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_2leadingJetEta[j]+=histo->GetBinContent(j+1);
+	    
+      }
+    }
+  }
+  if(str=="jet_eta3"){
+    if (bckg_3leadingJetEta.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_3leadingJetEta.push_back(histo->GetBinContent(j+1));
+	  }
+    }
+    else {
+	  for(int j=0;j<histo->GetNbinsX();j++){
+	    bckg_3leadingJetEta[j]+=histo->GetBinContent(j+1);
+	    
+	  }
+    }
+  }
+  if(str=="jet_eta4"){
+    if (bckg_4leadingJetEta.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_4leadingJetEta.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+	    bckg_4leadingJetEta[j]+=histo->GetBinContent(j+1);
+	    
+      }
+    }
+  }
+
   //Jet Multiplicity
   if(str=="jet_Multiplicity"){
     if (bckg_JetMultiplicity.size()==0){
@@ -1294,6 +1462,79 @@ void evaluateAndFillBackgrounds(TH1* histo, string str){
       }
     }
   }
+
+  if(str=="HT1"){
+    if (bckg_HT1.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT1.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT1[j]+=histo->GetBinContent(j+1);
+
+      }
+    }
+  }
+
+  if(str=="HT2"){
+    if (bckg_HT2.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT2.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT2[j]+=histo->GetBinContent(j+1);
+
+      }
+    }
+  }
+
+  if(str=="HT3"){
+    if (bckg_HT3.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT3.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT3[j]+=histo->GetBinContent(j+1);
+
+      }
+    }
+  }
+
+  if(str=="HT4"){
+    if (bckg_HT4.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT4.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_HT4[j]+=histo->GetBinContent(j+1);
+
+      }
+    }
+  }
+
+  //Phi star
+
+ if(str=="PhiStar"){
+    if (bckg_PhiStar.size()==0){
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_PhiStar.push_back(histo->GetBinContent(j+1));
+      }
+    }
+    else {
+      for(int j=0;j<histo->GetNbinsX();j++){
+        bckg_PhiStar[j]+=histo->GetBinContent(j+1);
+
+      }
+    }
+  }
+
 }
 
 

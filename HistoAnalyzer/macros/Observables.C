@@ -57,13 +57,10 @@ std::endl;
 
 bool activateScaleFactors=true;  // Correct for the difference MC/Data in the background
 bool isMu=true;
+bool combineChannel=false;
 
-//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";
 string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";
 
-//Open MC and data files to retrieve effciencies
-TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-TFile *fBeff = new TFile (efffile.c_str()); 
 
 /* Interesting Z + jet distributions */
 
@@ -80,8 +77,12 @@ string dir="/gpfs/cms/data/2011/Observables/";
 
 TFile *w;
 //List of observables to show
-TH1F *NData             = new TH1F ("Jet_multi", "Jet_multi", 5, 1, 6);
+TH1F *NData             = new TH1F ("Jet_multi", "Jet_multi", 6, 1, 7);
 TH1F *Ht                = new TH1F ("HT", "HT", 47, 30, 500);
+TH1F *Ht_1j                = new TH1F ("HT_1j", "HT_1j", 12, 30, 630);
+TH1F *Ht_2j                = new TH1F ("HT_2j", "HT_2j", 12, 60, 630);
+TH1F *Ht_3j                = new TH1F ("HT_3j", "HT_3j", 7, 90, 630);
+TH1F *Ht_4j                = new TH1F ("HT_4j", "HT_4j", 5, 120, 630);
 TH1F *Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
 TH1F *Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
 TH1F *Dphi_23           = new TH1F ("Dphi_23", "Dphi_23", 25, 0, TMath::Pi());
@@ -97,10 +98,10 @@ TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 15, 30, 330);
 TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 10, 30, 330);
 TH1F *jet_pT3	        = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
 TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 7, 30, 100);
-TH1F *jet_eta	        = new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
-TH1F *jet_eta2	        = new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
-TH1F *jet_eta3	        = new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
-TH1F *jet_eta4	        = new TH1F ("jet_eta4", "jet_eta4", 30, -2.5, 2.5);
+TH1F *jet_eta	        = new TH1F ("jet_eta", "jet_eta", 24, -2.4, 2.4);
+TH1F *jet_eta2	        = new TH1F ("jet_eta2", "jet_eta2", 20, -2.4, 2.4);
+TH1F *jet_eta3	        = new TH1F ("jet_eta3", "jet_eta3", 16, -2.4, 2.4);
+TH1F *jet_eta4	        = new TH1F ("jet_eta4", "jet_eta4", 12, -2.4, 2.4);
 TH1F *Z_pT		= new TH1F ("Z_pT", "Z_pT", 50, 30, 500);
 TH1F *dijet_mass	= new TH1F ("dijet_mass", "dijet_mass", 10, 400, 600);
 TH1F *Zjj_mass	        = new TH1F ("Zjj_mass", "Zjj_mass", 10, 400, 600);
@@ -113,6 +114,7 @@ TH2F *HN		= new TH2F ("HN", "HN", 5, 0.5, 5.5, 100, 30, 1000);
 TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
 //Storing weights
 TH1F  *h_weights        = new TH1F ("h_weights","Event Weights",500,0.,5);
+TH1F  *h_invMass        = new TH1F ("h_invMass","L-L Invariant Mass Distribution",40,71.,111.);
 
 void
 Observables::Loop()
@@ -123,16 +125,31 @@ Observables::Loop()
   double numbOfZPlus3 = 0;
   double numbOfZPlus4 = 0;
 
-string version="_v2_30.root";
-if (isMu) version="Mu"+version;
+string version="_v2_33.root";
+ string versionMu=version;
+if (isMu) versionMu="Mu"+version;
+ if (!isMu){
+   //version="_v2_30.root"; 
+   efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";
+ }
+ cout<<"#########################"<<endl;
+ cout<<"You're using"<<endl;
+ cout<<version<<endl;
+ cout<<efffile<<endl;
+ cout<<"isMu->"<<isMu<<endl;
+ cout<<"#########################"<<endl;
 
-string szj=dir+"MC_zjets"+version;
-string swj=dir+"MC_wjets"+version;
-string stt=dir+"MC_ttbar"+version;
-string sWW=dir+"MC_diW"+version;
-string sZZ=dir+"MC_siZ"+version;
-string sWZ=dir+"MC_diWZ"+version;
-string sda=dir+"DATA"+version;
+//Open MC and data files to retrieve effciencies
+TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+TFile *fBeff = new TFile (efffile.c_str()); 
+
+string szj=dir+"MC_zjets"+versionMu;
+string swj=dir+"MC_wjets"+versionMu;
+string stt=dir+"MC_ttbar"+versionMu;
+string sWW=dir+"MC_diW"+versionMu;
+string sZZ=dir+"MC_siZ"+versionMu;
+string sWZ=dir+"MC_diWZ"+versionMu;
+string sda=dir+"DATA"+versionMu;
 
 
 TFile* fzj = new TFile(szj.c_str(), "RECREATE");
@@ -144,7 +161,7 @@ TFile* fWZ = new TFile(sWZ.c_str(), "RECREATE");
 TFile* fda = new TFile(sda.c_str(), "RECREATE");
 
  string dirvalidation="validationJEC";
- if (isMu) dirvalidation="validationJECmu";
+ if (isMu && !combineChannel) dirvalidation="validationJECmu";
 
  
  TDirectory *validationJECz=fzj->mkdir(dirvalidation.c_str());
@@ -158,13 +175,13 @@ TDirectory *validationJECda=fda->mkdir(dirvalidation.c_str());
 //FIles do be opened
 
 string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
-string sozj=diropen+"zjets_magd_2011"+version;
+ string sozj=diropen+"zjets_magd_2011Mu"+version;
 string sowj=diropen+"w_2011"+"_v2_27.root";//+version;
-string sott=diropen+"ttbar_2011"+version;
-string soWW=diropen+"ww_2011"+version;
-string soZZ=diropen+"zz_2011"+version;
-string soWZ=diropen+"wz_2011"+version;
-string soda=diropen+"DATA_2011"+version;
+string sott=diropen+"ttbar_2011Mu"+version;
+string soWW=diropen+"ww_2011Mu"+version;
+string soZZ=diropen+"zz_2011Mu"+version;
+string soWZ=diropen+"wz_2011Mu"+version;
+string soda=diropen+"DATA_2011"+versionMu;
 
 string folderdir="validationJEC";
 string folderdir2="validationJECXSScaleDown";
@@ -173,21 +190,15 @@ string folderdir2="validationJECXSScaleDown";
    string folderdir2="validationJECXSScaleDownmu";
  }
 
-string sodzj=sozj+":/"+folderdir;
- if (isMu) sodzj=sozj+":/EPTmuoReco_MC";
-string sodwj=sowj+":/"+folderdir;
-string sodtt=sott+":/"+folderdir2;
- if (isMu) sodtt=sott+":/EPTmuoReco_MC";
-string sodWW=soWW+":/"+folderdir2;
- if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
-string sodZZ=soZZ+":/"+folderdir2;
- if (isMu) sodZZ=soZZ+":/EPTmuoReco_MC";
- if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
- cout<<sodZZ<<endl;
- cout<<sodwj<<endl;
-string sodWZ=soWZ+":/"+folderdir2;
- if (isMu) sodWZ=soWZ+":/EPTmuoReco_MC";
-string sodda=soda+":/"+folderdir;
+ string sodzj=sozj+":/EPTmuoReco_MC";
+ string sodwj=sowj+":validationJEC";
+ string sodtt=sott+":/EPTmuoReco_MC";
+ string sodWW=soWW+":/EPTmuoReco_MC";
+ string sodZZ=soZZ+":/EPTmuoReco_MC";
+ //if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
+ 
+ string sodWZ=soWZ+":/EPTmuoReco_MC";
+ string sodda=soda+":/validationJEC";
  if (isMu) sodda=soda+":/EPTmuoReco";
 
 TFile *Fzj = new TFile (sozj.c_str());
@@ -197,7 +208,15 @@ TFile *Fda = new TFile (soda.c_str());
 TFile *FWW = new TFile (soWW.c_str());
 TFile *FWZ = new TFile (soWZ.c_str());
 TFile *FZZ = new TFile (soZZ.c_str());
-
+ 
+ cout<<"-----------Directories------------------"<<endl;
+ cout<<sodda<<endl;
+ cout<<sodzj<<endl;
+ cout<<sodtt<<endl;
+ cout<<sodWW<<endl;
+ cout<<sodWZ<<endl;
+ cout<<sodZZ<<endl;
+ cout<<sodwj<<endl;
 
   cout<<"If you see an unexpected crash, control in which gDyrectory the tree treeUN has been stored.."<<endl;
   //DATA
@@ -210,19 +229,19 @@ TFile *FZZ = new TFile (soZZ.c_str());
     if (i==5) FZZ->cd (sodZZ.c_str());
     if (i==6) Fwj->cd (sodwj.c_str());
 
+
     cout<<"Act #"<<i<<endl;
 
     TTree *tree_fB;
     if (!isMu){
-      if (i==0 || i==1)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      
-      if (i>1) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==2 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==3 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==4 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==5 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==6 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-
+      if (i==0)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==1)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
+      //if (i>1) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==2) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==3) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==4) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==5) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==6) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
     }
     else{
       if (i==0)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");     
@@ -235,9 +254,10 @@ TFile *FZZ = new TFile (soZZ.c_str());
       if (i==5 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
       if (i==6 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeUN_");
     }
+    
 
     fChain = tree_fB;		/* Loop RunA */
-    Init (fChain);
+    Init (fChain); 
     
     Long64_t nentries = fChain->GetEntriesFast ();
 
@@ -246,8 +266,13 @@ TFile *FZZ = new TFile (soZZ.c_str());
     if (fChain == 0)  return;
     
     //List of observables to show
-    NData             = new TH1F ("Jet_multi", "Jet_multi", 5, 1, 6);
+    NData             = new TH1F ("Jet_multi", "Jet_multi", 6, 1, 7);
     Ht                = new TH1F ("HT", "HT", 47, 30, 500);
+    Ht_1j                = new TH1F ("HT_1j", "HT_1j", 12, 30, 630);
+    Ht_2j                = new TH1F ("HT_2j", "HT_2j", 12, 60, 630);
+    Ht_3j                = new TH1F ("HT_3j", "HT_3j", 7, 90, 630);
+    Ht_4j                = new TH1F ("HT_4j", "HT_4j", 5, 120, 630);
+
     Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
     Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
     Dphi_23           = new TH1F ("Dphi_23", "Dphi_23", 25, 0, TMath::Pi());
@@ -263,10 +288,10 @@ TFile *FZZ = new TFile (soZZ.c_str());
     jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 10, 30, 330);
     jet_pT3	    = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
     jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 7, 30, 100);
-    jet_eta	    = new TH1F ("jet_eta", "jet_eta", 30, -2.5, 2.5);
-    jet_eta2	    = new TH1F ("jet_eta2", "jet_eta2", 30, -2.5, 2.5);
-    jet_eta3	    = new TH1F ("jet_eta3", "jet_eta3", 30, -2.5, 2.5);
-    jet_eta4	    = new TH1F ("jet_eta4", "jet_eta4", 30, -2.5, 2.5);
+    jet_eta	    = new TH1F ("jet_eta", "jet_eta", 24, -2.4, 2.4);
+    jet_eta2	    = new TH1F ("jet_eta2", "jet_eta2", 20, -2.4, 2.4);
+    jet_eta3	    = new TH1F ("jet_eta3", "jet_eta3", 16, -2.4, 2.4);
+    jet_eta4	    = new TH1F ("jet_eta4", "jet_eta4", 12, -2.4, 2.4);
     Z_pT	    = new TH1F ("Z_pT", "Z_pT", 50, 30, 500);
     dijet_mass	    = new TH1F ("dijet_mass", "dijet_mass", 10, 400, 600);
     Zjj_mass	    = new TH1F ("Zjj_mass", "Zjj_mass", 10, 400, 600);
@@ -278,7 +303,22 @@ TFile *FZZ = new TFile (soZZ.c_str());
     HN		    = new TH2F ("HN", "HN", 5, 0.5, 5.5, 100, 30, 1000);
     NZy		    = new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
     h_weights       = new TH1F ("h_weights","h_weights",500,0.,5);
-    
+    h_invMass       = new TH1F ("h_invMass","h_invMass",40,71.,111.);
+
+    Ht_1j->SetStats(0);
+    Ht_2j->SetStats(0);
+    Ht_3j->SetStats(0);
+    Ht_4j->SetStats(0);
+    jet_pT->SetStats(0);
+    jet_pT2->SetStats(0);
+    jet_pT3->SetStats(0);
+    jet_pT4->SetStats(0);
+    jet_eta->SetStats(0);
+    jet_eta2->SetStats(0);
+    jet_eta3->SetStats(0);
+    jet_eta4->SetStats(0);
+    NData->SetStats(0);
+    h_invMass->SetStats(0);
 
     //Making the plots
     for (Long64_t jentry = 0; jentry < nentries; jentry++)
@@ -291,7 +331,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
 	
 	// Cure angular phi ambiguities : Dphi > pi
 	/*if(Jet_multiplicity > 10 || Jet_multiplicity <=0 || jet1_pt<=0 || jet1_pt > 1000 || jet2_pt > 1000 || Z_y >3 || Z_y <-3) continue;*/
-	
+       
         
 	E1.SetPtEtaPhiM(e1_pt, e1_eta, e1_phi, 0);
 	E2.SetPtEtaPhiM(e2_pt, e2_eta, e2_phi, 0);
@@ -348,9 +388,9 @@ TFile *FZZ = new TFile (soZZ.c_str());
 	}
 
 	double multiweight=1.0;
-	if (i>0) multiweight=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	if (i>0 && activateScaleFactors) multiweight=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
 	NData->Fill(Jet_multiplicity,multiweight);
-	
+	h_invMass->Fill(Z.M(),multiweight);
 
 	///////////////////
 	///  HT, inclusive pt,eta and phi
@@ -359,8 +399,12 @@ TFile *FZZ = new TFile (soZZ.c_str());
 
 	if(Jet_multiplicity>0) {
 	  double Weight=1.0;
-	  if (i>0) Weight=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	  if (i>0 && activateScaleFactors) Weight=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
 	  Ht->Fill(jetHt,Weight);
+	  if (Jet_multiplicity>0) Ht_1j->Fill(jetHt,Weight);
+	  if (Jet_multiplicity>1) Ht_2j->Fill(jetHt,Weight);
+	  if (Jet_multiplicity>2) Ht_3j->Fill(jetHt,Weight);
+	  if (Jet_multiplicity>3) Ht_4j->Fill(jetHt,Weight);
 	}
 	
 	//NON APPLICO ANCORA I SCALE FACTORS
@@ -381,7 +425,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
 	  if (activateScaleFactors && i>0) {
 	    if (Jet_multiplicity>=1) {
 	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet1_pt);
-	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	      if (activateScaleFactors) evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
 	    }
 	  }
 	  //evWeight_scalefactors=1.00/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",!isMu);
@@ -396,7 +440,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
 	  if (activateScaleFactors && i>0) {
 	    if (Jet_multiplicity>=2) {
 	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet2_pt);
-	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	      if (activateScaleFactors) evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
 	    }
 	  }
 	  jet_pT2 -> Fill(jet2_pt,evWeight_scalefactors);
@@ -410,7 +454,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
 	  if (activateScaleFactors && i>0) {
 	    if (Jet_multiplicity>=3){
 	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet3_pt);
-	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	      if (activateScaleFactors) evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
 	    }
 	  }
 	  jet_pT3 -> Fill(jet3_pt,evWeight_scalefactors);
@@ -425,7 +469,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
 	  if (activateScaleFactors && i>0) {
 	    if (Jet_multiplicity>=4) {
 	      //evWeight_scalefactors=getScaleFactorJetPt(fAeff, fBeff, Jet_multiplicity,jet4_pt);
-	      evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
+	      if (activateScaleFactors) evWeight_scalefactors=getScaleFactorPtUsingElectron(fAeff, fBeff,e1_pt ,e1_eta,e2_pt,e2_eta, !isMu);
 	    }
 	  }
 	  jet_pT4 -> Fill(jet4_pt,evWeight_scalefactors);
@@ -483,6 +527,10 @@ TFile *FZZ = new TFile (soZZ.c_str());
     jet_eta3   ->Sumw2();
     jet_eta4   ->Sumw2();
     Ht         ->Sumw2();
+    Ht_1j         ->Sumw2();
+    Ht_2j         ->Sumw2();
+    Ht_3j         ->Sumw2();
+    Ht_4j         ->Sumw2();
     Dphi_12    ->Sumw2();
     Dphi_ZJ1   ->Sumw2();
     Dphi_ZJ2   ->Sumw2();
@@ -508,6 +556,10 @@ TFile *FZZ = new TFile (soZZ.c_str());
     Zjj_mass   -> GetXaxis() -> SetTitle("M_{Zjj} [GeV/c^{2}]");
     NData    -> GetXaxis() -> SetTitle("Jet multiplicity");  
     Ht       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]"); 
+    Ht_1j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]"); 
+    Ht_2j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
+    Ht_3j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
+    Ht_4j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
     ele_pT   -> GetXaxis() -> SetTitle("Leading electron p_{T} [GeV/c]");        
     ele_eta  -> GetXaxis() -> SetTitle("Leading electron #eta");
     ele_phi  -> GetXaxis() -> SetTitle("Leading electron #phi");
@@ -535,6 +587,10 @@ TFile *FZZ = new TFile (soZZ.c_str());
     
     NData    -> GetYaxis() -> SetTitle("(Z #rightarrow e^{+}e^{-} + N_{jet})");
     Ht       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d H_{T}");
+    Ht_1j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d H_{T}");
+    Ht_2j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d H_{T}");
+    Ht_3j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d H_{T}");
+    Ht_4j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d H_{T}");
     ele_pT   -> GetYaxis() -> SetTitle("Events");        
     ele_eta  -> GetYaxis() -> SetTitle("Events");
     ele_phi  -> GetYaxis() -> SetTitle("Events");
@@ -546,6 +602,27 @@ TFile *FZZ = new TFile (soZZ.c_str());
     jet_eta2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
     jet_eta3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
     jet_eta4   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow e^{+}e^{-}}) dN/d #eta");
+    h_invMass   -> GetYaxis() -> SetTitle("# events");
+    h_invMass   -> GetXaxis() -> SetTitle("e^{+}e^{-} invariant mass");
+
+
+    if (isMu){
+      h_invMass   -> GetXaxis() -> SetTitle("#mu^{+}#mu^{-} invariant mass");
+      NData    -> GetYaxis() -> SetTitle("(Z #rightarrow #mu^{+}#mu^{-} + N_{jet})");
+      Ht       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d H_{T}");
+    Ht_1j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d H_{T}");
+    Ht_2j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d H_{T}");
+    Ht_3j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d H_{T}");
+    Ht_4j       -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d H_{T}");
+    jet_pT   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d p_{T}");
+    jet_pT2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d p_{T}");
+    jet_pT3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d p_{T}");
+    jet_pT4   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d p_{T}");
+    jet_eta  -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}})   dN/d #eta");
+    jet_eta2   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d #eta");
+    jet_eta3   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d #eta");
+    jet_eta4   -> GetYaxis() -> SetTitle("(1/N_{Z #rightarrow #mu^{+}#mu^{-}}) dN/d #eta");
+    }
     Z_pT     -> GetYaxis() -> SetTitle("Events");
     HZ       -> GetYaxis() -> SetTitle("Z boson p_{T} [GeV/c]");
     HN       -> GetYaxis() -> SetTitle("Jet multiplicity");
@@ -592,10 +669,30 @@ TFile *FZZ = new TFile (soZZ.c_str());
       validationJECw->cd();
     } 
     
-    h_weights->Write();
+    Ht_1j->SetStats(0);
+    Ht_2j->SetStats(0);
+    Ht_3j->SetStats(0);
+    Ht_4j->SetStats(0);
+    jet_pT->SetStats(0);
+    jet_pT2->SetStats(0);
+    jet_pT3->SetStats(0);
+    jet_pT4->SetStats(0);
+    jet_eta->SetStats(0);
+    jet_eta2->SetStats(0);
+    jet_eta3->SetStats(0);
+    jet_eta4->SetStats(0);
+    NData->SetStats(0);
+
+    h_weights->Write();    
+    h_invMass->Write();
+
     dijet_mass->Write();
     Zjj_mass ->Write();       	
     Ht      ->Write("jetHt");
+    Ht_1j      ->Write();
+    Ht_2j      ->Write();
+    Ht_3j      ->Write();
+    Ht_4j      ->Write();
     ele_pT  ->Write("e1_pt");
     ele_eta ->Write("e1_eta");
     ele_phi ->Write("e1_phi");
@@ -656,6 +753,7 @@ TFile *FZZ = new TFile (soZZ.c_str());
     jet_eta3 ->Delete();   
     jet_eta4 ->Delete();   
     h_weights->Delete();
+    h_invMass->Delete();
 
   }
   fzj->Close();
