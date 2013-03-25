@@ -107,6 +107,92 @@ double getEfficiencyElectronLovedeepEle(double pt ,double eta){
 
 }
 
+double getEfficiencyMuonPOG(bool is2011A ,double muopt1 ,double muoeta1, double muopt2,double muoeta2){
+
+  if (is2011A) {
+    double muoIDrunA[15]={0.9111, 0.9429, 0.9661, 0.9398, 0.9639, 0.9789, 0.8731, 0.9665, 0.8643, 0.9777, 0.9616, 0.9334, 0.9614, 0.9499, 0.9164};
+    
+    double muoISOrunA[2][7]={
+      0.8358, 0.9282, 0.9721, 0.9909, 0.9930, 0.9959, 0.9950,
+      0.8418, 0.9433, 0.9777, 0.9930, 0.9957, 0.9957, 0.9943
+    };
+  } else {
+    double muoIDrunB[15]={0.8915, 0.8982, 0.9255, 0.9235, 0.9626, 0.9788, 0.8701, 0.9640, 0.8601, 0.9772, 0.9578, 0.9154, 0.9252, 0.9097, 0.8926};
+    
+    double muoISOrunB[2][7]={
+      0.7800, 0.9052, 0.9614, 0.9860, 0.9923, 0.9922, 0.9985,
+      0.7881, 0.9179, 0.9777, 0.9881, 0.9951, 0.9954, 0.9960
+    };
+  }
+
+  int muoId1=-1; int muoIso1=-1;
+  int muoId2=-1; int muoIso2=-1;
+  int highEta1=0; int highEta2=0;
+  double efficiencyMuonPOG;
+
+  if (muoeta1>1.2) highEta1=1;
+  if (muoeta2>1.2) highEta2=1;
+
+  if (muoeta1>=-2.4 && muoeta1<-2.1) muoId1=0;
+  if (muoeta1>=-2.1 && muoeta1<-1.6) muoId1=1;
+  if (muoeta1>=-1.6 && muoeta1<-1.2) muoId1=2;
+  if (muoeta1>=-1.2 && muoeta1<-0.9) muoId1=3;
+  if (muoeta1>=-0.9 && muoeta1<-0.6) muoId1=4;
+  if (muoeta1>=-0.6 && muoeta1<-0.3) muoId1=5;
+  if (muoeta1>=-0.3 && muoeta1<-0.2) muoId1=6;
+  if (muoeta1>=-0.2 &&  muoeta1<0.2) muoId1=7;
+  if (muoeta1>=0.2  &&  muoeta1<0.3) muoId1=8;
+  if (muoeta1>=0.3  &&  muoeta1<0.6) muoId1=9;
+  if (muoeta1>=0.6  &&  muoeta1<0.9) muoId1=10;
+  if (muoeta1>=0.9  &&  muoeta1<1.2) muoId1=11;
+  if (muoeta1>=1.2  &&  muoeta1<1.6) muoId1=12;
+  if (muoeta1>=1.6  &&  muoeta1<2.1) muoId1=13;
+  if (muoeta1>=2.1  &&  muoeta1<2.4) muoId1=14;
+
+  if (muopt1>=10 && muopt1<20) muoIso1=0;
+  if (muopt1>=20 && muopt1<30) muoIso1=1;
+  if (muopt1>=30 && muopt1<40) muoIso1=2;
+  if (muopt1>=40 && muopt1<50) muoIso1=3;
+  if (muopt1>=50 && muopt1<60) muoIso1=4;
+  if (muopt1>=60 && muopt1<80) muoIso1=5;
+  if (muopt1>=80             ) muoIso1=7;
+
+  if (muoeta2>=-2.4 && muoeta2<-2.1) muoId2=0;
+  if (muoeta2>=-2.1 && muoeta2<-1.6) muoId2=1;
+  if (muoeta2>=-1.6 && muoeta2<-1.2) muoId2=2;
+  if (muoeta2>=-1.2 && muoeta2<-0.9) muoId2=3;
+  if (muoeta2>=-0.9 && muoeta2<-0.6) muoId2=4;
+  if (muoeta2>=-0.6 && muoeta2<-0.3) muoId2=5;
+  if (muoeta2>=-0.3 && muoeta2<-0.2) muoId2=6;
+  if (muoeta2>=-0.2 &&  muoeta2<0.2) muoId2=7;
+  if (muoeta2>=0.2  &&  muoeta2<0.3) muoId2=8;
+  if (muoeta2>=0.3  &&  muoeta2<0.6) muoId2=9;
+  if (muoeta2>=0.6  &&  muoeta2<0.9) muoId2=10;
+  if (muoeta2>=0.9  &&  muoeta2<1.2) muoId2=11;
+  if (muoeta2>=1.2  &&  muoeta2<1.6) muoId2=12;
+  if (muoeta2>=1.6  &&  muoeta2<2.1) muoId2=13;
+  if (muoeta2>=2.1  &&  muoeta2<2.4) muoId2=14;
+
+  if (muopt2>=10 && muopt2<20) muoIso2=0;
+  if (muopt2>=20 && muopt2<30) muoIso2=1;
+  if (muopt2>=30 && muopt2<40) muoIso2=2;
+  if (muopt2>=40 && muopt2<50) muoIso2=3;
+  if (muopt2>=50 && muopt2<60) muoIso2=4;
+  if (muopt2>=60 && muopt2<80) muoIso2=5;
+  if (muopt2>=80             ) muoIso2=7;
+
+  if (is2011A) {
+    efficiencyMuonPOG = muoIDrunA[muoId1] * muoISOrunA[highEta1][muoIso1] * muoIDrunA[muoId2] * muoISOrunA[highEta2][muoIso2];
+  } else {
+    efficiencyMuonPOG = muoIDrunB[muoId1] * muoISOrunB[highEta1][muoIso1] * muoIDrunB[muoId2] * muoISOrunB[highEta2][muoIso2];
+  }
+
+  return efficiencyMuonPOG;
+
+}
+
+
+
 double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_pt ,double ele1_eta, double ele2_pt, double ele2_eta, string dataOrMC, bool isElectron)
 {
   TH2F* RECO_effPt;
