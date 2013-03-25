@@ -122,9 +122,6 @@ double getEfficiencyMuonPOG(bool is2011A ,double muopt1 ,double muoeta1, double 
     0.7881, 0.9179, 0.9777, 0.9881, 0.9951, 0.9954, 0.9960
   };
 
-  cout << "PORCO DIO: "  << muoIDrunA[8]<< endl;
-  cout << "PORCO DIO: "  << muoISOrunA[1][3]<< endl;
-
   int muoId1=-1; int muoIso1=-1;
   int muoId2=-1; int muoIso2=-1;
   int highEta1=0; int highEta2=0;
@@ -181,11 +178,7 @@ double getEfficiencyMuonPOG(bool is2011A ,double muopt1 ,double muoeta1, double 
   if (muopt2>=60 && muopt2<80) muoIso2=5;
   if (muopt2>=80             ) muoIso2=6;
 
-  cout << "PORCO DIO LADRO: "  << muoId1<< endl;
-  cout << "PORCO DIO LADRO: "  << muoIso1<< endl;
-  cout << "PORCO DIO LADRO: "  << muoId2<< endl;
-  cout << "PORCO DIO LADRO: "  << muoIso2<< endl;
-
+  if (muoId1==-1 || muoIso1==-1 || muoId2==-1 || muoIso2==-1) cout << "AHIaHIaHI!!!" << endl;
 
   if (is2011A) {
     efficiencyMuonPOG = muoIDrunA[muoId1] * muoISOrunA[highEta1][muoIso1] * muoIDrunA[muoId2] * muoISOrunA[highEta2][muoIso2];
