@@ -178,7 +178,7 @@ double getEfficiencyMuonPOG(bool is2011A ,double muopt1 ,double muoeta1, double 
   if (muopt2>=60 && muopt2<80) muoIso2=5;
   if (muopt2>=80             ) muoIso2=6;
 
-  if (muoId1==-1 || muoIso1==-1 || muoId2==-1 || muoIso2==-1) cout << "AHIaHIaHI!!!" << endl;
+  if (muoId1==-1 || muoIso1==-1 || muoId2==-1 || muoIso2==-1) return 1.0;
 
   if (is2011A) {
     efficiencyMuonPOG = muoIDrunA[muoId1] * muoISOrunA[highEta1][muoIso1] * muoIDrunA[muoId2] * muoISOrunA[highEta2][muoIso2];
