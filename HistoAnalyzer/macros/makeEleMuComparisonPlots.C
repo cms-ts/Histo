@@ -42,8 +42,8 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
   int whichjet = whichjet;
   string version = "_v2_32";
 
+  //  string s         = "/gpfs/cms/users/schizzi/EleMuComparisonPlots/testUnfolding/";
   string s         = "/gpfs/cms/users/schizzi/EleMuComparisonPlots/PreUnfolding/";
-  //  string s         = "/gpfs/cms/users/schizzi/EleMuComparisonPlots/PostUnfolding/";
   string  eleplotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
   string  muoplotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
 
@@ -52,8 +52,10 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsNoUnfolding_v2_35.root";
-  string muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsNoUnfolding_v2_35Mu.root";
+  string elepathFile   ="/gpfs/cms/data/2011/Unfolding/speranza.root";
+  string muopathFile   ="/gpfs/cms/data/2011/Unfolding/speranzaMu.root";
+  //  string elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsNoUnfolding_v2_38.root";
+  //  string muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsNoUnfolding_v2_38Mu.root";
   //  string elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3_v2_35.root";
   //  string muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root";
 
@@ -379,7 +381,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio->GetYaxis()->SetTitleOffset(0.65);
 	leadingRatio->GetYaxis()->SetTitle("Ele/Mu");   
 	leadingRatio->GetYaxis()->SetNdivisions(5);
-	leadingRatio->GetYaxis()->SetRangeUser(0.9,1.1);
+	leadingRatio->GetYaxis()->SetRangeUser(0.8,1.2);
 
 
 	if (use_case ==1) {
