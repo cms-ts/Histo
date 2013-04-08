@@ -1,9 +1,12 @@
+//Versione committata il 7 aprile. Intermedia...
+
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include "TSVDUnfold.h"
 #include <iostream>
 #include <fstream>
+#include "getMuscleFitCorrection.C"
 
 using namespace std;
 
@@ -163,8 +166,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   cout<<"MC tree  is ->"<<tree_fA->GetName()<<endl;
   cout<<"Data tree is->"<<tree_fB->GetName()<<endl;  
   cout<<"#####################"<<endl;
-  
-  
+
   ///////////////////////////////////////
   /*costruisco la matrice di unfolding */
   ///////////////////////////////////////
@@ -188,6 +190,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   if (fChain == 0) return; if (!doUnfold) nentries=0;
 
+  double jet1_pt_gen_old=0;
+
   for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
       Long64_t ientry = LoadTree (jentry);
@@ -196,7 +200,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       nbytes += nb;
       jet_Obs_gen=0;
       jet_Obs=0;
-      
+
       if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
 
       // Get Efficiency
@@ -213,6 +217,11 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if (ValidGenJets<numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
       ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);   
       // Initialize the Observables
+
+      //printObservables(jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity, jet_Obs, jet_Obs_gen);
+      //if (jet1_pt_gen==jet1_pt_gen_old) continue;
+
+      jet1_pt_gen_old=jet1_pt_gen;
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
 		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
 
@@ -228,6 +237,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       //////////////////////////////////
       // Gen Level Correction
       //////////////////////////////////
+      //if (ValidRecoJets==1 &&  ValidGenJets==1 && jet_Obs_gen<30) cout<<jet1_pt<<" "<<jet_Obs_gen<<endl;
 
       //Filling histograms, old way... Kept as a reference
       jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
@@ -288,7 +298,9 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); genRecoAfterGenCorr++;
 	}
-	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {response_fillfake.Fake(jet_Obs,effcorrmc); noGenRecoAfterGenCorr++;}
+	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {
+	  response_fillfake.Fake(jet_Obs,effcorrmc); noGenRecoAfterGenCorr++;
+	}
 	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) {response_fillfake.Miss(jet_Obs_gen); genNoRecoAfterGenCorr++;}
       }
       else{
@@ -323,8 +335,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     jet_Obs=0;
 
     if (Jet_multiplicity > 10) continue;
-    //if ((fabs(e1_eta)>1.442 && fabs(e1_eta)<1.566) || (fabs(e2_eta)>1.442 && fabs(e2_eta)<1.566))  continue;
-    //if ((fabs(e1_eta)>2.0) || (fabs(e2_eta)>2.0))  continue;
+    if ((fabs(e1_eta)>1.442 && fabs(e1_eta)<1.566) || (fabs(e2_eta)>1.442 && fabs(e2_eta)<1.566))  continue;
+    //if ((fabs(e1_eta)<1.566) || (fabs(e2_eta)<1.566))  continue;
     
     //When you test pythia or identity, this dataset becomes a MC one... So it requires some more gym
     if (!identityCheck) setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
@@ -336,9 +348,27 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     }
     
     double effcorrdata=1.0;
-    if (correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
-    efficiencycorrections->Fill(effcorrdata);
+    if (muscleFitCorrection && isMu) {
+      TLorentzVector e1,e2;
+      e1.SetPtEtaPhiM(e1_pt,e1_eta,e1_phi,e1_mass);      
+      e2.SetPtEtaPhiM(e2_pt,e2_eta,e2_phi,e2_mass);      
+      TLorentzVector vec1=getNewTLorentzVectorForMu(e1,e1_charge);
+      std::vector<double> value=returnPtAndEtaFromTLorentz(vec1);
+      TLorentzVector vec2=getNewTLorentzVectorForMu(e2,e2_charge);
+      std::vector<double> value2=returnPtAndEtaFromTLorentz(vec2);
+      e1_pt=value[0]; e1_eta=value[1];
+      e2_pt=value2[0]; e2_eta=value2[1];
+      value.clear();
+      value2.clear();
+    }
     
+    if (correctForEff && !isMu) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
+    if (correctForEff && isMu) {
+      effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
+      //if (Run>=175000) effcorrdata=effcorrdata/getEfficiencyMuonPOG(false,false,e1_pt,e1_eta,e2_pt,e2_eta);
+    }
+    efficiencycorrections->Fill(effcorrdata);
+   
     //Normal Filling
     if (!identityCheck && Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
 
@@ -348,7 +378,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     }
     if (pythiaCheck) jTruePythia->Fill(jet_Obs_gen);
   }//End loop Data
-  
+
   cout<<"Recorded "<<numbOfEventsInData<<" events as Data"<<endl;
 
   ////////////////////////
@@ -364,7 +394,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   //////////////////////////////
   
   //Old stile to perform the unfolding
-  RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
+  RooUnfoldResponse response_j(jMCreco, jTrue, jMatxlong); 
   response_j.UseOverflow();
   stringstream num;
 
@@ -376,7 +406,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
-	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
 	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       }
       else{
@@ -385,8 +415,9 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       }
       num.str("");
   } 
+  //jReco->SetBinContent(1,fabs(jReco->GetBinContent(1)));
 
-  if (identityCheck || splitCheck || pythiaCheck){
+  if (differentialCrossSection || identityCheck || splitCheck || pythiaCheck){
     jReco->Scale(1./jReco->Integral());             
     jTrue->Scale(1./jTrue->Integral());
     jMCreco->Scale(1./jMCreco->Integral());
