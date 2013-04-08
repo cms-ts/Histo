@@ -87,7 +87,7 @@ bool saveFile=true; //if True, it will save the rootfile. Switch it, when you ar
 string direct="/gpfs/cms/data/2011/Unfolding/";
 //string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Bayes_v2_35.root";//+version;
 //string filename=direct+"UnfoldedVJets2011DistributionsNoUnfolding_v2_38";
-string filename=direct+"Madgraph4";
+string filename=direct+"Madgraph6";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -179,7 +179,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Pt";
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }

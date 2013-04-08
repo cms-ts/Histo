@@ -40,9 +40,10 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
   TH1D *unf;
   RooUnfoldBayes unfold_b (&response_j, jData, kvalue);  //NEVER,NEVER,NEVER set the parameter "1000" for the testing if you want to perform identity tests
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
-  
+  double a=unfold_s.GetDefaultParm();
+  //unfold_s.SetRegParm(a);
   if (whichalgo=="Bayes") {
-    unf = (TH1D *) unfold_b.Hreco ();
+    unf = (TH1D *) unfold_b.Hreco();
     unfold_b.PrintTable(cout,jTrue);
     cout<<"Bayes: Chi2 of this k parameter(k="<<kvalue<<")<< is "<<unfold_b.Chi2(jTrue,RooUnfold::kErrors)<<endl;
     TVectorD vstat= unfold_b.ErecoV();
@@ -59,6 +60,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
     TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
     TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
+    unf=unfresult;
   }
   
   cout<<"Set the error!!!!!!!!!!!"<<endl;
@@ -221,9 +223,18 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       //printObservables(jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity, jet_Obs, jet_Obs_gen);
       //if (jet1_pt_gen==jet1_pt_gen_old) continue;
 
-      jet1_pt_gen_old=jet1_pt_gen;
-      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
+      //jet1_pt_gen_old=jet1_pt_gen;
+      //setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
+      //	       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
+
+
+      std::vector<double> object=setObservablesMCvector(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
 		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
+
+      jet_Obs=object[0];
+      jet_Obs_gen=object[1];
+      jet_Obs_pt_gen=object[2];
+      jet_Obs_eta_gen=object[3];
 
       //Eta Case...by default, events missed can be =0, removed by hands
       if (jet_Obs==0 && whichtype=="Eta") {
@@ -294,7 +305,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       recoinTheGap++; continue;
       }
       
-      if (whichtype=="Multiplicity"){
+      if (whichtype=="aaaMualtiplicity"){
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); genRecoAfterGenCorr++;
 	}
@@ -371,12 +382,12 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
    
     //Normal Filling
     if (!identityCheck && Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
-
+    if (pythiaCheck && Jet_multiplicity >= numbOfJetsSelected) jTruePythia->Fill(0*jet_Obs_gen);
     //Filling for tests
     if (identityCheck && Jet_multiplicity >= numbOfJetsSelected && jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4 && recoZInAcceptance) {
       jData->Fill (jet_Obs,effcorrdata); 
     }
-    if (pythiaCheck) jTruePythia->Fill(jet_Obs_gen);
+
   }//End loop Data
 
   cout<<"Recorded "<<numbOfEventsInData<<" events as Data"<<endl;
@@ -406,7 +417,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
-	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
 	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       }
       else{
