@@ -1265,9 +1265,9 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fA, TFile *fB, double ele1_
       //      WP80_effPt->GetBinContent(eta2,pt2)*
       RECO_effPt->GetBinContent(eta1,pt1)*
       RECO_effPt->GetBinContent(eta2,pt2)*
-      (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) //+
-       //      ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
-       //      ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2)
+      (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2)// +
+      //ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
+      //ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2)
       );
     eff_global = eff_global*getEfficiencyElectronLovedeepEle(ele1_pt ,ele1_eta)*getEfficiencyElectronLovedeepEle(ele2_pt ,ele2_eta);
   } else {

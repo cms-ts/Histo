@@ -1,12 +1,9 @@
-//Versione committata il 7 aprile. Intermedia...
-
 #include <vector>
 #include <iostream>
 #include <algorithm>
 #include "TSVDUnfold.h"
 #include <iostream>
 #include <fstream>
-#include "getMuscleFitCorrection.C"
 
 using namespace std;
 
@@ -40,10 +37,9 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
   TH1D *unf;
   RooUnfoldBayes unfold_b (&response_j, jData, kvalue);  //NEVER,NEVER,NEVER set the parameter "1000" for the testing if you want to perform identity tests
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
-  double a=unfold_s.GetDefaultParm();
-  //unfold_s.SetRegParm(a);
+  
   if (whichalgo=="Bayes") {
-    unf = (TH1D *) unfold_b.Hreco();
+    unf = (TH1D *) unfold_b.Hreco ();
     unfold_b.PrintTable(cout,jTrue);
     cout<<"Bayes: Chi2 of this k parameter(k="<<kvalue<<")<< is "<<unfold_b.Chi2(jTrue,RooUnfold::kErrors)<<endl;
     TVectorD vstat= unfold_b.ErecoV();
@@ -62,9 +58,11 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
   }
   
-  cout<<"Set the error!!!!!!!!!!!"<<endl;
   for (unsigned int p=0;p<unf->GetNbinsX();p++){
     errors->SetBinContent(p+1,unf->GetBinError(p+1)); errorstat->SetBinContent(p+1,sqrt(unf->GetBinContent(p+1)));
+    cout<<"Bin "<<p+1<<" has "<<unf->GetBinError(p+1)<<" sta error is "<<sqrt(unf->GetBinContent(p+1));
+    if (unf->GetBinError(p+1)<sqrt(unf->GetBinContent(p+1))) unf->SetBinError(p+1,sqrt(unf->GetBinContent(p+1)));
+    cout<<"Error set at "<<unf->GetBinError(p+1)<<endl;
   }
   //Returns vector of unfolding errors computed according to the withError flag:
   //0: Errors are the square root of the bin content
@@ -167,7 +165,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   cout<<"MC tree  is ->"<<tree_fA->GetName()<<endl;
   cout<<"Data tree is->"<<tree_fB->GetName()<<endl;  
   cout<<"#####################"<<endl;
-
+  
+  
   ///////////////////////////////////////
   /*costruisco la matrice di unfolding */
   ///////////////////////////////////////
@@ -191,8 +190,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   if (fChain == 0) return; if (!doUnfold) nentries=0;
 
-  double jet1_pt_gen_old=0;
-
   for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
       Long64_t ientry = LoadTree (jentry);
@@ -201,9 +198,9 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       nbytes += nb;
       jet_Obs_gen=0;
       jet_Obs=0;
-
-      if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
       
+      if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
+
       // Get Efficiency
       double effcorrmc=1.00;
       if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
@@ -211,28 +208,15 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       efficiencycorrectionsmc->Fill(effcorrmc);
 
       //In this way, jets with more than 25 GeV are accounted!! --> getNumberOfValidJets to change it offline..
-      int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 25, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+      int ValidGenJets=Jet_multiplicity_gen;//getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
       int ValidRecoJets=Jet_multiplicity;
       
       //Check if the gen jets has at least 25 GeV (first if). Then, Valid gen is considered only if 30 > Gev     
       if (ValidGenJets<numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
-      ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 25, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);   
+      ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);   
       // Initialize the Observables
-
-      //if (jet1_pt_gen==jet1_pt_gen_old) continue;
-
-      //jet1_pt_gen_old=jet1_pt_gen;
-      //setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
-      //	       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-
-
-      std::vector<double> object=setObservablesMCvector(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
+      setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
 		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
-
-      jet_Obs=object[0];
-      jet_Obs_gen=object[1];
-      jet_Obs_pt_gen=object[2];
-      jet_Obs_eta_gen=object[3];
 
       //Eta Case...by default, events missed can be =0, removed by hands
       if (jet_Obs==0 && whichtype=="Eta") {
@@ -243,79 +227,70 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	jet_Obs_gen=-99;
       } 
 
-
       //////////////////////////////////
       // Gen Level Correction
       //////////////////////////////////
 
-      //l1_gen ans l2_gen are not working!!
+      //Filling histograms, old way... Kept as a reference
+      jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+
+      // Generated outside the accpetance!
+      if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
 
 
-       // Generated outside the accpetance! */
-      //       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++; */
+      // Generated Outside acceptance and not reco. skipped
+      if ( (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) && !recoZInAcceptance) {notGenNotReco++; 	continue;}
 
-
-/*       // Generated Outside acceptance and not reco. skipped */
-/*       if ( (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) && !recoZInAcceptance) {notGenNotReco++; 	continue;} */
-
-/*       //Generated Outside and Reco */
-/*       if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; //accounted afterwards! low pt , invmass, etc */
-/*       if (recoZInAcceptance) recostructedEvents++;  */
-
+      //Generated Outside and Reco
+      if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; //accounted afterwards! low pt , invmass, etc
+      if (recoZInAcceptance) recostructedEvents++; 
       
-/*       //////////////////////////////////////// */
-/*       // If there are no Z reco, it is a miss. We prefer to account for it using the efficieny derived from data, that's why I don't fill any matrixes! */
-/*       ////////////////////////////////////////  */
-/*       if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){ */
-/* 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu! */
-/* 	continue; //<================= check removing it */
-/*       } */
-
-/*       //Filling histograms, old way... Kept as a reference */
-       jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc); 
+      ///////////////////////////////////
+      //account for the gap!
+      //////////////////////////////////
+      if ( ((fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566 && fabs(l2_eta_gen)<2.4) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566 && fabs(l1_eta_gen)<2.4)) && l1_pt_gen>20 && l2_pt_gen>20 && (invMass_gen<111 && invMass_gen>71) && isElectron && !recoZInAcceptance){
+	if (ValidGenJets >=numbOfJetsSelected) {
+	  response_fillfake.Miss(jet_Obs_gen); 
+	  inTheGap++;
+	}
+	continue;
+      }
       
-/*       /////////////////////////////////// */
-/*       //account for the gap! */
-/*       ////////////////////////////////// */
-/*       if ( ((fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566 && fabs(l2_eta_gen)<2.4) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566 && fabs(l1_eta_gen)<2.4)) && l1_pt_gen>20 && l2_pt_gen>20 && (invMass_gen<111 && invMass_gen>71) && isElectron && !recoZInAcceptance){ */
-/* 	if (ValidGenJets >=numbOfJetsSelected) { */
-/* 	  response_fillfake.Miss(jet_Obs_gen);  */
-/* 	  inTheGap++; */
-/* 	} */
-/* 	continue; */
-/*       } */
+      ////////////////////////////////////////
+      // If there are no Z reco, it is a miss. We prefer to account for it using the efficieny derived from data, that's why I don't fill any matrixes!
+      //////////////////////////////////////// 
+      if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){
+	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
+	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
+	continue; //<================= check removing it
+      }
 
      
-/*       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){ */
-/* 	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); */
-/* 	cout<<l1_pt_gen<<" "<<l2_pt_gen<<endl; */
-/* 	recoButPtLow++; continue; */
-/*       } */
+      if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+	recoButPtLow++; continue;
+      }
 
-/*       if ( (fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4) && (recoZInAcceptance) ){ */
-/* 	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); */
-/* 	recoButEtaHigh++; continue; */
-/*       } */
+      if ( (fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4) && (recoZInAcceptance) ){
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+	recoButEtaHigh++; continue;
+      }
       
-/*       if ( (invMass_gen>111 || invMass_gen<71) && (recoZInAcceptance) ){ */
-/* 	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); */
-/* 	recoButInvMassOut++; continue; */
-/*       } */
+      if ( (invMass_gen>111 || invMass_gen<71) && (recoZInAcceptance) ){
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc);  
+	recoButInvMassOut++; continue;
+      }
       
-/*       if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){ */
-/* 	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); */
-/* 	recoinTheGap++; continue; */
-/*       } */
-
-//      printObservables(jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity, jet_Obs, jet_Obs_gen);
-
+      if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+      recoinTheGap++; continue;
+      }
+      
       if (whichtype=="Multiplicity"){
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); genRecoAfterGenCorr++;
 	}
-	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {
-	  response_fillfake.Fake(jet_Obs,effcorrmc); noGenRecoAfterGenCorr++;
-	}
+	if (!(ValidGenJets >=numbOfJetsSelected) && ValidRecoJets >= numbOfJetsSelected) {response_fillfake.Fake(jet_Obs,effcorrmc); noGenRecoAfterGenCorr++;}
 	if (ValidGenJets >=numbOfJetsSelected && !(ValidRecoJets >= numbOfJetsSelected)) {response_fillfake.Miss(jet_Obs_gen); genNoRecoAfterGenCorr++;}
       }
       else{
@@ -351,7 +326,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
     if (Jet_multiplicity > 10) continue;
     //if ((fabs(e1_eta)>1.442 && fabs(e1_eta)<1.566) || (fabs(e2_eta)>1.442 && fabs(e2_eta)<1.566))  continue;
-    //if ((fabs(e1_eta)<1.566) || (fabs(e2_eta)<1.566))  continue;
+    //if ((fabs(e1_eta)>2.0) || (fabs(e2_eta)>2.0))  continue;
     
     //When you test pythia or identity, this dataset becomes a MC one... So it requires some more gym
     if (!identityCheck) setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
@@ -363,37 +338,19 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     }
     
     double effcorrdata=1.0;
-    if (muscleFitCorrection && isMu) {
-      TLorentzVector e1,e2;
-      e1.SetPtEtaPhiM(e1_pt,e1_eta,e1_phi,e1_mass);      
-      e2.SetPtEtaPhiM(e2_pt,e2_eta,e2_phi,e2_mass);      
-      TLorentzVector vec1=getNewTLorentzVectorForMu(e1,e1_charge);
-      std::vector<double> value=returnPtAndEtaFromTLorentz(vec1);
-      TLorentzVector vec2=getNewTLorentzVectorForMu(e2,e2_charge);
-      std::vector<double> value2=returnPtAndEtaFromTLorentz(vec2);
-      e1_pt=value[0]; e1_eta=value[1];
-      e2_pt=value2[0]; e2_eta=value2[1];
-      value.clear();
-      value2.clear();
-    }
-    
-    if (correctForEff && !isMu) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
-    if (correctForEff && isMu) {
-      effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
-      //if (Run>=175000) effcorrdata=effcorrdata/getEfficiencyMuonPOG(false,false,e1_pt,e1_eta,e2_pt,e2_eta);
-    }
+    if (correctForEff) effcorrdata=effcorrdata/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"Data",isEle);
     efficiencycorrections->Fill(effcorrdata);
-   
+    
     //Normal Filling
     if (!identityCheck && Jet_multiplicity >= numbOfJetsSelected) jData->Fill (jet_Obs,effcorrdata);
-    if (pythiaCheck && Jet_multiplicity >= numbOfJetsSelected) jTruePythia->Fill(jet_Obs_gen);
+
     //Filling for tests
     if (identityCheck && Jet_multiplicity >= numbOfJetsSelected && jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4 && recoZInAcceptance) {
       jData->Fill (jet_Obs,effcorrdata); 
     }
-
+    if (pythiaCheck) jTruePythia->Fill(jet_Obs_gen);
   }//End loop Data
-
+  
   cout<<"Recorded "<<numbOfEventsInData<<" events as Data"<<endl;
 
   ////////////////////////
@@ -421,7 +378,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
-	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
 	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       }
       else{
@@ -430,9 +387,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       }
       num.str("");
   } 
-  //jReco->SetBinContent(1,fabs(jReco->GetBinContent(1)));
 
-  if (differentialCrossSection || identityCheck || splitCheck || pythiaCheck){
+  if (identityCheck || splitCheck || pythiaCheck){
     jReco->Scale(1./jReco->Integral());             
     jTrue->Scale(1./jTrue->Integral());
     jMCreco->Scale(1./jMCreco->Integral());
@@ -443,7 +399,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   //Drawing Histograms
   if (doUnfold && !pythiaCheck) { c= drawPlots(jReco,jData,jTrue,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }
   if (doUnfold && pythiaCheck) { d= drawPlots(jReco,jData,jTruePythia,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); d->Draw(); }
-
+  //  d->Print("/tmp/a.png");
   //Normalization 
 
   double unfarea=jReco->Integral()/4890.0;

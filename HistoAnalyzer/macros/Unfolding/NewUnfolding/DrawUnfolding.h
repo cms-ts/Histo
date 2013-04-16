@@ -92,6 +92,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jRecoClone->SetStats(0);
   jRecoClone->GetXaxis ()->SetLabelSize (0.1);
   jRecoClone->GetYaxis ()->SetLabelSize (0.08);
+  jRecoClone->Sumw2();
   jRecoClone->Divide(jTrue);
   jRecoClone->SetMarkerStyle (6);
   jRecoClone->GetXaxis ()->SetLabelSize (0.06);
@@ -99,7 +100,14 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jRecoClone->GetXaxis ()->SetTitleSize (0);
   jRecoClone->GetYaxis ()->SetTitleSize (0.06);
   jRecoClone->GetYaxis ()->SetTitleOffset (0.5);
-  
+
+  cout<<"Data for unfolding Uncertainties!"<<endl;
+  cout<<"======================================"<<endl;
+  for (unsigned int p=0;p<jRecoClone->GetNbinsX();p++){
+    cout<<fabs(1.0000-jRecoClone->GetBinContent(p+1))<<endl;
+  }
+  cout<<"======================================"<<endl;
+
   jRecoClone->GetYaxis ()->SetRangeUser (0.5, 1.5);
   jRecoClone->GetYaxis ()->SetTitle ("Ratios");
   if (whichtype=="Multiplicity") jRecoClone->GetXaxis()->SetTitle("jet Multiplicity");
@@ -121,6 +129,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   
   TH1D *jDataClone= (TH1D*) jReco->Clone("jReco");
   jDataClone->SetName("jDataClone"); 
+  jDataClone->Sumw2();
   jDataClone->Divide(jData);
   jDataClone->SetLineStyle (2); 
   jDataClone->SetMarkerSize (0);       
@@ -153,9 +162,9 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   if (identityCheck) title3= s+"/IdentityTest/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";
   if (pythiaCheck) title3= s+"/PowhegTest/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";      
   num.str("");
-  c->cd ();
+  cout<<title3<<endl;
   c->Print(title3.c_str());
-  
+
   if (whichalgo == "SVD"){
     TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
     moduloD->cd ();

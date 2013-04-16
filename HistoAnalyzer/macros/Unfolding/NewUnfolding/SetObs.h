@@ -1,5 +1,11 @@
 //After that, Observables are set...
 
+void printObservables(double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen,  double jet5_pt_gen,  double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen, int Jet_multiplicity_gen, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity, double jet_Obs, double jet_Obs_gen)
+{
+  cout<< jet1_pt_gen<<" "<< jet2_pt_gen<<" "<< jet3_pt_gen<<" "<< jet4_pt_gen<<" "<<  jet5_pt_gen<<" "<<  jet6_pt_gen<<" "<< jet1_eta_gen<<" "<< jet2_eta_gen<<" "<< jet3_eta_gen<<" "<< jet4_eta_gen<<" "<< jet5_eta_gen<<" "<< jet6_eta_gen<<" "<<  Jet_multiplicity_gen<<" "<< jet1_pt<<" "<< jet2_pt<<" "<< jet3_pt<<" "<< jet4_pt<<" "<<  jet5_pt<<" "<<  jet6_pt<<" "<< jet1_eta<<" "<< jet2_eta<<" "<< jet3_eta<<" "<< jet4_eta<<" "<< jet5_eta<<" "<< jet6_eta<<" "<< Jet_multiplicity<<" jetObs "<<jet_Obs<<" jetObsgen "<<jet_Obs_gen<<endl;
+  return;
+}
+
 ////////////////////
 //  return number of valid jets
 ////////////////////
@@ -38,6 +44,7 @@ int getNumberOfValidJets(int Jet_multiplicity, double thresh, double thresheta, 
 
 void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen,  double jet5_pt_gen,  double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen, int Jet_multiplicity_gen, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity){
 
+  //printObservables(jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity, jet_Obs, jet_Obs_gen);
   if (numbOfJetsSelected==1){jet_Obs_pt_gen=jet1_pt_gen;jet_Obs_eta_gen=jet1_eta_gen;}
   if (numbOfJetsSelected==2){jet_Obs_pt_gen=jet2_pt_gen;jet_Obs_eta_gen=jet2_eta_gen;}
   if (numbOfJetsSelected==3){jet_Obs_pt_gen=jet3_pt_gen;jet_Obs_eta_gen=jet3_eta_gen;}
@@ -121,6 +128,109 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
 }
 
 
+std::vector<double> setObservablesMCvector(int numbOfJetsSelected, string whichtype, double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen,  double jet5_pt_gen,  double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen, int Jet_multiplicity_gen, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity){
+
+  std::vector<double> object;
+
+  if (numbOfJetsSelected==1){jet_Obs_pt_gen=jet1_pt_gen;jet_Obs_eta_gen=jet1_eta_gen;}
+  if (numbOfJetsSelected==2){jet_Obs_pt_gen=jet2_pt_gen;jet_Obs_eta_gen=jet2_eta_gen;}
+  if (numbOfJetsSelected==3){jet_Obs_pt_gen=jet3_pt_gen;jet_Obs_eta_gen=jet3_eta_gen;}
+  if (numbOfJetsSelected==4){jet_Obs_pt_gen=jet4_pt_gen;jet_Obs_eta_gen=jet4_eta_gen;}
+
+  if (numbOfJetsSelected==1){jet_Obs_pt=jet1_pt;jet_Obs_eta=jet1_eta;}
+  if (numbOfJetsSelected==2){jet_Obs_pt=jet2_pt;jet_Obs_eta=jet2_eta;}
+  if (numbOfJetsSelected==3){jet_Obs_pt=jet3_pt;jet_Obs_eta=jet3_eta;}
+  if (numbOfJetsSelected==4){jet_Obs_pt=jet4_pt;jet_Obs_eta=jet4_eta;}
+
+
+  if (whichtype=="Pt"){
+    if (numbOfJetsSelected==1) {
+      jet_Obs_gen=jet1_pt_gen;
+      jet_Obs=jet1_pt;
+    }
+    if (numbOfJetsSelected==2) {
+      jet_Obs_gen=jet2_pt_gen;
+      jet_Obs=jet2_pt;
+    }
+    if (numbOfJetsSelected==3) {
+      jet_Obs_gen=jet3_pt_gen;
+      jet_Obs=jet3_pt;
+    }
+    if (numbOfJetsSelected==4) {
+      jet_Obs_gen=jet4_pt_gen;
+      jet_Obs=jet4_pt;
+    }
+    if (jet_Obs_gen>7000 || jet_Obs_gen<-1) jet_Obs_gen=0;
+    object.push_back(jet_Obs);
+    object.push_back(jet_Obs_gen);
+    object.push_back(jet_Obs_pt_gen);
+    object.push_back(jet_Obs_eta_gen);
+    return object;
+  }
+
+  if (whichtype=="Eta"){
+    if (numbOfJetsSelected==1) {
+      jet_Obs_gen=jet1_eta_gen;
+      jet_Obs=jet1_eta;
+    }
+    if (numbOfJetsSelected==2) {
+      jet_Obs_gen=jet2_eta_gen;
+      jet_Obs=jet2_eta;
+
+    }
+    if (numbOfJetsSelected==3) {
+      jet_Obs_gen=jet3_eta_gen;
+      jet_Obs=jet3_eta;
+    }
+    if (numbOfJetsSelected==4) {
+      jet_Obs_gen=jet4_eta_gen;
+      jet_Obs=jet4_eta;
+    }
+    object.push_back(jet_Obs);
+    object.push_back(jet_Obs_gen);
+    object.push_back(jet_Obs_pt_gen);
+    object.push_back(jet_Obs_eta_gen);
+    return object;
+  }
+
+  if (whichtype=="Ht"){
+    jet_Obs_gen=jet_Obs=0.0;
+    if (Jet_multiplicity >= numbOfJetsSelected ){
+      if (jet1_pt > 30 && jet1_pt < 7000 && fabs(jet1_eta)<2.4 ) jet_Obs += jet1_pt;
+        if (jet2_pt > 30 && jet2_pt < 7000 && fabs(jet2_eta)<2.4) jet_Obs += jet2_pt;
+        if (jet3_pt > 30 && jet3_pt < 7000 && fabs(jet3_eta)<2.4) jet_Obs += jet3_pt;
+        if (jet4_pt > 30 && jet4_pt < 7000 && fabs(jet4_eta)<2.4) jet_Obs += jet4_pt;
+        if (jet5_pt > 30 && jet5_pt < 7000 && fabs(jet5_eta)<2.4) jet_Obs += jet5_pt;
+        if (jet6_pt > 30 && jet6_pt < 7000 && fabs(jet6_eta)<2.4) jet_Obs += jet6_pt;
+      }
+
+    if (Jet_multiplicity_gen >= numbOfJetsSelected ){
+        if (jet1_pt_gen > 30 && jet1_pt_gen < 7000 && fabs(jet1_eta_gen)<2.4) jet_Obs_gen += jet1_pt_gen;;
+        if (jet2_pt_gen > 30 && jet2_pt_gen < 7000 && fabs(jet2_eta_gen)<2.4) jet_Obs_gen += jet2_pt_gen;
+        if (jet3_pt_gen > 30 && jet3_pt_gen < 7000 && fabs(jet3_eta_gen)<2.4) jet_Obs_gen += jet3_pt_gen;
+        if (jet4_pt_gen > 30 && jet4_pt_gen < 7000 && fabs(jet4_eta_gen)<2.4) jet_Obs_gen += jet4_pt_gen;
+        if (jet5_pt_gen > 30 && jet5_pt_gen < 7000 && fabs(jet5_eta_gen)<2.4) jet_Obs_gen += jet5_pt_gen;
+        if (jet6_pt_gen > 30 && jet6_pt_gen < 7000 && fabs(jet6_eta_gen)<2.4) jet_Obs_gen += jet6_pt_gen;
+      }
+    object.push_back(jet_Obs);
+    object.push_back(jet_Obs_gen);
+    object.push_back(jet_Obs_pt_gen);
+    object.push_back(jet_Obs_eta_gen);
+    return object;
+  }
+
+  if (whichtype=="Multiplicity"){
+    jet_Obs_gen=Jet_multiplicity_gen;//getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+    jet_Obs=Jet_multiplicity;//getNumberOfValidJets(Jet_multiplicity, 30.0, 2.4, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta);
+  }
+    object.push_back(jet_Obs);
+    object.push_back(jet_Obs_gen);
+    object.push_back(jet_Obs_pt_gen);
+    object.push_back(jet_Obs_eta_gen);
+  return object;
+}
+
+
 ////////////////////////
 //Set the observables Data
 ////////////////////////
@@ -201,6 +311,7 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
 	kmin=3;
 	kmax=4;
       }
+
     }
     if (numbOfJetsSelected==2){
       minObsPlot=30;
@@ -339,3 +450,5 @@ if (numbOfJetsSelected == 1){
   }
   return;
 }
+
+

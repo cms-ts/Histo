@@ -49,16 +49,16 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
@@ -82,12 +82,11 @@ bool pythiaCheck=true;
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
 
-//Save histos to be used afterward
-bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
+//SAVE histos to be used afterward
+bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-//string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Bayes_v2_35.root";//+version;
-//string filename=direct+"UnfoldedVJets2011DistributionsNoUnfolding_v2_38";
-string filename=direct+"Madgraph6";
+string filename=direct+"SherpaTest";
+//string filename=direct+"SherpaUnfoldingSystematics";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -124,7 +123,7 @@ bool MCstatError=false;
 /* Number of jet associated to a Z distribution */
 //-------------------------
 double jetPtthreshold=30.0;
-int maxNJets=7;
+int maxNJets=6;
 //------------------------
 
 TH1D *NReco;
@@ -189,7 +188,7 @@ void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets,bool is
   //  smcpythia=smc;
   isMu=isMuon;
   if (isMu) {
-    s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
+    s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;

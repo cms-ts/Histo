@@ -11,12 +11,14 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include "TLorentzVector.h"
 
 
 #include "RooUnfoldResponse.h"
 #include "RooUnfoldBayes.h"
 #include "RooUnfoldSvd.h"
 #include "RooUnfoldBinByBin.h"
+#include "RooUnfoldInvert.h"
 
 
 class UnfoldingVJets2011 {
@@ -61,6 +63,10 @@ public :
    Double_t        e2_eta;
    Double_t        e1_pt;
    Double_t        e2_pt;
+   Double_t        e1_phi;
+   Double_t        e2_phi;
+   Double_t        e1_mass;
+   Double_t        e2_mass;
    Bool_t          isElectron;
    Double_t        invMass_gen;
    Double_t        l1_eta_gen;
@@ -69,6 +75,11 @@ public :
    Double_t        l2_pt_gen;
    Int_t           genZInAcceptance;
    Int_t           recoZInAcceptance;
+   int    e1_charge;
+   TLorentzVector e1_tlv;
+   int    e2_charge;
+   TLorentzVector e2_tlv;
+   int Run;
 
 
    // List of branches
@@ -108,6 +119,10 @@ public :
    TBranch        *b_e2_eta;
    TBranch        *b_e1_pt;
    TBranch        *b_e2_pt;
+   TBranch        *b_e1_phi;
+   TBranch        *b_e2_phi;
+   TBranch        *b_e1_mass;
+   TBranch        *b_e2_mass;
    TBranch        *b_isElectron;
    TBranch        *b_invMass_gen;   //!
    TBranch        *b_l1_eta_gen;   //!
@@ -116,8 +131,11 @@ public :
    TBranch        *b_l2_pt_gen;   //!
    TBranch        *b_genZInAcceptance;   //!
    TBranch        *b_recoZInAcceptance;   //!
-
-
+   TBranch        *b_e1_charge;
+   TBranch        *b_e2_charge;
+   TBranch        *b_e1_tlv;
+   TBranch        *b_e2_tlv;
+   TBranch        *b_Run;
 
    UnfoldingVJets2011(TTree *tree=0);
    virtual ~UnfoldingVJets2011();
@@ -233,6 +251,15 @@ void UnfoldingVJets2011::Init(TTree *tree)
    fChain->SetBranchAddress("e2_eta", &e2_eta, &b_e2_eta);
    fChain->SetBranchAddress("e1_pt", &e1_pt, &b_e1_pt);
    fChain->SetBranchAddress("e2_pt", &e2_pt, &b_e2_pt);
+   fChain->SetBranchAddress("e1_phi", &e1_phi, &b_e1_phi);
+   fChain->SetBranchAddress("e2_phi", &e2_phi, &b_e2_phi);
+   fChain->SetBranchAddress("e1_mass", &e1_mass, &b_e1_mass);
+   fChain->SetBranchAddress("e2_mass", &e2_mass, &b_e2_mass);
+   fChain->SetBranchAddress("e1_charge", &e1_charge, &b_e1_charge);
+   fChain->SetBranchAddress("e2_charge", &e2_charge, &b_e2_charge);
+   fChain->SetBranchAddress("e1_tlv", &e1_tlv);
+   fChain->SetBranchAddress("e2_tlv", &e2_tlv);
+
    fChain->SetBranchAddress("isElectron", &isElectron, &b_isElectron);
    fChain->SetBranchAddress("invMass_gen", &invMass_gen, &b_invMass_gen);
    fChain->SetBranchAddress("l1_eta_gen", &l1_eta_gen, &b_l1_eta_gen);
@@ -242,6 +269,7 @@ void UnfoldingVJets2011::Init(TTree *tree)
    fChain->SetBranchAddress("genZInAcceptance", &genZInAcceptance, &b_genZInAcceptance);
    fChain->SetBranchAddress("recoZInAcceptance", &recoZInAcceptance, &b_recoZInAcceptance);
   
+   fChain->SetBranchAddress("Run", &Run);
 
    Notify();
 }
