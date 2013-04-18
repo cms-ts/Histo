@@ -39,6 +39,7 @@ bool isMu=false;
 string plotpath;
 string datafile;
 string mcfile;
+string mcfiletau;
 
 string back_ttbar;
 string back_w;
@@ -147,6 +148,8 @@ WZ               ="/gpfs/cms/data/2011/jet/jetValidation_wz_2011"+versionMu;
 ZZ               ="/gpfs/cms/data/2011/jet/jetValidation_zz_2011"+versionMu;
 WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+versionMu;
 
+ mcfiletau                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+versionMu;
+
 // if (isMu) datafile      ="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu_v2_28.root";
 //if (isMu) mcfile        ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_28.root";
  //  if (isMu) version="Mu"+version;
@@ -193,6 +196,7 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+versionMu;
     ZZ=direc+"MC_siZ"+version;
     WZ=direc+"MC_diWZ"+version;
     datafile=direc+"DATA"+version;
+    mcfiletau=direc+"MC_zjetstau"+version;
   }
   
   TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
@@ -376,6 +380,8 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+versionMu;
 
     i++;
     //if(i==4)break;
+
+    //Tau??
   }
 
 
@@ -423,11 +429,13 @@ void comparisonJetMCData(string plot,int rebin){
     ZZ=dir+"MC_siZ"+version;
     WZ=dir+"MC_diWZ"+version;
     datafile=dir+"DATA"+version;
+    mcfiletau=dir+"MC_zjetstau"+version;
   }
   // List of files
 
   TFile *dataf = TFile::Open(datafile.c_str()); //data file
   TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
+  TFile *mcftau = TFile::Open(mcfiletau.c_str()); //MC file
   TFile *ttbarf = TFile::Open(back_ttbar.c_str()); //MC background file
   TFile *wf = TFile::Open(back_w.c_str());
 
@@ -933,6 +941,77 @@ void comparisonJetMCData(string plot,int rebin){
      }
     }
 
+    /// Tau 
+
+   //======================
+
+    mcftau->cd("validationJEC");
+    if (isMu) mcftau->cd("validationJECmu/");
+
+    if (isAngularAnalysis) {
+      mcftau->cd("validationJEC/");
+      if (isMu) mcftau->cd("validationJECmu/");
+    }
+
+    TH1F* tau;
+    gDirectory->GetObject(plot.c_str(),tau);
+    if(tau){
+      tau->SetFillColor(kGreen);
+      tau->Sumw2();
+
+      if(zNumEvents>0.){
+	if(lumiweights==1) {
+	  if (WholeStat){
+	    if (lumiPixel) tau->Scale( dataLumi2011pix / (zNumEvents / zjetsXsect));
+	    else tau->Scale( dataLumi2011 / (zNumEvents / zjetsXsect));
+	  }
+	  else{
+	    if (RunA){
+	      if (lumiPixel) tau->Scale( dataLumi2011Apix / (zNumEvents / zjetsXsect));
+	      else tau->Scale( dataLumi2011A / (zNumEvents / zjetsXsect));
+	    }
+	    if (!RunA){
+	      if (lumiPixel) tau->Scale( dataLumi2011Bpix / (zNumEvents / zjetsXsect));
+	      else tau->Scale( dataLumi2011B / (zNumEvents / zjetsXsect));
+	    }
+	  }
+	}
+      }
+      else {
+	if(lumiweights==1) tau->Scale(zjetsScale);
+      }
+      // fin qui
+		
+      if(lumiweights==1) tau->Scale(1./zwemean);  // perche' i Weights non fanno 1...
+      tau->Rebin(rebin);
+      if(lumiweights==0) tau->Draw("HISTO SAMES");
+      hsum->Rebin(rebin);
+      hsum->Add(tau);
+      legend->AddEntry(tau,"TAU+jets","f");
+
+      //////////
+      //Storing the bckgrounds!
+      //////////
+     if (isAngularAnalysis){
+      if(str=="jet_pT") evaluateAndFillBackgrounds(tau,"jet_pT");
+      if(str=="jet_pT2") evaluateAndFillBackgrounds(tau,"jet_pT2");
+      if(str=="jet_pT3") evaluateAndFillBackgrounds(tau,"jet_pT3");
+      if(str=="jet_pT4") evaluateAndFillBackgrounds(tau,"jet_pT4");
+      if(str=="jet_eta") evaluateAndFillBackgrounds(tau,"jet_eta");
+      if(str=="jet_eta2") evaluateAndFillBackgrounds(tau,"jet_eta2");
+      if(str=="jet_eta3") evaluateAndFillBackgrounds(tau,"jet_eta3");
+      if(str=="jet_eta4") evaluateAndFillBackgrounds(tau,"jet_eta4");
+      if(str=="Jet_multi") evaluateAndFillBackgrounds(tau,"jet_Multiplicity");
+      if(str=="HT") evaluateAndFillBackgrounds(tau,"HT");
+      if(str=="HT_1j") evaluateAndFillBackgrounds(tau,"HT1");
+      if(str=="HT_2j") evaluateAndFillBackgrounds(tau,"HT2");
+      if(str=="HT_3j") evaluateAndFillBackgrounds(tau,"HT3");
+      if(str=="HT_4j") evaluateAndFillBackgrounds(tau,"HT4");
+      if(str=="Phi_star") evaluateAndFillBackgrounds(tau,"PhiStar");
+     }
+    }
+
+
     /////////
     // Print the bkg contributions
     ////////
@@ -1038,6 +1117,7 @@ void comparisonJetMCData(string plot,int rebin){
     if (ww)         hs->Add(ww);
     if (ttbar)	hs->Add(ttbar);
     if(w)  	        hs->Add(w);
+    if(tau)		hs->Add(tau); //Z+Jets
     if (zz)         hs->Add(zz);
     if (wz)         hs->Add(wz);
     if(mc)		hs->Add(mc); //Z+Jets
