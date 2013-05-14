@@ -34,7 +34,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-bool isMu=false;
+bool isMu=true;
 
 string plotpath;
 string datafile;
@@ -525,6 +525,11 @@ void comparisonJetMCData(string plot,int rebin){
     data->GetYaxis()->SetTitleOffset(0.76);
     data->SetTitle("");
     gStyle->SetOptStat(0);
+
+    data->GetYaxis()->SetLabelSize(0.06);
+    data->GetYaxis()->SetTitleSize(0.06);
+    data->GetYaxis()->SetTitleOffset(0.8);
+
     data->Draw("E1");
 
 
@@ -1148,7 +1153,7 @@ void comparisonJetMCData(string plot,int rebin){
     lumi->SetBorderSize(0);
     //lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
     lumi->Draw();
-    TLatex *latexLabel=CMSPrel(4.890,"",0.65,0.85); // make fancy label
+    TLatex *latexLabel=CMSPrel(4.890,"",0.6,0.85); // make fancy label
     latexLabel->Draw("same");
 
     CanvPlot->Update();
@@ -1181,11 +1186,14 @@ void comparisonJetMCData(string plot,int rebin){
     ratio->SetMarkerColor(kBlack);
     //gStyle->SetOptStat("m");
     TH1F* sumMC;
-    hs->Draw("nostack");
-    sumMC=(TH1F*) hs->GetHistogram();
+
+    hs->Draw("nostack"); 
+ 
+   sumMC=(TH1F*) hs->GetHistogram();
     cout<<sumMC->GetEntries()<<endl;
     ratio->Divide(data,hsum,1.,1.);
-    ratio->GetYaxis()->SetRangeUser(0,2);	
+    ratio->GetYaxis()->SetRangeUser(0.5,1.5);
+    ratio->SetMarkerSize(0.8);
     //pad2->SetTopMargin(1);
 
    //Canvas style copied from plotsHistsRatio.C
@@ -1194,7 +1202,7 @@ void comparisonJetMCData(string plot,int rebin){
     ratio->GetXaxis()->SetLabelSize(0.14);
     ratio->GetYaxis()->SetLabelSize(0.11);
     ratio->GetYaxis()->SetTitleSize(0.11);
-    ratio->GetYaxis()->SetTitleOffset(0.28);
+    ratio->GetYaxis()->SetTitleOffset(0.43);
     ratio->GetYaxis()->SetTitle("ratio data/MC");   
 
     ratio->Draw("E1");
