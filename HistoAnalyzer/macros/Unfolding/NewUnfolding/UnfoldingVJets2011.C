@@ -49,16 +49,16 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=false;  
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
@@ -77,7 +77,7 @@ TFile *fPythia;
 //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
 bool identityCheck=false;    //to perform identity check
 bool splitCheck=false;
-bool pythiaCheck=true;
+bool pythiaCheck=false;
 
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
@@ -85,7 +85,7 @@ bool pythiaCheck=true;
 //SAVE histos to be used afterward
 bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"SherpaTest";
+string filename=direct+"TestFabioSF";
 //string filename=direct+"SherpaUnfoldingSystematics";
 
 // Efficiency corrections
@@ -108,9 +108,11 @@ string bkgstring=dir+"Backgrounds_v2_33.root";
 
 //File with efficiency coefficients
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
-string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreviewTEST.root";
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_38TEST.root";
+string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate.root";
+
 TFile *eff;
 
 //Open MC and data files to retrieve effciencies
@@ -150,7 +152,8 @@ void UnfoldingVJets2011::Loop()
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
+    efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate.root";
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
   }
