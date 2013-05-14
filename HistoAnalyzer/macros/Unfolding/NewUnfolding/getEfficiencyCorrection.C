@@ -1963,7 +1963,7 @@ Double_t Eff_HLT_Mu13_Mu8_2011_TPfit_RunAB_EtaEta_DATAoverMC(Double_t eta1, Doub
   else return 0.;
   return 0.;
 }
-
+ 
 double getEfficiencyMuonPOG(bool is2011A , bool isMC,double muopt1 ,double muoeta1, double muopt2,double muoeta2){
   double muoIDrunA[15]={0.9111, 0.9429, 0.9661, 0.9398, 0.9639, 0.9789, 0.8731, 0.9665, 0.8643, 0.9777, 0.9616, 0.9334, 0.9614, 0.9499, 0.9164};
   double muoISOrunA[2][7]={0.8358, 0.9282, 0.9721, 0.9909, 0.9930, 0.9959, 0.9950,
@@ -2119,7 +2119,7 @@ double getSfMuonPOG(bool is2011A,double muopt1,double muoeta1,double muopt2,doub
   return sfMuonPOG*sfHLTmu;
 }
 
-Double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2){
+double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2){
   double sf_ele=1.0;
   double matrixIDISO[6][5]={
     1.028,1.084,1.805,1.213,1.022,
@@ -2128,31 +2128,6 @@ Double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta
     0.990,0.982,0.974,0.992,1.006,
     0.993,0.992,0.980,0.999,1.010,
     0.990,0.988,0.996,1.000,1.008,
-  };
-  // HLT not reliable (Lovedeep!!!!!!!!!!!!)
-  double matrixHltEle17[6][5]={
-    0.003,0.007,0.105,0.051,0.000,
-    0.827,0.830,0.782,0.770,0.462,
-    0.979,0.983,0.947,0.985,0.976,
-    0.988,0.992,0.961,0.993,0.989,
-    0.992,0.995,0.977,0.996,0.991,
-    0.993,0.995,0.984,0.996,0.991,
-  };
-  double matrixHltEle8Not17[6][5]={
-    0.942,0.939,0.825,0.931,0.976,
-    0.145,0.149,0.189,0.216,0.530,
-    0.006,0.006,0.038,0.006,0.011,
-    0.002,0.002,0.030,0.003,0.002,
-    0.001,0.001,0.020,0.002,0.001,
-    0.001,0.001,0.013,0.002,0.001,
-  };
-  double matrixReco[6][5]={
-    0.0,0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,0.0,
-    0.0,0.0,0.0,0.0,0.0,
   };
   int id1y=-1; int iso1y=-1;
   int id2y=-1; int iso2y=-1;
@@ -2204,15 +2179,83 @@ Double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta
   }  else if (elept2 > 50){
     iso2y=5;
   }  
-  //  sf_ele = matrixIDISO[iso1y][id1y] * matrixIDISO[iso2y][id2y] + 
-  //    matrixReco[iso1y][id1y] * matrixReco[iso2y][id2y] +
-  //    (matrixHltEle17[iso1y][id1y] * matrixHltEle17[iso2y][id2y] +
-  //     matrixHltEle17[iso1y][id1y] * matrixHltEle8Not17[iso2y][id2y] +
-  //     matrixHltEle8Not17[iso1y][id1y] * matrixHltEle17[iso2y][id2y]);
   sf_ele = matrixIDISO[iso1y][id1y] * matrixIDISO[iso2y][id2y];
-  return eff_ele;
+  return sf_ele;
 }
 
+
+double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2, bool isMC){
+  double sf_ele=1.0;
+  double matrixIDISO[6][5]={
+    0.418,0.502,0.664,0.343,0.363,
+    0.620,0.608,0.485,0.506,0.559,
+    0.775,0.765,0.559,0.688,0.684,
+    0.858,0.858,0.723,0.787,0.749,
+    0.891,0.903,0.834,0.845,0.798,
+    0.896,0.908,0.854,0.863,0.816,
+  };
+  double matrixIDISO_MC[6][5]={
+    0.407,0.463,0.368,0.283,0.355,
+    0.621,0.642,0.465,0.476,0.515,
+    0.783,0.786,0.590,0.691,0.671,
+    0.867,0.873,0.742,0.794,0.744,
+    0.897,0.910,0.851,0.846,0.790,
+    0.905,0.919,0.858,0.863,0.809,
+  };
+  int id1y=-1; int iso1y=-1;
+  int id2y=-1; int iso2y=-1;
+  if (fabs(eleeta1)<=0.8) {
+    id1y  =0;
+  } else if (fabs(eleeta1)>0.8 && fabs(eleeta1)<=1.4442) {   
+    id1y  =1;
+  } else if (fabs(eleeta1)>1.4442 && fabs(eleeta1)<=1.566) {
+    id1y  =2;
+  } else if (fabs(eleeta1)>1.566 && fabs(eleeta1)<=2.0) {
+    id1y  =3;
+  } else if (fabs(eleeta1)>2.0 && fabs(eleeta1)<=2.5) {
+    id1y =4;
+  }
+  if (elept1<=15){
+    iso1y=0;
+  }  else if (elept1 > 15 && elept1 <=20){
+    iso1y=1;
+  }  else if (elept1 > 20 && elept1 <=30){
+    iso1y=2;
+  }  else if (elept1 > 30 && elept1 <=40){
+    iso1y=3;
+  }  else if (elept1 > 40 && elept1 <=50){
+    iso1y=4;
+  }  else if (elept1 > 50){
+    iso1y=5;
+  }  
+  if (fabs(eleeta2)<=0.8) {
+    id2y  =0;
+  } else if (fabs(eleeta2)>0.8 && fabs(eleeta2)<=1.4442) {   
+    id2y  =1;
+  } else if (fabs(eleeta2)>1.4442 && fabs(eleeta2)<=1.566) {
+    id2y  =2;
+  } else if (fabs(eleeta2)>1.566 && fabs(eleeta2)<=2.0) {
+    id2y  =3;
+  } else if (fabs(eleeta2)>2.0 && fabs(eleeta2)<=2.5) {
+    id2y =4;
+  }
+  if (elept2<=15){
+    iso2y=0;
+  }  else if (elept2 > 15 && elept2 <=20){
+    iso2y=1;
+  }  else if (elept2 > 20 && elept2 <=30){
+    iso2y=2;
+  }  else if (elept2 > 30 && elept2 <=40){
+    iso2y=3;
+  }  else if (elept2 > 40 && elept2 <=50){
+    iso2y=4;
+  }  else if (elept2 > 50){
+    iso2y=5;
+  }  
+  sf_ele = matrixIDISO[iso1y][id1y] * matrixIDISO[iso2y][id2y];
+  if (isMC) sf_ele = matrixIDISO_MC[iso1y][id1y] * matrixIDISO_MC[iso2y][id2y];
+  return sf_ele;
+}
 
 //////// Efficiency using pt electron...
 int getPtRangeElectron(double ele_pt){
@@ -2300,11 +2343,11 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fB, double ele1_pt ,double 
   int eta1=getEtaRangeElectron(ele1_eta);
   int eta2=getEtaRangeElectron(ele2_eta);
   double eff_global=0;
-    eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
-      WP80_effPt->GetBinContent(eta2,pt2)*
-      (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
-       ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
-       ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
+  eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+    WP80_effPt->GetBinContent(eta2,pt2)*
+    (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
+     ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
+     ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
   if (eff_global>0) return eff_global;
   return 1;
 }
