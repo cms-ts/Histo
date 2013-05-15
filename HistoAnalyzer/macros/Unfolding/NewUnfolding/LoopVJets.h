@@ -208,30 +208,31 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if (correctForEff) {
 
 	//Normal eff
-	if (!isEle) effcorrmc=effcorrmc/getEfficiencyMuonPOG(true,true,e1_pt,e1_eta,e2_pt,e2_eta);
-	if (isEle) effcorrmc=effcorrmc/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true);
+	//if (!isEle) effcorrmc=effcorrmc/getEfficiencyMuonPOG(true,true,e1_pt,e1_eta,e2_pt,e2_eta);
+	//if (isEle) effcorrmc=effcorrmc/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true);
+
+	  // //old effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+
+	// Scale factors
+	if (isMu) {
+	bool is2011A=false;
+	//if (run<180000) is2011A=true;
+	double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
+	double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
+	effcorrmc=1./(effData/effMC);
+	}
+	if (!isMu) {
+	double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta);
+	double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
+	double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
+	effcorrmc=1./(SF*(effData/effMC));
+	if (effcorrmc>10) effcorrmc=1;
+	}
 	if (effcorrmc > 10 ) {
 	  cout<<e1_pt<<" "<<e1_eta<<" "<<e2_pt<<" "<<e2_eta<<endl;
 	  effcorrmc=1.0;
 	}
-	  // //old effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 
-	// Scale factors
-	//if (isMu) {
-	//bool is2011A=false;
-	////if (run<180000) is2011A=true;
-	//double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
-	//double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
-	//effcorrmc=1./(effData/effMC);
-	//}
-	//if (!isMu) {
-	//double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta);
-	//double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
-	//double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
-	//effcorrmc=1./(SF*(effData/effMC));
-	//if (effcorrmc>10) effcorrmc=1;
-	//}
-	//cout<<effcorrmc<<endl;
       }
       efficiencycorrectionsmc->Fill(effcorrmc);
 
@@ -288,7 +289,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       // If there are no Z reco, it is a miss. We prefer to account for it using the efficieny derived from data, that's why I don't fill any matrixes!
       //////////////////////////////////////// 
       if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){
-	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
         continue; //<================= check removing it
       }
@@ -367,8 +368,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     
     double effcorrdata=1.0;
     if (correctForEff) {
-      if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
-      if (isEle) effcorrdata=effcorrdata/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false);
+      //if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
+      //if (isEle) effcorrdata=effcorrdata/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false);
       //effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
     }
     
