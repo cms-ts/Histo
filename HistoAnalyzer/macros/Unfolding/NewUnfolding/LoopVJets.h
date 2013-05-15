@@ -367,7 +367,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     
     double effcorrdata=1.0;
     if (correctForEff) {
-      if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(false,false,e1_pt,e1_eta,e2_pt,e2_eta);
+      if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
       if (isEle) effcorrdata=effcorrdata/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false);
       //effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
     }
