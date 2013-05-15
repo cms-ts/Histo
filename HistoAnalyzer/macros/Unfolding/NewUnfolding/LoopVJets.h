@@ -212,7 +212,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	if (isEle) effcorrmc=effcorrmc/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true);
 	if (effcorrmc > 10 ) {
 	  cout<<e1_pt<<" "<<e1_eta<<" "<<e2_pt<<" "<<e2_eta<<endl;
-	  effcorrmc=0.001;
+	  effcorrmc=1.0;
 	}
 	  // //old effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
 
@@ -295,22 +295,22 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
      
       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
-	//if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
 	recoButPtLow++; continue;
       }
 
       if ( (fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4) && (recoZInAcceptance) ){
-	//if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
 	recoButEtaHigh++; continue;
       }
       
       if ( (invMass_gen>111 || invMass_gen<71) && (recoZInAcceptance) ){
-	//if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc);  
+	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc);  
 	recoButInvMassOut++; continue;
       }
       
       if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
-	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
       recoinTheGap++; continue;
       }
       
