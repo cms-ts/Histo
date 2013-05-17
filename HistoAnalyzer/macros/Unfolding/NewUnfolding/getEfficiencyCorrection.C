@@ -2200,6 +2200,7 @@ double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta
     * (matrixIDISO[iso2y][id2y]+matrixIDISO_errorUP[iso2y][id2y]);
   if (scaleDown) sf_ele = (matrixIDISO[iso1y][id1y]-matrixIDISO_errorDOWN[iso1y][id1y]) 
     * (matrixIDISO[iso2y][id2y]-matrixIDISO_errorDOWN[iso2y][id2y]);
+  if (iso1y<0 || id1y<0 || iso1y>5 || id1y>4 || iso2y<0 || id2y<0 || iso2y>5 || id2y>4) return 1.0;
   return sf_ele;
 }
 
