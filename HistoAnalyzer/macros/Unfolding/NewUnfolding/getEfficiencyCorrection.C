@@ -2204,7 +2204,7 @@ double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta
 }
 
 
-double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2, bool isMC){
+double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2, bool isMC, bool scaleUp, bool scaleDown){
   double sf_ele=1.0;
   double matrixIDISO[6][5]={
     0.418,0.502,0.664,0.343,0.363,
@@ -2214,6 +2214,22 @@ double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,doubl
     0.891,0.903,0.834,0.845,0.798,
     0.896,0.908,0.854,0.863,0.816,
   };
+  double matrixIDISO_errorDOWN[6][5]={
+    0.028,0.044,0.263,0.033,0.026,
+    0.008,0.011,0.030,0.012,0.016,
+    0.003,0.000,0.005,0.000,0.004,
+    0.001,0.001,0.000,0.000,0.000,
+    0.000,0.000,0.003,0.000,0.001,
+    0.000,0.001,0.000,0.000,0.000,
+  };
+  double matrixIDISO_errorUP[6][5]={
+    0.030,0.051,0.336,0.037,0.028,
+    0.009,0.011,0.032,0.012,0.016,
+    0.003,0.000,0.007,0.004,0.004,
+    0.001,0.001,0.000,0.001,0.002,
+    0.000,0.000,0.003,0.000,0.001,
+    0.000,0.002,0.000,0.000,0.000,
+  };
   double matrixIDISO_MC[6][5]={
     0.407,0.463,0.368,0.283,0.355,
     0.621,0.642,0.465,0.476,0.515,
@@ -2221,6 +2237,22 @@ double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,doubl
     0.867,0.873,0.742,0.794,0.744,
     0.897,0.910,0.851,0.846,0.790,
     0.905,0.919,0.858,0.863,0.809,
+  };
+  double matrixIDISO_MC_errorUP[6][5]={
+    0.003,0.003,0.008,0.003,0.004,
+    0.002,0.002,0.006,0.003,0.003,
+    0.001,0.001,0.002,0.001,0.001,
+    0.000,0.000,0.002,0.001,0.001,
+    0.000,0.000,0.001,0.001,0.001,
+    0.000,0.001,0.003,0.001,0.001,
+  };
+  double matrixIDISO_MC_errorDOWN[6][5]={
+    0.003,0.003,0.008,0.003,0.004,
+    0.002,0.002,0.006,0.003,0.003,
+    0.001,0.001,0.002,0.001,0.001,
+    0.000,0.000,0.002,0.001,0.001,
+    0.000,0.000,0.001,0.001,0.001,
+    0.000,0.001,0.003,0.001,0.001,
   };
   int id1y=-1; int iso1y=-1;
   int id2y=-1; int iso2y=-1;
@@ -2274,6 +2306,14 @@ double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,doubl
   }  
   sf_ele = matrixIDISO[iso1y][id1y] * matrixIDISO[iso2y][id2y];
   if (isMC) sf_ele = matrixIDISO_MC[iso1y][id1y] * matrixIDISO_MC[iso2y][id2y];
+  if (scaleUp) sf_ele = (matrixIDISO[iso1y][id1y]+matrixIDISO_errorUP[iso1y][id1y]) 
+    * (matrixIDISO[iso2y][id2y]+matrixIDISO_errorUP[iso2y][id2y]);
+  if (scaleUp && isMC) sf_ele = (matrixIDISO_MC[iso1y][id1y]+matrixIDISO_MC_errorUP[iso1y][id1y]) 
+    * (matrixIDISO_MC[iso2y][id2y]+matrixIDISO_MC_errorUP[iso2y][id2y]);
+  if (scaleDown) sf_ele = (matrixIDISO[iso1y][id1y]-matrixIDISO_errorDOWN[iso1y][id1y]) 
+    * (matrixIDISO[iso2y][id2y]-matrixIDISO_errorDOWN[iso2y][id2y]);
+  if (scaleDown && isMC) sf_ele = (matrixIDISO_MC[iso1y][id1y]-matrixIDISO_MC_errorDOWN[iso1y][id1y]) 
+    * (matrixIDISO_MC[iso2y][id2y]-matrixIDISO_MC_errorDOWN[iso2y][id2y]);
   return sf_ele;
 }
 
