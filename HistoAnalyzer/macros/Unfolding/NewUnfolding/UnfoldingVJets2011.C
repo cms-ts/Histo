@@ -49,7 +49,7 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
@@ -83,9 +83,9 @@ bool pythiaCheck=false;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
 
 //SAVE histos to be used afterward
-bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UnfoldingStep2ARC_3";
+string filename=direct+"EfficiencySystematicsARCStep2";
 //string filename=direct+"SherpaUnfoldingSystematics";
 
 // Efficiency corrections
@@ -111,6 +111,7 @@ string bkgstring=dir+"Backgrounds_v2_33.root";
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreview.root";
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_ARCreviewTEST.root";
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_38TEST.root";
+//string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate_scaleDOWN.root";
 string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate.root";
 
 TFile *eff;

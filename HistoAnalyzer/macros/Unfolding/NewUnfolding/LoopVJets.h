@@ -201,45 +201,13 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       
       if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;
 
-      // Get Efficiency
-      double effcorrmc=1.00;
-      if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
-      //if old (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-      if (correctForEff) {
-
-	//Normal eff
-	if (!isEle) effcorrmc=effcorrmc/getEfficiencyMuonPOG(true,true,e1_pt,e1_eta,e2_pt,e2_eta);
-	if (isEle) effcorrmc=effcorrmc/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true);
-
-	  // //old effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-
-	// Scale factors
-	/*	if (isMu) {
-	bool is2011A=false;
-	//if (run<180000) is2011A=true;
-	double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
-	double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
-	effcorrmc=1./(effData/effMC);
-	}
-	if (!isMu) {
-	double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta);
-	double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
-	double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
-	effcorrmc=1./(SF*(effData/effMC));
-	}
-	*/
-	if (effcorrmc > 10 ) {
-	  effcorrmc=1.0;
-	}
-      }
-      efficiencycorrectionsmc->Fill(effcorrmc);
-
       //In this way, jets with more than 25 GeV are accounted!! --> getNumberOfValidJets to change it offline..
       int ValidGenJets=Jet_multiplicity_gen;//getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
       int ValidRecoJets=Jet_multiplicity;
       
       //Check if the gen jets has at least 25 GeV (first if). Then, Valid gen is considered only if 30 > Gev     
       if (ValidGenJets<numbOfJetsSelected && ValidRecoJets <numbOfJetsSelected) continue;
+      
       ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);   
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
@@ -258,10 +226,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       // Gen Level Correction
       //////////////////////////////////
 
-      //Filling histograms, old way... Kept as a reference
-      jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
-
-      // Generated outside the accpetance!
+     // Generated outside the accpetance!
       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
 
 
@@ -291,7 +256,45 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
         continue; //<================= check removing it
       }
+ 
 
+     // Get Efficiency
+      double effcorrmc=1.00;
+      if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
+      //if old (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+      if (correctForEff) {
+	//if (fabs(e1_pt)==9999) continue; 
+	//Normal eff
+	if (!isEle) effcorrmc=effcorrmc/getEfficiencyMuonPOG(true,true,e1_pt,e1_eta,e2_pt,e2_eta);
+        if (isEle ) effcorrmc=effcorrmc/(getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true, false, false) * getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC"));
+	// //old effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
+	
+	// Scale factors
+	/*if (isMu) {
+	  bool is2011A=false;
+	  //if (run<180000) is2011A=true;
+	  //double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
+	  //double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
+	  effcorrmc=getSfMuonPOG(is2011A, e1_pt ,e1_eta, e2_pt ,e2_eta);
+	    //effcorrmc=1./(effData/effMC);
+	}
+	if (!isMu) {
+	  double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta,false,false)* getScaleFactorPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta);
+	//double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
+	//double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
+	effcorrmc=(SF);
+	}*/
+	if (effcorrmc > 10  && effcorrmc < 0.1) {
+	  effcorrmc=1.0;
+	}
+      }
+      cout<<effcorrmc<<endl;
+      efficiencycorrectionsmc->Fill(effcorrmc);
+
+      //Filling histograms, old way... Kept as a reference
+      jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+
+ 
      
       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
 	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
@@ -308,10 +311,10 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	recoButInvMassOut++; continue;
       }
       
-      //if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
-      //if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
-      //recoinTheGap++; continue;
-      //}
+      if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
+      if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
+      recoinTheGap++; continue;
+      }
       
       if (whichtype=="zzz"){
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
@@ -367,7 +370,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     double effcorrdata=1.0;
     if (correctForEff) {
       if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
-      if (isEle) effcorrdata=effcorrdata/getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false);
+      if (isEle) effcorrdata=effcorrdata/(getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false, false, false) * getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "Data"));
+      //cout<<effcorrdata<<endl;
       //effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
     }
     

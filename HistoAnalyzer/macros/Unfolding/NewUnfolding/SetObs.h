@@ -429,8 +429,8 @@ if (numbOfJetsSelected == 1){
     maxObsPlot=maxNJets-1;
 
     if (isEle){
-      kmin=4;
-      kmax=5;
+      kmin=5;
+      kmax=6;
     }
     else{
       kmin=5;
