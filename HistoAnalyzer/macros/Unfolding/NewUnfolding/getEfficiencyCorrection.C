@@ -2315,6 +2315,7 @@ double getEfficiencyEGammaPOG(double elept1 ,double eleeta1, double elept2,doubl
     * (matrixIDISO[iso2y][id2y]-matrixIDISO_errorDOWN[iso2y][id2y]);
   if (scaleDown && isMC) sf_ele = (matrixIDISO_MC[iso1y][id1y]-matrixIDISO_MC_errorDOWN[iso1y][id1y]) 
     * (matrixIDISO_MC[iso2y][id2y]-matrixIDISO_MC_errorDOWN[iso2y][id2y]);
+  if (iso1y<0 || id1y<0 || iso1y>5 || id1y>4 || iso2y<0 || id2y<0 || iso2y>5 || id2y>4) return 1.0;
   return sf_ele;
 }
 
@@ -2403,6 +2404,7 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fB, double ele1_pt ,double 
   // Get the right eta bins
   int eta1=getEtaRangeElectron(ele1_eta);
   int eta2=getEtaRangeElectron(ele2_eta);
+  if (pt1<1 || pt2<1 || eta1<1 || eta2<2) return 1.0;
   double eff_global=0;
   eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
     WP80_effPt->GetBinContent(eta2,pt2)*
