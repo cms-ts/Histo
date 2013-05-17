@@ -2119,7 +2119,7 @@ double getSfMuonPOG(bool is2011A,double muopt1,double muoeta1,double muopt2,doub
   return sfMuonPOG*sfHLTmu;
 }
 
-double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2){
+double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta2, bool scaleUp, bool scaleDown){
   double sf_ele=1.0;
   double matrixIDISO[6][5]={
     1.028,1.084,1.805,1.213,1.022,
@@ -2128,6 +2128,22 @@ double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta
     0.990,0.982,0.974,0.992,1.006,
     0.993,0.992,0.980,0.999,1.010,
     0.990,0.988,0.996,1.000,1.008,
+  };
+  double matrixIDISO_errorUP[6][5]={
+    0.069,0.095,0.716,0.117,0.074,
+    0.014,0.017,0.065,0.025,0.031,
+    0.003,0.001,0.010,0.002,0.006,
+    0.001,0.001,0.002,0.001,0.001,
+    0.000,0.000,0.004,0.001,0.002,
+    0.001,0.002,0.003,0.001,0.002,
+  };
+  double matrixIDISO_errorDOWN[6][5]={
+    0.075,0.111,0.914,0.132,0.079,
+    0.014,0.018,0.069,0.026,0.031,
+    0.003,0.001,0.012,0.006,0.006,
+    0.001,0.001,0.002,0.002,0.002,
+    0.000,0.000,0.004,0.001,0.002,
+    0.001,0.002,0.003,0.001,0.002,
   };
   int id1y=-1; int iso1y=-1;
   int id2y=-1; int iso2y=-1;
@@ -2180,6 +2196,10 @@ double getSfEGammaPOG(double elept1 ,double eleeta1, double elept2,double eleeta
     iso2y=5;
   }  
   sf_ele = matrixIDISO[iso1y][id1y] * matrixIDISO[iso2y][id2y];
+  if (scaleUp) sf_ele = (matrixIDISO[iso1y][id1y]+matrixIDISO_errorUP[iso1y][id1y]) 
+    * (matrixIDISO[iso2y][id2y]+matrixIDISO_errorUP[iso2y][id2y]);
+  if (scaleDown) sf_ele = (matrixIDISO[iso1y][id1y]-matrixIDISO_errorDOWN[iso1y][id1y]) 
+    * (matrixIDISO[iso2y][id2y]-matrixIDISO_errorDOWN[iso2y][id2y]);
   return sf_ele;
 }
 
@@ -2350,6 +2370,66 @@ double getEfficiencyCorrectionPtUsingElectron(TFile *fB, double ele1_pt ,double 
      ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
   if (eff_global>0) return eff_global;
   return 1;
+}
+
+double getScaleFactorPtUsingElectron(TFile *fB, double ele1_pt ,double ele1_eta, double ele2_pt, double ele2_eta)
+{
+  TH2F* ele17_effPt;
+  TH2F* ele8NOTele17_effPt;
+  TH2F* WP80_effPt;
+  TH2F* ele17_effPt_MC;
+  TH2F* ele8NOTele17_effPt_MC;
+  TH2F* WP80_effPt_MC;
+  TH2F* MC_effPt;
+  TH2F* DATA_effPt;
+  TDirectory *dir2;
+  fB->cd("efficiency_vs_PtEta");
+  dir2=(TDirectory*)fB->Get("efficiency_vs_PtEta");
+  TList *mylist2=(TList*)dir2->GetListOfKeys();
+  TIter iter2(mylist2); 
+  TObject* tobj2 = 0;
+  //Check for the interesting plots, regardless the content..
+  while ( (tobj2 = iter2.Next()) ) {
+    string name=tobj2->GetName();
+    TString temp = (TString)name;
+    if(temp.Contains("DATA_WP80_Probe")){
+      gDirectory->GetObject(name.c_str(),WP80_effPt);
+    }    
+    if(temp.Contains("DATA_HLTele17_Probe")){
+      gDirectory->GetObject(name.c_str(),ele17_effPt);
+    }    
+    if(temp.Contains("DATA_HLTele8NOTele17_Probe")){
+      gDirectory->GetObject(name.c_str(),ele8NOTele17_effPt);
+    }    
+    if(temp.Contains("MC_WP80_Probe")){
+      gDirectory->GetObject(name.c_str(),WP80_effPt_MC);
+    }    
+    if(temp.Contains("MC_HLTele17_Probe")){
+      gDirectory->GetObject(name.c_str(),ele17_effPt_MC);
+    }    
+    if(temp.Contains("MC_HLTele8NOTele17_Probe")){
+      gDirectory->GetObject(name.c_str(),ele8NOTele17_effPt_MC);
+    }
+  }
+  // Get the right pt bins
+  int pt1=getPtRangeElectron(ele1_pt);
+  int pt2=getPtRangeElectron(ele2_pt);
+  // Get the right eta bins
+  int eta1=getEtaRangeElectron(ele1_eta);
+  int eta2=getEtaRangeElectron(ele2_eta);
+  double eff_global=1.0;
+  double eff_globalMC=1.0;
+  eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
+    WP80_effPt->GetBinContent(eta2,pt2)*
+    (ele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2) +
+     ele17_effPt->GetBinContent(eta1,pt1)*ele8NOTele17_effPt->GetBinContent(eta2,pt2) +
+     ele8NOTele17_effPt->GetBinContent(eta1,pt1)*ele17_effPt->GetBinContent(eta2,pt2));
+  eff_globalMC = WP80_effPt_MC->GetBinContent(eta1,pt1)*
+    WP80_effPt_MC->GetBinContent(eta2,pt2)*
+    (ele17_effPt_MC->GetBinContent(eta1,pt1)*ele17_effPt_MC->GetBinContent(eta2,pt2) +
+     ele17_effPt_MC->GetBinContent(eta1,pt1)*ele8NOTele17_effPt_MC->GetBinContent(eta2,pt2) +
+     ele8NOTele17_effPt_MC->GetBinContent(eta1,pt1)*ele17_effPt_MC->GetBinContent(eta2,pt2));
+  return eff_global/eff_globalMC;
 }
 
 
