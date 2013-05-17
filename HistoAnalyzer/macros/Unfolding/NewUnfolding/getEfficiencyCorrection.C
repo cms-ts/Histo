@@ -2458,6 +2458,7 @@ double getScaleFactorPtUsingElectron(TFile *fB, double ele1_pt ,double ele1_eta,
   // Get the right eta bins
   int eta1=getEtaRangeElectron(ele1_eta);
   int eta2=getEtaRangeElectron(ele2_eta);
+  if (pt1<1 || pt2<1 || eta1<1 || eta2<2) return 1.0;
   double eff_global=1.0;
   double eff_globalMC=1.0;
   eff_global = WP80_effPt->GetBinContent(eta1,pt1)*
