@@ -1964,7 +1964,7 @@ Double_t Eff_HLT_Mu13_Mu8_2011_TPfit_RunAB_EtaEta_DATAoverMC(Double_t eta1, Doub
   return 0.;
 }
  
-double getEfficiencyMuonPOG(bool is2011A , bool isMC,double muopt1 ,double muoeta1, double muopt2,double muoeta2){
+double getEfficiencyMuonPOG(bool is2011A , bool isMC,double muopt1 ,double muoeta1, double muopt2,double muoeta2, bool scaleUp, bool scaleDown){
   double muoIDrunA[15]={0.9111, 0.9429, 0.9661, 0.9398, 0.9639, 0.9789, 0.8731, 0.9665, 0.8643, 0.9777, 0.9616, 0.9334, 0.9614, 0.9499, 0.9164};
   double muoIDrunA_error[15]={0.0018677027196907943,0.0009620931827499634,0.00083857378852558284,0.001064086117175767,0.00084960826027844622,0.00070793456706362491,0.0021350787883431051,0.0006880431780112861,0.0021884902478001575,0.00071060369069667257,0.00086291256476993575,0.0010868097948907689,0.00085834394005120584,0.00090252496527338329,0.0017812948328828611};
   double muoISOrunA[2][7]={0.8358, 0.9282, 0.9721, 0.9909, 0.9930, 0.9959, 0.9950,
@@ -2043,20 +2043,32 @@ double getEfficiencyMuonPOG(bool is2011A , bool isMC,double muopt1 ,double muoet
   if (muoId1==-1 || muoIso1==-1 || muoId2==-1 || muoIso2==-1) return 1.0;
   if (!isMC) {
     efficiencyHLTmu = Eff_HLT_Mu17_Mu8_2011_TPfit_RunAB_EtaEta_DATA(muoeta1,muoeta2);
+    if (scaleUp) efficiencyHLTmu = efficiencyHLTmu*1.0004;
+    if (scaleDown) efficiencyHLTmu = efficiencyHLTmu*0.9996;
   } else {
     efficiencyHLTmu = Eff_HLT_Mu17_Mu8_2011_TPfit_RunAB_EtaEta_MC(muoeta1,muoeta2);
+    if (scaleUp) efficiencyHLTmu = efficiencyHLTmu*1.0004;
+    if (scaleDown) efficiencyHLTmu = efficiencyHLTmu*0.9996;
   }
   if (!isMC) {
     if (is2011A) {
       efficiencyMuonPOG = muoIDrunA[muoId1] * muoISOrunA[highEta1][muoIso1] * muoIDrunA[muoId2] * muoISOrunA[highEta2][muoIso2];
+      if (scaleUp) efficiencyMuonPOG = (muoIDrunA[muoId1]+muoIDrunA_error[muoId1]) * (muoISOrunA[highEta1][muoIso1]+muoISOrunA_error[highEta1][muoIso1]) * (muoIDrunA[muoId2]+muoIDrunA_error[muoId2]) * (muoISOrunA[highEta2][muoIso2]+muoISOrunA_error[highEta2][muoIso2]);
+      if (scaleDown) efficiencyMuonPOG = (muoIDrunA[muoId1]-muoIDrunA_error[muoId1]) * (muoISOrunA[highEta1][muoIso1]-muoISOrunA_error[highEta1][muoIso1]) * (muoIDrunA[muoId2]-muoIDrunA_error[muoId2]) * (muoISOrunA[highEta2][muoIso2]-muoISOrunA_error[highEta2][muoIso2]);
     } else {
       efficiencyMuonPOG = muoIDrunB[muoId1] * muoISOrunB[highEta1][muoIso1] * muoIDrunB[muoId2] * muoISOrunB[highEta2][muoIso2];
+      if (scaleUp) efficiencyMuonPOG = (muoIDrunB[muoId1]+muoIDrunB_error[muoId1]) * (muoISOrunB[highEta1][muoIso1]+muoISOrunB_error[highEta1][muoIso1]) * (muoIDrunB[muoId2]+muoIDrunB_error[muoId2]) * (muoISOrunB[highEta2][muoIso2]+muoISOrunB_error[highEta2][muoIso2]);
+      if (scaleDown) efficiencyMuonPOG = (muoIDrunB[muoId1]-muoIDrunB_error[muoId1]) * (muoISOrunB[highEta1][muoIso1]-muoISOrunB_error[highEta1][muoIso1]) * (muoIDrunB[muoId2]-muoIDrunB_error[muoId2]) * (muoISOrunB[highEta2][muoIso2]-muoISOrunB_error[highEta2][muoIso2]);
     }
   } else {
     if (is2011A) {
       efficiencyMuonPOG = muoIDrunA_MC[muoId1] * muoISOrunA_MC[highEta1][muoIso1] * muoIDrunA_MC[muoId2] * muoISOrunA_MC[highEta2][muoIso2];
+      if (scaleUp) efficiencyMuonPOG = (muoIDrunA_MC[muoId1]+muoIDrunA_MC_error[muoId1]) * (muoISOrunA_MC[highEta1][muoIso1]+muoISOrunA_MC_error[highEta1][muoIso1]) * (muoIDrunA_MC[muoId2]+muoIDrunA_MC_error[muoId2]) * (muoISOrunA_MC[highEta2][muoIso2]+muoISOrunA_MC_error[highEta2][muoIso2]);
+      if (scaleDown) efficiencyMuonPOG = (muoIDrunA_MC[muoId1]-muoIDrunA_MC_error[muoId1]) * (muoISOrunA_MC[highEta1][muoIso1]-muoISOrunA_MC_error[highEta1][muoIso1]) * (muoIDrunA_MC[muoId2]-muoIDrunA_MC_error[muoId2]) * (muoISOrunA_MC[highEta2][muoIso2]-muoISOrunA_MC_error[highEta2][muoIso2]);
     } else {
       efficiencyMuonPOG = muoIDrunB_MC[muoId1] * muoISOrunB_MC[highEta1][muoIso1] * muoIDrunB_MC[muoId2] * muoISOrunB_MC[highEta2][muoIso2];
+      if (scaleUp) efficiencyMuonPOG = (muoIDrunB_MC[muoId1]+muoIDrunB_MC_error[muoId1]) * (muoISOrunB_MC[highEta1][muoIso1]+muoISOrunB_MC_error[highEta1][muoIso1]) * (muoIDrunB_MC[muoId2]+muoIDrunB_MC_error[muoId2]) * (muoISOrunB_MC[highEta2][muoIso2]+muoISOrunB_MC_error[highEta2][muoIso2]);
+      if (scaleDown) efficiencyMuonPOG = (muoIDrunB_MC[muoId1]-muoIDrunB_MC_error[muoId1]) * (muoISOrunB_MC[highEta1][muoIso1]-muoISOrunB_MC_error[highEta1][muoIso1]) * (muoIDrunB_MC[muoId2]-muoIDrunB_MC_error[muoId2]) * (muoISOrunB_MC[highEta2][muoIso2]-muoISOrunB_MC_error[highEta2][muoIso2]);
     }
   }
   return efficiencyMuonPOG*efficiencyHLTmu;
