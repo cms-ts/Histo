@@ -62,9 +62,9 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=true;
+bool activateXSSuperseding=false;
 double XSMuon[4]={52.80,11.24,2.147,0.374}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
-double XSElectron[4]={51.59,10.96,2.114,0.415};
+double XSElectron[4]={51.98,11.23,2.172,0.420};
 
 //For gen Jet
 double threshPt=30;
@@ -85,8 +85,9 @@ bool pythiaCheck=false;
 //SAVE histos to be used afterward
 bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"EfficiencySystematicsARCStep2";
-//string filename=direct+"SherpaUnfoldingSystematics";
+string filename=direct+"EleMuTestOfficial";
+//string filename=direct+"TestFabioFinalUsingOurEff";
+
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -181,8 +182,8 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=1;
-  string whichtype="Multiplicity";
+  int numbOfJetsForLoop=4;
+  string whichtype="Eta";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
