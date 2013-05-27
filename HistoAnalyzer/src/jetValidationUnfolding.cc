@@ -33,8 +33,8 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   bool Debug=false;
 
-  double genJetPtThreshold=30.0;
-  double genJetEtaThreshold=2.4;
+  double genJetPtThreshold=25.0;
+  double genJetEtaThreshold=2.41;
 
   ////////
   //  Get The Weights
