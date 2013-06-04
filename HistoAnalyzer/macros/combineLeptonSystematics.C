@@ -52,6 +52,8 @@ int combineLeptonSystematics::letscombine () {
   string muoJEC;
   string eleUnf;
   string muoUnf;
+  string eleGen;
+  string muoGen;
   string elePU;
   string muoPU;
   string eleBkg;
@@ -73,7 +75,9 @@ int combineLeptonSystematics::letscombine () {
 
   for (int var=0; var<variablesName.size(); var++){
 
-    output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
+    //    output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
+    //    output=plotpath+"ele/"+variablesName[var]+"FinalSyst"+version+".txt";
+    output=plotpath+"muo/"+variablesName[var]+"FinalSyst"+version+".txt";
     cout << "-------------------------" << endl;
     cout << "Writing " << output  << " ..."<< endl;
 
@@ -85,14 +89,16 @@ int combineLeptonSystematics::letscombine () {
     muoJEC = plotpath+"muo/systematicsJEC_"+variablesName[var]+version+".txt";
     eleUnf = plotpath+"ele/systematicsUnfMethod_"+variablesName[var]+version+".txt";
     muoUnf = plotpath+"muo/systematicsUnfMethod_"+variablesName[var]+version+".txt";
+    eleGen = plotpath+"ele/systematicsUnfGen_"+variablesName[var]+version+".txt";
+    muoGen = plotpath+"muo/systematicsUnfGen_"+variablesName[var]+version+".txt";
     elePU  = plotpath+"ele/systematicsPU_"+variablesName[var]+version+".txt";
     muoPU  = plotpath+"muo/systematicsPU_"+variablesName[var]+version+".txt";
     eleBkg = plotpath+"ele/BkgCrossSection_"+variablesName[var]+version+".txt";
     muoBkg = plotpath+"muo/BkgCrossSection_"+variablesName[var]+version+".txt";
 
-    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3_v2_35.root");
-    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root");
-    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Combined_v2_35.root");
+    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARC.root");
+    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCMu.root");
+    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root");
 
     datahisto_ele->Sumw2();
     datahisto_muo->Sumw2();
@@ -107,8 +113,10 @@ int combineLeptonSystematics::letscombine () {
     std::vector<double> jetMuoEff = combineLeptonSystematics::systOne(muoEff);
     std::vector<double> jetEleJEC = combineLeptonSystematics::systOne(eleJEC);
     std::vector<double> jetMuoJEC = combineLeptonSystematics::systOne(muoJEC);
-    std::vector<double> jetEleUnf = combineLeptonSystematics::systOneCent(eleUnf);
-    std::vector<double> jetMuoUnf = combineLeptonSystematics::systOneCent(muoUnf);
+    std::vector<double> jetEleUnf = combineLeptonSystematics::systOne(eleUnf);
+    std::vector<double> jetMuoUnf = combineLeptonSystematics::systOne(muoUnf);
+    std::vector<double> jetEleGen = combineLeptonSystematics::systOne(eleGen);
+    std::vector<double> jetMuoGen = combineLeptonSystematics::systOne(muoGen);
     std::vector<double> jetElePU  = combineLeptonSystematics::systOne(elePU); 
     std::vector<double> jetMuoPU  = combineLeptonSystematics::systOne(muoPU); 
     std::vector<double> jetEleBkg = combineLeptonSystematics::systOne(eleBkg);
@@ -127,8 +135,8 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[nel] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[nel]*jetEleUnfArea[nel]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[nel]*jetMuoUnfArea[nel]);
-	jetEleUnf[nel] = max(jetEleUnf[nel], jetEleUnfArea[nel]);
-	jetMuoUnf[nel] = max(jetMuoUnf[nel], jetMuoUnfArea[nel]);
+	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[nel]);
+	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[nel]);
       }
     }
     if (variablesName[var] == "jet1Pt" || variablesName[var] == "jet1Ht" || variablesName[var] == "jet1Eta") {
@@ -136,8 +144,8 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[0] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[0]*jetEleUnfArea[0]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[0]*jetMuoUnfArea[0]);
-	jetEleUnf[nel] = max(jetEleUnf[nel], jetEleUnfArea[0]);
-	jetMuoUnf[nel] = max(jetMuoUnf[nel], jetMuoUnfArea[0]);
+	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[0]);
+	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[0]);
       }
     }
     if (variablesName[var] == "jet2Pt" || variablesName[var] == "jet2Ht" || variablesName[var] == "jet2Eta") {
@@ -145,8 +153,8 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[1] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[1]*jetEleUnfArea[1]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[1]*jetMuoUnfArea[1]);
-	jetEleUnf[nel] = max(jetEleUnf[nel], jetEleUnfArea[1]);
-	jetMuoUnf[nel] = max(jetMuoUnf[nel], jetMuoUnfArea[1]);
+	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[1]);
+	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[1]);
       }
     }
     if (variablesName[var] == "jet3Pt" || variablesName[var] == "jet3Ht" || variablesName[var] == "jet3Eta") {
@@ -154,8 +162,8 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[2] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[2]*jetEleUnfArea[2]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[2]*jetMuoUnfArea[2]);
-	jetEleUnf[nel] = max(jetEleUnf[nel], jetEleUnfArea[2]);
-	jetMuoUnf[nel] = max(jetMuoUnf[nel], jetMuoUnfArea[2]);
+	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[2]);
+	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[2]);
       }
     }
     if (variablesName[var] == "jet4Pt" || variablesName[var] == "jet4Ht" || variablesName[var] == "jet4Eta") {
@@ -163,8 +171,8 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[3] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[3]*jetEleUnfArea[3]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[3]*jetMuoUnfArea[3]);
-	jetEleUnf[nel] = max(jetEleUnf[nel], jetEleUnfArea[3]);
-	jetMuoUnf[nel] = max(jetMuoUnf[nel], jetMuoUnfArea[3]);
+	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[3]);
+	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[3]);
       }
     }
 
@@ -207,9 +215,15 @@ int combineLeptonSystematics::letscombine () {
     // Write Systematics combination to file!!
     ofstream syste;
     syste.open(output.c_str());
-    for (int i=0;i<jetSyst.size();i++){
-      syste<<jetSyst[i]<<endl;
-    }
+//    for (int i=0;i<jetSyst.size();i++){
+//      syste<<jetSyst[i]<<endl;
+//    }
+    //  for (int i=0;i<jetEleS.size();i++){
+    //    syste<<jetEleS[i]<<endl;
+    //  }
+        for (int i=0;i<jetMuoS.size();i++){
+          syste<<jetMuoS[i]<<endl;
+        }
     syste.close();
 
     string varnameforlatex = variablesName[var];
@@ -256,6 +270,7 @@ std::vector<double> combineLeptonSystematics::systUnfArea(int isEleOrMuo, string
 
   string UnfArea;
   double centralValue, rms;
+  //  double relerr;
   ifstream inUnfArea;
 
   for (Int_t m=0;m<variablesUnfArea.size();m++) {

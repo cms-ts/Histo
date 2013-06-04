@@ -41,13 +41,15 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   int use_case = whichobservable;
   int whichjet = whichjet;
   string version = "_v2_32";
+  bool incMultiplicity = false;
 
-  string s                = "/gpfs/cms/users/schizzi/PreApprovalPlots/ele/";
-  if (lepton==2) string s = "/gpfs/cms/users/schizzi/PreApprovalPlots/muo/";
-  if (lepton==3) string s = "/gpfs/cms/users/schizzi/PreApprovalPlots/combined/";
 
-  string           plotpath = "/gpfs/cms/data/2011/Uncertainties/";
-  if (lepton == 2) plotpath = "/gpfs/cms/data/2011/Uncertainties/muons/";
+  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
+
+ string           plotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
+  if (lepton == 2) plotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
   if (lepton == 3) plotpath = "/gpfs/cms/users/schizzi/Systematics/combination/";
 
   gStyle->SetOptStat (0);
@@ -55,9 +57,9 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3_v2_35.root";
-  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Mu_v2_35.root";
-  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsPreapproval3Combined_v2_35.root";
+  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARC.root";
+  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCMu.root";
+  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root";
   
   //RIVET:
   string rivetPathSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
@@ -93,14 +95,20 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
     {
       string name = tobj->GetName ();
       stringstream oss;
+      stringstream ossInc;
 
       if (use_case == 1) 
 	{ // Jet Multiplicity
 	  stringmatch = "JetMultiplicityUnfolded";
 	  systPathFile = plotpath + "jetMultFinalSyst" + version + ".txt";
-	  if (lepton == 1  || lepton == 3) oss<<"03"; else oss<<"08";
+	  if (lepton == 1  || lepton == 3) {
+	    oss<<"03";
+	    ossInc<<"27";
+	  } else {
+	    oss<<"08";
+	    ossInc<<"28";
+	  }
 	}
-
       if (use_case == 2) 
 	{ // Jet Pt
 	  if (whichjet == 1)
@@ -109,21 +117,18 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	      systPathFile = plotpath + "jet1PtFinalSyst" + version + ".txt";
 	      if (lepton == 1 || lepton ==3) oss<<"01"; else oss<<"06";
 	    }
-	  
 	  if (whichjet == 2)
 	    {
 	      stringmatch = "jReco_subleading";
 	      systPathFile = plotpath + "jet2PtFinalSyst" + version + ".txt";
 	      if (lepton == 1 || lepton ==3) oss<<"02"; else oss<<"07";
 	    }
-	  
 	  if (whichjet == 3)
 	    {
 	      stringmatch = "jReco_subsubleading";
 	      systPathFile = plotpath + "jet3PtFinalSyst" + version + ".txt";
 	      if (lepton == 1 || lepton ==3) oss<<"04"; else oss<<"09";
 	    }
-	  
 	  if (whichjet == 4)
 	    {
 	      stringmatch = "jReco_subsubsubleading";
@@ -139,21 +144,18 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	    systPathFile = plotpath + "jet1EtaFinalSyst" + version + ".txt";
 	    if (lepton == 1 || lepton ==3) oss<<"15"; else oss<<"11";
 	  }
-	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "jReco_subleadingeta";
 	    systPathFile = plotpath + "jet2EtaFinalSyst" + version + ".txt";
 	    if (lepton == 1 || lepton ==3) oss<<"16"; else oss<<"12";
 	  }
-
 	if (whichjet == 3)
 	  {
 	    stringmatch = "jReco_subsubleadingeta";
 	    systPathFile = plotpath + "jet3EtaFinalSyst" + version + ".txt";
 	    if (lepton == 1 || lepton ==3) oss<<"17"; else oss<<"13";
 	  }
-	
 	if (whichjet == 4)
 	  {
 	    stringmatch = "jReco_subsubsubleadingeta";
@@ -169,21 +171,18 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	    systPathFile = plotpath + "jet1HtFinalSyst" + version + ".txt";
 	    if (lepton == 1 || lepton ==3) oss<<"19"; else oss<<"23";
 	  }
-	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "HReco_subleading";
 	    systPathFile = plotpath + "jet2HtFinalSyst" + version + ".txt";
 	    if (lepton == 1 || lepton ==3) oss<<"20"; else oss<<"24";
 	  }
-	
 	if (whichjet == 3)
 	  {
 	    stringmatch = "HReco_subsubleading";
 	    systPathFile = plotpath + "jet3HtFinalSyst" + version + ".txt";
 	    if (lepton == 1 || lepton ==3) oss<<"21"; else oss<<"25";
 	  }
-
 	if (whichjet == 4)
 	  {
 	    stringmatch = "HReco_subsubsubleading";
@@ -191,12 +190,15 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	    if (lepton == 1 || lepton ==3) oss<<"22"; else oss<<"26";
 	  }
       }
-
       string rivetname="d"+oss.str()+"_x01_y01";
       string rivetnameMG="d"+oss.str()+"-x01-y01";
+      if (incMultiplicity) {
+	rivetname="d"+ossInc.str()+"_x01_y01";
+	rivetnameMG="d"+ossInc.str()+"-x01-y01";
+      }
       rivet_data    = rivetname;
       rivet_dataMG    = rivetnameMG;
-      
+
       if (name == stringmatch) {
 
 	cout << "CONFIGURATION:" << endl;
@@ -207,6 +209,17 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	gPad->SetLogy (1);
 	TH1D *leading;
 	gDirectory->GetObject (name.c_str (), leading);
+	if (incMultiplicity) {
+	  for (int dd=1; dd<=leading->GetNbinsX(); dd++) {
+	    double inclusiveYield=0.0;
+	    double inclusiveYieldUnc=0.0;
+	    for (int ff=dd; ff<=leading->GetNbinsX(); ff++) {
+	      inclusiveYield=inclusiveYield + leading->GetBinContent(ff);
+	      inclusiveYieldUnc=sqrt(inclusiveYieldUnc*inclusiveYieldUnc + leading->GetBinError(ff)*leading->GetBinError(ff));
+	    }
+	    leading->SetBinContent(dd,inclusiveYield);
+	  }
+	}
 	TH1D *leadingSystematics;
 	leadingSystematics = (TH1D *) leading->Clone ("leading");
 
@@ -305,11 +318,24 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingSystematics->SetName ("leadingSystematics");
 	if (systTmpM.size () != leadingSystematics->GetNbinsX ())
 	  cout << "WRONG NUMBER OF BINS (# syst from file->" <<systTmpM.size()<<" - # bins leadingsystematics->"<<leadingSystematics->GetNbinsX()<<")"<<endl;
-	for (int i = 0; i <= leadingSystematics->GetNbinsX (); i++)
-	  {
-	    double err = sqrt (pow (leading->GetBinError (i + 1), 2) + pow (systTmpM[i] * leadingSystematics->GetBinContent (i + 1), 2));
-	    leadingSystematics->SetBinError (i + 1, err);
-	  }
+	if (!incMultiplicity){
+	  for (int i = 0; i < leadingSystematics->GetNbinsX (); i++)
+	    {
+	      double err = sqrt (pow (leading->GetBinError (i + 1), 2) + pow (systTmpM[i] * leadingSystematics->GetBinContent (i + 1), 2));
+	      leadingSystematics->SetBinError (i + 1, err);
+	    }
+	} else {
+	  for (int i = 0; i < leadingSystematics->GetNbinsX (); i++)
+	    {
+	      double temperr = 0.0;
+	      for (int cc = i; cc < leadingSystematics->GetNbinsX (); cc++) {
+		temperr = sqrt(pow(temperr,2) + pow(systTmpM[cc]*leadingSystematics->GetBinContent(cc + 1),2));
+	      }
+	      double err = sqrt (pow (leading->GetBinError (i + 1), 2) + pow (temperr, 2));
+	      leadingSystematics->SetBinError (i + 1, err);
+	    }
+
+	}
 
 	if ( (!absoluteNormalization) && (leadingSystematics->Integral()>1.001 | leadingSystematics->Integral()<0.999)) {
 	  cout << "Warning: DATA is NOT NORMALIZED CORRECTLY! I will fix it...";
@@ -533,8 +559,6 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRatioMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
 	  leadingRatioMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)*dummyNorm/dummyYvar);
 
-	  cout << " MAdGraph unc. DEBUGGING, rel error = " << leadingRivetMadGraph->GetErrorYhigh(ovo)*dummyNorm/dummyYvar << endl;
-
 	  leadingRatio2->SetBinContent(ovo+1,leadingSystematics->GetBinContent(ovo+1)/(dummyYvar/dummyNorm));
 	  leadingRatio2->SetBinError(ovo+1,leading->GetBinError(ovo+1)/(dummyYvar/dummyNorm));
 
@@ -641,8 +665,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioSystematics->GetYaxis()->SetNdivisions(5);
 	leadingRatioSystematics->GetYaxis()->SetRangeUser(0.4,1.6);
 	leadingRatioSystematics->SetTitle("");	  
-	leadingRatioSystematics->Draw ("E1");
-	leadingRatio->Draw ("E1SAME");
+	leadingRatioSystematics->Draw ("E0");
+	leadingRatio->Draw ("E0SAME");
 
 	leadingRatioSherpa->SetFillColor(kBlue-4);
 	leadingRatioSherpa->SetFillStyle(3004);
@@ -652,8 +676,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioSherpa->Draw("2");
 	leadingRatioSherpa->Draw("pz");
 
-	leadingRatioSystematics->Draw ("E1SAME");
-	leadingRatio->Draw ("E1SAME");
+	leadingRatioSystematics->Draw ("E0SAME");
+	leadingRatio->Draw ("E0SAME");
 
 	TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	OLine->SetLineColor(kBlack);
@@ -690,8 +714,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio3Systematics->GetYaxis()->SetNdivisions(5);
 	leadingRatio3Systematics->GetYaxis()->SetRangeUser(0.4,1.6);
 	leadingRatio3Systematics->SetTitle("");	  
-	leadingRatio3Systematics->Draw ("E1");
-	leadingRatio3->Draw ("E1SAME");
+	leadingRatio3Systematics->Draw ("E0");
+	leadingRatio3->Draw ("E0SAME");
 
 	leadingRatioPowheg->SetFillColor(kGreen+3);
 	leadingRatioPowheg->SetFillStyle(3001);
@@ -701,8 +725,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioPowheg->Draw("2");
 	leadingRatioPowheg->Draw("pz");
 
-	leadingRatio3Systematics->Draw ("E1SAME");
-	leadingRatio3->Draw ("E1SAME");
+	leadingRatio3Systematics->Draw ("E0SAME");
+	leadingRatio3->Draw ("E0SAME");
 
 	TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	OLine->SetLineColor(kBlack);
@@ -745,12 +769,13 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 
 	if (use_case ==1) {
 	  leadingRatio2Systematics->GetXaxis ()->SetTitle ("Exclusive jet multiplicity");
+	  if (incMultiplicity) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Inclusive jet multiplicity");
 	}
 	if (use_case ==2) {
-	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Leading jet p_{T} [GeV/c]");
-	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Second jet p_{T} [GeV/c]");
-	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Third jet p_{T} [GeV/c]");
-	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Fourth jet p_{T} [GeV/c]");
+	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Leading jet p_{T} [GeV]");
+	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Second jet p_{T} [GeV]");
+	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Third jet p_{T} [GeV]");
+	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Fourth jet p_{T} [GeV]");
 	}
 	if (use_case ==3) {
 	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Leading jet #eta");
@@ -759,14 +784,14 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Fourth jet #eta");
 	}
 	if (use_case ==4) {
-	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV/c]");
-	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 2 [GeV/c]");
-	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 3 [GeV/c]");
-	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 4 [GeV/c]");
+	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV]");
+	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 2 [GeV]");
+	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 3 [GeV]");
+	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 4 [GeV]");
 	}
 
-	leadingRatio2Systematics->Draw ("E1");
-	leadingRatio2->Draw ("E1SAME");
+	leadingRatio2Systematics->Draw ("E0");
+	leadingRatio2->Draw ("E0SAME");
 	  
 	leadingRatioMadGraph->SetFillColor(kOrange+10);
 	leadingRatioMadGraph->SetFillStyle(3005);
@@ -776,8 +801,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioMadGraph->Draw("2");
 	leadingRatioMadGraph->Draw("pz");
 	  
-	leadingRatio2Systematics->Draw ("E1SAME");
-	leadingRatio2->Draw ("E1SAME");
+	leadingRatio2Systematics->Draw ("E0SAME");
+	leadingRatio2->Draw ("E0SAME");
 	  
 	TLine *OLine2 = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	OLine2->SetLineColor(kBlack);
@@ -791,6 +816,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  
 	string title1;
 	title1 = s + "DifferentialX" + stringmatch + ".pdf";
+	if (incMultiplicity) title1 = s + "DifferentialXInc" + stringmatch + ".pdf";
 	cout << title1 << endl;
 	plots->Print (title1.c_str ());
 	return;
