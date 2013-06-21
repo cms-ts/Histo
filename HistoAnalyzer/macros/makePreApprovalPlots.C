@@ -8,7 +8,6 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TRandom.h"
-#include "TH1D.h"
 #include "TPaveStats.h"
 #include "TLegend.h"
 #include "TCut.h"
@@ -44,11 +43,14 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   bool incMultiplicity = false;
 
 
-  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
-  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
-  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
+  string s                = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/ele/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/muo/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/combined/";
+  //  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
+  //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
+  //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
 
- string           plotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
+  string           plotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
   if (lepton == 2) plotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
   if (lepton == 3) plotpath = "/gpfs/cms/users/schizzi/Systematics/combination/";
 
@@ -62,18 +64,21 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root";
   
   //RIVET:
-  string rivetPathSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
+  //  string rivetPathSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
+  string rivetPathSherpa   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
   string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   string rivetPathPowheg    ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
 
   if (lepton == 2){
-    rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
+    //    rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
+    rivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
     rivetPathPowheg        ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
   }
 
   if (lepton == 3){
-    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
+    //    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
+    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
     rivetPathPowheg     ="/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root";
   }
@@ -246,24 +251,6 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	// ------------------------------------------------------------
 
 	// Get RIVET data: --------------------------------------------
-	TFile *histoRivetSherpa = TFile::Open (rivetPathSherpa.c_str ());
-	histoRivetSherpa->cd ("");
-	TDirectory *dirRivetSherpa = gDirectory;
-	TList *mylistRivetSherpa = (TList *) dirRivetSherpa->GetListOfKeys ();
-	TIter iterRivetSherpa (mylistRivetSherpa);
-	TObject *tobjRivetSherpa = 0;
-	while ((tobjRivetSherpa = iterRivetSherpa.Next ()))
-	  {
-	    string nameRivetSherpa = tobjRivetSherpa->GetName ();
-	    if (nameRivetSherpa == rivet_data)
-	      {
-		cout << "Getting rivet data->" << nameRivetSherpa << endl;
-		TGraphAsymmErrors *leadingRivetSherpa;
-		gDirectory->GetObject (nameRivetSherpa.c_str (), leadingRivetSherpa);
-		TGraphAsymmErrors *leadingRatioSherpa;
-		leadingRatioSherpa = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
-	      }
-	  }
 
 	TFile *histoRivetPowheg = TFile::Open (rivetPathPowheg.c_str ());
 	histoRivetPowheg->cd ("");
@@ -283,6 +270,55 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 		leadingRatioPowheg = (TGraphAsymmErrors *) leadingRivetPowheg->Clone ("");
 	      }
 	  }
+
+	TFile *histoRivetSherpa = TFile::Open (rivetPathSherpa.c_str ());
+	histoRivetSherpa->cd ("");
+	TDirectory *dirRivetSherpa = gDirectory;
+	TList *mylistRivetSherpa = (TList *) dirRivetSherpa->GetListOfKeys ();
+	TIter iterRivetSherpa (mylistRivetSherpa);
+	TObject *tobjRivetSherpa = 0;
+	while ((tobjRivetSherpa = iterRivetSherpa.Next ()))
+	  {
+	    string nameRivetSherpa = tobjRivetSherpa->GetName ();
+	    if (nameRivetSherpa == rivet_data)
+	      {
+		cout << "Getting rivet data->" << nameRivetSherpa << endl;
+		TGraphAsymmErrors *leadingRivetSherpa;
+		gDirectory->GetObject (nameRivetSherpa.c_str (), leadingRivetSherpa);
+		TGraphAsymmErrors *leadingRatioSherpa;
+		leadingRatioSherpa = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+	      }
+	  }
+
+	//	// New Sherpa modification:
+	//	TFile *histoRivetSherpa = TFile::Open (rivetPathSherpa.c_str ());
+	//	histoRivetSherpa->cd ("");
+	//	TDirectory *dirRivetSherpa = gDirectory;
+	//	TList *mylistRivetSherpa = (TList *) dirRivetSherpa->GetListOfKeys ();
+	//	TIter iterRivetSherpa (mylistRivetSherpa);
+	//	TObject *tobjRivetSherpa = 0;
+	//	while ((tobjRivetSherpa = iterRivetSherpa.Next ()))
+	//	  {
+	//	    string nameRivetSherpa = tobjRivetSherpa->GetName ();
+	//	    if (nameRivetSherpa == rivet_dataMG)
+	//	      {
+	//		cout << "Getting rivet data->" << nameRivetSherpa << endl;
+	//		TH1F *leadingRivetSherpa_TH1;
+	//		gDirectory->GetObject (nameRivetSherpa.c_str (), leadingRivetSherpa_TH1);
+	//		int nshbins = leadingRivetSherpa_TH1->GetNbinsX();
+	//		TGraphAsymmErrors *leadingRivetSherpa;
+	//		leadingRivetSherpa = (TGraphAsymmErrors *) leadingRivetPowheg->Clone ("");
+	//		for (int n=0;n<nshbins;n++) {
+	//		  leadingRivetSherpa->SetPoint(n,leadingRivetSherpa_TH1->GetBinCenter(n+1),leadingRivetSherpa_TH1->GetBinContent(n+1));
+	//		  //leadingRivetSherpa->SetPointEXhigh(n,0.0);
+	//		  //leadingRivetSherpa->SetPointEXlow(n,0.0);
+	//		  leadingRivetSherpa->SetPointEYhigh(n,leadingRivetSherpa_TH1->GetBinError(n));
+	//		  leadingRivetSherpa->SetPointEYlow(n,leadingRivetSherpa_TH1->GetBinError(n));
+	//		}
+	//		TGraphAsymmErrors *leadingRatioSherpa;
+	//		leadingRatioSherpa = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+	//	      }
+	//	  }
 	  
 	TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
 	histoRivetMadGraph->cd ("");
@@ -468,9 +504,11 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  if (absoluteNormalization) {
-	    if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
-	    if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
-	    if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
+//	    if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
+//	    if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
+//	    if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
+	    dummyNorm= (473000/2165.19)/2; //New Sherpa by Fabio Unweighted
+	    if (lepton ==3) dummyNorm = dummyNorm*2; // New Sherpa by Fabio
 	    dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	  }
 
@@ -662,7 +700,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioSystematics->GetYaxis()->SetLabelSize(0.14);
 	leadingRatioSystematics->GetYaxis()->SetTitleOffset(0.45);
 	leadingRatioSystematics->GetYaxis()->SetTitle("Data/MC");   
-	leadingRatioSystematics->GetYaxis()->SetNdivisions(5);
+	leadingRatioSystematics->GetYaxis()->SetNdivisions(505);
 	leadingRatioSystematics->GetYaxis()->SetRangeUser(0.4,1.6);
 	leadingRatioSystematics->SetTitle("");	  
 	leadingRatioSystematics->Draw ("E0");
@@ -674,7 +712,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioSherpa->SetMarkerColor(kBlue-4);
 	leadingRatioSherpa->SetLineWidth(1);
 	leadingRatioSherpa->Draw("2");
-	leadingRatioSherpa->Draw("pz");
+	//	leadingRatioSherpa->Draw("pz");
 
 	leadingRatioSystematics->Draw ("E0SAME");
 	leadingRatio->Draw ("E0SAME");
@@ -711,7 +749,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio3Systematics->GetYaxis()->SetLabelSize(0.14);
 	leadingRatio3Systematics->GetYaxis()->SetTitleOffset(0.45);
 	leadingRatio3Systematics->GetYaxis()->SetTitle("Data/MC");   
-	leadingRatio3Systematics->GetYaxis()->SetNdivisions(5);
+	leadingRatio3Systematics->GetYaxis()->SetNdivisions(505);
 	leadingRatio3Systematics->GetYaxis()->SetRangeUser(0.4,1.6);
 	leadingRatio3Systematics->SetTitle("");	  
 	leadingRatio3Systematics->Draw ("E0");
@@ -723,7 +761,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioPowheg->SetMarkerColor(kGreen+3);
 	leadingRatioPowheg->SetLineWidth(1);
 	leadingRatioPowheg->Draw("2");
-	leadingRatioPowheg->Draw("pz");
+	//	leadingRatioPowheg->Draw("pz");
 
 	leadingRatio3Systematics->Draw ("E0SAME");
 	leadingRatio3->Draw ("E0SAME");
@@ -761,7 +799,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio2Systematics->GetYaxis()->SetLabelSize(0.10);
 	leadingRatio2Systematics->GetYaxis()->SetTitleOffset(0.65);
 	leadingRatio2Systematics->GetYaxis()->SetTitle("Data/MC");   
-	leadingRatio2Systematics->GetYaxis()->SetNdivisions(5);
+	leadingRatio2Systematics->GetYaxis()->SetNdivisions(505);
 	leadingRatio2Systematics->GetYaxis()->SetRangeUser(0.4,1.6);
 
 
@@ -784,10 +822,10 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("Fourth jet #eta");
 	}
 	if (use_case ==4) {
-	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV]");
-	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 2 [GeV]");
-	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 3 [GeV]");
-	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 4 [GeV]");
+	  if (whichjet == 1) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} #geq 1 [GeV]");
+	  if (whichjet == 2) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} #geq 2 [GeV]");
+	  if (whichjet == 3) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} #geq 3 [GeV]");
+	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} #geq 4 [GeV]");
 	}
 
 	leadingRatio2Systematics->Draw ("E0");
@@ -799,7 +837,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioMadGraph->SetMarkerColor(kOrange+10);
 	leadingRatioMadGraph->SetLineWidth(1);
 	leadingRatioMadGraph->Draw("2");
-	leadingRatioMadGraph->Draw("pz");
+	//	leadingRatioMadGraph->Draw("pz");
 	  
 	leadingRatio2Systematics->Draw ("E0SAME");
 	leadingRatio2->Draw ("E0SAME");
