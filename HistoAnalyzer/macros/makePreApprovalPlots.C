@@ -43,9 +43,12 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   bool incMultiplicity = false;
 
 
-  string s                = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/ele/";
-  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/muo/";
-  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/combined/";
+  string s                = "/afs/infn.it/ts/user/schizzi/html/iMieiCoglioni/ele/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/iMieiCoglioni/muo/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/iMieiCoglioni/combined/";
+  //  string s                = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/ele/";
+  //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/muo/";
+  //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/combined/";
   //  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
   //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
   //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
@@ -64,21 +67,23 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root";
   
   //RIVET:
-  //  string rivetPathSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
-  string rivetPathSherpa   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
-  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
+  string rivetPathSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
+  //  string rivetPathSherpa   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
+  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph_lhe/test_full2/merged.root";
+  //  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   string rivetPathPowheg    ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
 
   if (lepton == 2){
-    //    rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
-    rivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
-    rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
+    rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
+    //    rivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
+    rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph_lhe/test_full2/merged.root";
+    //    rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
     rivetPathPowheg        ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
   }
 
   if (lepton == 3){
-    //    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
-    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root"; // new Sherpa by Fabio
+    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
+    //    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
     rivetPathPowheg     ="/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root";
   }
@@ -319,7 +324,37 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	//		leadingRatioSherpa = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
 	//	      }
 	//	  }
-	  
+
+	//	TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
+	//	histoRivetMadGraph->cd ("");
+	//	TDirectory *dirRivetMadGraph = gDirectory;
+	//	TList *mylistRivetMadGraph = (TList *) dirRivetMadGraph->GetListOfKeys ();
+	//	TIter iterRivetMadGraph (mylistRivetMadGraph);
+	//	TObject *tobjRivetMadGraph = 0;
+	//	while ((tobjRivetMadGraph = iterRivetMadGraph.Next ()))
+	//	  {
+	//	    string nameRivetMadGraph = tobjRivetMadGraph->GetName ();
+	//	    if (nameRivetMadGraph == rivet_dataMG)
+	//	      {
+	//		cout << "Getting rivet data->" << nameRivetMadGraph << endl;
+	//		TH1D *leadingRivetMadGraph_TH1;
+	//		gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph_TH1);
+	//		int nthbins = leadingRivetMadGraph_TH1->GetNbinsX();
+	//		TGraphAsymmErrors *leadingRivetMadGraph;
+	//		leadingRivetMadGraph = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+	//		for (int n=0;n<nthbins;n++) {
+	//		  leadingRivetMadGraph->SetPoint(n,leadingRivetMadGraph_TH1->GetBinCenter(n+1),leadingRivetMadGraph_TH1->GetBinContent(n+1));
+	//		  //leadingRivetMadGraph->SetPointEXhigh(n,0.0);
+	//		  //leadingRivetMadGraph->SetPointEXlow(n,0.0);
+	//		  leadingRivetMadGraph->SetPointEYhigh(n,leadingRivetMadGraph_TH1->GetBinError(n));
+	//		  leadingRivetMadGraph->SetPointEYlow(n,leadingRivetMadGraph_TH1->GetBinError(n));
+	//		}
+	//		TGraphAsymmErrors *leadingRatioMadGraph;
+	//		leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
+	//	      }
+	//	  }
+
+	// Madgraph vecchio inclusivo con i cazzo di T alla sburra di cherubino addolcita col miele
 	TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
 	histoRivetMadGraph->cd ("");
 	TDirectory *dirRivetMadGraph = gDirectory;
@@ -329,21 +364,11 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	while ((tobjRivetMadGraph = iterRivetMadGraph.Next ()))
 	  {
 	    string nameRivetMadGraph = tobjRivetMadGraph->GetName ();
-	    if (nameRivetMadGraph == rivet_dataMG)
+	    if (nameRivetMadGraph == rivet_data)
 	      {
 		cout << "Getting rivet data->" << nameRivetMadGraph << endl;
-		TH1D *leadingRivetMadGraph_TH1;
-		gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph_TH1);
-		int nthbins = leadingRivetMadGraph_TH1->GetNbinsX();
 		TGraphAsymmErrors *leadingRivetMadGraph;
-		leadingRivetMadGraph = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
-		for (int n=0;n<nthbins;n++) {
-		  leadingRivetMadGraph->SetPoint(n,leadingRivetMadGraph_TH1->GetBinCenter(n+1),leadingRivetMadGraph_TH1->GetBinContent(n+1));
-		  //leadingRivetMadGraph->SetPointEXhigh(n,0.0);
-		  //leadingRivetMadGraph->SetPointEXlow(n,0.0);
-		  leadingRivetMadGraph->SetPointEYhigh(n,leadingRivetMadGraph_TH1->GetBinError(n));
-		  leadingRivetMadGraph->SetPointEYlow(n,leadingRivetMadGraph_TH1->GetBinError(n));
-		}
+		gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph);
 		TGraphAsymmErrors *leadingRatioMadGraph;
 		leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
 	      }
@@ -504,11 +529,11 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  if (absoluteNormalization) {
-//	    if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
-//	    if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
-//	    if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
-	    dummyNorm= (473000/2165.19)/2; //New Sherpa by Fabio Unweighted
-	    if (lepton ==3) dummyNorm = dummyNorm*2; // New Sherpa by Fabio
+	    if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
+	    if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
+	    if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
+	    //	    dummyNorm= (473000/2165.19)/2; //New Sherpa by Fabio Unweighted
+	    //	    if (lepton ==3) dummyNorm = dummyNorm*2; // New Sherpa by Fabio
 	    dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	  }
 
@@ -582,7 +607,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	}
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	  if (absoluteNormalization) {
-	    dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);
+	    //	    dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);
+	    dummyNorm= (24492754/2497.3)*(3048/2497.3)*2/3; // vecchio madgraph caccolino
 	    if (lepton ==3) dummyNorm = dummyNorm*2;
 	    dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1));
 	  }
@@ -590,6 +616,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  leadingRivetMadGraph->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
+	  if (use_case ==1) cout << "MERDA: " << dummyYvar/dummyNorm << endl;
 	  leadingRivetMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)/dummyNorm);
 	  leadingRivetMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)/dummyNorm);
 
