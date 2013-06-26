@@ -1096,7 +1096,7 @@ process.JetValidation = cms.Path(
     )
 
 
-#process.JetValidationMU = cms.Path(
+process.JetValidationMU = cms.Path(
  #    process.goodPV *
 #     process.allMuons*                                          ## our final muon collection: all muons
 #     process.tightMuons*                                        ## our final muon collection: tight muons
@@ -1110,15 +1110,15 @@ process.JetValidation = cms.Path(
 #     process.goodMuPair*
 #     process.pfNoMuon*
 #     ## gen jets without muons
-#     process.genParticlesForJetsMuNoNuNoGammaCone*
-#     process.ak5GenJetsMuNoGammaCone*
+     process.genParticlesForJetsMuNoNuNoGammaCone*
+     process.ak5GenJetsMuNoGammaCone*
 #     ## jets without muons
 #     process.ak5PFJetsRCmu*
 #     process.ak5PFchsJetsRCmuL1FastL2L3*
 #     ## analysis
 #     #process.validationJECMuXSScaleUp*
 #     #process.validationJECMuXSScaleDown*
-#    process.validationJECmu
+    process.validationJECmu
 #    )
 
 
