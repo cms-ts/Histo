@@ -128,6 +128,7 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet4_pt_gen;
       double jet5_pt_gen;
       double jet6_pt_gen;
+      double jet7_pt_gen;
 
 
       double jet1_eta_gen;
@@ -136,6 +137,7 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet4_eta_gen;
       double jet5_eta_gen;
       double jet6_eta_gen;
+      double jet7_eta_gen;
 
       double invMass_gen;
       double l1_pt_gen;
@@ -163,6 +165,7 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet4_pt;
       double jet5_pt;
       double jet6_pt;
+      double jet7_pt;
 
       double jet1_eta;
       double jet2_eta;
@@ -170,6 +173,7 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet4_eta;
       double jet5_eta;
       double jet6_eta;
+      double jet7_eta;
 
       double jet1_phi;
       double jet2_phi;

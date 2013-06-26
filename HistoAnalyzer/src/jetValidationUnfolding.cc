@@ -4,7 +4,7 @@
 #include "Histo/HistoAnalyzer/interface/jetValidationUnfolding.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Common/interface/RefVector.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
 //
@@ -93,6 +93,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    jet4_pt  =-9999;
    jet5_pt  =-9999;
    jet6_pt  =-9999;
+   jet7_pt  =-9999;
 
    jet1_eta =-9999;
    jet2_eta =-9999;
@@ -100,6 +101,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    jet4_eta =-9999;
    jet5_eta =-9999;
    jet6_eta =-9999;
+   jet7_eta =-9999;
 
    jet1_phi =-9999;
    jet2_phi =-9999;
@@ -624,6 +626,18 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    jet4_phi =jet->Phi();
 	    jet4_mass=jet->M();
 	 }
+	 else if (totJetsCk==5){
+	    jet5_pt  =jet->Pt();
+	    jet5_eta =jet->Eta();
+	 }
+	 else if (totJetsCk==6){
+	    jet6_pt  =jet->Pt();
+	    jet6_eta =jet->Eta();
+	 }
+	 else if (totJetsCk==7){
+	    jet7_pt  =jet->Pt();
+	    jet7_eta =jet->Eta();
+	 }
 	 jetHt=jetHt + jet->Pt();
       }
       h_jetNum_EB->Fill(nJetsEB,myweight[0]);
@@ -662,6 +676,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
       jet4_pt_gen=-9999;
       jet5_pt_gen=-9999;
       jet6_pt_gen=-9999;
+      jet7_pt_gen=-9999;
 
       jet1_eta_gen=-9999;
       jet2_eta_gen=-9999;
@@ -669,6 +684,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
       jet4_eta_gen=-9999;
       jet5_eta_gen=-9999;
       jet6_eta_gen=-9999;
+      jet7_eta_gen=-9999;
       
       if (usingMC){
 	edm::Handle<reco::GenJetCollection> genJets;
@@ -686,15 +702,32 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
 
-	  if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
-	      // cut on the jet pt 
-	      && jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
-	      && fabs(jet->eta())<genJetEtaThreshold //A minimux allowed eeta for GEN-JET!!!!!
-	      ){ 
-	    GenJetContainer.push_back(jet->p4()); 
-	    numbOfJets++;
-	    if (Debug) cout<<"Jet has energy:"<<jet->pt()<<" and eta:"<<jet->eta()<<endl;
-	  }
+	   if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
+	       // cut on the jet pt 
+	       && jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
+	       && fabs(jet->eta())<genJetEtaThreshold //A minimux allowed eeta for GEN-JET!!!!!
+	       //&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
+	       //&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
+	       //&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
+	       //&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
+	       //&& jet->charge()>chargedMultiplicity
+	       ){
+
+	     //Check if it is a charged jet!
+	     double isChargedJet=false;
+	     std::vector<const GenParticle*> mcparticles = jet->getGenConstituents();
+	     for(std::vector <const GenParticle*>::const_iterator thepart =mcparticles.begin();thepart != mcparticles.end(); ++ thepart ) {
+	       if (Debug) cout<<"Charge of constituents->"<<(abs((**thepart).charge()))<<endl;
+	       if ( (**thepart).charge()!=0 ){
+		 isChargedJet=true;
+	       }
+	     }
+	     if (Debug) cout<<"final charge->"<<isChargedJet<<endl;
+	     if (isChargedJet) GenJetContainer.push_back(jet->p4()); 
+	     isChargedJet=false;
+	     numbOfJets++;
+	     if (Debug) cout<<"Jet has energy:"<<jet->pt()<<" and eta:"<<jet->eta()<<endl;
+	   }
 	}
 	if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
 	if (numbOfJets<100) Jet_multiplicity_gen=numbOfJets;
@@ -836,6 +869,10 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  jet6_pt_gen=jetpt_gen[5];
 	  jet6_eta_gen=jeteta_gen[5];
 	}
+	if (gvectorsize>6) {
+	  jet7_pt_gen=jetpt_gen[6];
+	  jet7_eta_gen=jeteta_gen[6];
+	}
 
 	//cout<<"gen jet1 has pt "<<jet1_pt_gen<<" jet2 "<<jet2_pt_gen<<" jet3 "<<jet3_pt_gen<<" jet4_pt_gen "<<jet4_pt_gen<<endl;
       }
@@ -968,6 +1005,7 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("jet4_pt_gen",&jet4_pt_gen);
   treeUN_->Branch("jet5_pt_gen",&jet5_pt_gen);
   treeUN_->Branch("jet6_pt_gen",&jet6_pt_gen);
+  treeUN_->Branch("jet7_pt_gen",&jet7_pt_gen);
 
   treeUN_->Branch("jet1_eta_gen",&jet1_eta_gen);
   treeUN_->Branch("jet2_eta_gen",&jet2_eta_gen);
@@ -975,6 +1013,7 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("jet4_eta_gen",&jet4_eta_gen);
   treeUN_->Branch("jet5_eta_gen",&jet5_eta_gen);
   treeUN_->Branch("jet6_eta_gen",&jet6_eta_gen);
+  treeUN_->Branch("jet7_eta_gen",&jet6_eta_gen);
 
   //treeUN_->Branch("jetPtVector",&jetPtVector);
   //treeUN_->Branch("genJetPtVector",&genJetPtVector);
@@ -993,6 +1032,7 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("jet4_pt",&jet4_pt);
   treeUN_->Branch("jet5_pt",&jet5_pt);
   treeUN_->Branch("jet6_pt",&jet6_pt);
+  treeUN_->Branch("jet7_pt",&jet7_pt);
 
   treeUN_->Branch("jet1_eta",&jet1_eta);
   treeUN_->Branch("jet2_eta",&jet2_eta);
@@ -1000,6 +1040,7 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("jet4_eta",&jet4_eta);
   treeUN_->Branch("jet5_eta",&jet5_eta);
   treeUN_->Branch("jet6_eta",&jet6_eta);
+  treeUN_->Branch("jet7_eta",&jet7_eta);
 
   treeUN_->Branch("jet1_phi",&jet1_phi);
   treeUN_->Branch("jet2_phi",&jet2_phi);
