@@ -30,8 +30,9 @@ jetValidationUnfolding::distR(TLorentzVector a ,math::XYZTLorentzVector b){
 void
 jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+  eventNumberCounter++;
   bool Debug=false;
+  if (Debug) cout<<"This is the number "<<eventNumberCounter<<endl;
 
   double genJetPtThreshold=25.0;
   double genJetEtaThreshold=2.41;
@@ -136,13 +137,104 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
     TLorentzVector l1, l2, l_pair;
     std::vector<TLorentzVector> leptonContainer;
     double zInvMass = 0;  
+
+    //New set of variables to retrieve FSR
+    double genElePtFSRp=0;
+    double genEleEtaFSRp=0;
+    double genMuPtFSRp=0;
+    double genMuEtaFSRp=0;
+
+    double genElePtFSRm=0;
+    double genEleEtaFSRm=0;
+    double genMuPtFSRm=0;
+    double genMuEtaFSRm=0;
+
+    //Retrieve the energy and pt of the objects, after FSR treatment..
+    edm::Handle< std::vector<float> > EleGenPtFSR;
+    if (! iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenPt_,EleGenPtFSR)) {
+      if (Debug) cout<<"Problems to open the EleGenPtFSR... check"<<endl;
+    }
+    else
+      {
+	iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenPt_,EleGenPtFSR);
+	const std::vector<float> & myEleGenPtFSR=*EleGenPtFSR;
+	if (myEleGenPtFSR.size()!=0) {
+	  genElePtFSRp=myEleGenPtFSR.at(0);
+	  genElePtFSRm=myEleGenPtFSR.at(1);
+	}
+      }
+
+    edm::Handle< std::vector<float> > EleGenEtaFSR;
+    if (! iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenEta,EleGenEtaFSR)) {
+      if (Debug) cout<<"Problems to open the EleGenPtFSR... check"<<endl;
+    }
+    else
+      {
+	iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenEta,EleGenEtaFSR);
+	const std::vector<float> & myEleGenEtaFSR=*EleGenEtaFSR;
+	if (myEleGenEtaFSR.size()!=0) {
+	  genEleEtaFSRp=myEleGenEtaFSR.at(0);
+	  genEleEtaFSRm=myEleGenEtaFSR.at(1);
+	}
+      }
+    ////////
+    edm::Handle< std::vector<float> > MuGenPtFSR;
+    if (! iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenPt,MuGenPtFSR)) {
+      if (Debug) cout<<"Problems to open the MuGenPtFSR... check"<<endl;
+    }
+    else
+      {
+	iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenPt,MuGenPtFSR);
+	const std::vector<float> & myMuGenPtFSR=*MuGenPtFSR;
+	if (myMuGenPtFSR.size()!=0) {
+	  genMuPtFSRp=myMuGenPtFSR.at(0);
+	  genMuPtFSRm=myMuGenPtFSR.at(1);
+	}
+      }
+
+    edm::Handle< std::vector<float> > MuGenEtaFSR;
+    if (! iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenEta,MuGenEtaFSR)) {
+      if (Debug) cout<<"Problems to open the MuGenPtFSR... check"<<endl;
+    }
+    else
+      {
+	iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenEta,MuGenEtaFSR);
+	const std::vector<float> & myMuGenEtaFSR=*MuGenEtaFSR;
+	if (myMuGenEtaFSR.size()!=0) {
+	  genMuEtaFSRp=myMuGenEtaFSR.at(0);
+	  genMuEtaFSRm=myMuGenEtaFSR.at(1);
+	}
+      }
     
+    
+    //Check using the mc truth (status 3) whether it was a ee or mm event
+    bool foundZBoson=false;
+    //Check if there is a Z boson decaying properly
     for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
       if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->mother()->pdgId()==23){ //itgen->status()==1 &&
-	l1.SetPtEtaPhiM(itgen->pt(),itgen->eta(),itgen->phi(),itgen->mass());
+	if (Debug) cout<<"Found the "<<leptonId <<" looking at the Z childerns...."<<endl;
+	foundZBoson=true;
+      } 
+    }
+    
+    for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
+      if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->status()==1 && foundZBoson){
+	if (Debug) cout<<genElePtFSRp<<genEleEtaFSRp<<endl;
+	if (Debug) cout<<genElePtFSRm<<genEleEtaFSRm<<endl;
+	if (Debug) cout<<genMuPtFSRp<<genMuEtaFSRp<<endl;
+	if (Debug) cout<<genMuPtFSRm<<genMuEtaFSRm<<endl;
+	
+	if (genElePtFSRp==0 && genElePtFSRm==0 && fabs(itgen->pdgId())==11) continue;
+	if (genMuPtFSRp==0 && genMuPtFSRm==0 && fabs(itgen->pdgId())==13) continue;
+	
+	if (itgen->pdgId()>0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRp,genEleEtaFSRp,itgen->phi(),itgen->mass());
+	if (itgen->pdgId()<0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRm,genEleEtaFSRm,itgen->phi(),itgen->mass());
+	if (itgen->pdgId()>0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRp,genMuEtaFSRp,itgen->phi(),itgen->mass());
+	if (itgen->pdgId()<0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRm,genMuEtaFSRm,itgen->phi(),itgen->mass());
 	leptonContainer.push_back(l1);
       } 
     }
+    
     if (leptonContainer.size()>=2)
       {
 	l_pair = leptonContainer[0] + leptonContainer[1];
@@ -151,31 +243,31 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	l1_eta_gen=leptonContainer[0].Eta();
 	l2_eta_gen=leptonContainer[1].Eta();
 	l1_pt_gen=leptonContainer[0].Pt();
-	l2_pt_gen=leptonContainer[1].Pt();      
-	genZInAcceptance=true;
-	//cout<<"lepton 1 bare pt->"<<l1_pt_gen<<endl;
-	//cout<<"lepton 2 bare pt->"<<l2_pt_gen<<endl;
+	l2_pt_gen=leptonContainer[1].Pt();
+	
+	if (invMass_gen<111 && invMass_gen>71 && 
+	    fabs(l1_eta_gen)<2.4 &&
+	    fabs(l2_eta_gen)<2.4 &&
+	    fabs(l1_pt_gen) >20  &&
+	    fabs(l2_pt_gen) >20) {
+	  genZInAcceptance=true;
+	  if (Debug) cout<<"This is a good Z boson decayn in "<<leptonId<<endl;
+	}
+	if (Debug)cout<<"lepton 1 bare pt->"<<l1_pt_gen;
+	if (Debug)cout<<"  lepton 2 bare pt->"<<l2_pt_gen;
+	if (Debug)cout<<"  lepton 1 eta->"<<l1_eta_gen;
+	if (Debug)cout<<"  lepton 2 eta->"<<l2_eta_gen;
+	if (Debug)cout<<"  inv mass "<<invMass_gen<<endl;
 	leptonContainer.clear();
-	//
-	//edm::Handle<std::vector<TLorentzVector> > dressedLepton;
-	//if (isElectron) iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone","EleGammaGen", dressedLepton);
-	//else iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone","MuGammaGen", dressedLepton);
-	//if (dressedLepton.isValid()) {
-	//cout<<"Valid collection"<<endl;
-	  //for(i = dressedLepton->begin(); i!= dressedLepton->end(); ++i){
-	  //cout<<"lepton dressed pt->"<<i[0].Pt()<<endl;
-	  //cout<<"lepton 2 dressed pt->"<<i[0].Pt()<<endl;
-	  //}
-	//}
       }
     else{
       //cout<<"This is a mumu"<<endl;
     }
   }
 
-   ///////////////////////
-   ///// Vertex Analysis
-   ///////////////////////
+  ///////////////////////
+  ///// Vertex Analysis
+  ///////////////////////
 
    edm::Handle<reco::VertexCollection> Vertexes;
    iEvent.getByLabel(VertexCollection_, Vertexes);
