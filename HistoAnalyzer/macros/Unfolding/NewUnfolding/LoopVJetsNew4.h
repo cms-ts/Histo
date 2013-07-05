@@ -50,6 +50,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
 {
   TH1D *unf;
   //response_j.SetOverflow(1);
+  
   RooUnfoldBayes unfold_b (&response_j, jData, kvalue);  //NEVER,NEVER,NEVER set the parameter "1000" for the testing if you want to perform identity tests
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
   
@@ -217,7 +218,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   if (fChain == 0) return; if (!doUnfold) nentries=0;
   int aaa=0;
-  for (int g=0; g<1; g++){
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
@@ -231,6 +231,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;     
       //In this way, jets with more than 25 GeV are accounted!! --> getNumberOfValidJets to change it offline..
       //int ValidGenJets=Jet_multiplicity_gen;//getNumberOfValidJets(Jet_multiplicity_gen, 30.0, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
+
       int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 30, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
       int ValidRecoJets=Jet_multiplicity;
       
@@ -247,7 +248,11 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	jet_Obs_gen=-99;
       } 
 
-     // Get Efficiency
+      if (ValidGenJets<numbOfJetsSelected &&  ValidRecoJets<numbOfJetsSelected) continue; //-------------> Occhio all'IDENTITY CHECK con questo
+      aaa++;
+      
+ 
+      // Get Efficiency
       double effcorrmc=1.00;
       if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
 
@@ -281,26 +286,36 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       // Gen Level Correction
       //////////////////////////////////
 
-      //if (genZInAcceptance && recoZInAcceptance ){
-	jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
-      //cout<<jet_Obs_gen<<" "<<jet_Obs<<endl;
-      //response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
-	//  }
-      
-      
-  //if (genZInAcceptance && !recoZInAcceptance){
-  //jTrue->Fill (jet_Obs_gen); jMatx->Fill (0.0, jet_Obs_gen); jMatxlong->Fill (0.0, jet_Obs_gen); jMCreco->Fill (0.0);
-  // aaa++;
-  //  response_fillfake.Miss(jet_Obs_gen);
-  //  //cout<<jet_Obs_gen<<" "<<jet_Obs<<endl;
-  //  }
-      
-  //  if (!genZInAcceptance && recoZInAcceptance){
-  //jTrue->Fill (0.0); jMatx->Fill (jet_Obs, 0.0,effcorrmc); jMatxlong->Fill (jet_Obs, 0.0,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
-  //response_fillfake.Fake(jet_Obs);
-  //  }
-      continue;
+      if (whichtype=="Multiplicity"){
+	
+	//Old Working version.-------------------------?
+	//jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+	//Old Working version.-------------------------?
 
+	if (genZInAcceptance && recoZInAcceptance) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
+	if (genZInAcceptance && !recoZInAcceptance) response_fillfake.Miss(jet_Obs_gen,effcorrmc);
+	if (!genZInAcceptance && recoZInAcceptance) response_fillfake.Fake(jet_Obs,effcorrmc);
+
+      }
+      else{
+	if (jet_Obs_gen==9999) jet_Obs_gen=-9999; //-------------> to protect us against spykes...
+
+	//Old Working version.-------------------------?
+	//if (jet_Obs_gen<30) jet_Obs_gen=0;
+	//if (jet_Obs<30) jet_Obs=0.0;
+	//jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+	//Old Working version.-------------------------?
+
+	if (genZInAcceptance && recoZInAcceptance) {
+	  if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
+	  if( !(jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) response_fillfake.Miss(jet_Obs,effcorrmc);
+	  if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) && !(jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) response_fillfake.Fake(jet_Obs,effcorrmc);
+	  continue;
+	}
+	if (genZInAcceptance && !recoZInAcceptance) {response_fillfake.Miss(jet_Obs_gen,effcorrmc);	  continue;}
+	if (!genZInAcceptance && recoZInAcceptance) {response_fillfake.Fake(jet_Obs,effcorrmc);	  continue;}
+      }
+      
     }
   cout<<"aaa is "<<aaa<<endl;
   //Numbers for debug.. Output in our code
@@ -308,7 +323,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   cout<<"Generated Outside the detector limits=>"<<genOutsideTheLimits<<", of which "<<recoButNotGenerated<<" reconstructed."<<"So,"<<notGenNotReco<<" not reco not gen. Filling gap for ele with "<<inTheGap<<endl;
   cout<<"<Reconstructed events==>"<<recostructedEvents<<". Reco but gen in the gap=>"<<recoinTheGap<<" gen low pt=>"<<recoButPtLow<<" gen high eta=>"<<recoButEtaHigh<<" gen outInvMass=>"<<recoButInvMassOut<<" recoNotGen=>"<<recoButNotGenerated<<" genNotReco=>"<<genButNotReco<<endl;
   cout<<"Gen & Reco after GEN Level Correction=>"<<genRecoAfterGenCorr<<"Gen & !Reco=>"<<genNoRecoAfterGenCorr<<"!Gen & Reco=>"<<noGenRecoAfterGenCorr<<endl;
-  }
+  
   /* Loop Data */
   int numbOfEventsInData=0;
   fChain = tree_fB;
@@ -342,7 +357,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
     //Normal Filling
     jData->Fill (jet_Obs,effcorrdata);
-
+    
 
   }//End loop Data
   
@@ -353,7 +368,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   /////////////////////////
 
   if (correctForBkg) correctForBackground(numbOfJetsSelected,whichtype,jData,true); //bool -> activate verbosity
-  
+   
   //////////////////////////////
   ///
   ///     Unfolding Core
@@ -362,7 +377,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   //Old stile to perform the unfolding
   RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
-  response_j.UseOverflow();
+  response_j.UseOverflow();   ///////////===================> Senza questo, ottengo il TSVDUnfold!!!!!!!!!!!!!!!!!!!
   stringstream num;
 
   string method=whichalgo;
@@ -374,7 +389,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
 	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
-	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
+	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       }
       else{
       jReco=(TH1D*) jData->Clone("jData");
