@@ -36,7 +36,8 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jTrue->SetStats(0);
   jReco->SetStats(0);
   if (whichtype=="Multiplicity") jReco->GetXaxis()->SetTitle("jet Multiplicity");
-  else jReco->GetXaxis()->SetTitle("jet  pT [GeV/c]"); 
+  if (whichtype=="Pt") jReco->GetXaxis()->SetTitle("jet  pT [GeV]"); 
+  if (whichtype=="Eta") jReco->GetXaxis()->SetTitle("jet  Eta");
   jReco->SetLineColor (kBlack); 
   
   jReco->SetLabelSize(0.0);
@@ -111,7 +112,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jRecoClone->GetYaxis ()->SetRangeUser (0.5, 1.5);
   jRecoClone->GetYaxis ()->SetTitle ("Ratios");
   if (whichtype=="Multiplicity") jRecoClone->GetXaxis()->SetTitle("jet Multiplicity");
-  else jRecoClone->GetXaxis()->SetTitle("jet  pT [GeV/c]"); 
+  else jRecoClone->GetXaxis()->SetTitle("jet  pT [GeV]"); 
   jRecoClone->SetMarkerStyle (20);
   jRecoClone->SetLineWidth (0);
   jRecoClone->SetTitle ("");
@@ -135,7 +136,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jDataClone->SetMarkerSize (0);       
   jDataClone->SetLineWidth (0.05);
   jDataClone->SetLineColor(kViolet);
-  jDataClone->Draw ("E1HISTSAME");
+  //jDataClone->Draw ("E1HISTSAME");
   jDataClone->SetLineWidth (0.1);
   
   TF1 *f = new TF1("f","1",-1000,1000);
@@ -148,7 +149,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   legend_w->SetBorderSize (0);
   legend_w->AddEntry (jRecoClone, "Data Unfolded / MC truth", "P20");
   //legend_w->AddEntry (jMCRecoClone, "MC reco / MC truth", "L");
-  legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
+  //legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
   legend_w->Draw ("same");
   //pad2->Update();
   stringstream num;
@@ -158,7 +159,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   if (numbOfJetsSelected==2) whichjetname="Second leading "; 
   if (numbOfJetsSelected==3) whichjetname="Third leading "; 
   if (numbOfJetsSelected==4) whichjetname="Fourth leading ";
-  string title3= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";   
+  string title3= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";   
   if (identityCheck) title3= s+"/IdentityTest/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";
   if (pythiaCheck) title3= s+"/PowhegTest/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+".pdf";      
   num.str("");
@@ -172,7 +173,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
     modD->GetXaxis()->SetTitle("K Parameters"); modD->GetYaxis()->SetTitle("Value");
     modD->SetLineColor(kRed);
     modD->Draw(); 
-    string title= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_moduloD.pdf";
+    string title= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_moduloD.pdf";
     moduloD->Print(title.c_str()); 
   }
   TCanvas *errCanv= new TCanvas ("errCanv", "errCanv", 1000, 700);
@@ -187,7 +188,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   legend_->AddEntry (errors, "Unfolding error", "L");
   legend_->AddEntry (errorstat, "Stat Error", "L");
   legend_->Draw("");
-  string titlerr= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_errors.pdf";
+  string titlerr= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_errors.pdf";
   errCanv->Print(titlerr.c_str()); 
 
   TCanvas *N =new TCanvas ("N jet response matrix", "N jet response matrix", 1000, 700);
@@ -202,10 +203,10 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   gStyle->SetPaintTextFormat ("5.3f");
   gStyle->SetNumberContours (999);
   jMatx->SetMarkerColor (kBlack);
-  //double entries=1.000/(double)NMatxlonglong->Integral();
-  //NMatxlonglong->Scale(entries);
+  //double entries=1.000/(double)jMatx->Integral();
+  //jMatx->Scale(entries);
   jMatx->Draw ("COLZ,text");
-  string titlem= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_matrix.pdf";
+  string titlem= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_matrix.pdf";
   N->Print(titlem.c_str());
 
   TCanvas *efficiency = new TCanvas ("efficiency", "efficiency", 1000, 700);
@@ -225,7 +226,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   legend_eff->AddEntry (efficiencycorrectionsmc, "Montecarlo", "L");
   legend_eff->AddEntry (efficiencycorrections, "Data", "L");
   legend_eff->Draw ("same");
-  string titleeff= s+"JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_efficiencies.pdf";
+  string titleeff= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+"_k"+num.str()+"_"+whichjetname+"_efficiencies.pdf";
   efficiency->Print(titleeff.c_str());
 
   return c;

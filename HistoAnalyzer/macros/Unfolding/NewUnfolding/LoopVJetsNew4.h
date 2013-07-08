@@ -292,10 +292,20 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	//jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
 	//Old Working version.-------------------------?
 
-	if (genZInAcceptance && recoZInAcceptance) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
-	if (genZInAcceptance && !recoZInAcceptance) response_fillfake.Miss(jet_Obs_gen,effcorrmc);
-	if (!genZInAcceptance && recoZInAcceptance) response_fillfake.Fake(jet_Obs,effcorrmc);
-
+	if (genZInAcceptance && recoZInAcceptance) {
+	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
+	  jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+	  continue;
+	}
+	if (genZInAcceptance && !recoZInAcceptance) {
+	  response_fillfake.Miss(jet_Obs_gen,effcorrmc);
+	  jTrue->Fill (jet_Obs_gen); 
+	  continue;}
+	if (!genZInAcceptance && recoZInAcceptance) {
+	  jMCreco->Fill (jet_Obs,effcorrmc);
+	  response_fillfake.Fake(jet_Obs,effcorrmc);
+	  continue;
+	}
       }
       else{
 	if (jet_Obs_gen==9999) jet_Obs_gen=-9999; //-------------> to protect us against spykes...
@@ -307,13 +317,31 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	//Old Working version.-------------------------?
 
 	if (genZInAcceptance && recoZInAcceptance) {
-	  if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
-	  if( !(jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) response_fillfake.Miss(jet_Obs,effcorrmc);
-	  if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) && !(jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) response_fillfake.Fake(jet_Obs,effcorrmc);
+	  if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) {
+	    response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc);
+	    jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+	  }
+	  if( !(jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) {
+	    response_fillfake.Miss(jet_Obs,effcorrmc);
+	    jTrue->Fill (jet_Obs_gen); //jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+	  }
+	  if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) && !(jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) {
+	    response_fillfake.Fake(jet_Obs,effcorrmc);
+	    jMCreco->Fill (jet_Obs,effcorrmc);
+	  }
 	  continue;
 	}
-	if (genZInAcceptance && !recoZInAcceptance) {response_fillfake.Miss(jet_Obs_gen,effcorrmc);	  continue;}
-	if (!genZInAcceptance && recoZInAcceptance) {response_fillfake.Fake(jet_Obs,effcorrmc);	  continue;}
+	if (genZInAcceptance && !recoZInAcceptance) {
+	  response_fillfake.Miss(jet_Obs_gen,effcorrmc); 
+	  //printObservables( jet1_pt_gen,  jet2_pt_gen,  jet3_pt_gen,  jet4_pt_gen,   jet5_pt_gen,   jet6_pt_gen,  jet1_eta_gen,  jet2_eta_gen,  jet3_eta_gen,  jet4_eta_gen,  jet5_eta_gen,  jet6_eta_gen,  Jet_multiplicity_gen,  jet1_pt,  jet2_pt,  jet3_pt,  jet4_pt,   jet5_pt,   jet6_pt,  jet1_eta,  jet2_eta,  jet3_eta,  jet4_eta,  jet5_eta,  jet6_eta, Jet_multiplicity,  jet_Obs, jet_Obs_gen);
+	  jTrue->Fill (jet_Obs_gen); //jMatx->Fill (jet_Obs, jet_Obs_gen); jMatxlong->Fill (jet_Obs, jet_Obs_gen); jMCreco->Fill (jet_Obs);	
+	  //jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);	
+	  continue;
+	}
+	if (!genZInAcceptance && recoZInAcceptance) {
+	  response_fillfake.Fake(jet_Obs,effcorrmc);	  
+	  jMCreco->Fill (jet_Obs,effcorrmc);	
+	  continue;}
       }
       
     }
@@ -388,8 +416,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
-	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
-	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
+	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
       }
       else{
       jReco=(TH1D*) jData->Clone("jData");

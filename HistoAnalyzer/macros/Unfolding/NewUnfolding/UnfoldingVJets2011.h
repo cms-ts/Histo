@@ -80,6 +80,7 @@ public :
    int    e2_charge;
    TLorentzVector e2_tlv;
    int Run;
+   std::vector<double> deltaRRecoGenJet;
 
 
    // List of branches
@@ -136,6 +137,7 @@ public :
    TBranch        *b_e1_tlv;
    TBranch        *b_e2_tlv;
    TBranch        *b_Run;
+   TBranch        *b_deltaRRecoGenJet;
 
    UnfoldingVJets2011(TTree *tree=0);
    virtual ~UnfoldingVJets2011();
@@ -268,7 +270,7 @@ void UnfoldingVJets2011::Init(TTree *tree)
    fChain->SetBranchAddress("l2_pt_gen", &l2_pt_gen, &b_l2_pt_gen);
    fChain->SetBranchAddress("genZInAcceptance", &genZInAcceptance, &b_genZInAcceptance);
    fChain->SetBranchAddress("recoZInAcceptance", &recoZInAcceptance, &b_recoZInAcceptance);
-  
+   fChain->SetBranchAddress("deltaRRecoGenJet",&deltaRRecoGenJet,&b_deltaRRecoGenJet);
    fChain->SetBranchAddress("Run", &Run);
 
    Notify();

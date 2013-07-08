@@ -55,16 +55,16 @@ bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_37.root";
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_48.root"; //V45 was the default one
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=false;
-double XSMuon[4]={52.80,11.24,2.147,0.374}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
-double XSElectron[4]={51.98,11.23,2.172,0.420};
+bool activateXSSuperseding=true;
+double XSMuon[4]={63.74,13.079,2.544,0.457}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
+double XSElectron[4]={63.50,13.13,2.542,0.505};
 
 //For gen Jet
 double threshPt=30;
@@ -75,7 +75,7 @@ TFile *fB;
 TFile *fPythia;
 
 //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-bool identityCheck=false;    //to perform identity check
+bool identityCheck=true;    //to perform identity check
 bool splitCheck=false;
 bool pythiaCheck=false;
 
@@ -85,7 +85,7 @@ bool pythiaCheck=false;
 //SAVE histos to be used afterward
 bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"EleMuTestOfficial";
+string filename=direct+"ARCStep3";
 //string filename=direct+"TestFabioFinalUsingOurEff";
 
 
@@ -97,7 +97,7 @@ bool muscleFitCorrection=false; //For muons
 bool correctForMCReweighting=false;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
-bool differentialCrossSection=true;
+bool differentialCrossSection=false;
 
 // Correct for backgrounds: 
 bool correctForBkg=true;
@@ -182,8 +182,8 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=4;
-  string whichtype="Eta";
+  int numbOfJetsForLoop=1;
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
@@ -264,8 +264,8 @@ void UnfoldingVJets2011::LoopOneFour(bool isMuon)
 
   setTDRStyle();
 
-  string whichalgo="Bayes";
-  //string whichalgo="SVD";
+  //string whichalgo="Bayes";
+  string whichalgo="SVD";
       
   LoopVJets(1,"Multiplicity", whichalgo);
   LoopVJets(1,"Pt", whichalgo);
@@ -284,7 +284,7 @@ void UnfoldingVJets2011::LoopOneFour(bool isMuon)
 
 
 //Include the functions.. Make order, please!
-#include "LoopVJets.h"
+#include "LoopVJetsNew4.h"
 
 #ifndef __CINT__
 
