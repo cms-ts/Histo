@@ -42,6 +42,7 @@
 #include "getEfficiencyCorrection.C"
 #include "tdrstyle.C"
 #include "MakePlotLumiLabel.C"
+#include "TRandom3.h"
 
 using
 std::cout;
@@ -85,7 +86,7 @@ bool pythiaCheck=false;
 //SAVE histos to be used afterward
 bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"TSVD";
+string filename=direct+"prova";
 //string filename=direct+"TestFabioFinalUsingOurEff";
 
 
@@ -101,6 +102,10 @@ bool differentialCrossSection=false;
 
 // Correct for backgrounds: 
 bool correctForBkg=true;
+
+//Activate JER systematics Uncertainties evaluation
+int smearingJERSyst=0; //==>0 Apply JER, ==>1 JER UP, ==> -1 JER Down, ==>-9999 deactivate JER smearing
+
 // name of the root file containing background evaluation
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 

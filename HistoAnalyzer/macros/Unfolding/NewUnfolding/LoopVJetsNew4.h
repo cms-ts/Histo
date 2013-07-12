@@ -4,6 +4,7 @@
 #include "TSVDUnfold.h"
 #include <iostream>
 #include <fstream>
+#include "JERCorrection.h"
 
 using namespace std;
 
@@ -224,6 +225,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   // Configure various closure tests, if you want to do it
   if (identityCheck || splitCheck || pythiaCheck){
     identityCheck=true;
+    smearingJERSyst=-9999;
     correctForEff=false; correctForMCReweighting=false; correctForBkg=false;
     fB->cd (smcdir.c_str());
     tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
@@ -473,11 +475,11 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if (doUnfold) {
 	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx, numbOfJetsSelected, whichtype);
 	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx, numbOfJetsSelected, whichtype);
-	TCanvas *covMatExperimToy= new TCanvas ("covMatExperimToy", "covMatExperimToy", 1000, 700);
-	covMatExperimToy->cd ();
-	covMatExperimToy->Print(title2.c_str());
-	TH2D* covMaToy=GetAdetCovMatrix( 10, 1, jMatx, jTrue, divPlot, k, response_j, jData, jTrue, jMCreco, jMatx, numbOfJetsSelected, whichtype);
-        covMaToy->Draw("TEXT");
+	//TCanvas *covMatExperimToy= new TCanvas ("covMatExperimToy", "covMatExperimToy", 1000, 700);
+	//covMatExperimToy->cd ();
+	//covMatExperimToy->Print(title2.c_str());
+	//TH2D* covMaToy=GetAdetCovMatrix( 10, 1, jMatx, jTrue, divPlot, k, response_j, jData, jTrue, jMCreco, jMatx, numbOfJetsSelected, whichtype);
+        //covMaToy->Draw("TEXT");
       }
       else{
       jReco=(TH1D*) jData->Clone("jData");
