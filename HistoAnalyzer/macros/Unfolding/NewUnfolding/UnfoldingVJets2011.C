@@ -63,8 +63,8 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
 bool activateXSSuperseding=true;
-double XSMuon[4]={63.74,13.079,2.544,0.457}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
-double XSElectron[4]={63.50,13.13,2.542,0.505};
+double XSMuon[4]={63.42,13.06,2.549,0.449}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
+double XSElectron[4]={62.91,13.05,2.527,0.491};
 
 //For gen Jet
 double threshPt=30;
@@ -75,7 +75,7 @@ TFile *fB;
 TFile *fPythia;
 
 //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-bool identityCheck=true;    //to perform identity check
+bool identityCheck=false;    //to perform identity check
 bool splitCheck=false;
 bool pythiaCheck=false;
 
@@ -83,9 +83,9 @@ bool pythiaCheck=false;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
 
 //SAVE histos to be used afterward
-bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"ARCStep3";
+string filename=direct+"TSVD";
 //string filename=direct+"TestFabioFinalUsingOurEff";
 
 

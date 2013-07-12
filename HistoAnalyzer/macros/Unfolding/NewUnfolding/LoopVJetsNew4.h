@@ -31,6 +31,39 @@ TH2D * pippotoy;
 #include "SaveUnfolding.h" // COntains correctForBackgrounds
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void formatCovMaxtrixLatex(TMatrixD matrix, int divPlot)
+{
+  matrix.Print();
+  cout<<"=================================="<<endl;
+  for(int h=1;h<=divPlot; h++){
+    for(int y=1; y<=divPlot; y++){
+      if (y<divPlot) cout<<matrix[h][y]<<" & ";
+      else cout<<matrix[h][y]<<" \\\\ ";
+    }
+    cout<<endl;
+  }
+  cout<<"=================================="<<endl;
+  return ;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TH2D* formatTH2DFromCovMaxtrixLatex(TMatrixD matrix, int divPlot)
+{
+  TH2D* histo=new TH2D("histo","histo",divPlot,1,divPlot,divPlot,1,divPlot);
+  cout<<"=================================="<<endl;
+  for(int h=1;h<=divPlot; h++){
+    for(int y=1; y<=divPlot; y++){
+      
+      histo->SetBinContent(h,y,matrix[h][y]);
+    }
+    cout<<endl;
+  }
+  cout<<"=================================="<<endl;
+  return histo;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void DivideTwoMatrixes(TMatrixD matrix, TMatrixD matrix2, int divPlot)
 {
@@ -46,8 +79,16 @@ void DivideTwoMatrixes(TMatrixD matrix, TMatrixD matrix2, int divPlot)
   return ;
 }
 
-TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, RooUnfoldResponse response_j, TH1D* jMCreco, TH2D* jMatx) //Specify which algo
+TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, RooUnfoldResponse response_j, TH1D* jMCreco, TH2D* jMatx, int numbOfJetsSelected, string whichtype) //Specify which algo
 {
+  string whichjet="";
+  if (numbOfJetsSelected==1) whichjet="Leading_";
+  if (numbOfJetsSelected==2) whichjet="Secondleading_";
+  if (numbOfJetsSelected==3) whichjet="Thirdleading_";
+  if (numbOfJetsSelected==4) whichjet="Fourthleading_";
+  string title2= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+whichjet+"covMatrix.pdf";
+  string title= s+"/"+whichtype+"/JET"+whichtype+"_"+whichalgo+whichjet+"covMatrixAndToy.pdf";
+
   TH1D *unf;
   //response_j.SetOverflow(1);
   
@@ -70,13 +111,27 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfo= unfold_s.ErecoV(RooUnfold::kCovToy);
     TVectorD vunfomat= unfold_s.ErecoV(RooUnfold::kCovariance);
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
-    TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Hmeasured(),(TH1D*)response_j.Htruth(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
-    //TSVDUnfold unfold_modD (jData,jMCreco,jTrue,jMatx); // per calcolare il modulo
+    //TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Htruth(),(TH1D*)response_j.Hmeasured(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
+    TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
     TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
     TMatrixD covmatrix=unfold_s.Ereco(RooUnfold::kCovariance);
     TMatrixD covmatrixtoy=unfold_s.Ereco(RooUnfold::kCovToy);
-    //formatCovMaxtrixLatex(covmatrix,divPlot);
-    //formatCovMaxtrixLatex(covmatrixtoy,divPlot);
+    formatCovMaxtrixLatex(covmatrix,divPlot);
+
+
+    TH2D *covMatExp=formatTH2DFromCovMaxtrixLatex(covmatrix, divPlot);
+
+    //TH2D* covMatExp = unfold_modD.GetAdetCovMatrix( 10,1 );
+    TH2D *covmat=unfold_modD.GetUnfoldCovMatrix(covMatExp,1000,1);
+
+    TCanvas *covMatExperim= new TCanvas ("covMatExperim", "covMatExperim", 1000, 700);
+    covMatExperim->cd ();
+    covMatExp->Draw("TEXT");
+    covMatExperim->Print(title.c_str());
+
+
+    //TSVDUnfold unfold_modD2 (jData,covMatExp,jTrue,jMCreco,jMatx); // per calcolare il modulo
+
     //pippotoy=unfold_modD.GetAdetCovMatrix(1000);
 
     //TSVDUnfold *unfold_modD2 =new TSVDUnfold(jData,pippotoy,jTrue,jMCreco,jMatx); // per calcolare il modulo
@@ -107,7 +162,7 @@ void loopAndDumpEntries(TH1D *jData){
   }
 }
 
-
+#include "MCLimitedStatTool.h"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,8 +471,13 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
-	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
-	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx, numbOfJetsSelected, whichtype);
+	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx, numbOfJetsSelected, whichtype);
+	TCanvas *covMatExperimToy= new TCanvas ("covMatExperimToy", "covMatExperimToy", 1000, 700);
+	covMatExperimToy->cd ();
+	covMatExperimToy->Print(title2.c_str());
+	TH2D* covMaToy=GetAdetCovMatrix( 10, 1, jMatx, jTrue, divPlot, k, response_j, jData, jTrue, jMCreco, jMatx, numbOfJetsSelected, whichtype);
+        covMaToy->Draw("TEXT");
       }
       else{
       jReco=(TH1D*) jData->Clone("jData");
