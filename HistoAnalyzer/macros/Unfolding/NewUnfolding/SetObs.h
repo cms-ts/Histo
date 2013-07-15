@@ -54,6 +54,15 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
   jet5_pt=returnJERCorrection(jet5_eta, jet5_pt, smearingJERSyst);
   jet6_pt=returnJERCorrection(jet6_eta, jet6_pt, smearingJERSyst);
 
+  //Formula to compute smearing
+  //jet1_pt=returnJERCorrectionSimplifiedFormula(jet1_eta, jet1_pt, jet1_pt_gen, smearingJERSyst);
+  //jet2_pt=returnJERCorrectionSimplifiedFormula(jet2_eta, jet2_pt, jet2_pt_gen, smearingJERSyst);
+  //jet3_pt=returnJERCorrectionSimplifiedFormula(jet3_eta, jet3_pt, jet3_pt_gen, smearingJERSyst);
+  //jet4_pt=returnJERCorrectionSimplifiedFormula(jet4_eta, jet4_pt, jet4_pt_gen, smearingJERSyst);
+  //jet5_pt=returnJERCorrectionSimplifiedFormula(jet5_eta, jet5_pt, jet5_pt_gen, smearingJERSyst);
+  //jet6_pt=returnJERCorrectionSimplifiedFormula(jet6_eta, jet6_pt, jet6_pt_gen, smearingJERSyst);
+
+
   if (numbOfJetsSelected==1){jet_Obs_pt_gen=jet1_pt_gen;jet_Obs_eta_gen=jet1_eta_gen;}
   if (numbOfJetsSelected==2){jet_Obs_pt_gen=jet2_pt_gen;jet_Obs_eta_gen=jet2_eta_gen;}
   if (numbOfJetsSelected==3){jet_Obs_pt_gen=jet3_pt_gen;jet_Obs_eta_gen=jet3_eta_gen;}

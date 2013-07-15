@@ -114,6 +114,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
     //TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Htruth(),(TH1D*)response_j.Hmeasured(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
     TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
+    //TSVDUnfold unfold_modDaaa(jData, jMatx, jMCreco, jTrue, jMatx);
     TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
     TMatrixD covmatrix=unfold_s.Ereco(RooUnfold::kCovariance);
     TMatrixD covmatrixtoy=unfold_s.Ereco(RooUnfold::kCovToy);
