@@ -47,20 +47,20 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
   //printObservables(jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity, jet_Obs, jet_Obs_gen);
 
   //Smearing the Jet Pt
-  jet1_pt=returnJERCorrection(jet1_eta, jet1_pt, smearingJERSyst);
-  jet2_pt=returnJERCorrection(jet2_eta, jet2_pt, smearingJERSyst);
-  jet3_pt=returnJERCorrection(jet3_eta, jet3_pt, smearingJERSyst);
-  jet4_pt=returnJERCorrection(jet4_eta, jet4_pt, smearingJERSyst);
-  jet5_pt=returnJERCorrection(jet5_eta, jet5_pt, smearingJERSyst);
-  jet6_pt=returnJERCorrection(jet6_eta, jet6_pt, smearingJERSyst);
+  //jet1_pt=returnJERCorrection(jet1_eta, jet1_pt, smearingJERSyst);
+  //jet2_pt=returnJERCorrection(jet2_eta, jet2_pt, smearingJERSyst);
+  //jet3_pt=returnJERCorrection(jet3_eta, jet3_pt, smearingJERSyst);
+  //jet4_pt=returnJERCorrection(jet4_eta, jet4_pt, smearingJERSyst);
+  //jet5_pt=returnJERCorrection(jet5_eta, jet5_pt, smearingJERSyst);
+  //jet6_pt=returnJERCorrection(jet6_eta, jet6_pt, smearingJERSyst);
 
   //Formula to compute smearing
-  //jet1_pt=returnJERCorrectionSimplifiedFormula(jet1_eta, jet1_pt, jet1_pt_gen, smearingJERSyst);
-  //jet2_pt=returnJERCorrectionSimplifiedFormula(jet2_eta, jet2_pt, jet2_pt_gen, smearingJERSyst);
-  //jet3_pt=returnJERCorrectionSimplifiedFormula(jet3_eta, jet3_pt, jet3_pt_gen, smearingJERSyst);
-  //jet4_pt=returnJERCorrectionSimplifiedFormula(jet4_eta, jet4_pt, jet4_pt_gen, smearingJERSyst);
-  //jet5_pt=returnJERCorrectionSimplifiedFormula(jet5_eta, jet5_pt, jet5_pt_gen, smearingJERSyst);
-  //jet6_pt=returnJERCorrectionSimplifiedFormula(jet6_eta, jet6_pt, jet6_pt_gen, smearingJERSyst);
+  jet1_pt=returnJERCorrectionSimplifiedFormula(jet1_eta, jet1_pt, jet1_pt_gen, smearingJERSyst);
+  jet2_pt=returnJERCorrectionSimplifiedFormula(jet2_eta, jet2_pt, jet2_pt_gen, smearingJERSyst);
+  jet3_pt=returnJERCorrectionSimplifiedFormula(jet3_eta, jet3_pt, jet3_pt_gen, smearingJERSyst);
+  jet4_pt=returnJERCorrectionSimplifiedFormula(jet4_eta, jet4_pt, jet4_pt_gen, smearingJERSyst);
+  jet5_pt=returnJERCorrectionSimplifiedFormula(jet5_eta, jet5_pt, jet5_pt_gen, smearingJERSyst);
+  jet6_pt=returnJERCorrectionSimplifiedFormula(jet6_eta, jet6_pt, jet6_pt_gen, smearingJERSyst);
 
 
   if (numbOfJetsSelected==1){jet_Obs_pt_gen=jet1_pt_gen;jet_Obs_eta_gen=jet1_eta_gen;}
