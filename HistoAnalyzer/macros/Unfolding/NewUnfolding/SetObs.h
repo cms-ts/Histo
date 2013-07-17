@@ -522,10 +522,10 @@ if (numbOfJetsSelected == 1){
   }
   
   if (whichtype=="Multiplicity"){
-    divPlot=maxNJets-1;
-    minObsPlot=1;
-    maxObsPlot=maxNJets-1;
-
+    //divPlot=maxNJets-1;
+    //minObsPlot=1;
+    //maxObsPlot=maxNJets-1;
+    divPlot=6.5; minObsPlot=0.5;maxObsPlot=6.5;
     if (isEle){
       kmin=6;
       kmax=7;

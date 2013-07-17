@@ -64,8 +64,8 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=true;
-double XSMuon[4]={63.42,13.06,2.549,0.449}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
+bool activateXSSuperseding=false;
+double XSMuon[4]={62.37,13.27,2.615,0.514}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
 double XSElectron[4]={62.91,13.05,2.527,0.491};
 
 //For gen Jet
@@ -87,7 +87,7 @@ bool pythiaCheck=false;
 //SAVE histos to be used afterward
 bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"prova";
+string filename=direct+"AAA";
 //string filename=direct+"TestFabioFinalUsingOurEff";
 
 
