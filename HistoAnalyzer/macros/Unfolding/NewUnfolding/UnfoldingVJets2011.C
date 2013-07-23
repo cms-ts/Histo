@@ -51,13 +51,13 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=false;  
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_48.root"; //V45 was the default one
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_51.root"; //V45 was the default one
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
@@ -65,8 +65,8 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
 bool activateXSSuperseding=false;
-double XSMuon[4]={62.37,13.27,2.615,0.514}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
-double XSElectron[4]={62.91,13.05,2.527,0.491};
+double XSMuon[4]={64.1846,13.5174,2.68796,0.485177}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
+double XSElectron[4]={64.1853,13.544,2.66881,0.524993};
 
 //For gen Jet
 double threshPt=30;
@@ -87,7 +87,7 @@ bool pythiaCheck=false;
 //SAVE histos to be used afterward
 bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"AAA";
+string filename=direct+"a";
 //string filename=direct+"TestFabioFinalUsingOurEff";
 
 
@@ -189,7 +189,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Multiplicity";
+  string whichtype="Pt";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
