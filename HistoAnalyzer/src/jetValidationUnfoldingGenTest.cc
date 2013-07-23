@@ -44,13 +44,13 @@ jetValidationUnfoldingGenTest::analyze(const edm::Event& iEvent, const edm::Even
    numberOfVertices=0;
    
    //Define Variables 
-   int nJetsEB=0;
-   int nJetsEE=0;
+   //int nJetsEB=0;
+   //int nJetsEE=0;
    int totJets=0;
-   int totJetsCk=0;
+   //int totJetsCk=0;
    double deltaPhi=0;
 
-   double inclHt=0.;
+   //double inclHt=0.;
    //bool isEB;
    //bool isEE;
    
@@ -192,52 +192,7 @@ jetValidationUnfoldingGenTest::analyze(const edm::Event& iEvent, const edm::Even
       } 
     }
 
-    for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
-      if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->status()==1 && foundZBoson){
-	if (Debug) cout<<genElePtFSRp<<genEleEtaFSRp<<endl;
-	if (Debug) cout<<genElePtFSRm<<genEleEtaFSRm<<endl;
-	if (Debug) cout<<genMuPtFSRp<<genMuEtaFSRp<<endl;
-	if (Debug) cout<<genMuPtFSRm<<genMuEtaFSRm<<endl;
 
-	if (genElePtFSRp==0 && genElePtFSRm==0 && fabs(itgen->pdgId())==11) continue;
-	if (genMuPtFSRp==0 && genMuPtFSRm==0 && fabs(itgen->pdgId())==13) continue;
-
-	if (itgen->pdgId()>0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRp,genEleEtaFSRp,itgen->phi(),itgen->mass());
-	if (itgen->pdgId()<0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRm,genEleEtaFSRm,itgen->phi(),itgen->mass());
-	if (itgen->pdgId()>0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRp,genMuEtaFSRp,itgen->phi(),itgen->mass());
-	if (itgen->pdgId()<0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRm,genMuEtaFSRm,itgen->phi(),itgen->mass());
-	leptonContainer.push_back(l1);
-      } 
-    }
-
-    if (leptonContainer.size()>=2)
-      {
-	l_pair = leptonContainer[0] + leptonContainer[1];
-	zInvMass = l_pair.M();
-	invMass_gen=zInvMass;
-	l1_eta_gen=leptonContainer[0].Eta();
-	l2_eta_gen=leptonContainer[1].Eta();
-	l1_pt_gen=leptonContainer[0].Pt();
-	l2_pt_gen=leptonContainer[1].Pt();
-
-	if (invMass_gen<111 && invMass_gen>71 && 
-	    fabs(l1_eta_gen)<2.4 &&
-	    fabs(l2_eta_gen)<2.4 &&
-	    fabs(l1_pt_gen) >20  &&
-	    fabs(l2_pt_gen) >20) {
-	  genZInAcceptance=true;
-	  if (Debug) cout<<"This is a good Z boson decayn in "<<leptonId<<endl;
-	}
-	if (Debug)cout<<"lepton 1 bare pt->"<<l1_pt_gen;
-	if (Debug)cout<<"  lepton 2 bare pt->"<<l2_pt_gen;
-	if (Debug)cout<<"  lepton 1 eta->"<<l1_eta_gen;
-	if (Debug)cout<<"  lepton 2 eta->"<<l2_eta_gen;
-	if (Debug)cout<<"  inv mass "<<invMass_gen<<endl;
-	leptonContainer.clear();
-      }
-    else{
-      //cout<<"This is a mumu"<<endl;
-    }
   }
 
       std::vector<math::XYZTLorentzVector> JetContainer;  

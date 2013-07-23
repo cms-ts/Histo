@@ -5,6 +5,8 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+// To account for JER
+#include "Histo/HistoAnalyzer/interface/JERCorrection.h"
 
 
 //
@@ -68,13 +70,13 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    numberOfVertices=0;
    
    //Define Variables 
-   int nJetsEB=0;
-   int nJetsEE=0;
-   int totJets=0;
-   int totJetsCk=0;
+   //int nJetsEB=0;
+   //int nJetsEE=0;
+   //int totJets=0;
+   //int totJetsCk=0;
    double deltaPhi=0;
 
-   double inclHt=0.;
+   //double inclHt=0.;
    //bool isEB;
    //bool isEE;
    
@@ -87,7 +89,8 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    e2_phi =-9999;
    e2_mass=-9999;
    z_mass=-9999;
-   
+
+   Jet_multiplicity=-9999;
    jet1_pt  =-9999;
    jet2_pt  =-9999;
    jet3_pt  =-9999;
@@ -120,6 +123,33 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    l2_pt_gen=-9999;
    invMass_gen=-9999;
 
+   Jet_multiplicity_gen=-9999;
+   Z_y_gen=-9999;
+   Z_pt_gen=-9999;
+   jet1_pt_gen=-9999;
+   jet2_pt_gen=-9999;
+   jet3_pt_gen=-9999;
+   jet4_pt_gen=-9999;
+   jet5_pt_gen=-9999;
+   jet6_pt_gen=-9999;
+   jet7_pt_gen=-9999;
+   
+   jet1_eta_gen=-9999;
+   jet2_eta_gen=-9999;
+   jet3_eta_gen=-9999;
+   jet4_eta_gen=-9999;
+   jet5_eta_gen=-9999;
+   jet6_eta_gen=-9999;
+   jet7_eta_gen=-9999;
+
+   jet1_phi_gen=-9999;
+   jet2_phi_gen=-9999;
+   jet3_phi_gen=-9999;
+   jet4_phi_gen=-9999;
+   jet5_phi_gen=-9999;
+   jet6_phi_gen=-9999;
+   jet7_phi_gen=-9999;
+   
 
    ///////////////////////
    ///// GenInfo For Unfolding
@@ -128,675 +158,328 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    genZInAcceptance=false;
    recoZInAcceptance=false;
 
+   std::vector<math::XYZTLorentzVector> JetContainer;  
+   JetContainer.clear();
+   std::vector<TLorentzVector> GenJetContainer;  
+   GenJetContainer.clear();
+   std::vector<TLorentzVector> GenJetContainer2;  
+   GenJetContainer.clear();
+
+   //TLorentz vector of the two Z boson electrons, at GEN level
+   TLorentzVector e1_gen,e2_gen;
+   
+   //TLorentz vector of the two Z boson electrons, at RECO level
+   TLorentzVector e1, e2, e_pair;
+   
+   if (Debug) cout<<"before: recoZInAcceptance->"<<recoZInAcceptance<<" genZInAcceptance->"<<genZInAcceptance<<endl;
+
   //Evaluate if the events would have been selected at the generator level...
-  if (isUnfolding_){
-    edm::Handle<reco::GenParticleCollection> genPart;
-    iEvent.getByLabel (genParticleCollection_,genPart);
-    //Find the ele of the Z  
-
-    TLorentzVector l1, l2, l_pair;
-    std::vector<TLorentzVector> leptonContainer;
-    double zInvMass = 0;  
-
-    //New set of variables to retrieve FSR
-    double genElePtFSRp=0;
-    double genEleEtaFSRp=0;
-    double genMuPtFSRp=0;
-    double genMuEtaFSRp=0;
-
-    double genElePtFSRm=0;
-    double genEleEtaFSRm=0;
-    double genMuPtFSRm=0;
-    double genMuEtaFSRm=0;
-
-    //Retrieve the energy and pt of the objects, after FSR treatment..
-    edm::Handle< std::vector<float> > EleGenPtFSR;
-    if (! iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenPt_,EleGenPtFSR)) {
-      if (Debug) cout<<"Problems to open the EleGenPtFSR... check"<<endl;
-    }
-    else
-      {
-	iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenPt_,EleGenPtFSR);
-	const std::vector<float> & myEleGenPtFSR=*EleGenPtFSR;
-	if (myEleGenPtFSR.size()!=0) {
-	  genElePtFSRp=myEleGenPtFSR.at(0);
-	  genElePtFSRm=myEleGenPtFSR.at(1);
-	}
-      }
-
-    edm::Handle< std::vector<float> > EleGenEtaFSR;
-    if (! iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenEta,EleGenEtaFSR)) {
-      if (Debug) cout<<"Problems to open the EleGenPtFSR... check"<<endl;
-    }
-    else
-      {
-	iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenEta,EleGenEtaFSR);
-	const std::vector<float> & myEleGenEtaFSR=*EleGenEtaFSR;
-	if (myEleGenEtaFSR.size()!=0) {
-	  genEleEtaFSRp=myEleGenEtaFSR.at(0);
-	  genEleEtaFSRm=myEleGenEtaFSR.at(1);
-	}
-      }
-    ////////
-    edm::Handle< std::vector<float> > MuGenPtFSR;
-    if (! iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenPt,MuGenPtFSR)) {
-      if (Debug) cout<<"Problems to open the MuGenPtFSR... check"<<endl;
-    }
-    else
-      {
-	iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenPt,MuGenPtFSR);
-	const std::vector<float> & myMuGenPtFSR=*MuGenPtFSR;
-	if (myMuGenPtFSR.size()!=0) {
-	  genMuPtFSRp=myMuGenPtFSR.at(0);
-	  genMuPtFSRm=myMuGenPtFSR.at(1);
-	}
-      }
-
-    edm::Handle< std::vector<float> > MuGenEtaFSR;
-    if (! iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenEta,MuGenEtaFSR)) {
-      if (Debug) cout<<"Problems to open the MuGenPtFSR... check"<<endl;
-    }
-    else
-      {
-	iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenEta,MuGenEtaFSR);
-	const std::vector<float> & myMuGenEtaFSR=*MuGenEtaFSR;
-	if (myMuGenEtaFSR.size()!=0) {
-	  genMuEtaFSRp=myMuGenEtaFSR.at(0);
-	  genMuEtaFSRm=myMuGenEtaFSR.at(1);
-	}
-      }
-    
-    
-    //Check using the mc truth (status 3) whether it was a ee or mm event
-    bool foundZBoson=false;
-    //Check if there is a Z boson decaying properly
-    for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
-      if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->mother()->pdgId()==23){ //itgen->status()==1 &&
-	if (Debug) cout<<"Found the "<<leptonId <<" looking at the Z childerns...."<<endl;
-	foundZBoson=true;
-      } 
-    }
-    
-    for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
-      if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->status()==1 && foundZBoson){
-	if (Debug) cout<<genElePtFSRp<<genEleEtaFSRp<<endl;
-	if (Debug) cout<<genElePtFSRm<<genEleEtaFSRm<<endl;
-	if (Debug) cout<<genMuPtFSRp<<genMuEtaFSRp<<endl;
-	if (Debug) cout<<genMuPtFSRm<<genMuEtaFSRm<<endl;
-	
-	if (genElePtFSRp==0 && genElePtFSRm==0 && fabs(itgen->pdgId())==11) continue;
-	if (genMuPtFSRp==0 && genMuPtFSRm==0 && fabs(itgen->pdgId())==13) continue;
-	
-	if (itgen->pdgId()>0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRp,genEleEtaFSRp,itgen->phi(),itgen->mass());
-	if (itgen->pdgId()<0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRm,genEleEtaFSRm,itgen->phi(),itgen->mass());
-	if (itgen->pdgId()>0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRp,genMuEtaFSRp,itgen->phi(),itgen->mass());
-	if (itgen->pdgId()<0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRm,genMuEtaFSRm,itgen->phi(),itgen->mass());
-	leptonContainer.push_back(l1);
-      } 
-    }
-    
-    if (leptonContainer.size()>=2)
-      {
-	l_pair = leptonContainer[0] + leptonContainer[1];
-	zInvMass = l_pair.M();
-	invMass_gen=zInvMass;
-	l1_eta_gen=leptonContainer[0].Eta();
-	l2_eta_gen=leptonContainer[1].Eta();
-	l1_pt_gen=leptonContainer[0].Pt();
-	l2_pt_gen=leptonContainer[1].Pt();
-	
-	if (invMass_gen<111 && invMass_gen>71 && 
-	    fabs(l1_eta_gen)<2.4 &&
-	    fabs(l2_eta_gen)<2.4 &&
-	    fabs(l1_pt_gen) >20  &&
-	    fabs(l2_pt_gen) >20) {
-	  genZInAcceptance=true;
-	  if (Debug) cout<<"This is a good Z boson decayn in "<<leptonId<<endl;
-	}
-	if (Debug)cout<<"lepton 1 bare pt->"<<l1_pt_gen;
-	if (Debug)cout<<"  lepton 2 bare pt->"<<l2_pt_gen;
-	if (Debug)cout<<"  lepton 1 eta->"<<l1_eta_gen;
-	if (Debug)cout<<"  lepton 2 eta->"<<l2_eta_gen;
-	if (Debug)cout<<"  inv mass "<<invMass_gen<<endl;
-	leptonContainer.clear();
-      }
-    else{
-      //cout<<"This is a mumu"<<endl;
-    }
-  }
-
-  ///////////////////////
-  ///// Vertex Analysis
-  ///////////////////////
-
+   edm::Handle<reco::GenParticleCollection> genPart;
+   iEvent.getByLabel (genParticleCollection_,genPart);
+   //Find the ele of the Z  
+   
+   TLorentzVector l1, l2, l_pair;
+   std::vector<TLorentzVector> leptonContainer;
+   double zInvMass = 0;  
+   
+   //New set of variables to retrieve FSR
+   double genElePtFSRp=0;
+   double genEleEtaFSRp=0;
+   double genMuPtFSRp=0;
+   double genMuEtaFSRp=0;
+   
+   double genElePtFSRm=0;
+   double genEleEtaFSRm=0;
+   double genMuPtFSRm=0;
+   double genMuEtaFSRm=0;
+   
+   //Retrieve the energy and pt of the objects, after FSR treatment..
+   edm::Handle< std::vector<float> > EleGenPtFSR;
+   if (! iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenPt_,EleGenPtFSR)) {
+     if (Debug) cout<<"Problems to open the EleGenPtFSR... check"<<endl;
+   }
+   else
+     {
+       iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenPt_,EleGenPtFSR);
+       const std::vector<float> & myEleGenPtFSR=*EleGenPtFSR;
+       if (myEleGenPtFSR.size()!=0) {
+	 genElePtFSRp=myEleGenPtFSR.at(0);
+	 genElePtFSRm=myEleGenPtFSR.at(1);
+       }
+     }
+   
+   edm::Handle< std::vector<float> > EleGenEtaFSR;
+   if (! iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenEta,EleGenEtaFSR)) {
+     if (Debug) cout<<"Problems to open the EleGenPtFSR... check"<<endl;
+   }
+   else
+     {
+       iEvent.getByLabel("genParticlesForJetsENoNuNoGammaCone",EleGammaGenEta,EleGenEtaFSR);
+       const std::vector<float> & myEleGenEtaFSR=*EleGenEtaFSR;
+       if (myEleGenEtaFSR.size()!=0) {
+	 genEleEtaFSRp=myEleGenEtaFSR.at(0);
+	 genEleEtaFSRm=myEleGenEtaFSR.at(1);
+       }
+     }
+   ////////
+   edm::Handle< std::vector<float> > MuGenPtFSR;
+   if (! iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenPt,MuGenPtFSR)) {
+     if (Debug) cout<<"Problems to open the MuGenPtFSR... check"<<endl;
+   }
+   else
+     {
+       iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenPt,MuGenPtFSR);
+       const std::vector<float> & myMuGenPtFSR=*MuGenPtFSR;
+       if (myMuGenPtFSR.size()!=0) {
+	 genMuPtFSRp=myMuGenPtFSR.at(0);
+	 genMuPtFSRm=myMuGenPtFSR.at(1);
+       }
+     }
+   
+   edm::Handle< std::vector<float> > MuGenEtaFSR;
+   if (! iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenEta,MuGenEtaFSR)) {
+     if (Debug) cout<<"Problems to open the MuGenPtFSR... check"<<endl;
+   }
+   else
+     {
+       iEvent.getByLabel("genParticlesForJetsMuNoNuNoGammaCone",MuGammaGenEta,MuGenEtaFSR);
+       const std::vector<float> & myMuGenEtaFSR=*MuGenEtaFSR;
+       if (myMuGenEtaFSR.size()!=0) {
+	 genMuEtaFSRp=myMuGenEtaFSR.at(0);
+	 genMuEtaFSRm=myMuGenEtaFSR.at(1);
+       }
+     }
+   
+   
+   //Check using the mc truth (status 3) whether it was a ee or mm event
+   bool foundZBoson=false;
+   int  childCounter=0;
+   //Check if there is a Z boson decaying properly
+   for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
+     if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->mother()->pdgId()==23){ //itgen->status()==1 &&
+       if (Debug) cout<<"Found the "<<leptonId <<" looking at the Z childerns...."<<endl;
+       childCounter++;
+       if (childCounter==2) foundZBoson=true;
+     } 
+   }
+   
+   for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();itgen!=genPart->end();itgen++){
+     if ( ((fabs(itgen->pdgId())==leptonId)) && itgen->status()==1 && foundZBoson){
+       if (Debug) cout<<genElePtFSRp<<genEleEtaFSRp<<endl;
+       if (Debug) cout<<genElePtFSRm<<genEleEtaFSRm<<endl;
+       if (Debug) cout<<genMuPtFSRp<<genMuEtaFSRp<<endl;
+       if (Debug) cout<<genMuPtFSRm<<genMuEtaFSRm<<endl;
+       
+       if (genElePtFSRp==0 && genElePtFSRm==0 && fabs(itgen->pdgId())==11) continue;
+       if (genMuPtFSRp==0 && genMuPtFSRm==0 && fabs(itgen->pdgId())==13) continue;
+       
+       if (itgen->pdgId()>0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRp,genEleEtaFSRp,itgen->phi(),itgen->mass());
+       if (itgen->pdgId()<0 && fabs(itgen->pdgId())==11 ) l1.SetPtEtaPhiM(genElePtFSRm,genEleEtaFSRm,itgen->phi(),itgen->mass());
+       if (itgen->pdgId()>0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRp,genMuEtaFSRp,itgen->phi(),itgen->mass());
+       if (itgen->pdgId()<0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRm,genMuEtaFSRm,itgen->phi(),itgen->mass());
+       leptonContainer.push_back(l1);
+     } 
+   }
+   
+   if (leptonContainer.size()>=2)
+     {
+       l_pair = leptonContainer[0] + leptonContainer[1];
+       zInvMass = l_pair.M();
+       invMass_gen=zInvMass;
+       l1_eta_gen=leptonContainer[0].Eta();
+       l2_eta_gen=leptonContainer[1].Eta();
+       l1_pt_gen=leptonContainer[0].Pt();
+       l2_pt_gen=leptonContainer[1].Pt();
+       
+       if (invMass_gen<111 && invMass_gen>71 && 
+	   fabs(l1_eta_gen)<2.4 &&
+	   fabs(l2_eta_gen)<2.4 &&
+	   fabs(l1_pt_gen) >20  &&
+	   fabs(l2_pt_gen) >20) {
+	 genZInAcceptance=true;
+	 if (Debug) cout<<"This is a good Z boson decayn in "<<leptonId<<endl;
+       }
+       if (Debug)cout<<"lepton 1 bare pt->"<<l1_pt_gen;
+       if (Debug)cout<<"  lepton 2 bare pt->"<<l2_pt_gen;
+       if (Debug)cout<<"  lepton 1 eta->"<<l1_eta_gen;
+       if (Debug)cout<<"  lepton 2 eta->"<<l2_eta_gen;
+       if (Debug)cout<<"  inv mass "<<invMass_gen<<endl;
+       leptonContainer.clear();
+     }
+   else{
+     //cout<<"This is a mumu"<<endl;
+   }
+   
+   ///////////////////////
+   ///// Vertex Analysis
+   ///////////////////////
+   
    edm::Handle<reco::VertexCollection> Vertexes;
    iEvent.getByLabel(VertexCollection_, Vertexes);
    numberOfVertices = Vertexes->size();  
    h_nVtx->Fill(numberOfVertices,myweight[0]);
+
    ///////////////////////
    ///// Z Analysis
    ///////////////////////
-
+   
    edm::Handle<reco::PFCandidateCollection> goodPfEPair;
    edm::Handle<reco::GsfElectronCollection > goodEPair;
-
+   
    if (! iEvent.getByLabel (goodEPairTag, goodPfEPair)) {
      //cout<<"Add a filter to avoid Z->mumu non selected"<<endl;
      return;
    }
    int checkGoodEPairSize=0;
    if (!usingPF){
-      iEvent.getByLabel (goodEPairTag, goodEPair);
-      checkGoodEPairSize=goodEPair->size();}
+     iEvent.getByLabel (goodEPairTag, goodEPair);
+     checkGoodEPairSize=goodEPair->size();}
    else {
-      iEvent.getByLabel (goodEPairTag, goodPfEPair);
-      checkGoodEPairSize=goodPfEPair->size();}
+     iEvent.getByLabel (goodEPairTag, goodPfEPair);
+     checkGoodEPairSize=goodPfEPair->size();}
    
-   edm::Handle<reco::GenParticleCollection> genPart;
-   if (usingMC){
-      iEvent.getByLabel (genParticleCollection_,genPart);
-   }
-
    edm::Handle<reco::PFCandidateCollection> pfPart;
    iEvent.getByLabel (pflowCollection_,pfPart);
-  
-   //cout<<" Leptons size->"<<checkGoodEPairSize<<endl;
-   if (checkGoodEPairSize==2)
-   {   
+   
+   if (checkGoodEPairSize>=2){   
      recoZInAcceptance=true;
-     double dist=0.,maxDist=0.05;
-      // ================================
-      // FIll the Weights info
-      // ================================
-      double wei=myweight[0];
-      h_weights->Fill(wei);
-      // ================================
-           
-      //TLorentz vector of the two Z boson electrons, at GEN level
-      TLorentzVector e1_gen,e2_gen;
 
-      //TLorentz vector of the two Z boson electrons, at RECO level
-      TLorentzVector e1, e2, e_pair;
-      
-      if (!usingPF){     
-	 reco::GsfElectronCollection::const_iterator it=goodEPair->begin();     
-	 e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
-	 it++;
-	 e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
-      }
-      else {     
-	 reco::PFCandidateCollection::const_iterator it=goodPfEPair->begin();     
-	 e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
-	 it++;
-	 e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
-      }     
-      e_pair = e1 + e2;
-      
-      if (e1.Pt()>e2.Pt()){
-	 e1_pt  =e1.Pt();
-	 e1_eta =e1.Eta();
-	 e1_phi =e1.Phi();
-	 e1_mass=e1.M();
-	 e2_pt  =e2.Pt();
-	 e2_eta =e2.Eta();
-	 e2_phi =e2.Phi();
-	 e2_mass=e2.M();
-      }
-      else {
-	 e1_pt  =e2.Pt();
-	 e1_eta =e2.Eta();
-	 e1_phi =e2.Phi();
-	 e1_mass=e2.M();
-	 e2_pt  =e1.Pt();
-	 e2_eta =e1.Eta();
-	 e2_phi =e1.Phi();
-	 e2_mass=e1.M();
-      }
-
-      // ================================
+     // ================================
+     // FIll the Weights info
+     // ================================
+     double wei=myweight[0];
+     h_weights->Fill(wei);
+     // ================================
      
-      ///////////////////
-      /// Jet Validation
-      ///////////////////
-      
-      std::vector<math::XYZTLorentzVector> JetContainer;  
-      JetContainer.clear();
-      std::vector<math::XYZTLorentzVector> GenJetContainer;  
-      GenJetContainer.clear();
-
-      Handle<PFJetCollection> pfJets;
-      iEvent.getByLabel(jetCollection_, pfJets);
-      if (pfJets.isValid()) {
-	 //  
-	 // ===== riordina in pt i jets
-	 //
-         for(reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
-	     jet!=pfJets->end (); jet++) {
-	   double uncert=evaluateJECUncertainties(jet->pt(), jet->eta()); //pt of the jet changed, if JEC unc are "active".
-	   double corr=(1.0+uncert*param);                                // "param" is defined in the cfi: ±1 -> sistematics, 0 normal
-	   math::XYZTLorentzVector myjet(jet->px()*corr, jet->py()*corr, jet->pz()*corr, jet->p()*corr);
-	    // check if the jet is equal to one of the isolated electrons
-	   
-	   deltaPhi = fabs(jet->phi()-e1.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
-
-	   deltaPhi = fabs(jet->phi()-e2.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
-
-	    if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet 
-		// cut on the jet pt 
-		&& myjet.Pt()> minPtJets
-		&& fabs(jet->eta())<maxEtaJets
-		&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
-		&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
-		&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
-		&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
-		&& jet->chargedMultiplicity()>chargedMultiplicity
-	       ){ 
-	       JetContainer.push_back(myjet); 
-	    }
-	 }
-         std::stable_sort(JetContainer.begin(),JetContainer.end(),GreaterPt()); 
-      }
-      else{cout<<"No valid Jets Collection"<<endl;}
- 
-//------------------------------------------------------------------------------------------------- 
-// study in the cone around the electrons *********************************************************
-//------------------------------------------------------------------------------------------------- 
-      
-      for (reco::PFCandidateCollection::const_iterator pfCand = pfPart->begin();
-	   pfCand != pfPart->end(); pfCand++)
-      {
-	 deltaPhi = fabs(pfCand->phi()-e1.Phi());
+     if (!usingPF){     
+       reco::GsfElectronCollection::const_iterator it=goodEPair->begin();     
+       e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+       it++;
+       e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+     }
+     else {     
+       reco::PFCandidateCollection::const_iterator it=goodPfEPair->begin();     
+       e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+       it++;
+       e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+     }     
+     e_pair = e1 + e2;
+     
+     if (e1.Pt()>e2.Pt()){
+       e1_pt  =e1.Pt();
+       e1_eta =e1.Eta();
+       e1_phi =e1.Phi();
+       e1_mass=e1.M();
+       e2_pt  =e2.Pt();
+       e2_eta =e2.Eta();
+       e2_phi =e2.Phi();
+       e2_mass=e2.M();
+     }
+     else {
+       e1_pt  =e2.Pt();
+       e1_eta =e2.Eta();
+       e1_phi =e2.Phi();
+       e1_mass=e2.M();
+       e2_pt  =e1.Pt();
+       e2_eta =e1.Eta();
+       e2_phi =e1.Phi();
+       e2_mass=e1.M();
+     }
+     
+     // ================================
+     
+     ///////////////////
+     /// Jet Validation
+     ///////////////////
+     
+     Handle<PFJetCollection> pfJets;
+     iEvent.getByLabel(jetCollection_, pfJets);
+     if (pfJets.isValid()) {
+       //  
+       // ===== riordina in pt i jets
+       //
+       for(reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
+	   jet!=pfJets->end (); jet++) {
+	 double uncert=evaluateJECUncertainties(jet->pt(), jet->eta()); //pt of the jet changed, if JEC unc are "active".
+	 double corr=(1.0+uncert*param);                                // "param" is defined in the cfi: ±1 -> sistematics, 0 normal
+	 math::XYZTLorentzVector myjet(jet->px()*corr, jet->py()*corr, jet->pz()*corr, jet->p()*corr);
+	 // check if the jet is equal to one of the isolated electrons
+	 
+	 deltaPhi = fabs(jet->phi()-e1.Phi());
 	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	 double deltaR1= sqrt( deltaPhi*deltaPhi  + pow(pfCand->eta()-e1.Eta(),2) );
-
-	 deltaPhi = fabs(pfCand->phi()-e2.Phi());
+	 double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
+	 
+	 deltaPhi = fabs(jet->phi()-e2.Phi());
 	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	 double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(pfCand->eta()-e2.Eta(),2) );	   
-	 
-	 if (deltaR1 > deltaConeGen && deltaR2 > deltaConeGen ){
-	    h_pfIdPdgAroundE->Fill(pfCand->particleId(),myweight[0]);
+	 double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
+
+	 if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet 
+	     // cut on the jet pt 
+	     && myjet.Pt()> minPtJets  
+	     && fabs(jet->eta())<maxEtaJets
+	     && jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
+	     && jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
+	     && jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
+	     && jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
+	     && jet->chargedMultiplicity()>chargedMultiplicity
+	     ){ 
+	   JetContainer.push_back(myjet); 
 	 }
-	 
-      }
-      
-      if (usingMC){
-	 
-	 for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
-	     itgen!=genPart->end();itgen++)
-	 {
-	    deltaPhi = fabs(itgen->phi()-e1.Phi());
-	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	    double deltaR1= sqrt( deltaPhi*deltaPhi  + pow(itgen->eta()-e1.Eta(),2) );
-
-	    deltaPhi = fabs(itgen->phi()-e2.Phi());
-	    if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	    double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(itgen->eta()-e2.Eta(),2) );	   
-	    
-	    if (deltaR1 > deltaConeGen && deltaR2 > deltaConeGen ){
-	       if (itgen->status() ==1) h_idPdgAroundE->Fill(fabs(itgen->pdgId()),myweight[0]);
-	    }
-	    
+       }
+       std::stable_sort(JetContainer.begin(),JetContainer.end(),GreaterPt()); 
+       Jet_multiplicity=JetContainer.size();
+       for (int k=0; k<Jet_multiplicity;k++){
+	 if (k==0) {
+	   jet1_pt=JetContainer[k].Pt();
+	   jet1_eta=JetContainer[k].Eta();
 	 }
-      }
-
-//------------------------------------------------------------------------------------------------- 
-// study on  R E J E C T E D  jets ****************************************************************
-//------------------------------------------------------------------------------------------------- 
-      if (doPlotsJetComposition){
-	 double jetEn,jetEta;
-	 int sizeRJ=0;
-	 bool ckElInJet = true;
-	 for (reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
-	      jet != pfJets->end(); jet++) {
-	 
-	   deltaPhi = fabs(jet->phi()-e1.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
-
-	   deltaPhi = fabs(jet->phi()-e2.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
-	   
-	    double totEnergy=0.;
-	    //double totPt=0.;
-	    if (useCkElInJet ){
-	       ckElInJet = false;
-	       if (jet->electronMultiplicity()>=1){
-		  if (!ckElInJet && 
-		      ( fabs(jet->electronEnergy()-e1.Energy())<0.01 
-			|| fabs(jet->electronEnergy() -e2.Energy())<0.01) ) {
-		     ckElInJet = true;
-		  }
-		  std::vector<reco::PFCandidatePtr> particles = jet->getPFConstituents();
-		  for ( UInt_t j=0;j<particles.size(); j++){		  
-		     totEnergy = totEnergy + particles[j]->p4().energy();
-		  }
-	       }
-	    }
-	    if ((deltaR1 < deltaRCone || deltaR2 < deltaRCone)&& jet->pt()>minPtJets && ckElInJet
-	       ){	    
-	       h_totEnergy->Fill(totEnergy/jet->energy(),myweight[0]);
-	       //h_totPt->Fill(totPt/jet->pt(),myweight[0]);
-
-	       sizeRJ++;
-	       h_nConstituents->Fill(jet->nConstituents(),myweight[0]);
-	       h_rJetPt->Fill(jet->pt(),myweight[0]);
-	       h_rJetEta->Fill(jet->eta(),myweight[0]);
-	    
-	       double chHE = jet->chargedHadronEnergy();
-	       double nHE  = jet->neutralHadronEnergy();
-	       double phE  = jet->photonEnergy();
-	       double elE  = jet->electronEnergy();
-	       double muE  = jet->muonEnergy();
-	       double hfHE = jet->HFHadronEnergy();
-	       double hfEmE= jet->HFEMEnergy();
-	       double totCkE= chHE + nHE + phE + elE + muE + hfHE + hfEmE;
-	    
-	       h_energyFraction->Fill(0.5, totCkE/jet->energy(),myweight[0]);
-	       h_energyFraction->Fill(1.5, jet->chargedHadronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(2.5, jet->neutralHadronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(3.5, jet->photonEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(4.5, jet->electronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(5.5, jet->muonEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(6.5, jet->HFHadronEnergyFraction(),myweight[0]);
-	       h_energyFraction->Fill(7.5, jet->HFEMEnergyFraction(),myweight[0]);
-	    
-	       double chHM = jet->chargedHadronMultiplicity();
-	       double nHM  = jet->neutralHadronMultiplicity();
-	       double phM  = jet->photonMultiplicity();
-	       double elM  = jet->electronMultiplicity();
-	       double muM  = jet->muonMultiplicity();
-	       double hfHM = jet->HFHadronMultiplicity();
-	       double hfEmM= jet->HFEMMultiplicity();
-	       h_jetConstMult->Fill(0.5, jet->nConstituents(),myweight[0]);
-	       h_jetConstMult->Fill(1.5, chHM,myweight[0]);
-	       h_jetConstMult->Fill(2.5, nHM,myweight[0]);
-	       h_jetConstMult->Fill(3.5, phM,myweight[0]);
-	       h_jetConstMult->Fill(4.5, elM,myweight[0]);
-	       h_jetConstMult->Fill(5.5, muM,myweight[0]);
-	       h_jetConstMult->Fill(6.5, hfHM,myweight[0]);
-	       h_jetConstMult->Fill(7.5, hfEmM,myweight[0]);
-
-	       double totCk= chHM + nHM + phM + elM + muM + hfHM + hfEmM;	
-	       //cout << "chMul = "<< chHM <<" ; nMul = "<<nHM<<
-	       //   " ; phMul = "<< phM<< " ; elMul = "<< elM<<
-	       //   " ; muMul = "<< muM<<" ; HFHM = "<<hfHM<<" ; HFEmM = "<<hfEmM<< endl;
-	       h_multFraction->Fill(0.5, totCk/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(1.5, chHM/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(2.5, nHM/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(3.5, phM/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(4.5, elM/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(5.5, muM/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(6.5, hfHM/jet->nConstituents(),myweight[0]);
-	       h_multFraction->Fill(7.5, hfEmM/jet->nConstituents(),myweight[0]);
-
-	       h_chMultiplicity->Fill(chHM, myweight[0]);
-	       h_nMultiplicity->Fill(nHM, myweight[0]);
-	       h_phMultiplicity->Fill(phM, myweight[0]);
-	       h_elMultiplicity->Fill(elM, myweight[0]);
-	       h_muMultiplicity->Fill(muM, myweight[0]);
-	       h_hfHMultiplicity->Fill(hfHM, myweight[0]);
-	       h_hfEmMultiplicity->Fill(hfEmM, myweight[0]);
-	       h_chMultFraction->Fill(chHM/jet->nConstituents(), myweight[0]);
-	       h_nMultFraction->Fill(nHM/jet->nConstituents(), myweight[0]);
-	       h_phMultFraction->Fill(phM/jet->nConstituents(), myweight[0]);
-	       h_elMultFraction->Fill(elM/jet->nConstituents(), myweight[0]);
-	       h_muMultFraction->Fill(muM/jet->nConstituents(), myweight[0]);
-	       h_hfHMultFraction->Fill(hfHM/jet->nConstituents(), myweight[0]);
-	       h_hfEmMultFraction->Fill(hfEmM/jet->nConstituents(), myweight[0]);
-	       h_chEnerFraction->Fill(jet->chargedHadronEnergyFraction(), myweight[0]);
-	       h_nEnerFraction->Fill(jet->neutralHadronEnergyFraction(), myweight[0]);
-	       h_phEnerFraction->Fill(jet->photonEnergyFraction(), myweight[0]);
-	       h_elEnerFraction->Fill(jet->electronEnergyFraction(), myweight[0]);
-	       h_muEnerFraction->Fill(jet->muonEnergyFraction(), myweight[0]);
-	       h_hfHEnerFraction->Fill(jet->HFHadronEnergyFraction(), myweight[0]);
-	       h_hfEmEnerFraction->Fill(jet->HFEMEnergyFraction(), myweight[0]);
-	    
-	       double etaStep = 0.05, ptStep = 2.0;
-	    
-	       for (int k=0; k< 100; k++){
-
-		  if (jet->pt()> k*ptStep && jet->pt()<= (k+1)*ptStep){
-		     double meanPt = (k+0.5)*ptStep;
-		     h_chMultiplicityVsPt->Fill(meanPt,chHM, myweight[0]);
-		     h_nMultiplicityVsPt->Fill(meanPt,nHM, myweight[0]);
-		     h_phMultiplicityVsPt->Fill(meanPt,phM, myweight[0]);
-		     h_elMultiplicityVsPt->Fill(meanPt,elM, myweight[0]);
-		     h_muMultiplicityVsPt->Fill(meanPt,muM, myweight[0]);
-		     h_hfHMultiplicityVsPt->Fill(meanPt,hfHM, myweight[0]);
-		     h_hfEmMultiplicityVsPt->Fill(meanPt,hfEmM, myweight[0]);
-		     h_chMultFractionVsPt->Fill(meanPt,chHM/jet->nConstituents(), myweight[0]);
-		     h_nMultFractionVsPt->Fill(meanPt,nHM/jet->nConstituents(), myweight[0]);
-		     h_phMultFractionVsPt->Fill(meanPt,phM/jet->nConstituents(), myweight[0]);
-		     h_elMultFractionVsPt->Fill(meanPt,elM/jet->nConstituents(), myweight[0]);
-		     h_muMultFractionVsPt->Fill(meanPt,muM/jet->nConstituents(), myweight[0]);
-		     h_hfHMultFractionVsPt->Fill(meanPt,hfHM/jet->nConstituents(), myweight[0]);
-		     h_hfEmMultFractionVsPt->Fill(meanPt,hfEmM/jet->nConstituents(), myweight[0]);
-		     h_chEnerFractionVsPt->Fill(meanPt,jet->chargedHadronEnergyFraction(), myweight[0]);
-		     h_nEnerFractionVsPt->Fill(meanPt,jet->neutralHadronEnergyFraction(), myweight[0]);
-		     h_phEnerFractionVsPt->Fill(meanPt,jet->photonEnergyFraction(), myweight[0]);
-		     h_elEnerFractionVsPt->Fill(meanPt,jet->electronEnergyFraction(), myweight[0]);
-		     h_muEnerFractionVsPt->Fill(meanPt,jet->muonEnergyFraction(), myweight[0]);
-		     h_hfHEnerFractionVsPt->Fill(meanPt,jet->HFHadronEnergyFraction(), myweight[0]);
-		     h_hfEmEnerFractionVsPt->Fill(meanPt,jet->HFEMEnergyFraction(), myweight[0]);
-		  }
-		  if ((jet->eta()+2.5)> k*etaStep && (jet->eta()+2.5)<= (k+1)*etaStep){
-		     double meanEta = (k+0.5)*etaStep -2.5;
-		     h_chMultiplicityVsEta->Fill(meanEta,chHM, myweight[0]);
-		     h_nMultiplicityVsEta->Fill(meanEta,nHM, myweight[0]);
-		     h_phMultiplicityVsEta->Fill(meanEta,phM, myweight[0]);
-		     h_elMultiplicityVsEta->Fill(meanEta,elM, myweight[0]);
-		     h_muMultiplicityVsEta->Fill(meanEta,muM, myweight[0]);
-		     h_hfHMultiplicityVsEta->Fill(meanEta,hfHM, myweight[0]);
-		     h_hfEmMultiplicityVsEta->Fill(meanEta,hfEmM, myweight[0]);
-		     h_chMultFractionVsEta->Fill(meanEta,chHM/jet->nConstituents(), myweight[0]);
-		     h_nMultFractionVsEta->Fill(meanEta,nHM/jet->nConstituents(), myweight[0]);
-		     h_phMultFractionVsEta->Fill(meanEta,phM/jet->nConstituents(), myweight[0]);
-		     h_elMultFractionVsEta->Fill(meanEta,elM/jet->nConstituents(), myweight[0]);
-		     h_muMultFractionVsEta->Fill(meanEta,muM/jet->nConstituents(), myweight[0]);
-		     h_hfHMultFractionVsEta->Fill(meanEta,hfHM/jet->nConstituents(), myweight[0]);
-		     h_hfEmMultFractionVsEta->Fill(meanEta,hfEmM/jet->nConstituents(), myweight[0]);
-		     h_chEnerFractionVsEta->Fill(meanEta,jet->chargedHadronEnergyFraction(), myweight[0]);
-		     h_nEnerFractionVsEta->Fill(meanEta,jet->neutralHadronEnergyFraction(), myweight[0]);
-		     h_phEnerFractionVsEta->Fill(meanEta,jet->photonEnergyFraction(), myweight[0]);
-		     h_elEnerFractionVsEta->Fill(meanEta,jet->electronEnergyFraction(), myweight[0]);
-		     h_muEnerFractionVsEta->Fill(meanEta,jet->muonEnergyFraction(), myweight[0]);
-		     h_hfHEnerFractionVsEta->Fill(meanEta,jet->HFHadronEnergyFraction(), myweight[0]);
-		     h_hfEmEnerFractionVsEta->Fill(meanEta,jet->HFEMEnergyFraction(), myweight[0]);
-		  }
-
-	       }
-	    
-	       if (usingMC){
-		  double nearerDist= 999;
-		  bool checkNear=false;
-		  int pdgValue=0;
-		  for(reco::GenParticleCollection::const_iterator itgen=genPart->begin();
-		      itgen!=genPart->end();itgen++)
-		  {
-		     deltaPhi = fabs(itgen->phi()-jet->phi());
-		     if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-		     dist= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-itgen->eta(),2) );
-
-		     if (dist < maxDist && dist < nearerDist){
-			nearerDist = dist;
-			pdgValue= itgen->pdgId();
-			jetEn=itgen->pt();
-			jetEta=itgen->eta();
-			checkNear=true;
-		     }	       
-		  } // end genParticle
-		  if (checkNear)
-		  {
-		     h_idPdgJet->Fill(fabs(pdgValue),myweight[0]);
-		  }
-	       } // end UsingMC
-	    } // end if rejected jets
+	 if (k==1) {
+	   jet2_pt=JetContainer[k].Pt();
+	   jet2_eta=JetContainer[k].Eta();
 	 }
-
-      
-	 h_sizeJetRejected->Fill(sizeRJ,myweight[0]);
-      }
-
-
-//------------------------------------------------------------------------------------------------- 
-// study on  P A S S I N G  jets *************************************************************************
-//-------------------------------------------------------------------------------------------------
-      for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); 
-	   jet != JetContainer.end (); jet++) {
-	 // jet in the BARREL
-	 if (fabs(jet->Eta())<edgeEB){
-	    totJetsCk++;
-	    nJetsEB++;
-	    h_jetPt_EB->Fill(jet->Pt(),myweight[0]);
-	    h_jetEta_EB->Fill(jet->Eta(),myweight[0]);
-	    if (nJetsEB==1) h_jetPtFirst_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (nJetsEB==2) h_jetPtSecond_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (nJetsEB==3) h_jetPtThird_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (nJetsEB==4) h_jetPtFourth_EB->Fill(jet->Pt(),myweight[0]);
-	    if (totJetsCk==1) h_jetPtFirstCk_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (totJetsCk==2) h_jetPtSecondCk_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (totJetsCk==3) h_jetPtThirdCk_EB->Fill(jet->Pt(),myweight[0]);
-	    else if (totJetsCk==4) h_jetPtFourthCk_EB->Fill(jet->Pt(),myweight[0]);
-
-	    h_jetPtVsEta_EB->Fill(jet->Eta(),jet->Pt(),myweight[0]);
-	    for (int v=0; v<11; v++){
-	       if (numberOfVertices==(v+1)) h_jetPtVtx_EB[v]->Fill(jet->Pt(),myweight[0]);
-	    }
+	 if (k==2) {
+	   jet3_pt=JetContainer[k].Pt();
+	   jet3_eta=JetContainer[k].Eta();
 	 }
-	 // jet in the ENDCAP
-	 if (fabs(jet->Eta())>edgeEB && fabs(jet->Eta())<edgeEE){
-	    totJetsCk++;
-	    nJetsEE++;
-	    h_jetPt_EE->Fill(jet->Pt(),myweight[0]);
-	    if (nJetsEE==1) h_jetPtFirst_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (nJetsEE==2) h_jetPtSecond_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (nJetsEE==3) h_jetPtThird_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (nJetsEE==4) h_jetPtFourth_EE->Fill(jet->Pt(),myweight[0]);
-	    if (totJetsCk==1) h_jetPtFirstCk_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (totJetsCk==2) h_jetPtSecondCk_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (totJetsCk==3) h_jetPtThirdCk_EE->Fill(jet->Pt(),myweight[0]);
-	    else if (totJetsCk==4) h_jetPtFourthCk_EE->Fill(jet->Pt(),myweight[0]);
-	    
-	    for (int v=0; v<11; v++){
-	       if (numberOfVertices==(v+1)) h_jetPtVtx_EE[v]->Fill(jet->Pt(),myweight[0]);
-	    }
+	 if (k==3) {
+	   jet4_pt=JetContainer[k].Pt();
+	   jet4_eta=JetContainer[k].Eta();
 	 }
-	 // jet in ECAL
-	 if (fabs(jet->Eta())<edgeEE){
-	    h_jetEta_EE->Fill(jet->Eta(),myweight[0]);
-	    h_jetPtVsEta_EE->Fill(jet->Eta(),jet->Pt(),myweight[0]);
-	    inclHt += jet->Pt();
-	    
-	 } 
-
-	  if (totJetsCk==1) {
-	    jet1_pt  =jet->Pt();
-	    jet1_eta =jet->Eta();
-	    jet1_phi =jet->Phi();
-	    jet1_mass=jet->M();
+	 if (k==4) {
+	   jet5_pt=JetContainer[k].Pt();
+	   jet5_eta=JetContainer[k].Eta();
 	 }
-	 else if (totJetsCk==2){
-	    jet2_pt  =jet->Pt();
-	    jet2_eta =jet->Eta();
-	    jet2_phi =jet->Phi();
-	    jet2_mass=jet->M();
+	 if (k==5) {
+	   jet6_pt=JetContainer[k].Pt();
+	   jet6_eta=JetContainer[k].Eta();
 	 }
-	 else if (totJetsCk==3) {
-	    jet3_pt  =jet->Pt();
-	    jet3_eta =jet->Eta();
-	    jet3_phi =jet->Phi();
-	    jet3_mass=jet->M();
+	 if (k==6) {
+	   jet7_pt=JetContainer[k].Pt();
+	   jet7_eta=JetContainer[k].Eta();
 	 }
-	 else if (totJetsCk==4){
-	    jet4_pt  =jet->Pt();
-	    jet4_eta =jet->Eta();
-	    jet4_phi =jet->Phi();
-	    jet4_mass=jet->M();
-	 }
-	 else if (totJetsCk==5){
-	    jet5_pt  =jet->Pt();
-	    jet5_eta =jet->Eta();
-	 }
-	 else if (totJetsCk==6){
-	    jet6_pt  =jet->Pt();
-	    jet6_eta =jet->Eta();
-	 }
-	 else if (totJetsCk==7){
-	    jet7_pt  =jet->Pt();
-	    jet7_eta =jet->Eta();
-	 }
-	 jetHt=jetHt + jet->Pt();
-      }
-      h_jetNum_EB->Fill(nJetsEB,myweight[0]);
-      h_jetNum_EE->Fill(nJetsEE,myweight[0]);
-      for (int v=0; v<11; v++){
-	 if (numberOfVertices==(v+1)) h_nJetVtx_EB[v]->Fill(nJetsEB,myweight[0]);
-	 if (numberOfVertices==(v+1)) h_nJetVtx_EE[v]->Fill(nJetsEE,myweight[0]);
-      }
-      
-      totJets = nJetsEB + nJetsEE;
-      double zPt = e_pair.Pt();
-      double zInvMass = e_pair.M();
-      z_mass=zInvMass;
-
-      /////////////////////////////////////////////////////////////////////////////////
-      //Filling the Unfolding rootuple!
-      /////////////////////////////////////////////////////////////////////////////////
-
-
-      /////////////////////
-      /// Create a JetGenContainer, as done for the RecoJets, to create the jetpt variable, afterwards
-      ////////////////////
-
-      ///////////////////////////////////////
-
-      Jet_multiplicity=totJets;
-      Z_y=e_pair.Rapidity();
-      Z_pt=zPt;
-
-      Jet_multiplicity_gen=-9999;
-      Z_y_gen=-9999;
-      Z_pt_gen=-9999;
-      jet1_pt_gen=-9999;
-      jet2_pt_gen=-9999;
-      jet3_pt_gen=-9999;
-      jet4_pt_gen=-9999;
-      jet5_pt_gen=-9999;
-      jet6_pt_gen=-9999;
-      jet7_pt_gen=-9999;
-
-      jet1_eta_gen=-9999;
-      jet2_eta_gen=-9999;
-      jet3_eta_gen=-9999;
-      jet4_eta_gen=-9999;
-      jet5_eta_gen=-9999;
-      jet6_eta_gen=-9999;
-      jet7_eta_gen=-9999;
-      
-      if (usingMC){
-	edm::Handle<reco::GenJetCollection> genJets;
-	iEvent.getByLabel(genJetsCollection, genJets );
-	int numbOfJets=0;      
-	
-	for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
-
-	  // check if the jet is equal to one of the isolated electrons 
-	   deltaPhi = fabs(jet->phi()-e1.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
-
-	   deltaPhi = fabs(jet->phi()-e2.Phi());
-	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
-
-	   if (deltaR1 > deltaRCone && deltaR2 > deltaRCone 
+       }
+     }
+     else{cout<<"No valid Jets Collection"<<endl;}
+   }
+   
+   
+   /////////////////////
+   /// Create a JetGenContainer, as done for the RecoJets, to create the jetpt variable, afterwards
+   ////////////////////
+   
+   ///////////////////////////////////////
+   
+   
+   if (usingMC){
+     edm::Handle<reco::GenJetCollection> genJets;
+     iEvent.getByLabel(genJetsCollection, genJets );
+     int numbOfJets=0;      
+     
+     for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
+       
+	   if (
 	       // cut on the jet pt 
-	       && jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
+	       jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
 	       && fabs(jet->eta())<genJetEtaThreshold //A minimux allowed eeta for GEN-JET!!!!!
 	       //&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
 	       //&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
@@ -804,7 +487,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	       //&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
 	       //&& jet->charge()>chargedMultiplicity
 	       ){
-
+	     
 	     //Check if it is a charged jet!
 	     double isChargedJet=false;
 	     std::vector<const GenParticle*> mcparticles = jet->getGenConstituents();
@@ -815,21 +498,27 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	       }
 	     }
 	     if (Debug) cout<<"final charge->"<<isChargedJet<<endl;
-	     if (isChargedJet) GenJetContainer.push_back(jet->p4()); 
+	     TLorentzVector vec;
+	     vec.SetPtEtaPhiM(jet->pt(),jet->eta(),jet->phi(),jet->mass());
+	     if (isChargedJet) GenJetContainer.push_back(vec); 
+	     if (isChargedJet) GenJetContainer2.push_back(vec); 
 	     isChargedJet=false;
-	     numbOfJets++;
+	     if (isChargedJet)  numbOfJets++;
 	     if (Debug) cout<<"Jet has energy:"<<jet->pt()<<" and eta:"<<jet->eta()<<endl;
 	   }
+     }
+     if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
+	if (numbOfJets<100) {
+	  if (genZInAcceptance==1) Jet_multiplicity_gen=GenJetContainer.size();
+	  if (genZInAcceptance==0) Jet_multiplicity_gen=-9999;
 	}
-	if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
-	if (numbOfJets<100) Jet_multiplicity_gen=numbOfJets;
-	std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GreaterPt()); 
-      }
+	//std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GreaterPt()); 
+   }
 
-
+   
       ////// Checking also if the Z boson has decayed int taus or muons, and then misreconstructed!
-
-      isMugen=false;
+   
+   isMugen=false;
       isTaugen=false;
 
       if (usingMC){
@@ -879,59 +568,88 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	// Loop sui RecoGet ordinati in pt
 	std::vector <double> jetpt_gen; 
 	std::vector <double> jeteta_gen;
+	std::vector <double> jetphi_gen;
+	std::vector <double> vectordeltaRRecoGenJet;
+	//int jetRecoIndex=0;
 
 	for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); jet != JetContainer.end (); jet++) {
 	  // Calcolare il DeltaR verso tutti i GenJet
-	  double deltaRGenReco=9999;
-	  double matchedGJetpt=9999;
-          double matchedGJeteta=9999;
+	  double deltaRGenReco=0.1;
+	  double matchedGJetpt=-9999;
+          double matchedGJeteta=-9999;
+          double matchedGJetphi=-9999;
 
-	  if (Debug) cout<<"reco jet pt in the loop. Starting the match "<<endl;
+	  //jetRecoIndex++;
+	  unsigned int matchedGenJetIndex=0;
+	  int GenJetIndex=0;
+
+	  //to avoid gen jet duplication
+	  int JetContainerSize=JetContainer.size();
+	  int GenJetContainerSize=GenJetContainer.size();
+	  if (Debug) cout<<"JetContainerSize "<<JetContainerSize<<" GenJetContainerSize "<<GenJetContainerSize<<endl;
+
+	  if (Debug) cout<<"reco jet pt in the loop. Starting the match for jet pt "<<jet->pt()<<" and eta "<<jet->eta()<<endl;
 	  //jetPtVector.push_back(jet->Pt());
-	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
 
-	     deltaPhi = fabs(jet->phi()-gjet->phi());
+	  for (std::vector<TLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
+	  if (Debug) cout<<"gen jet pt in the loop. Starting the match for gen jet pt "<<gjet->Pt()<<" and eta "<<gjet->Eta()<<endl;
+	  GenJetIndex++;
+	     deltaPhi = fabs(jet->phi()-gjet->Phi());
 	     if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
-	     double deltaRswap= sqrt( pow(jet->eta()-gjet->eta(),2)+pow(deltaPhi,2) );
-	     if (deltaRswap < deltaRGenReco) {
+	     double deltaRswap= sqrt( pow(jet->eta()-gjet->Eta(),2)+pow(deltaPhi,2) );
+	     if (deltaRswap < deltaRGenReco) { //to avoid gen jet duplication
 		deltaRGenReco=deltaRswap;
 		matchedGJetpt=gjet->Pt();
 		matchedGJeteta=gjet->Eta();
+		matchedGJetphi=gjet->Phi();
+		matchedGenJetIndex=GenJetIndex;
+		if (Debug) cout<<"inside->Gen Jet Matched: pt->"<<matchedGJetpt<<" and eta->"<<matchedGJeteta<<" and with deltaR of "<<deltaRGenReco<<endl;
 	     }
+	     //if (deltaRswap>0.1) {
+	     //jetRecoIndex--;
+	     //}
 	  }
+	  vectordeltaRRecoGenJet.push_back(deltaRGenReco);
 	  jetpt_gen.push_back(matchedGJetpt);
           jeteta_gen.push_back(matchedGJeteta);
-	  if (Debug) cout<<"Gen Jet Matched: pt->"<<matchedGJetpt<<" and eta->"<<matchedGJeteta<<endl;
+          jetphi_gen.push_back(matchedGJetphi);
+	  if (deltaRGenReco<0.1) GenJetContainer.erase(GenJetContainer.begin()+matchedGenJetIndex-1);
+	  if (Debug) cout<<"Gen Jet Matched: pt->"<<matchedGJetpt<<" and eta->"<<matchedGJeteta<<" and phi "<<matchedGJetphi<<" and with deltaR of "<<deltaRGenReco<<endl;
 	}
 	
+	deltaRRecoGenJet=vectordeltaRRecoGenJet;
 	// In the above loop, in jetpt_gen you have the collection of gen jets matched by the detector. Now evaluating the viceversa,
 	// jets generated > 30 but not reconstructed
 	
-	if (jetpt_gen.size() < GenJetContainer.size()){    // check if some gen jets are somehow missing... 
+	if (GenJetContainer.size()>0){    // check if some gen jets are somehow missing... 
 	  if (Debug) cout<<"There are more genjets than jetReco. # matched jets->"<<jetpt_gen.size()<<" # jets gen->"<<GenJetContainer.size()<<" you will see the entire list of jets, for residual matching"<<endl;
-	  for (std::vector<math::XYZTLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
+	  for (std::vector<TLorentzVector>::const_iterator gjet = GenJetContainer.begin (); gjet != GenJetContainer.end (); gjet++) {
 	    if (Debug) cout<<"gen jet pt->"<<gjet->Pt()<<" and eta->"<<gjet->Eta()<<endl;
 	    bool isAgoodJet=false;
 	    if (gjet->Pt()>genJetPtThreshold && fabs(gjet->Eta())<genJetEtaThreshold ){ // it should be above thresholds.. ADD the CHARGE information!
 	      isAgoodJet=true; // it has at least one charged track
 	    }
 	    if (isAgoodJet){
-	      if (Debug) cout<<"this is a overthreshold gen jet!, chcking if already stored!"<<endl;
-	      bool matchedalready=false;
-	      for (unsigned int k=0; k < jetpt_gen.size(); k++){
-		//Check if it has already been added
-		if (jetpt_gen[k]==gjet->Pt()) matchedalready=true;
-	      }
-	      if (!matchedalready) {
-		jetpt_gen.push_back(gjet->Pt());
-                jeteta_gen.push_back(gjet->Eta());
-		if (Debug) cout<<"adding JET not reconstructed! pt->"<<gjet->Pt()<<" eta->"<<gjet->Eta()<<endl;
-	      }
-	      else if (Debug) cout<<"gen jet already stored!"<<endl;
+	      if (Debug) cout<<"this is a overthreshold gen jet!"<<endl;
+	      //bool matchedalready=false;
+	      //for (unsigned int k=0; k < jetpt_gen.size(); k++){
+	      //Check if it has already been added
+	      //cout<<"loop per vedere i jet gia' matchiati. jetpt_gen->"<<jetpt_gen[k]<<" and jet Pt del loop "<<gjet->Pt()<<endl;
+	      //if (jetpt_gen[k]==gjet->Pt()) {
+	      //matchedalready=true;
+	      // cout<<"jet gia' presente!! non necessita inserimento aggiuntivo "<<endl;
+	      ///}
+	      //}
+	      //if (!matchedalready) {
+	      jetpt_gen.push_back(gjet->Pt());
+	      jeteta_gen.push_back(gjet->Eta());
+	      jetphi_gen.push_back(gjet->Phi());
+	      //if (Debug) cout<<"adding JET not reconstructed! pt->"<<gjet->Pt()<<" eta->"<<gjet->Eta()<<endl;
+	      //}
+	      //else if (Debug) cout<<"gen jet already stored!"<<endl;
 	    }
 	  }
 	}
-
 	int gvectorsize=jetpt_gen.size();
 	if (Debug) cout<<"Gen Jet found->"<<gvectorsize<<" size of JetContainer->"<<JetContainer.size()<<endl;
 
@@ -940,30 +658,37 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	if (gvectorsize>0) {
 	  jet1_pt_gen=jetpt_gen[0];
 	  jet1_eta_gen=jeteta_gen[0];
+	  jet1_phi_gen=jetphi_gen[0];
 	}
 	if (gvectorsize>1) {
 	  jet2_pt_gen=jetpt_gen[1];
 	  jet2_eta_gen=jeteta_gen[1];
+	  jet2_phi_gen=jetphi_gen[1];
 	}
 	if (gvectorsize>2) {
 	  jet3_pt_gen=jetpt_gen[2];
 	  jet3_eta_gen=jeteta_gen[2];
+	  jet3_phi_gen=jetphi_gen[2];
 	}
 	if (gvectorsize>3) {
 	  jet4_pt_gen=jetpt_gen[3];
 	  jet4_eta_gen=jeteta_gen[3];
+	  jet4_phi_gen=jetphi_gen[3];
 	}
 	if (gvectorsize>4) {
 	  jet5_pt_gen=jetpt_gen[4];
 	  jet5_eta_gen=jeteta_gen[4];
+	  jet5_phi_gen=jetphi_gen[4];
 	}
 	if (gvectorsize>5) {
 	  jet6_pt_gen=jetpt_gen[5];
 	  jet6_eta_gen=jeteta_gen[5];
+	  jet6_phi_gen=jetphi_gen[5];
 	}
 	if (gvectorsize>6) {
 	  jet7_pt_gen=jetpt_gen[6];
 	  jet7_eta_gen=jeteta_gen[6];
+	  jet7_phi_gen=jetphi_gen[6];
 	}
 
 	//cout<<"gen jet1 has pt "<<jet1_pt_gen<<" jet2 "<<jet2_pt_gen<<" jet3 "<<jet3_pt_gen<<" jet4_pt_gen "<<jet4_pt_gen<<endl;
@@ -972,103 +697,10 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
       //cout<<"------"<<endl;
       ////////////////////
 
-      h_invMass->Fill(zInvMass,myweight[0]);
-      h_massMinusPdgGsf->Fill(zInvMass-zMassPdg,myweight[0]);
-      if (fabs(e1.Eta())<=edgeEB && fabs(e2.Eta())<=edgeEB) {h_massMinusPdgGsf_EB->Fill(zInvMass-zMassPdg,myweight[0]);}
-      else if (fabs(e1.Eta())<=edgeEE && fabs(e2.Eta())<=edgeEE &&
-	       fabs(e1.Eta())>edgeEB && fabs(e2.Eta())>edgeEB) { h_massMinusPdgGsf_EE->Fill(zInvMass-zMassPdg,myweight[0]);}
-      else if (fabs(e1.Eta())<edgeEE && fabs(e2.Eta())<edgeEE) {h_massMinusPdgGsf_EBEE->Fill(zInvMass-zMassPdg,myweight[0]);}
-
-      h_zEta->Fill(e_pair.Eta(),myweight[0]);
-      h_zRapidity->Fill(e_pair.Rapidity(),myweight[0]);
-      h_zYieldVsjets->Fill(totJets,myweight[0]);
-      if (numberOfVertices==1) h_zYieldVsjetsVtx1->Fill(totJets,myweight[0]);
-      if (numberOfVertices==5) h_zYieldVsjetsVtx5->Fill(totJets,myweight[0]);
-      
-      if (totJets == 0){ 
-	h_zEtaNjet0->Fill(e_pair.Eta(),myweight[0]);
-	h_zMassNjet0->Fill(zInvMass,myweight[0]);
-	h_zMassMinusPdgGsfNjet0->Fill(zInvMass-zMassPdg,myweight[0]);
-      }
-      if (totJets == 1){ 
-	h_zEtaNjet1->Fill(e_pair.Eta(),myweight[0]);
-	h_zMassNjet1->Fill(zInvMass,myweight[0]);
-	h_zMassMinusPdgGsfNjet1->Fill(zInvMass-zMassPdg,myweight[0]);
-      } else if (totJets == 2){ 
-	 h_zEtaNjet2->Fill(e_pair.Eta(),myweight[0]);
-	 h_zMassNjet2->Fill(zInvMass,myweight[0]);
-	 h_zMassMinusPdgGsfNjet2->Fill(zInvMass-zMassPdg,myweight[0]);
-      } else if (totJets == 3){ 
-	 h_zEtaNjet3->Fill(e_pair.Eta(),myweight[0]);
-	 h_zMassNjet3->Fill(zInvMass,myweight[0]);
-	 h_zMassMinusPdgGsfNjet3->Fill(zInvMass-zMassPdg,myweight[0]);
-      } else if (totJets == 4){ 
-	 h_zEtaNjet4->Fill(e_pair.Eta(),myweight[0]);
-	 h_zMassNjet4->Fill(zInvMass,myweight[0]);
-	 h_zMassMinusPdgGsfNjet4->Fill(zInvMass-zMassPdg,myweight[0]);
-      } 
-
-      if (totJets >= 1) h_zEtaNjet1Incl->Fill(e_pair.Eta(),myweight[0]);
-      if (totJets >= 2) h_zEtaNjet2Incl->Fill(e_pair.Eta(),myweight[0]);
-      if (totJets >= 3) h_zEtaNjet3Incl->Fill(e_pair.Eta(),myweight[0]);
-      if (totJets >= 4) h_zEtaNjet4Incl->Fill(e_pair.Eta(),myweight[0]);
-      
-      for (int i=0; i<11; i++)
-      {
-	 if (totJets == i) h_ptZ_jet[i]->Fill(zPt,myweight[0]);
-	 if (totJets >= i) h_ptZ_jetIncl[i]->Fill(zPt,myweight[0]);
-      }     
-      
-      if (totJets >= 1) h_jetHtNjet1->Fill(inclHt,myweight[0]);
-      if (totJets >= 2) h_jetHtNjet2->Fill(inclHt,myweight[0]);
-      if (totJets >= 3) h_jetHtNjet3->Fill(inclHt,myweight[0]);
-      if (totJets >= 4) h_jetHtNjet4->Fill(inclHt,myweight[0]);
-      
-      for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin ();
-	   jet != JetContainer.end (); jet++) {
-	 // jet in the BARREL
-	 if (fabs(jet->Eta())<edgeEB){
-	    if (totJets == 1) h_jetPtNjet1_EB->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 2) h_jetPtNjet2_EB->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 3) h_jetPtNjet3_EB->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 4) h_jetPtNjet4_EB->Fill(jet->Pt(),myweight[0]);
-	 }
-	 // jet in the ENDCAP
-	 if (fabs(jet->Eta())>edgeEB && fabs(jet->Eta())<edgeEE){
-	    if (totJets == 1) h_jetPtNjet1_EE->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 2) h_jetPtNjet2_EE->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 3) h_jetPtNjet3_EE->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 4) h_jetPtNjet4_EE->Fill(jet->Pt(),myweight[0]);
-	 }
-	 // jet in ECAL
-	 if (fabs(jet->Eta())<edgeEE){
-	    if (totJets == 1) h_jetPtNjet1->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 2) h_jetPtNjet2->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 3) h_jetPtNjet3->Fill(jet->Pt(),myweight[0]);
-	    if (totJets == 4) h_jetPtNjet4->Fill(jet->Pt(),myweight[0]);
-
-	    if (totJets == 1) h_jetEtaNjet1->Fill(jet->Eta(),myweight[0]);
-	    if (totJets == 2) h_jetEtaNjet2->Fill(jet->Eta(),myweight[0]);
-	    if (totJets == 3) h_jetEtaNjet3->Fill(jet->Eta(),myweight[0]);
-	    if (totJets == 4) h_jetEtaNjet4->Fill(jet->Eta(),myweight[0]);
-
-	    if (totJets >= 1) h_jetPtNjet1Incl->Fill(jet->Pt(),myweight[0]);
-	    if (totJets >= 2) h_jetPtNjet2Incl->Fill(jet->Pt(),myweight[0]);
-	    if (totJets >= 3) h_jetPtNjet3Incl->Fill(jet->Pt(),myweight[0]);
-	    if (totJets >= 4) h_jetPtNjet4Incl->Fill(jet->Pt(),myweight[0]);
-
-	    if (totJets >= 1) h_jetEtaNjet1Incl->Fill(jet->Eta(),myweight[0]);
-	    if (totJets >= 2) h_jetEtaNjet2Incl->Fill(jet->Eta(),myweight[0]);
-	    if (totJets >= 3) h_jetEtaNjet3Incl->Fill(jet->Eta(),myweight[0]);
-	    if (totJets >= 4) h_jetEtaNjet4Incl->Fill(jet->Eta(),myweight[0]);
-	 }
-      }
-      
-
-   } else if (Debug){std::cout << "WARNING: More than two electron selected"<< std::endl;}  
-
-   //Fill Unfolding rootuple!
-   if (Jet_multiplicity>0 || Jet_multiplicity_gen>0) treeUN_->Fill();
+      if (jet1_pt_gen==jet2_pt_gen && jet1_pt_gen>0) cout<<"Evento maleficissimo!!!"<<endl;      
+      //Fill Unfolding rootuple!
+      if (Debug) cout<<"After: recoZInAcceptance->"<<recoZInAcceptance<<" genZInAcceptance->"<<genZInAcceptance<<" Jet_multi->"<<Jet_multiplicity<<" Jet_multi_gen->"<<Jet_multiplicity_gen<<endl;
+      if (Jet_multiplicity>0 || Jet_multiplicity_gen>0) treeUN_->Fill();
 }
 
 
@@ -1106,6 +738,14 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("jet5_eta_gen",&jet5_eta_gen);
   treeUN_->Branch("jet6_eta_gen",&jet6_eta_gen);
   treeUN_->Branch("jet7_eta_gen",&jet6_eta_gen);
+
+  treeUN_->Branch("jet1_phi_gen",&jet1_phi_gen);
+  treeUN_->Branch("jet2_phi_gen",&jet2_phi_gen);
+  treeUN_->Branch("jet3_phi_gen",&jet3_phi_gen);
+  treeUN_->Branch("jet4_phi_gen",&jet4_phi_gen);
+  treeUN_->Branch("jet5_phi_gen",&jet5_phi_gen);
+  treeUN_->Branch("jet6_phi_gen",&jet6_phi_gen);
+  treeUN_->Branch("jet7_phi_gen",&jet6_phi_gen);
 
   //treeUN_->Branch("jetPtVector",&jetPtVector);
   //treeUN_->Branch("genJetPtVector",&genJetPtVector);
@@ -1154,6 +794,7 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("l2_pt_gen",&l2_pt_gen);
   treeUN_->Branch("genZInAcceptance",&genZInAcceptance);
   treeUN_->Branch("recoZInAcceptance",&recoZInAcceptance);
+  treeUN_->Branch("deltaRRecoGenJet",&deltaRRecoGenJet);
 
   cout<<endl;
   cout<<"##############################"<<endl;
@@ -1556,7 +1197,6 @@ int jetValidationUnfolding::isTauOrMu(edm::Handle<GenParticleCollection> genPart
    int ntausFromZ(0);
    int ntaus(0);
    int nmuFromZ(0);
-   int nmu(0);
 
    std::vector<std::pair<int,math::XYZTLorentzVectorD> > idAndPTaus;
    math::XYZTLorentzVectorD pTauPos, pTauNeg, pZTauTau;

@@ -4,6 +4,8 @@
 #include "Histo/HistoAnalyzer/interface/jetValidation.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Common/interface/RefVector.h"
+//#include "MuScleFitCorrector.h"
+
 
 //
 // member functions
@@ -28,6 +30,9 @@ jetValidation::distR(TLorentzVector a ,math::XYZTLorentzVector b){
 void
 jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  edm::RunNumber_t run = iEvent.id().run();
+  Run=run;
 
   bool Debug=false;
 
@@ -79,10 +84,12 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    e1_eta =0;
    e1_phi =0;
    e1_mass=0;
+   e1_charge=0;
    e2_pt  =0;
    e2_eta =0;
    e2_phi =0;
    e2_mass=0;
+   e2_charge=0;
    z_mass=0;
    
    jet1_pt  =0;
@@ -162,18 +169,24 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //TLorentz vector of the two Z boson electrons, at RECO level
       TLorentzVector e1, e2, e_pair;
+      int l1charge=0;
+      int l2charge=0;
       
       if (!usingPF){     
 	 reco::GsfElectronCollection::const_iterator it=goodEPair->begin();     
 	 e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+	 l1charge=it->charge();
 	 it++;
 	 e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+	 l2charge=it->charge();
       }
       else {     
 	 reco::PFCandidateCollection::const_iterator it=goodPfEPair->begin();     
 	 e1.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+	 l1charge=it->charge();
 	 it++;
 	 e2.SetPtEtaPhiM(it->pt(),it->eta(),it->phi(),it->mass());
+	 l2charge=it->charge();
       }     
       e_pair = e1 + e2;
       
@@ -182,20 +195,28 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 e1_eta =e1.Eta();
 	 e1_phi =e1.Phi();
 	 e1_mass=e1.M();
+	 e1_charge=l1charge;
+	 e1_tlv=e1;
 	 e2_pt  =e2.Pt();
 	 e2_eta =e2.Eta();
 	 e2_phi =e2.Phi();
 	 e2_mass=e2.M();
+	 e2_charge=l2charge;
+	 e2_tlv=e2;
       }
       else {
 	 e1_pt  =e2.Pt();
 	 e1_eta =e2.Eta();
 	 e1_phi =e2.Phi();
 	 e1_mass=e2.M();
+	 e1_charge=l2charge;
+	 e1_tlv=e2;
 	 e2_pt  =e1.Pt();
 	 e2_eta =e1.Eta();
 	 e2_phi =e1.Phi();
 	 e2_mass=e1.M();
+	 e2_charge=l1charge;
+	 e2_tlv=e1;
       }
 
       // ================================
@@ -693,6 +714,7 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// Loop sui RecoGet ordinati in pt
 	std::vector <double> jetpt_gen; 
 	std::vector <double> jeteta_gen;
+	std::vector <double> vectordeltaRRecoGenJet;
 
 	for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin (); jet != JetContainer.end (); jet++) {
 	  // Calcolare il DeltaR verso tutti i GenJet
@@ -922,10 +944,14 @@ jetValidation::beginJob()
   treeUN_->Branch("e1_eta",&e1_eta);
   treeUN_->Branch("e1_phi",&e1_phi);
   treeUN_->Branch("e1_mass",&e1_mass);
+  treeUN_->Branch("e1_charge",&e1_charge);
+  treeUN_->Branch("e1_tlv",&e1_tlv);
   treeUN_->Branch("e2_pt",&e2_pt);
   treeUN_->Branch("e2_eta",&e2_eta);
   treeUN_->Branch("e2_phi",&e2_phi);
   treeUN_->Branch("e2_mass",&e2_mass);
+  treeUN_->Branch("e2_charge",&e2_charge);
+  treeUN_->Branch("e2_tlv",&e2_tlv);
   treeUN_->Branch("jet1_pt",&jet1_pt);
   treeUN_->Branch("jet2_pt",&jet2_pt);
   treeUN_->Branch("jet3_pt",&jet3_pt);
@@ -953,6 +979,9 @@ jetValidation::beginJob()
   treeUN_->Branch("isTaugen",&isTaugen);
   treeUN_->Branch("z_mass",&z_mass);
   treeUN_->Branch("isElectron",&isElectron);
+
+  treeUN_->Branch("Run",&Run);
+
 
   cout<<endl;
   cout<<"##############################"<<endl;

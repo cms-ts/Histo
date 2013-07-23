@@ -86,6 +86,12 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       std::string WeightName;
       std::string WeightNameSherpa;
 
+      //string to handle the FSR from Damiana's code
+      std::string EleGammaGenPt_;
+      std::string EleGammaGenEta;
+      std::string MuGammaGenPt;
+      std::string MuGammaGenEta;
+
       // ----------member data ---------------------------
 
       //Retrieved from the .py
@@ -106,6 +112,12 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double param;
       bool isSherpa;
       bool isUnfolding_;
+
+      int oneJet;
+      int twoJets;
+      int threeJets;
+      int fourJets;
+      int eventNumberCounter;
 
       //JEC
       JetCorrectorParameters *p;
@@ -130,7 +142,6 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet6_pt_gen;
       double jet7_pt_gen;
 
-
       double jet1_eta_gen;
       double jet2_eta_gen;
       double jet3_eta_gen;
@@ -138,6 +149,16 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet5_eta_gen;
       double jet6_eta_gen;
       double jet7_eta_gen;
+
+      double jet1_phi_gen;
+      double jet2_phi_gen;
+      double jet3_phi_gen;
+      double jet4_phi_gen;
+      double jet5_phi_gen;
+      double jet6_phi_gen;
+      double jet7_phi_gen;
+
+      std::vector<double> deltaRRecoGenJet;
 
       double invMass_gen;
       double l1_pt_gen;
@@ -393,8 +414,8 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       int chargedMultiplicity;
 
       int leptonId;
-      int genZInAcceptance;
-      int recoZInAcceptance;
+      bool genZInAcceptance;
+      bool recoZInAcceptance;
      
       //vertices
       int numberOfVertices;
@@ -431,7 +452,11 @@ jetValidationUnfolding::jetValidationUnfolding(const edm::ParameterSet& conf)
   isSherpa            = conf.getUntrackedParameter<bool>("isSherpa",false);
   isUnfolding_          = conf.getUntrackedParameter<bool>("isUnfolding",true);
   genParticleCollection_= conf.getUntrackedParameter<edm::InputTag>("genParticleCollection",edm::InputTag("genParticles"));
-  
+  EleGammaGenPt_ = conf.getParameter<std::string>("EleGammaGenPt_");
+  EleGammaGenEta = conf.getParameter<std::string>("EleGammaGenEta");
+  MuGammaGenPt = conf.getParameter<std::string>("MuGammaGenPt");
+  MuGammaGenEta = conf.getParameter<std::string>("MuGammaGenEta");
+
 
   // variable to enable the fill of the plots
   doPlotsJetComposition  = conf.getUntrackedParameter<bool>("doPlotsJetComposition",true); 

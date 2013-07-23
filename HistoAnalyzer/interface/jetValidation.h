@@ -146,12 +146,16 @@ class jetValidation : public edm::EDAnalyzer {
       double e1_eta;
       double e1_phi;
       double e1_mass;
+      int    e1_charge;
+      TLorentzVector e1_tlv;
       double e2_pt;
       double e2_eta;
       double e2_phi;
       double e2_mass;
       double z_mass;
-      
+      int    e2_charge;
+      TLorentzVector e2_tlv;
+	    
       double jet1_pt;
       double jet2_pt;
       double jet3_pt;
@@ -175,6 +179,8 @@ class jetValidation : public edm::EDAnalyzer {
       double jet3_mass; 
       double jet4_mass;     
       double jetHt;
+
+      int Run;
 
 
       //taueMuons
