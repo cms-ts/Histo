@@ -51,7 +51,7 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
@@ -64,9 +64,10 @@ string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=false;
-double XSMuon[4]={64.1846,13.5174,2.68796,0.485177}; //Old one double XSElectron[4]={49.64,10.93,2.078,0.395};
-double XSElectron[4]={64.1853,13.544,2.66881,0.524993};
+bool activateXSSuperseding=true;
+double XSMuon[4]={63.9222,13.1122,2.54786,0.449393};
+double XSElectron[4]={63.6393,13.1239,2.52467,0.493846};
+
 
 //For gen Jet
 double threshPt=30;
@@ -112,6 +113,9 @@ string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
 //string bkgstring=dir+"Backgrounds"+version;
 string bkgstring=dir+"Backgrounds_v2_33.root";
+
+// MC limited stat effect
+bool MClimitedStatEffect=true;
 
 //File with efficiency coefficients
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
@@ -189,7 +193,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Pt";
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }

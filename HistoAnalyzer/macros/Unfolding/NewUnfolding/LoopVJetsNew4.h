@@ -40,7 +40,7 @@ TH1D *jDataPreUnf;
 
 double getContributionMCStatLimited(int position, TH1D *jDataPreUnf, TH2D *jCov){
   double value=0.0;
-  for (int i=position; i<jCov->GetNbinsX()+1; i++){
+  for (int i=1; i<jCov->GetNbinsX()+1; i++){
     cout<<"jDataPreUnf->GetBinContent(i) "<<jDataPreUnf->GetBinContent(i)<<" jCov->GetBinContent(position-1,i) "<<jCov->GetBinContent(position,i)<<endl;
     value=value+fabs(jDataPreUnf->GetBinContent(i)*jCov->GetBinContent(position,i));
     //value=value+pow(fabs(jDataPreUnf->GetBinContent(i)),0.5)*pow(fabs(jCov->GetBinContent(position,i)),0.5);
@@ -125,7 +125,8 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
   
   RooUnfoldBayes unfold_b (&response_j, jData, kvalue);  //NEVER,NEVER,NEVER set the parameter "1000" for the testing if you want to perform identity tests
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
-  
+  std::vector<double> extraMCLimitedStatErrors;
+
   if (whichalgo=="Bayes") {
     unf = (TH1D *) unfold_b.Hreco ();
     unfold_b.PrintTable(cout,jTrue);
@@ -136,16 +137,16 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfodiag= unfold_b.ErecoV(RooUnfold::kErrors);
   }
   else{
-    unf = (TH1D *) unfold_s.Hreco (RooUnfold::kCovariance);
+    unf = (TH1D *) unfold_s.Hreco (RooUnfold::kErrors);
     unfold_s.PrintTable(cout,jTrue);
     TVectorD vstat= unfold_s.ErecoV();
     TVectorD vunfo= unfold_s.ErecoV(RooUnfold::kCovToy);
     TVectorD vunfomat= unfold_s.ErecoV(RooUnfold::kCovariance);
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
-    //TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Htruth(),(TH1D*)response_j.Hmeasured(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
-    TSVDUnfold unfold_modD (jData,jMCreco,jTrue,jMatx); // per calcolare il modulo
+    TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Htruth(),(TH1D*)response_j.Hmeasured(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
+    //TSVDUnfold unfold_modD (jData,jMCreco,jTrue,jMatx); // per calcolare il modulo
     //TSVDUnfold unfold_modDaaa(jData, jMatx, jMCreco, jTrue, jMatx);
-    TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
+    TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD(); 
     TMatrixD covmatrixdiagonal=unfold_s.Ereco(RooUnfold::kErrors);
     TMatrixD covmatrix=unfold_s.Ereco(RooUnfold::kCovariance);
     TMatrixD covmatrixtoy=unfold_s.Ereco(RooUnfold::kCovToy);
@@ -153,9 +154,10 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
 
     //Matrice di covarianza of experiment as a TH2D
     TH2D *covMatExp=formatTH2DFromCovMaxtrixLatex(covmatrix, divPlot, minObsPlot, maxObsPlot);
- 
+    //TH2D *covMatExp=unfold_modD.GetXtau();  //<<============ Using TSVDUnfold 
+
     //MC limited stat matrix
-    TH2D *pippotoy=unfold_modD.GetAdetCovMatrix(1000); //<<====================== Questo crea instabilita'... Se vari il numero cambia unfolding fottuto!
+    TH2D *pippotoy=unfold_modD.GetAdetCovMatrix(1000); //<<====================== Questo crea instabilita'... Se vari il numero cambia unf!!!!!
 
     //Print the exp cov matr
     TCanvas *covMatExperim= new TCanvas ("covMatExperim", "covMatExperim", 1000, 700);
@@ -179,6 +181,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     pippoToySum->Add(covMatExp);
     pippoToySum->Draw("TEXT");
     covMatExperimToySum->Print(titleCovToySumUp.c_str());
+    for (int i=1;i<=jData->GetNbinsX();i++) {extraMCLimitedStatErrors.push_back(pippoToySum->GetBinContent(i,i));}
 
     //Print The ratio MC stat/matrix
     TCanvas *covRatioMcStat= new TCanvas ("covRatioMcStat", "covRatioMcStat", 1000, 700);
@@ -190,13 +193,6 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     ratioMCStat->Divide(pippotoy);
     ratioMCStat->Draw("COLZ,text");
     covRatioMcStat->Print(titleCovToySumUpRatio.c_str());
-
-    std::vector<double> extraStatError;
-    //Calculate the extra error from the stat matrix
-    for (unsigned int e=0;e<unf->GetNbinsX();e++){
-      extraStatError.push_back(getContributionMCStatLimited(e+1,jDataPreUnf,pippoToySum));
-      //unf->SetBinError(e+1,getContributionMCStatLimited(e+1,jDataPreUnf,pippoToySum));
-    }
 
     //TSVDUnfold unfold_modD2 (jData,covMatExp,jTrue,jMCreco,jMatx); // per calcolare il modulo
     //TMatrixD matToy=formatMatrixFromHisto(pippotoy, divPlot);
@@ -216,10 +212,16 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
       
   }
   for (unsigned int p=0;p<unf->GetNbinsX();p++){
-    errors->SetBinContent(p+1,unf->GetBinError(p+1)); errorstat->SetBinContent(p+1,sqrt(unf->GetBinContent(p+1)));
-    cout<<"Bin "<<p+1<<" has "<<unf->GetBinError(p+1)<<" sta error is "<<sqrt(unf->GetBinContent(p+1));
-    if (unf->GetBinError(p+1)<sqrt(unf->GetBinContent(p+1))) unf->SetBinError(p+1,sqrt(unf->GetBinContent(p+1)));
-    cout<<"Error set at "<<unf->GetBinError(p+1)<<endl;
+    double unfoldingBinError=unf->GetBinError(p+1);
+    if (MClimitedStatEffect) {
+      unfoldingBinError=sqrt(extraMCLimitedStatErrors[p]);
+      unf->SetBinError(p+1,unfoldingBinError);
+    }
+    errors->SetBinContent(p+1,unfoldingBinError); errorstat->SetBinContent(p+1,sqrt(unf->GetBinContent(p+1)));
+    
+    cout<<"Bin "<<p+1<<" has "<<unfoldingBinError<<" sta error is "<<sqrt(unf->GetBinContent(p+1));
+    if (unfoldingBinError<sqrt(unf->GetBinContent(p+1))) unf->SetBinError(p+1,sqrt(unf->GetBinContent(p+1)));
+    cout<<"Error set at "<<unfoldingBinError<<endl;
   }
   //Returns vector of unfolding errors computed according to the withError flag:
   //0: Errors are the square root of the bin content
@@ -430,7 +432,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	  continue;
 	}
 	if (genZInAcceptance && !recoZInAcceptance) {
-	  response_fillfake.Miss(jet_Obs_gen,effcorrmc);
+	  response_fillfake.Miss(jet_Obs_gen);
 	  jTrue->Fill (jet_Obs_gen); 
 	  continue;}
 	if (!genZInAcceptance && recoZInAcceptance) {
@@ -506,7 +508,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	  jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
 	}
 	if( !(jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) &&  (jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) {
-	  response_fillfake.Miss(jet_Obs,effcorrmc);
+	  response_fillfake.Miss(jet_Obs_gen,effcorrmc);
 	  jTrue->Fill (jet_Obs_gen); //jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc); 
 	}
 	if(  (jet_Obs_pt>30 && fabs(jet_Obs_eta)<2.4) && !(jet_Obs_pt_gen>30 && fabs(jet_Obs_eta)<2.4) ) {
@@ -516,7 +518,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	continue;
 	}
 	if (genZInAcceptance && !recoZInAcceptance) {
-	  response_fillfake.Miss(jet_Obs_gen,effcorrmc); 
+	  response_fillfake.Miss(jet_Obs_gen); 
 	  jTrue->Fill (jet_Obs_gen); //jMatx->Fill (jet_Obs, jet_Obs_gen); jMatxlong->Fill (jet_Obs, jet_Obs_gen); jMCreco->Fill (jet_Obs);	
 	  continue;
 	}
