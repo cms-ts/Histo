@@ -175,11 +175,16 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     //====> other method TH2D* covMaToy=GetAdetCovMatrix( 10, 1, jMatx, jTrue, divPlot, k, response_j, jData, jTrue, jMCreco, jMatx, numbOfJetsSelected, whichtype);
 
     //Print the combined one!
-    TCanvas *covMatExperimToySum= new TCanvas ("covMatExperimToySum", "covMatExperimToySum", 1000, 700);
+    TCanvas *covMatExperimToySum= new TCanvas ("covMatExperimToySum", "covMatExperimToySum", 3500, 2500);
     covMatExperimToySum->cd ();
     TH2D *pippoToySum= (TH2D*)pippotoy->Clone("pippoToySum");
     pippoToySum->Add(covMatExp);
+    pippoToySum->SetStats(0);
+    pippoToySum->SetTitle("Covariance Matrix, including MC limited statistics effect");
     pippoToySum->Draw("TEXT");
+    if (whichtype!="Multiplicity" && whichjet==1) pippoToySum->SetMarkerSize(0.55);
+    pippoToySum->SetMarkerSize(0.8);
+    if (whichtype=="Pt" && whichjet==2) pippoToySum->SetMarkerSize(0.70);
     covMatExperimToySum->Print(titleCovToySumUp.c_str());
     for (int i=1;i<=jData->GetNbinsX();i++) {extraMCLimitedStatErrors.push_back(pippoToySum->GetBinContent(i,i));}
 
@@ -455,7 +460,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	//vector<double> *a=deltaRRecoGenJet;
 	//double b=a->at(0);
 	
-	//if (jet4_pt_gen>0 && ValidGenJets<4 && numbOfJetsSelected==4) {
+	//if (jet3_pt_gen>0 && ValidGenJets<3 && numbOfJetsSelected==3) {
 	//jet_Obs_gen=-9999;
 	//jet_Obs_pt_gen=-9999;
 	//jet_Obs_eta_gen=-9999;
@@ -622,7 +627,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       num.str("");
   } 
 
-  if (identityCheck || splitCheck || pythiaCheck){
+  if (identityCheck || splitCheck || pythiaCheck ||differentialCrossSection){
     jReco->Scale(1./jReco->Integral());             
     jTrue->Scale(1./jTrue->Integral());
     jMCreco->Scale(1./jMCreco->Integral());

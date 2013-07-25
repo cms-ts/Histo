@@ -128,7 +128,7 @@ void setObservablesMC(int numbOfJetsSelected, string whichtype, double jet1_pt_g
       }
 
     if (Jet_multiplicity_gen >= numbOfJetsSelected ){
-        if (jet1_pt_gen > 30 && jet1_pt_gen < 7000 && fabs(jet1_eta_gen)<2.4) jet_Obs_gen += jet1_pt_gen;;
+        if (jet1_pt_gen > 30 && jet1_pt_gen < 7000 && fabs(jet1_eta_gen)<2.4) jet_Obs_gen += jet1_pt_gen;
         if (jet2_pt_gen > 30 && jet2_pt_gen < 7000 && fabs(jet2_eta_gen)<2.4) jet_Obs_gen += jet2_pt_gen;
         if (jet3_pt_gen > 30 && jet3_pt_gen < 7000 && fabs(jet3_eta_gen)<2.4) jet_Obs_gen += jet3_pt_gen;
         if (jet4_pt_gen > 30 && jet4_pt_gen < 7000 && fabs(jet4_eta_gen)<2.4) jet_Obs_gen += jet4_pt_gen;
@@ -325,16 +325,16 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
   if (whichtype=="Pt"){
     if (numbOfJetsSelected==1) {
       minObsPlot=30;
-      maxObsPlot=330;
-      divPlot=15;
+      maxObsPlot=390;
+      divPlot=18;
   
       if (isEle){
-	kmin=13;
-	kmax=14;
+	kmin=10;
+	kmax=11;
       }
       else{
-	kmin=9;
-	kmax=10;
+	kmin=12;
+	kmax=13;
     }
       if (bayesianTests) {
 	kmin=3;
@@ -345,15 +345,15 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     if (numbOfJetsSelected==2){
       minObsPlot=30;
       maxObsPlot=330;
-      divPlot=10;
+      divPlot=15;
     
       if (isEle){
-	kmin=5;
-	kmax=6;
+	kmin=11;
+	kmax=12;
       }
       else{
-	kmin=6;
-	kmax=7;
+	kmin=9;
+	kmax=10;
       }
       if (bayesianTests) {
 	kmin=3;
@@ -370,8 +370,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
 	kmax=7;
       }
       else{
-	kmin=5;
-	kmax=6;
+	kmin=7;
+	kmax=8;
       }
       if (bayesianTests) {
 	kmin=3;
@@ -380,16 +380,16 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     }
     if (numbOfJetsSelected==4){
       minObsPlot=30;
-      maxObsPlot=100;
-      divPlot=7;
+      maxObsPlot=130;
+      divPlot=5;
      
       if (isEle){
-	kmin=7;
-	kmax=8;
+	kmin=3;
+	kmax=4;
       }
       else{
-	kmin=6;
-	kmax=7;
+	kmin=3;
+	kmax=4;
       }
       if (bayesianTests) {
 	kmin=3;
@@ -417,20 +417,20 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     
     if (numbOfJetsSelected==2){
       if (isEle){
-	kmin=3;
-	kmax=4;
+	kmin=5;
+	kmax=6;
       }
       else{
-	kmin=7;
-	kmax=8;
+	kmin=8;
+	kmax=9;
     }
       divPlot=20;
     }
     
     if (numbOfJetsSelected==3){
       if (isEle){
-	kmin=4;
-	kmax=5;
+	kmin=5;
+	kmax=6;
       }
       else{
 	kmin=6;
@@ -441,12 +441,12 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     
     if (numbOfJetsSelected==4){
       if (isEle){
-	kmin=9;
-	kmax=10;
+	kmin=4;
+	kmax=5;
       }
       else{
-	kmin=2;
-	kmax=3;
+	kmin=5;
+	kmax=6;
       }
       divPlot=12;
     } 
@@ -458,62 +458,62 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
   
   if (whichtype=="Ht"){
     
-    divPlot = 12;
+    divPlot = 17; //da 40 Gev... 
     minObsPlot = 30;
-    maxObsPlot = 630;
+    maxObsPlot = 710;
     kmin = 8;
     kmax = 9;
 
 if (numbOfJetsSelected == 1){
       if (isEle){
+	kmin=10;
+	kmax=11;
+      }
+      else{
 	kmin=9;
 	kmax=10;
       }
-      else{
-	kmin=8;
-      kmax=9;
-      }
     }
   if (numbOfJetsSelected == 2){
-      minObsPlot = 60;
-      maxObsPlot = 630;
-      
+    minObsPlot = 60; //da 50 Gev
+      maxObsPlot = 710;
+      divPlot = 13;
       if (isEle){
+	kmin=8;
+	kmax=9;
+      }
+      else{
 	kmin=7;
 	kmax=8;
+      }
+    }
+  if (numbOfJetsSelected == 3){
+      divPlot = 14;
+      minObsPlot = 90;
+      maxObsPlot = 790;
+
+      if (isEle){
+	kmin=9;
+	kmax=10;
       }
       else{
 	kmin=10;
 	kmax=11;
       }
-    }
-  if (numbOfJetsSelected == 3){
-      divPlot = 7;
-      minObsPlot = 90;
-      maxObsPlot = 630;
-
-      if (isEle){
-	kmin=5;
-	kmax=6;
-      }
-      else{
-	kmin=7;
-	kmax=8;
-      }
       
     }
   if (numbOfJetsSelected == 4){                          
     if (isEle){
-      kmin=5;
-      kmax=6;
+      kmin=6;
+      kmax=7;
     }
     else{
       kmin=5;
       kmax=6;
     }
-    divPlot = 5;
+    divPlot = 10; //da 60 GeV
     minObsPlot = 120;
-    maxObsPlot = 630;
+    maxObsPlot = 720;
   }
   if (bayesianTests) {
     kmin=3;
@@ -527,12 +527,12 @@ if (numbOfJetsSelected == 1){
     //maxObsPlot=maxNJets-1;
     divPlot=6.5; minObsPlot=0.5;maxObsPlot=6.5;
     if (isEle){
-      kmin=6;
-      kmax=7;
+      kmin=4;
+      kmax=5;
     }
     else{
-      kmin=6;
-      kmax=7;
+      kmin=5;
+      kmax=6;
     }
     
     if (bayesianTests) {

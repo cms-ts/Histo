@@ -136,7 +136,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jDataClone->SetMarkerSize (0);       
   jDataClone->SetLineWidth (0.05);
   jDataClone->SetLineColor(kViolet);
-  //jDataClone->Draw ("E1HISTSAME");
+  jDataClone->Draw ("HISTSAME");
   jDataClone->SetLineWidth (0.1);
   
   TF1 *f = new TF1("f","1",-1000,1000);
@@ -149,7 +149,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   legend_w->SetBorderSize (0);
   legend_w->AddEntry (jRecoClone, "Data Unfolded / MC truth", "P20");
   //legend_w->AddEntry (jMCRecoClone, "MC reco / MC truth", "L");
-  //legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
+  legend_w->AddEntry (jDataClone, "Data Unfolded / Data Folded", "L");
   legend_w->Draw ("same");
   //pad2->Update();
   stringstream num;
@@ -200,7 +200,7 @@ TCanvas* drawPlots(TH1D *jReco,TH1D* jData, TH1D *jTrue, TH1D* jMCreco, TH2D* jM
   jMatx->GetXaxis()->SetTitle("Reconstructed # of Jets");
   jMatx->GetYaxis()->SetTitle("Generated # of Jets");
   gStyle->SetPalette (1);
-  gStyle->SetPaintTextFormat ("5.3f");
+  gStyle->SetPaintTextFormat ("5.0f");
   gStyle->SetNumberContours (999);
   jMatx->SetMarkerColor (kBlack);
   //double entries=1.000/(double)jMatx->Integral();

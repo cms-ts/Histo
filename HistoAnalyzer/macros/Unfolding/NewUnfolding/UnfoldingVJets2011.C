@@ -51,7 +51,7 @@ using std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=false;  
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
@@ -60,14 +60,13 @@ bool doUnfold=true; //if false, it does not perform unfolding
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_51.root"; //V45 was the default one
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_shep_2011Mu_v2_37.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011Mu_v2_52.root";
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
 bool activateXSSuperseding=true;
 double XSMuon[4]={63.9222,13.1122,2.54786,0.449393};
-double XSElectron[4]={63.6393,13.1239,2.52467,0.493846};
-
+double XSElectron[4]={63.8565,13.0961,2.54407,0.448831};
 
 //For gen Jet
 double threshPt=30;
@@ -86,21 +85,20 @@ bool pythiaCheck=false;
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
 
 //SAVE histos to be used afterward
-bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"a";
+string filename=direct+"OfficialUnfoldingARC_V3";
 //string filename=direct+"TestFabioFinalUsingOurEff";
-
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
 bool muscleFitCorrection=false; //For muons
 
 //MC reweighting Correction
-bool correctForMCReweighting=false;
+bool correctForMCReweighting=true;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
-bool differentialCrossSection=false;
+bool differentialCrossSection=true;
 
 // Correct for backgrounds: 
 bool correctForBkg=true;
@@ -159,7 +157,7 @@ std::vector<double> getBackgroundContributions(string filebkg, string str); // r
 void UnfoldingVJets2011::Loop()
 {
   //smcpythia=smc;
-  //mc=smcpythia;
+  //smc=smcpythia;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
@@ -192,8 +190,8 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=1;
-  string whichtype="Multiplicity";
+  int numbOfJetsForLoop=2;
+  string whichtype="Pt";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 }
