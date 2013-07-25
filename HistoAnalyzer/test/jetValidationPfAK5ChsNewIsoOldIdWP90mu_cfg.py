@@ -1259,7 +1259,7 @@ process.trgmatchSingleMuons = cms.EDProducer("trgMatchedMuonProducer",
 process.out.fileName = cms.untracked.string('test-filtering.root')
 
 process.out.outputCommands =  cms.untracked.vstring(
-    'keep *',
+    'keep *_*_*_PAT',
     )
 
 process.out.outputCommands.extend(['keep *'

@@ -1119,7 +1119,7 @@ process.JetValidationMU = cms.Path(
 #     #process.validationJECMuXSScaleUp*
 #     #process.validationJECMuXSScaleDown*
     process.validationJECmu
-#    )
+    )
 
 
 

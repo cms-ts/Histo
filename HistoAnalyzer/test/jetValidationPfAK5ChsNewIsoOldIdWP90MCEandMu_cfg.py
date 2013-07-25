@@ -1048,7 +1048,7 @@ process.ak5GenJetsMuNoGammaCone = process.ak5GenJetsENoGammaCone.clone(src = "ge
 
 process.out.fileName = cms.untracked.string('test-filtering.root')
 process.out.outputCommands =  cms.untracked.vstring(
-    'drop *',
+    'keep *',
     )
 process.out.outputCommands.extend([#'keep *_offlinePrimaryVertices*_*_*',
                                    #'keep *_pat*METs*_*_*',
@@ -1058,7 +1058,7 @@ process.out.outputCommands.extend([#'keep *_offlinePrimaryVertices*_*_*',
                                    #'keep *_*_*_PAT',
                                    #'keep *_zmumurec*_*_*',
                                    #'keep *_selectedMuons_*_*'
-                                   'keep *_*elPFIsoValue*03PFIso*_*_*'
+                                   'keep *_*_*_*'
                                    ])
 process.out.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('ToolInizialization'))
 

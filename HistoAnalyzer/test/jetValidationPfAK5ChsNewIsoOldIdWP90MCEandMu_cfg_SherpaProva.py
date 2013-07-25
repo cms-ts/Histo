@@ -258,7 +258,7 @@ process.ak5PFchsJetsPUL1FastL2L3 = process.ak5PFJetsL1FastL2L3.clone(src = 'ak5P
 ##                       ##
 ###########################
 
-process.validationJEC = cms.EDAnalyzer('jetValidation',
+process.validationJEC = cms.EDAnalyzer('jetValidationUnfolding',
                                        electronCollection = cms.InputTag("particleFlow:electrons"),
                                        jetCollection = cms.InputTag("ak5PFchsJetsRCL1FastL2L3"),
                                        VertexCollection = cms.InputTag("offlinePrimaryVertices"),
