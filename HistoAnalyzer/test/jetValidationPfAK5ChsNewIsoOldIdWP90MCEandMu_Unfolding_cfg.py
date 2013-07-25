@@ -66,8 +66,8 @@ process.GlobalTag.globaltag = 'MC_44_V5D::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
 #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
-#    "file:/gpfs/grid/srm/cms/store/data/Fall11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S6-START44_V5-v1/0001/B48B1A68-460A-E111-88DF-485B39800BAB.root"
-"file:/gpfs/cms/users/cossutti/Generators/zjets_studies/rivet-debug/step3.root"
+    "file:/gpfs/grid/srm/cms/store/data/Fall11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S6-START44_V5-v1/0001/B48B1A68-460A-E111-88DF-485B39800BAB.root"
+#"file:/gpfs/cms/users/cossutti/Generators/zjets_studies/rivet-debug/step3.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -282,7 +282,11 @@ process.validationJEC = cms.EDAnalyzer('jetValidationUnfolding',
                                        RootuplaName = cms.string("treeValidationJEC_") ,
                                        WeightNameSherpa = cms.string('EventWeightSherpa'),
                                        applyMCWeightsSherpa = cms.untracked.bool(False),
-                                       isElectron= cms.untracked.bool(True)   
+                                       isElectron= cms.untracked.bool(True),
+                                       EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                       EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                       MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                       MuGammaGenEta = cms.string('MuGammaGenEta')
                                        )
 
 process.validationOldJEC = process.validationJEC.clone(
