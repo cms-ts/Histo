@@ -415,7 +415,17 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 					  TH1D* datahisto_muo,
 					  TH1D* datahisto_combi,
 					  string variablesName, string version) {
-  
+
+  double tmpBDJEC;
+  double tmpBDUnf;
+  double tmpBDPU ;
+  double tmpBDBkg;
+
+  tmpBDJEC = (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+  tmpBDUnf = (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+  tmpBDPU  = (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
+  tmpBDBkg = (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));  
+
   ofstream textfile;
   string tablepath = "/gpfs/cms/users/schizzi/Systematics/tables/systematics_"+variablesName+version+".tex";
   textfile.open(tablepath.c_str(), ios_base::trunc);
@@ -448,6 +458,36 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
     textfile.precision(3);
     textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
     textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
+    textfile.precision(2);
+    textfile << jetEff[i]*100. << "\t&\t";
+    textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+  }
+  textfile << "\\hline" << endl
+           << "\\end{tabular}" << endl
+           << "\\caption{" << variablesName << "}" << endl
+           << "\\label{tab:papersystematicsbreakdowntab}" << endl
+	   << "\\end{center}" << endl
+           << "\\end{sidewaystable}" << endl;
+
+  // TABLE for the paper with breakdown of combined systs:
+  textfile << "\\begin{sidewaystable}[htbH]" << endl
+	   << "\\begin{center}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
+           << "\\hline" << endl 
+    	   << "\\multicolumn{1}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{1}{|c|}{Stat. Unc. (\\%)} \t&\t \\multicolumn{6}{|c|}{Syst. Unc. (\\%)}  \t\\\\" << endl
+           << "\\hline" << endl; 
+
+  textfile << "Comb. Ele/Mu \t&\t Comb. Ele/Mu \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Total \t\\\\" << endl
+	   << "\\hline" << endl; 
+
+  for (Int_t i=0; i<jetSyst.size(); i++) {
+    textfile.precision(3);
+    textfile << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
+    textfile <<  jetStat[i]*100.  << "\t&\t" ;
     textfile.precision(2);
     textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
   	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t&\t";
