@@ -57,16 +57,21 @@ bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_51.root"; //V45 was the default one
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_57_3.root"; //V45 was the default one
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
-string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011Mu_v2_52.root";
+string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011Mu_v2_58.root";
+
+bool unfoldWithSherpa=false;
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
 bool activateXSSuperseding=true;
-double XSMuon[4]={63.9222,13.1122,2.54786,0.449393};
-double XSElectron[4]={63.8565,13.0961,2.54407,0.448831};
+//double XSMuon[4]={63.9222,13.1122,2.54786,0.449393};
+double XSMuon[4]={63.081,13.228,2.500,0.475};                    //<============= V57
+//double XSElectron[4]={63.8565,13.0961,2.54407,0.448831};
+double XSElectron[4]={62.80,13.201,2.504,0.485};        //<============= V57
+//double XSElectron[4]={63.0157,13.1628,2.49954,0.483541};
 
 //For gen Jet
 double threshPt=30;
@@ -81,13 +86,15 @@ bool identityCheck=false;    //to perform identity check
 bool splitCheck=false;
 bool pythiaCheck=false;
 
+bool extraTests=false; //to perform several cross checks
+
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
 
 //SAVE histos to be used afterward
 bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"OfficialUnfoldingARC_V3";
+string filename=direct+"UnfoldingOfficialV57_3ApprovedNoToyErrorErrorNoProtectionaaa";
 //string filename=direct+"TestFabioFinalUsingOurEff";
 
 // Efficiency corrections
@@ -98,7 +105,7 @@ bool muscleFitCorrection=false; //For muons
 bool correctForMCReweighting=true;
 
 // Evaluate the diff cross section (by dividing the bins by # Z >= 1 or higher)
-bool differentialCrossSection=true;
+bool differentialCrossSection=false;
 
 // Correct for backgrounds: 
 bool correctForBkg=true;
@@ -113,7 +120,7 @@ string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string bkgstring=dir+"Backgrounds_v2_33.root";
 
 // MC limited stat effect
-bool MClimitedStatEffect=true;
+bool MClimitedStatEffect=false;
 
 //File with efficiency coefficients
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28_approval.root";//+version;
@@ -131,6 +138,7 @@ TFile *fBeff;
 
 //Save info about MC stat error
 bool MCstatError=false;
+int numbOfVerticesForSeparation=8;
 
 /* Number of jet associated to a Z distribution */
 //-------------------------
@@ -148,7 +156,7 @@ std::vector<std::vector<double> > kcontainer;
 TH1D *PRatio;
 
 string supplabel="";
-double jetPt=0.0;
+//double jetPt=0.0;
 
 //Set the Matrixes size!
 
@@ -156,13 +164,18 @@ std::vector<double> getBackgroundContributions(string filebkg, string str); // r
 
 void UnfoldingVJets2011::Loop()
 {
-  //smcpythia=smc;
-  //smc=smcpythia;
+  //smc=smcpythia; //Closure for Sherpa
+  //smcpythia=smc; //Closure for MD
+  if (unfoldWithSherpa && !pythiaCheck) smc=smcpythia;
+  if (pythiaCheck){
+    //Swap MCs
+    string pippo=smcpythia;
+    smcpythia=smc;
+    smc=pippo;
+  }
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/Mu/";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
-    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate.root";
     bkgstring=dir+"BackgroundsMu_v2_33.root";
     filename=filename+"Mu.root";//+version;
@@ -190,14 +203,27 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=2;
-  string whichtype="Pt";
+  int numbOfJetsForLoop=1;
+  string whichtype="Multiplicity";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
+
+  fA->Close();
+  fB->Close();
+  if (pythiaCheck) fPythia->Close();
+  eff->Close();
+  fAeff->Close();
+  fBeff->Close();
 }
 
 void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets,bool isMuon)
 {
+  if (unfoldWithSherpa && !pythiaCheck) smc=smcpythia;
+  if (pythiaCheck){
+    string pippo=smcpythia;
+    smcpythia=smc;
+    smc=pippo;
+  }
   //  smcpythia=smc;
   isMu=isMuon;
   if (isMu) {
@@ -232,10 +258,23 @@ void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets,bool is
 
   setTDRStyle();
   LoopVJets(numbJets,type, algo);
+
+  fA->Close();
+  fB->Close();
+  //fPythia->Close();
+  eff->Close();
+  fAeff->Close();
+  fBeff->Close();
 }
 
 void UnfoldingVJets2011::LoopOneFour(bool isMuon)
 {
+  if (unfoldWithSherpa && !pythiaCheck) smc=smcpythia;
+  if (pythiaCheck){
+    string pippo=smcpythia;
+    smcpythia=smc;
+    smc=pippo;
+  }
   isMu=isMuon;
   if (isMu) {
     s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New/Mu/";
@@ -288,11 +327,19 @@ void UnfoldingVJets2011::LoopOneFour(bool isMuon)
   LoopVJets(2,"Eta", whichalgo);
   LoopVJets(3,"Eta", whichalgo);
   LoopVJets(4,"Eta", whichalgo);
+
+  fA->Close();
+  fB->Close();
+  fPythia->Close();
+  eff->Close();
+  fAeff->Close();
+  fBeff->Close();
 }
 
 
 //Include the functions.. Make order, please!
-#include "LoopVJetsNew4.h"
+//#include "LoopVJetsNew4Sherpa.h"
+#include "LoopVJetsNew5.h"
 
 #ifndef __CINT__
 
@@ -307,12 +354,12 @@ main ()
 // Return the Background Contribution
 ///////////
 
-std::vector<double> getBackgroundContributions(string filename, string str){
+std::vector<double> getBackgroundContributions(string filenamestring, string str){
   std::vector<double> value;
-  TFile *f =  TFile::Open(filename.c_str());
+  TFile *f =  TFile::Open(filenamestring.c_str());
   f->cd();
-  TDirectory *dir=gDirectory;
-  TList *mylist=(TList*)dir->GetListOfKeys();
+  TDirectory *dir2=gDirectory;
+  TList *mylist=(TList*)dir2->GetListOfKeys();
   TIter iter(mylist); 
   TObject* tobj = 0;
 
