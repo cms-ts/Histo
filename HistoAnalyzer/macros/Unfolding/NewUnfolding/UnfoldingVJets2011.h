@@ -73,15 +73,32 @@ public :
    Double_t        l2_eta_gen;
    Double_t        l1_pt_gen;
    Double_t        l2_pt_gen;
-   Int_t           genZInAcceptance;
-   Int_t           recoZInAcceptance;
+   Bool_t           genZInAcceptance;
+   Bool_t           recoZInAcceptance;
    int    e1_charge;
    TLorentzVector e1_tlv;
    int    e2_charge;
    TLorentzVector e2_tlv;
    int Run;
-   std::vector<double> deltaRRecoGenJet;
+   vector<double> deltaRRecoGenJet;
 
+   Double_t        jet1_pt_gen_abs;
+   Double_t        jet2_pt_gen_abs;
+   Double_t        jet3_pt_gen_abs;
+   Double_t        jet4_pt_gen_abs;
+   Double_t        jet5_pt_gen_abs;
+   Double_t        jet6_pt_gen_abs;
+   Double_t        jet7_pt_gen_abs;
+
+   Double_t        jet1_eta_gen_abs;
+   Double_t        jet2_eta_gen_abs;
+   Double_t        jet3_eta_gen_abs;
+   Double_t        jet4_eta_gen_abs;
+   Double_t        jet5_eta_gen_abs;
+   Double_t        jet6_eta_gen_abs;
+   Double_t        jet7_eta_gen_abs;
+
+   int numberOfVertices;
 
    // List of branches
    TBranch        *b_evWeight;   //!
@@ -138,6 +155,24 @@ public :
    TBranch        *b_e2_tlv;
    TBranch        *b_Run;
    TBranch        *b_deltaRRecoGenJet;
+
+   TBranch        *b_jet1_pt_gen_abs;
+   TBranch        *b_jet2_pt_gen_abs;
+   TBranch        *b_jet3_pt_gen_abs;
+   TBranch        *b_jet4_pt_gen_abs;
+   TBranch        *b_jet5_pt_gen_abs;
+   TBranch        *b_jet6_pt_gen_abs;
+   TBranch        *b_jet7_pt_gen_abs;
+
+   TBranch        *b_jet1_eta_gen_abs;
+   TBranch        *b_jet2_eta_gen_abs;
+   TBranch        *b_jet3_eta_gen_abs;
+   TBranch        *b_jet4_eta_gen_abs;
+   TBranch        *b_jet5_eta_gen_abs;
+   TBranch        *b_jet6_eta_gen_abs;
+   TBranch        *b_jet7_eta_gen_abs;
+
+   TBranch        *b_numberOfVertices;
 
    UnfoldingVJets2011(TTree *tree=0);
    virtual ~UnfoldingVJets2011();
@@ -272,6 +307,24 @@ void UnfoldingVJets2011::Init(TTree *tree)
    fChain->SetBranchAddress("recoZInAcceptance", &recoZInAcceptance, &b_recoZInAcceptance);
    fChain->SetBranchAddress("deltaRRecoGenJet",&deltaRRecoGenJet,&b_deltaRRecoGenJet);
    fChain->SetBranchAddress("Run", &Run);
+
+   fChain->SetBranchAddress("numberOfVertices", &numberOfVertices);
+
+   fChain->SetBranchAddress("jet1_pt_gen_abs", &jet1_pt_gen_abs, &b_jet1_pt_gen_abs);
+   fChain->SetBranchAddress("jet2_pt_gen_abs", &jet2_pt_gen_abs, &b_jet2_pt_gen_abs);
+   fChain->SetBranchAddress("jet3_pt_gen_abs", &jet3_pt_gen_abs, &b_jet3_pt_gen_abs);
+   fChain->SetBranchAddress("jet4_pt_gen_abs", &jet4_pt_gen_abs, &b_jet4_pt_gen_abs);
+   fChain->SetBranchAddress("jet5_pt_gen_abs", &jet5_pt_gen_abs, &b_jet5_pt_gen_abs);
+   fChain->SetBranchAddress("jet6_pt_gen_abs", &jet6_pt_gen_abs, &b_jet6_pt_gen_abs);
+   fChain->SetBranchAddress("jet7_pt_gen_abs", &jet7_pt_gen_abs, &b_jet7_pt_gen_abs);
+
+   fChain->SetBranchAddress("jet1_eta_gen_abs", &jet1_eta_gen_abs, &b_jet1_eta_gen_abs);
+   fChain->SetBranchAddress("jet2_eta_gen_abs", &jet2_eta_gen_abs, &b_jet2_eta_gen_abs);
+   fChain->SetBranchAddress("jet3_eta_gen_abs", &jet3_eta_gen_abs, &b_jet3_eta_gen_abs);
+   fChain->SetBranchAddress("jet4_eta_gen_abs", &jet4_eta_gen_abs, &b_jet4_eta_gen_abs);
+   fChain->SetBranchAddress("jet5_eta_gen_abs", &jet5_eta_gen_abs, &b_jet5_eta_gen_abs);
+   fChain->SetBranchAddress("jet6_eta_gen_abs", &jet6_eta_gen_abs, &b_jet6_eta_gen_abs);
+   fChain->SetBranchAddress("jet7_eta_gen_abs", &jet7_eta_gen_abs, &b_jet7_eta_gen_abs);
 
    Notify();
 }
