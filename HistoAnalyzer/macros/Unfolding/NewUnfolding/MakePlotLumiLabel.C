@@ -1,5 +1,5 @@
 TLatex* CMSPrel(Float_t Lumi,TString _decaychannel){
-  
+  Lumi=4.890;  
   TLatex *latexLabel = new TLatex();
   latexLabel->SetTextSize(0.0275);
   latexLabel->SetTextFont(42);
@@ -15,11 +15,11 @@ TLatex* CMSPrel(Float_t Lumi,TString _decaychannel){
   latexLabel->DrawLatex(0.25,0.08,_decaychannel);
 
 
-  //return latexLabel;
+  return latexLabel;
 }
 
 TLatex* CMSPrel(Float_t Lumi,TString _decaychannel,double x, double y){
-
+  Lumi=4.890;  
   TLatex *latexLabel = new TLatex();
   latexLabel->SetTextSize(0.0275);
   latexLabel->SetTextFont(42);
@@ -34,5 +34,5 @@ TLatex* CMSPrel(Float_t Lumi,TString _decaychannel,double x, double y){
   latexLabel->DrawLatex(x,y-0.12,_decaychannel);
 
 
-  //return latexLabel;
+  return latexLabel;
 }

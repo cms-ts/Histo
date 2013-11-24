@@ -79,7 +79,7 @@ void correctForBackground(int numbOfJetsSelected, string whichtype, TH1D* jData,
     if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJetMultiMu.txt");
   }
 
-  for (unsigned int k=0; k<divPlot; k++){
+  for (int k=0; k<divPlot; k++){
     cout<<bckcoeff[k]<<endl;
       jData->SetBinContent(k+1, jData->GetBinContent(k+1) - bckcoeff[k]);
       jData->SetBinError(k+1, sqrt(pow(jData->GetBinError(k+1),2) + pow(sqrt(bckcoeff[k]),2)) );  //Set also the error
