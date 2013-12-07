@@ -21,9 +21,9 @@
 
 #include <string.h>
 
-#include "lumi_scale_factors.h"
+//#include "lumi_scale_factors.h"
 //#include "lumi_scale_factors_scaleUp.h"
-//#include "lumi_scale_factors_scaleDown.h"
+#include "lumi_scale_factors_scaleDown.h"
 #include "Unfolding/MakePlotLumiLabel.C"
 
 bool isAngularAnalysis= true;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
@@ -33,19 +33,19 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-string version="_v2_25.root";  // which version you wonna analize
-string versionPath="_v2_25";
+string version="Mu_v2_33.root";  // which version you wonna analize
+string versionPath="Mu_v2_33";
 
 //string plotpath		="plotData"+versionPath+"/";
-string plotpath		="prova/";
+string plotpath		="/tmp/schizzi/";
 string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+version; 
 string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+version;
-string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011"+version; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
-string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
-string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd38bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
+string qcd817bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_BCtoE_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 string qcd23em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 string qcd38em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-30to80_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 string qcd817em		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-80to170_Enriched_v1_10.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
@@ -88,7 +88,7 @@ std::vector<double> bckg_JetMultiplicity;
 TCanvas * CanvPlot;
 bool cold=true;
 TFile* OutputFile;
-string outfilename=plotpath+"ratioPlotBgScale"+version;
+string outfilename=plotpath+"ratioPlotBgScaleDOWN"+version;
 
 using namespace std;
 
@@ -143,7 +143,7 @@ void DrawComparisonXSecSyst(void){
   }
 
   TFile *mcf = TFile::Open(mcfile.c_str()); //MC file
-  mcf->cd("validationJEC/");
+  mcf->cd("validationJECmu/");
   TDirectory *dir=gDirectory;
   TList *mylist=(TList*)dir->GetListOfKeys();
   TIter iter(mylist);	
@@ -183,7 +183,7 @@ void DrawComparisonXSecSyst(void){
       gPad->SetLogy(1);
 	
       //---- weights
-      mcf->cd("validationJEC");
+      mcf->cd("validationJECmu");
       TH1F* mc;
       gDirectory->GetObject(name.c_str(),mc);
       if(mc){
@@ -197,7 +197,7 @@ void DrawComparisonXSecSyst(void){
       }
 
       //---- weights
-      ttbarf->cd("validationJEC");
+      ttbarf->cd("validationJECmu");
       TH1F* ttbar;
       gDirectory->GetObject(name.c_str(),ttbar);
 	
@@ -211,7 +211,7 @@ void DrawComparisonXSecSyst(void){
       }
 
       //---- weights
-      wf->cd("validationJEC");
+      wf->cd("validationJECmu");
       TH1F* w;
       gDirectory->GetObject(name.c_str(),w);
       if(w){
@@ -224,7 +224,7 @@ void DrawComparisonXSecSyst(void){
       }
 
       //---- weights
-      wzf->cd("validationJEC");
+      wzf->cd("validationJECmu");
       TH1F* wz;
       gDirectory->GetObject(name.c_str(),wz);
       if(wz){
@@ -237,7 +237,7 @@ void DrawComparisonXSecSyst(void){
       }	
 
       //---- weights
-      zzf->cd("validationJEC");
+      zzf->cd("validationJECmu");
       TH1F* zz;
       gDirectory->GetObject(name.c_str(),zz);
       if(zz){
@@ -250,7 +250,7 @@ void DrawComparisonXSecSyst(void){
       }
 
       //---- weights
-      wwf->cd("validationJEC");
+      wwf->cd("validationJECmu");
       TH1F* www;
       gDirectory->GetObject(name.c_str(),www);
       if(www){
@@ -344,7 +344,7 @@ void comparisonJetMCData(string plot,int rebin){
   CanvPlot = new TCanvas("CanvPlot","CanvPlot",0,0,800,600);
 
   // Getting, defining ...
-  dataf->cd("validationJEC");
+  dataf->cd("validationJECmu");
 	
   TObject * obj;
   gDirectory->GetObject(plot.c_str(),obj);
@@ -434,7 +434,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //======================
     // Z + jets signal
-    mcf->cd("validationJEC");
+    mcf->cd("validationJECmu");
     TH1F* mc;
     gDirectory->GetObject(plot.c_str(),mc);
     TH1F * hsum;
@@ -482,7 +482,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //======================
     // ttbar
-    ttbarf->cd("validationJEC");
+    ttbarf->cd("validationJECmu");
     TH1F* ttbar;
     gDirectory->GetObject(plot.c_str(),ttbar);
 	
@@ -534,7 +534,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //======================
     // w+jets
-    wf->cd("validationJEC");
+    wf->cd("validationJECmu");
     TH1F* w;
     gDirectory->GetObject(plot.c_str(),w);
     if(w){
@@ -575,7 +575,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //======================
     // wz+jets
-    WZf->cd("validationJEC");
+    WZf->cd("validationJECmu");
     TH1F* wz;
     gDirectory->GetObject(plot.c_str(),wz);
     if(wz){
@@ -628,7 +628,7 @@ void comparisonJetMCData(string plot,int rebin){
 		
     //======================
     // zz+jets
-    ZZf->cd("validationJEC");
+    ZZf->cd("validationJECmu");
     TH1F* zz;
     gDirectory->GetObject(plot.c_str(),zz);
     if(zz){
@@ -678,7 +678,7 @@ void comparisonJetMCData(string plot,int rebin){
     
     //======================
     // ww+jets
-    WWf->cd("validationJEC");
+    WWf->cd("validationJECmu");
     TH1F* ww;
     gDirectory->GetObject(plot.c_str(),ww);
     if(ww){
@@ -737,7 +737,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //======================
     // QCD EM enriched
-    qcd23emf->cd("validationJEC");
+    qcd23emf->cd("validationJECmu");
     TH1F* qcd23emp;
     gDirectory->GetObject(plot.c_str(),qcd23emp);
 
@@ -748,12 +748,12 @@ void comparisonJetMCData(string plot,int rebin){
       qcdTotEM->Reset();
       qcdTotEM->Rebin(rebin);
 
-      qcd38emf->cd("validationJEC");
+      qcd38emf->cd("validationJECmu");
       TH1F* qcd38emp;
       gDirectory->GetObject(plot.c_str(),qcd38emp);
 
 
-      qcd817emf->cd("validationJEC");
+      qcd817emf->cd("validationJECmu");
       TH1F* qcd817emp;
       gDirectory->GetObject(plot.c_str(),qcd817emp);
 
@@ -779,7 +779,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //======================
     // QCD bc
-    qcd23bcf->cd("validationJEC");
+    qcd23bcf->cd("validationJECmu");
     TH1F* qcd23bcp;
     TH1D * qcdTotBC;
     bool  qcdbcempty=true;
@@ -792,11 +792,11 @@ void comparisonJetMCData(string plot,int rebin){
       qcdTotBC->Reset();
       qcdTotBC->Rebin(rebin);
 
-      qcd38bcf->cd("validationJEC");
+      qcd38bcf->cd("validationJECmu");
       TH1F* qcd38bcp;
       gDirectory->GetObject(plot.c_str(),qcd38bcp);
 
-      qcd817bcf->cd("validationJEC");
+      qcd817bcf->cd("validationJECmu");
       TH1F* qcd817bcp;
       gDirectory->GetObject(plot.c_str(),qcd817bcp);
 
@@ -959,7 +959,7 @@ void comparisonJetMCData(string plot,int rebin){
     //CanvPlot.cd(1);
 
     // data
-    dataf->cd("validationJEC");
+    dataf->cd("validationJECmu");
     gDirectory->GetObject(plot.c_str(),data2);
     data2->Draw("COLZ");
 
@@ -976,7 +976,7 @@ void comparisonJetMCData(string plot,int rebin){
 
     //CanvPlot.cd(2);
     // montecarlo
-    mcf->cd("validationJEC");
+    mcf->cd("validationJECmu");
     gDirectory->GetObject(plot.c_str(),data2);
 
     data2->SetMinimum(1);
@@ -1056,7 +1056,7 @@ void evaluateAndFillBackgrounds(TH1* histo, string str){
 	
       }
     }
-      }
+  }
   if(str=="jet_pT2"){
     if (bckg_2leadingJetPt.size()==0){
       for(int j=0;j<histo->GetNbinsX();j++){
@@ -1074,13 +1074,13 @@ void evaluateAndFillBackgrounds(TH1* histo, string str){
     if (bckg_3leadingJetPt.size()==0){
       for(int j=0;j<histo->GetNbinsX();j++){
 	bckg_3leadingJetPt.push_back(histo->GetBinContent(j+1));
-	  }
+      }
     }
     else {
-	  for(int j=0;j<histo->GetNbinsX();j++){
-	    bckg_3leadingJetPt[j]+=histo->GetBinContent(j+1);
+      for(int j=0;j<histo->GetNbinsX();j++){
+	bckg_3leadingJetPt[j]+=histo->GetBinContent(j+1);
 	    
-	  }
+      }
     }
   }
   if(str=="jet_pT4"){
@@ -1091,7 +1091,7 @@ void evaluateAndFillBackgrounds(TH1* histo, string str){
     }
     else {
       for(int j=0;j<histo->GetNbinsX();j++){
-	    bckg_4leadingJetPt[j]+=histo->GetBinContent(j+1);
+	bckg_4leadingJetPt[j]+=histo->GetBinContent(j+1);
 	    
       }
     }

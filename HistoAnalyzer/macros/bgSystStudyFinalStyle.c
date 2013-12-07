@@ -1,5 +1,5 @@
-#include "tdrStyle.C"
-#include "plotsHistsAndRatioXSec.C"
+//#include "tdrStyle.C"
+//#include "plotsHistsAndRatioXSec.C"
 
 #include <iomanip>
 #include <cmath>
@@ -52,9 +52,9 @@ void bgSystStudyFinalStyle(void) {
 /* 	gStyle->SetLabelColor(1); */
       //gStyle->SetPadRightMargin(0.15);
 	
-   gROOT->LoadMacro("plotsHistsAndRatioXSec.C");
-   gROOT->LoadMacro("tdrStyle.C");
-   tdrStyle();
+  //   gROOT->LoadMacro("plotsHistsAndRatioXSec.C");
+  //lotsh   gROOT->LoadMacro("tdrStyle.C");
+  //   tdrStyle();
    //setTDRStyle();
    using std::cout;
    using std::endl;
@@ -63,12 +63,12 @@ void bgSystStudyFinalStyle(void) {
    
 //_______aprire un file root_________________________________
    
-   string version="_v2_28";
-   string plotpath="plotSigmaRatio"+version+"/";
-   string plotpathTxt="/gpfs/cms/data/2011/Uncertainties/"; 
-   string namefile1="../macros/plotXSecUP"+version+"/ratioPlotBgScaleUp"+version+".root";
-   string namefile2="../macros/plotXSecDOWN"+version+"/ratioPlotBgScaleDown"+version+".root";
-   string namefile3="../macros/plotData"+version+"/ratioPlotBgScale"+version+".root";
+   string version="Mu_v2_33";
+   string plotpath="/tmp/schizzi/";
+   //   string plotpathTxt="/gpfs/cms/data/2011/Uncertainties/"; 
+   string namefile1="/tmp/schizzi/ratioPlotBgScaleUP"+version+".root";
+   string namefile2="/tmp/schizzi/ratioPlotBgScaleDOWN"+version+".root";
+   string namefile3="/tmp/schizzi/ratioPlotBgScale"+version+".root";
    TFile *fdata1 = TFile::Open(namefile1.c_str());
    TFile *fdata2 = TFile::Open(namefile2.c_str());
    TFile *fdata3 = TFile::Open(namefile3.c_str());
@@ -120,32 +120,32 @@ void bgSystStudyFinalStyle(void) {
 	 ratio->SetMarkerStyle(20);
 	 ratio->SetMarkerColor(kBlack);  
 	 
-	 // Canvas
-	 if (CanvPlot) delete CanvPlot;
-	 CanvPlot = new TCanvas("CanvPlot","CanvPlot",0,0,1000,700);
-	 CanvPlot->cd();
-	 
-	 if(temp.Contains("nJetVtx")) scaleDown->GetXaxis()->SetRangeUser(0,10);	
-	 if(temp.Contains("zMass")) scaleDown->GetXaxis()->SetRangeUser(70,110);
-	 
+//	 // Canvas
+//	 if (CanvPlot) delete CanvPlot;
+//	 CanvPlot = new TCanvas("CanvPlot","CanvPlot",0,0,1000,700);
+//	 CanvPlot->cd();
+//	 
+//	 if(temp.Contains("nJetVtx")) scaleDown->GetXaxis()->SetRangeUser(0,10);	
+//	 if(temp.Contains("zMass")) scaleDown->GetXaxis()->SetRangeUser(70,110);
+//	 
 	 size_t pos;
 	 pos = plot.find("Ratio");
 	 string plotSave = plot.substr(0,pos);
-
-	 string title="XSec systematics";
-	 plotHistsAndRatio(scaleDown,scaleUp,ratio,title.c_str(),plotSave.c_str()," data/MC"); 
-	 TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
-	 legend_1->SetFillColor (0);
-	 legend_1->SetFillStyle (0);
-	 legend_1->SetBorderSize (0);
-	 legend_1->SetTextFont(62);
-	 legend_1->AddEntry (ratio, "Original Distribution", "L");
-	 legend_1->AddEntry (scaleUp, "Scale Up", "L");
-	 legend_1->AddEntry (scaleDown, "Scale Down", "L");
-	 legend_1->Draw ("same");
-	 
-	 tmp=plotpath+"bkgSyst_"+plotSave+".pdf";
-	 c1->Print(tmp.c_str());
+//
+//	 string title="XSec systematics";
+//	 plotHistsAndRatio(scaleDown,scaleUp,ratio,title.c_str(),plotSave.c_str()," data/MC"); 
+//	 TLegend *legend_1 = new TLegend (0.54, 0.63, 0.75, 0.86);
+//	 legend_1->SetFillColor (0);
+//	 legend_1->SetFillStyle (0);
+//	 legend_1->SetBorderSize (0);
+//	 legend_1->SetTextFont(62);
+//	 legend_1->AddEntry (ratio, "Original Distribution", "L");
+//	 legend_1->AddEntry (scaleUp, "Scale Up", "L");
+//	 legend_1->AddEntry (scaleDown, "Scale Down", "L");
+//	 legend_1->Draw ("same");
+//	 
+//	 tmp=plotpath+"bkgSyst_"+plotSave+".pdf";
+//	 c1->Print(tmp.c_str());
 	 
 	 std::vector<double> systs;
 	 for (int i=1; i<=ratio->GetNbinsX(); i++){
@@ -170,6 +170,7 @@ void bgSystStudyFinalStyle(void) {
 	 for (int i=0;i<systs.size();i++){
 	    syste<<systs[i]<<endl;
 	 }
+	 syste.close();
 	 //cout <<"written plot "<< tmp <<endl;
 	 
 	 //OutputFile->cd();

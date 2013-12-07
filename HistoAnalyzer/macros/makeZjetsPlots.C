@@ -42,13 +42,17 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   int lepton=whichlepton; //1 -> electron,  2-> muon , 3 -> combined reults!
   bool addLumiUncertainties=true; double lumiError=0.025;
   bool incMultiplicity = inclusiveMultiplicity;
+  bool etaFolded = true;
 
   int use_case = whichobservable;
   int whichjet = whichjet;
   string version = "_v2_32";
-  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
-  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
-  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
+  string s                = "/afs/infn.it/ts/user/schizzi/html/tmp/ele/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/tmp/muo/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/tmp/combined/";
+//  string s                = "/afs/infn.it/ts/user/schizzi/html/tmp/ele/";
+//  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/tmp/muo/";
+//  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/tmp/combined/";
 
   string plotpath           = "/gpfs/cms/users/schizzi/Systematics/ele/";
   if (lepton == 2) plotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
@@ -59,9 +63,12 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3.root";
-  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3Mu.root";
-  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3Combined.root";
+//  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3ApprovedNoToyErrorErrorNoProtection.root";
+//  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3ApprovedNoToyErrorErrorNoProtectionMu.root";
+//  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3ApprovedNoToyErrorErrorNoProtectionCombined.root";
+  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApproval.root";
+  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApprovalMu.root";
+  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApprovalCombined.root";
 
   //RIVET:
   string rivetPathSherpa           ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/central/out.root";
@@ -292,6 +299,23 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	    leading->SetBinContent(dd,inclusiveYield);
 	  }
 	}
+
+	// CIUSKI in order to fold ETA distributions
+	if (etaFolded && use_case==3) {
+	  double wmean, wsigma;
+	  for (int mdm=(leading->GetNbinsX()/2)+1; mdm<=leading->GetNbinsX(); mdm++) {
+	    //	    wmean =   (leading->GetBinContent(mdm)/(leading->GetBinError(mdm)*leading->GetBinError(mdm)) 
+	    //		       + leading->GetBinContent(leading->GetNbinsX()-mdm+1)/(leading->GetBinError(leading->GetNbinsX()-mdm+1)*leading->GetBinError(leading->GetNbinsX()-mdm+1))) 
+	    //	      / (1./(leading->GetBinError(mdm)*leading->GetBinError(mdm)) 
+	    //		 + 1./(leading->GetBinError(leading->GetNbinsX()-mdm+1)*leading->GetBinError(leading->GetNbinsX()-mdm+1)));
+	    wmean =   leading->GetBinContent(mdm) + leading->GetBinContent(leading->GetNbinsX()-mdm+1);
+	    wsigma = sqrt((leading->GetBinError(mdm)*leading->GetBinError(mdm)) 
+			     + (leading->GetBinError(leading->GetNbinsX()-mdm+1)*leading->GetBinError(leading->GetNbinsX()-mdm+1)));
+	    leading->SetBinContent(mdm,wmean);
+	    leading->SetBinError(mdm,wsigma);
+	  }
+	}
+
 	TH1D *leadingSystematics;
 	leadingSystematics = (TH1D *) leading->Clone ("leading");
 
@@ -332,6 +356,17 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	      {
 		TGraphAsymmErrors *leadingRivetSherpa;
 		gDirectory->GetObject (nameRivetSherpa.c_str (), leadingRivetSherpa);
+		if (etaFolded && use_case==3) {
+		  double xx1temp, xx2temp, yy1temp, yy2temp;
+		  for (int mdm=leadingRivetSherpa->GetN()/2; mdm<leadingRivetSherpa->GetN(); mdm++) {
+		    leadingRivetSherpa->GetPoint(mdm,xx1temp,yy1temp);
+		    leadingRivetSherpa->GetPoint(leadingRivetSherpa->GetN()-mdm-1,xx2temp,yy2temp);
+		    cout << "TEST: " << leadingRivetSherpa->GetN() << " " << mdm << ", old eta: " << yy1temp << ", old eta neg: " << yy2temp << ", new eta: "  << yy1temp + yy2temp << endl;
+		    leadingRivetSherpa->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		    leadingRivetSherpa->SetPointEYhigh(mdm,sqrt(pow(leadingRivetSherpa->GetErrorYhigh(mdm),2) + pow(leadingRivetSherpa->GetErrorYhigh(leadingRivetSherpa->GetN()-mdm-1),2)));
+		    leadingRivetSherpa->SetPointEYlow(mdm,sqrt(pow(leadingRivetSherpa->GetErrorYlow(mdm),2) + pow(leadingRivetSherpa->GetErrorYlow(leadingRivetSherpa->GetN()-mdm-1),2)));
+		  }
+		}
 		TGraphAsymmErrors *leadingRivetSherpaStat;
 		leadingRivetSherpaStat = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
 		TGraphAsymmErrors *leadingRatioSherpaStat;
@@ -483,6 +518,16 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	      {
 		TGraphAsymmErrors *leadingRivetPowheg;
 		gDirectory->GetObject (nameRivetPowheg.c_str (), leadingRivetPowheg);
+		if (etaFolded && use_case==3) {
+		  double xx1temp, xx2temp, yy1temp, yy2temp;
+		  for (int mdm=leadingRivetPowheg->GetN()/2; mdm<leadingRivetPowheg->GetN(); mdm++) {
+		    leadingRivetPowheg->GetPoint(mdm,xx1temp,yy1temp);
+		    leadingRivetPowheg->GetPoint(leadingRivetPowheg->GetN()-mdm-1,xx2temp,yy2temp);
+		    leadingRivetPowheg->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		    leadingRivetPowheg->SetPointEYhigh(mdm,sqrt(pow(leadingRivetPowheg->GetErrorYhigh(mdm),2) + pow(leadingRivetPowheg->GetErrorYhigh(leadingRivetPowheg->GetN()-mdm-1),2)));
+		    leadingRivetPowheg->SetPointEYlow(mdm,sqrt(pow(leadingRivetPowheg->GetErrorYlow(mdm),2) + pow(leadingRivetPowheg->GetErrorYlow(leadingRivetPowheg->GetN()-mdm-1),2)));
+		  }
+		}
 		TGraphAsymmErrors *leadingRivetPowhegStat;
 		leadingRivetPowhegStat = (TGraphAsymmErrors *) leadingRivetPowheg->Clone ("");
 		TGraphAsymmErrors *leadingRatioPowhegStat;
@@ -585,6 +630,18 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 		  leadingRivetMadGraph->SetPointEYhigh(n,leadingRivetMadGraph_TH1->GetBinError(n+1));
 		  leadingRivetMadGraph->SetPointEYlow(n,leadingRivetMadGraph_TH1->GetBinError(n+1));
 		}
+		if (etaFolded && use_case==3) {
+		  double xx1temp, xx2temp, yy1temp, yy2temp;
+		  for (int mdm=leadingRivetMadGraph->GetN()/2; mdm<leadingRivetMadGraph->GetN(); mdm++) {
+		    leadingRivetMadGraph->GetPoint(mdm,xx1temp,yy1temp);
+		    leadingRivetMadGraph->GetPoint(leadingRivetMadGraph->GetN()-mdm-1,xx2temp,yy2temp);
+		    leadingRivetMadGraph->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		    leadingRivetMadGraph->SetPointEYhigh(mdm,sqrt(pow(leadingRivetMadGraph->GetErrorYhigh(mdm),2) + pow(leadingRivetMadGraph->GetErrorYhigh(leadingRivetMadGraph->GetN()-mdm-1),2)));
+		    leadingRivetMadGraph->SetPointEYlow(mdm,sqrt(pow(leadingRivetMadGraph->GetErrorYlow(mdm),2) + pow(leadingRivetMadGraph->GetErrorYlow(leadingRivetMadGraph->GetN()-mdm-1),2)));
+
+		  }
+		}
+
 		TGraphAsymmErrors *leadingRatioMadGraph;
 		leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
 	      }
@@ -599,8 +656,19 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	if (!incMultiplicity){
 	  for (int i = 0; i < leadingSystematics->GetNbinsX (); i++)
 	    {
-	      double err = sqrt (pow (leading->GetBinError (i + 1), 2) + pow (systTmpM[i] * leadingSystematics->GetBinContent (i + 1), 2));
-	      leadingSystematics->SetBinError (i + 1, err);
+	      double err, wmeanstat;
+	      if (etaFolded && use_case==3) { // MEGA CIUSKI per Eta FOLDED
+		for (int mdm=(leading->GetNbinsX()/2)+1; mdm<=leading->GetNbinsX(); mdm++) {
+		  wmeanstat =   (systTmpM[mdm-1]*leading->GetBinContent(mdm) 
+			     + systTmpM[leading->GetNbinsX()-mdm]*leading->GetBinContent(leading->GetNbinsX()-mdm+1)) 
+		    / (leading->GetBinContent(mdm) + leading->GetBinContent(leading->GetNbinsX()-mdm+1));
+		  err = sqrt (pow (leading->GetBinError(mdm), 2) + pow (wmeanstat*leadingSystematics->GetBinContent(mdm), 2));
+		  leadingSystematics->SetBinError(mdm,err);
+		}
+	      } else {
+		err = sqrt (pow (leading->GetBinError (i + 1), 2) + pow (systTmpM[i] * leadingSystematics->GetBinContent (i + 1), 2));
+		leadingSystematics->SetBinError (i + 1, err);
+	      }
 	    }
 	} else {
 	  for (int i = 0; i < leadingSystematics->GetNbinsX (); i++)
@@ -702,7 +770,8 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dH_{T}");
 	  }
 	}
-	  
+
+	if (etaFolded && use_case==3) leadingSystematics->GetXaxis()->SetRange((leadingSystematics->GetNbinsX()/2)+1,leadingSystematics->GetNbinsX());  
 	leadingSystematics->Draw ("E2");
 	if (use_case ==1) leadingSystematics->GetXaxis()->SetNdivisions(110);
 	leading->SetFillColor (kBlack);
@@ -1322,17 +1391,17 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
 	TLatex *latexLabel;
 
-	if (use_case ==3){
-	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ee channel", 0.20, 0.87);
-	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow #mu#mu channel", 0.20, 0.87);
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ll channel", 0.20, 0.87);
-	}
+	//	if (use_case ==3){
+	//	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ee channel", 0.20, 0.87);
+	//	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow #mu#mu channel", 0.20, 0.87);
+	//	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ll channel", 0.20, 0.87);
+	//	}
 
-	if (use_case ==2 || use_case ==1 || use_case == 4){
-	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ee channel", 0.20, 0.21);
-	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow #mu#mu channel", 0.20, 0.21);
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ll channel", 0.20, 0.21);
-	}
+	//	if (use_case ==2 || use_case ==1 || use_case == 4){
+	if (lepton ==1) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ee channel", 0.20, 0.21);
+	if (lepton ==2) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow #mu#mu channel", 0.20, 0.21);
+	if (lepton ==3) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ll channel", 0.20, 0.21);
+	//	}
 
 	leadingSystematics->SetMarkerColor(kBlack);
 	leadingSystematics->SetMarkerSize(0.8);

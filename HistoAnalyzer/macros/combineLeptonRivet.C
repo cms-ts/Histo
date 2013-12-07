@@ -22,33 +22,66 @@ public:
 Int_t combineLeptonRivet::letscombine () {
 
   // electron datasets:
-  //  string eleRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
-  string eleRivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
   string eleRivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup2/out.root";
   string eleRivetPathSherpaDOWN   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown2/out.root";
   string eleRivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw/out.root";
   string eleRivetPathSherpaPDF2   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn/out.root";
+  //  string eleRivetPathSherpa2NLO           ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa2NLO           ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/central/out.root";
+  string eleRivetPathSherpa2NLOFRdown     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/FRdown/out.root";
+  string eleRivetPathSherpa2NLOFRup       ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/FRup/out.root";
+  string eleRivetPathSherpa2NLOQcutdown   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qcutdown_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa2NLOQcutup     ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qcutup_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa2NLOQdown      ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qdown_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa2NLOQup        ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qup_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa2NLOmstw       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01MSTW2008_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa2NLOnnpdf      ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01NNPDF_7TeV_sherpa/out.root";
   string eleRivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   string eleRivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
   string eleRivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   string eleRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root"; 
   string eleRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
   string eleRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
+  string eleRivetPathPowhegMINLO           ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/10-10/out.root";
+  string eleRivetPathPowhegMINLO_05_10     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/05-10/out.root";
+  string eleRivetPathPowhegMINLO_20_10     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/20-10/out.root";
+  string eleRivetPathPowhegMINLO_10_05     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/10-05/out.root";
+  string eleRivetPathPowhegMINLO_10_20     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/10-20/out.root";
+  string eleRivetPathPowhegMINLO_UP        ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/05-05/out.root";
+  string eleRivetPathPowhegMINLO_DOWN      ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/20-20/out.root";
 
   // muon datasets:
-  //  string muoRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
-  string muoRivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
   string muoRivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup_mu/out.root";
   string muoRivetPathSherpaDOWN   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown_mu/out.root";
   string muoRivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw_mu/out.root";
   string muoRivetPathSherpaPDF2   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfnn_mu/out.root";
+  //  string muoRivetPathSherpa2NLO           ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa2NLO           ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/central/out.root";
+  string muoRivetPathSherpa2NLOFRdown     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/FRdown/out.root";
+  string muoRivetPathSherpa2NLOFRup       ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/Sherpa2b2/FRup/out.root";
+  string muoRivetPathSherpa2NLOQcutdown   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qcutdown_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa2NLOQcutup     ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qcutup_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa2NLOQdown      ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qdown_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa2NLOQup        ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01Qup_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa2NLOmstw       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01MSTW2008_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa2NLOnnpdf      ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01NNPDF_7TeV_sherpa/out.root";
   string muoRivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   string muoRivetPathMadGraphDOWN ="/gpfs/cms/users/candelis/Rivet/madgraph/scaledown/DYtotal.root";
   string muoRivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   string muoRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
   string muoRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
   string muoRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
+  string muoRivetPathPowhegMINLO           ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/10-10/out.root";
+  string muoRivetPathPowhegMINLO_05_10     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/05-10/out.root";
+  string muoRivetPathPowhegMINLO_20_10     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/20-10/out.root";
+  string muoRivetPathPowhegMINLO_10_05     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/10-05/out.root";
+  string muoRivetPathPowhegMINLO_10_20     ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/10-20/out.root";
+  string muoRivetPathPowhegMINLO_UP        ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/05-05/out.root";
+  string muoRivetPathPowhegMINLO_DOWN      ="/gpfs/cms/users/schizzi/rivet/CMSSW_5_3_11/work/20-20/out.root";
 
+//  //MADGRAPH
 //  for (Int_t i=1;i<15;i++) {
 //    mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root");
 //  }
@@ -64,12 +97,10 @@ Int_t combineLeptonRivet::letscombine () {
 //  for (Int_t i=1;i<15;i++) {
 //    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root");
 //  }
+//  //SHERPA
 //  for (Int_t i=1;i<15;i++) {
 //    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root");
 //  }
-  for (Int_t i=1;i<15;i++) { // new sherpa from Fabio
-    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root");
-  }
 //  for (Int_t i=1;i<15;i++) {
 //    mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root");
 //  }
@@ -82,9 +113,59 @@ Int_t combineLeptonRivet::letscombine () {
 //  for (Int_t i=1;i<15;i++) {
 //    mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root");
 //  }
+//  //SHERPA2
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLO, muoRivetPathSherpa2NLO, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_central.root");
+//  }
+  for (Int_t i=1;i<15;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOFRdown, muoRivetPathSherpa2NLOFRdown, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_FRdown.root");
+  }
+  for (Int_t i=1;i<15;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOFRup, muoRivetPathSherpa2NLOFRup, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_FRup.root");
+  }
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOQcutdown, muoRivetPathSherpa2NLOQcutdown, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_Qcutdown.root");
+//  }
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOQcutup, muoRivetPathSherpa2NLOQcutup, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_Qcutup.root");
+//  }
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOQdown, muoRivetPathSherpa2NLOQdown, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_Qdown.root");
+//  }
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOQup, muoRivetPathSherpa2NLOQup, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_Qup.root");
+//  }
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOmstw, muoRivetPathSherpa2NLOmstw, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_mstw.root");
+//  }
+//  for (Int_t i=1;i<15;i++) {
+//    mergewhateveruwant (false, i, eleRivetPathSherpa2NLOnnpdf, muoRivetPathSherpa2NLOnnpdf, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa2NLO_nnpdf.root");
+//  }
+//  //POWHEG
 //  for (Int_t i=1;i<15;i++) {
 //    mergewhateveruwant (false, i, eleRivetPathPowheg, muoRivetPathPowheg, "/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root");
 //  }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO, muoRivetPathPowhegMINLO, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_central.root");
+//    }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO_05_10, muoRivetPathPowhegMINLO_05_10, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_05-10.root");
+//    }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO_20_10, muoRivetPathPowhegMINLO_20_10, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_20-10.root");
+//    }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO_10_05, muoRivetPathPowhegMINLO_10_05, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_10-05.root");
+//    }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO_10_20, muoRivetPathPowhegMINLO_10_20, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_10-20.root");
+//    }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO_UP, muoRivetPathPowhegMINLO_UP, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_UP.root");
+//    }
+//    for (Int_t i=1;i<15;i++) {
+//      mergewhateveruwant (false, i, eleRivetPathPowhegMINLO_DOWN, muoRivetPathPowhegMINLO_DOWN, "/gpfs/cms/users/schizzi/rivet/combination/PowhegMINLO_DOWN.root");
+//    }
 
   return 0;
 }
@@ -226,19 +307,17 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
     for (Int_t i=1; i<(nbins_ele+1);i++) {
       dummyYvarEle = elehisto->GetBinContent(i);
       dummyYvarMuo = muohisto->GetBinContent(i);
-      //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
-      wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
+      wmean = dummyYvarEle + dummyYvarMuo;
       combinehisto->SetBinContent(i,wmean);
-      combinehisto->SetBinError(i,sqrt(pow(elehisto->GetBinError(i),2)+pow(muohisto->GetBinError(i),2))); // Errori alla "Gesu bambino che caca nutella"
+      combinehisto->SetBinError(i,sqrt(pow(elehisto->GetBinError(i),2)+pow(muohisto->GetBinError(i),2)));
     }
   } else {
     for (Int_t i=0; i<nbins_ele;i++) {
       eletgraph->GetPoint(i,dummyXvar,dummyYvarEle);
       muotgraph->GetPoint(i,dummyXvar,dummyYvarMuo);
-      //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
-      wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
+      wmean = dummyYvarEle + dummyYvarMuo;
       combinetgraph->SetPoint(i,dummyXvar,wmean);
-      combinetgraph->SetPointEYhigh(i,sqrt(pow(eletgraph->GetErrorYhigh(i),2)+pow(muotgraph->GetErrorYhigh(i),2))); // Errori alla "Gesu bambino che caca nutella"
+      combinetgraph->SetPointEYhigh(i,sqrt(pow(eletgraph->GetErrorYhigh(i),2)+pow(muotgraph->GetErrorYhigh(i),2)));
       combinetgraph->SetPointEYlow(i,sqrt(pow(eletgraph->GetErrorYlow(i),2)+pow(muotgraph->GetErrorYlow(i),2)));
     }
   }

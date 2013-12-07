@@ -11,7 +11,7 @@
 
 class combineLeptonSystematics {
 public:
-  int letscombine ();
+  int letscombine (int);
   int printLatex (std::vector<double>, std::vector<double>, std::vector<double>, 
 		  std::vector<double>, std::vector<double>, std::vector<double>, 
 		  std::vector<double>, std::vector<double>, std::vector<double>, 
@@ -23,9 +23,10 @@ public:
   std::vector<double> systOneCent(string);
   std::vector<double> systUnfArea(int, string, string);
   TH1D* getDataHisto(int, string);
+  std::vector<string> getBinColumn(string,bool);
 };
 
-int combineLeptonSystematics::letscombine () {
+int combineLeptonSystematics::letscombine (int leptonSP) {
    
   string version="_v2_32";
   string plotpath="/gpfs/cms/users/schizzi/Systematics/";
@@ -50,6 +51,8 @@ int combineLeptonSystematics::letscombine () {
   string muoEff;
   string eleJEC;
   string muoJEC;
+  string eleJER;
+  string muoJER;
   string eleUnf;
   string muoUnf;
   string eleGen;
@@ -75,9 +78,9 @@ int combineLeptonSystematics::letscombine () {
 
   for (int var=0; var<variablesName.size(); var++){
 
-    //    output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
-    //    output=plotpath+"ele/"+variablesName[var]+"FinalSyst"+version+".txt";
-    output=plotpath+"muo/"+variablesName[var]+"FinalSyst"+version+".txt";
+    output=plotpath+"ele/"+variablesName[var]+"FinalSyst"+version+".txt";
+    if (leptonSP == 2) output=plotpath+"muo/"+variablesName[var]+"FinalSyst"+version+".txt";
+    if (leptonSP == 3) output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
     cout << "-------------------------" << endl;
     cout << "Writing " << output  << " ..."<< endl;
 
@@ -87,6 +90,8 @@ int combineLeptonSystematics::letscombine () {
     muoEff = plotpath+"muo/systematicsEff_"+variablesName[var]+version+".txt";
     eleJEC = plotpath+"ele/systematicsJEC_"+variablesName[var]+version+".txt";
     muoJEC = plotpath+"muo/systematicsJEC_"+variablesName[var]+version+".txt";
+    eleJER = plotpath+"ele/systematicsJER_"+variablesName[var]+version+".txt";
+    muoJER = plotpath+"muo/systematicsJER_"+variablesName[var]+version+".txt";
     eleUnf = plotpath+"ele/systematicsUnfMethod_"+variablesName[var]+version+".txt";
     muoUnf = plotpath+"muo/systematicsUnfMethod_"+variablesName[var]+version+".txt";
     eleGen = plotpath+"ele/systematicsUnfGen_"+variablesName[var]+version+".txt";
@@ -96,9 +101,9 @@ int combineLeptonSystematics::letscombine () {
     eleBkg = plotpath+"ele/BkgCrossSection_"+variablesName[var]+version+".txt";
     muoBkg = plotpath+"muo/BkgCrossSection_"+variablesName[var]+version+".txt";
 
-    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARC.root");
-    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCMu.root");
-    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root");
+    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApproval.root");
+    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApprovalMu.root");
+    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApprovalCombined.root");
 
     datahisto_ele->Sumw2();
     datahisto_muo->Sumw2();
@@ -113,6 +118,8 @@ int combineLeptonSystematics::letscombine () {
     std::vector<double> jetMuoEff = combineLeptonSystematics::systOne(muoEff);
     std::vector<double> jetEleJEC = combineLeptonSystematics::systOne(eleJEC);
     std::vector<double> jetMuoJEC = combineLeptonSystematics::systOne(muoJEC);
+    std::vector<double> jetEleJER = combineLeptonSystematics::systOne(eleJER);
+    std::vector<double> jetMuoJER = combineLeptonSystematics::systOne(muoJER);
     std::vector<double> jetEleUnf = combineLeptonSystematics::systOne(eleUnf);
     std::vector<double> jetMuoUnf = combineLeptonSystematics::systOne(muoUnf);
     std::vector<double> jetEleGen = combineLeptonSystematics::systOne(eleGen);
@@ -121,6 +128,12 @@ int combineLeptonSystematics::letscombine () {
     std::vector<double> jetMuoPU  = combineLeptonSystematics::systOne(muoPU); 
     std::vector<double> jetEleBkg = combineLeptonSystematics::systOne(eleBkg);
     std::vector<double> jetMuoBkg = combineLeptonSystematics::systOne(muoBkg);
+
+    // Correct JEC with JER!!
+    for (Int_t nelcul=0;nelcul<jetEleJEC.size();nelcul++) {
+      jetEleJEC[nelcul] = sqrt(jetEleJEC[nelcul]*jetEleJEC[nelcul] + jetEleJER[nelcul]*jetEleJER[nelcul]);
+      jetMuoJEC[nelcul] = sqrt(jetMuoJEC[nelcul]*jetMuoJEC[nelcul] + jetMuoJER[nelcul]*jetMuoJER[nelcul]);
+    }
 
     std::vector<double> jetEff;
     jetEff.clear();
@@ -135,8 +148,10 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[nel] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[nel]*jetEleUnfArea[nel]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[nel]*jetMuoUnfArea[nel]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[nel]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[nel]);
+	//	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[nel]);
+	//	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[nel]);
+	jetEleUnf[nel] = jetEleGen[nel];
+	jetMuoUnf[nel] = jetMuoGen[nel];
       }
     }
     if (variablesName[var] == "jet1Pt" || variablesName[var] == "jet1Ht" || variablesName[var] == "jet1Eta") {
@@ -144,8 +159,10 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[0] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[0]*jetEleUnfArea[0]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[0]*jetMuoUnfArea[0]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[0]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[0]);
+	//	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[0]);
+	//	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[0]);
+	jetEleUnf[nel] = jetEleGen[nel];
+	jetMuoUnf[nel] = jetMuoGen[nel];
       }
     }
     if (variablesName[var] == "jet2Pt" || variablesName[var] == "jet2Ht" || variablesName[var] == "jet2Eta") {
@@ -153,8 +170,10 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[1] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[1]*jetEleUnfArea[1]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[1]*jetMuoUnfArea[1]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[1]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[1]);
+	//	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[1]);
+	//	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[1]);
+	jetEleUnf[nel] = jetEleGen[nel];
+	jetMuoUnf[nel] = jetMuoGen[nel];
       }
     }
     if (variablesName[var] == "jet3Pt" || variablesName[var] == "jet3Ht" || variablesName[var] == "jet3Eta") {
@@ -162,8 +181,10 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[2] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[2]*jetEleUnfArea[2]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[2]*jetMuoUnfArea[2]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[2]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[2]);
+	//	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[2]);
+	//	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[2]);
+	jetEleUnf[nel] = jetEleGen[nel];
+	jetMuoUnf[nel] = jetMuoGen[nel];
       }
     }
     if (variablesName[var] == "jet4Pt" || variablesName[var] == "jet4Ht" || variablesName[var] == "jet4Eta") {
@@ -171,8 +192,10 @@ int combineLeptonSystematics::letscombine () {
 	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[3] << endl;
 	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[3]*jetEleUnfArea[3]);
 	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[3]*jetMuoUnfArea[3]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[3]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[3]);
+	//	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[3]);
+	//	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[3]);
+	jetEleUnf[nel] = jetEleGen[nel];
+	jetMuoUnf[nel] = jetMuoGen[nel];
       }
     }
 
@@ -207,6 +230,7 @@ int combineLeptonSystematics::letscombine () {
     std::vector<double> jetEleS = combineLeptonSystematics::systPar(jetEleEff,jetEleJEC,jetEleUnf,jetElePU,jetEleBkg);   
     std::vector<double> jetMuoS = combineLeptonSystematics::systPar(jetMuoEff,jetMuoJEC,jetMuoUnf,jetMuoPU,jetMuoBkg);   
 
+    cout << "Number of bins: " << jetSyst.size() << " " << jetEleS.size() << " " << jetMuoS.size() << endl;
     if ((jetSyst.size() != jetEleS.size()) || (jetSyst.size() != jetMuoS.size())) 
       cout << "Muon, electron and combined histos have different binnings!!! That may be a problem..."  << jetSyst.size() << "  " << jetEleS.size() << "  " << jetMuoS.size() << endl;
 
@@ -215,15 +239,12 @@ int combineLeptonSystematics::letscombine () {
     // Write Systematics combination to file!!
     ofstream syste;
     syste.open(output.c_str());
-//    for (int i=0;i<jetSyst.size();i++){
-//      syste<<jetSyst[i]<<endl;
-//    }
-    //  for (int i=0;i<jetEleS.size();i++){
-    //    syste<<jetEleS[i]<<endl;
-    //  }
-        for (int i=0;i<jetMuoS.size();i++){
-          syste<<jetMuoS[i]<<endl;
-        }
+    //    if ((jetSyst.size()!=jetMuoS.size()) || (jetSyst.size()!=jetEleS.size()))
+    for (int i=0;i<jetSyst.size();i++){
+      if (leptonSP==1) syste<<jetEleS[i]<<endl;
+      if (leptonSP==2) syste<<jetMuoS[i]<<endl;
+      if (leptonSP==3) syste<<jetSyst[i]<<endl;
+    }
     syste.close();
 
     string varnameforlatex = variablesName[var];
@@ -277,9 +298,10 @@ std::vector<double> combineLeptonSystematics::systUnfArea(int isEleOrMuo, string
       if (isEleOrMuo == 1) UnfArea = plotpath+"ele/systematicsUnfArea_"+variablesUnfArea[m]+version+".txt";
       if (isEleOrMuo == 2) UnfArea = plotpath+"muo/systematicsUnfArea_"+variablesUnfArea[m]+version+".txt";
       inUnfArea.open (UnfArea.c_str());
-      inUnfArea >> centralValue >> rms;
+      //      inUnfArea >> centralValue >> rms;
+      inUnfArea >> rms;
       inUnfArea.close ();
-      jetUnfArea.push_back(fabs(rms/centralValue));
+      jetUnfArea.push_back(fabs(rms));
       //      cout << "UnfArea Syst for "<< variablesUnfArea[m] << " " << rms/centralValue << endl;
     }
 
@@ -296,7 +318,6 @@ std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEle
   double tmpPU;
   double tmpBkg;
   double tmpSyst;
-
 
   for (Int_t i=0;i<jetEleUnf.size();i++) {
 
@@ -416,16 +437,8 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 					  TH1D* datahisto_combi,
 					  string variablesName, string version) {
 
-  double tmpBDJEC;
-  double tmpBDUnf;
-  double tmpBDPU ;
-  double tmpBDBkg;
-
-  tmpBDJEC = (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-  tmpBDUnf = (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-  tmpBDPU  = (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-  tmpBDBkg = (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));  
-
+  std::vector<string> column = combineLeptonSystematics::getBinColumn(variablesName, false);
+  if (column.size() != jetSyst.size()) cout << "WRONG vector of BINS size: " << column.size() << " vs " << jetSyst.size() << endl;
   ofstream textfile;
   string tablepath = "/gpfs/cms/users/schizzi/Systematics/tables/systematics_"+variablesName+version+".tex";
   textfile.open(tablepath.c_str(), ios_base::trunc);
@@ -446,24 +459,23 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
   // FINAL TABLE:
   textfile << "\\begin{sidewaystable}[htbH]" << endl
 	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
            << "\\hline" << endl 
-    	   << "\\multicolumn{3}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Data Uncertainties (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Electron Systematics (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Global Syst. (\\%)} \t\\\\" << endl
+    	   << "\\multicolumn{4}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Stat. Uncertainties (\\%)} \t&\t \\multicolumn{5}{|c|}{Electron Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Tot. Syst. (\\%)} \t\\\\" << endl
            << "\\hline" << endl; 
 
-  textfile << "Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Comb. \t\\\\" << endl
+  textfile << "Bin \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Comb. \t\\\\" << endl
 	   << "\\hline" << endl; 
 
   for (Int_t i=0; i<jetSyst.size(); i++) {
+    textfile << column[i] << "\t&\t" ;
+    textfile.unsetf(ios_base::floatfield);
     textfile.precision(3);
     textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile.precision(2);
-    textfile << jetEff[i]*100. << "\t&\t";
-    textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile.precision(1);
+    textfile << std::fixed << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
+    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
+  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t&\t";
     textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
   }
   textfile << "\\hline" << endl
@@ -478,19 +490,24 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 	   << "\\begin{center}" << endl
            << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
            << "\\hline" << endl 
-    	   << "\\multicolumn{1}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{1}{|c|}{Stat. Unc. (\\%)} \t&\t \\multicolumn{6}{|c|}{Syst. Unc. (\\%)}  \t\\\\" << endl
+    	   << "\\multicolumn{2}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{1}{|c|}{Stat. Unc. (\\%)} \t&\t \\multicolumn{6}{|c|}{Syst. Unc. (\\%)}  \t\\\\" << endl
            << "\\hline" << endl; 
 
-  textfile << "Comb. Ele/Mu \t&\t Comb. Ele/Mu \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Total \t\\\\" << endl
+  textfile << "Bins \t&\t Comb. Ele/Mu \t&\t Comb. Ele/Mu \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Total \t\\\\" << endl
 	   << "\\hline" << endl; 
 
   for (Int_t i=0; i<jetSyst.size(); i++) {
+    textfile << column[i] << "\t&\t" ;
+    textfile.unsetf(ios_base::floatfield);
     textfile.precision(3);
     textfile << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile.precision(2);
-    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
-  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t&\t";
+    textfile.precision(1);
+    textfile << std::fixed <<  jetStat[i]*100.  << "\t&\t" ;
+    textfile << jetEff[i]*100. << "\t&\t";
+    textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+    textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
     textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
   }
   textfile << "\\hline" << endl
@@ -501,53 +518,53 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
            << "\\end{sidewaystable}" << endl;
 
 
-  // SYSTEMATICS ONLY:
-  textfile << "\\begin{table}[htbH]" << endl
-	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}" << endl
-           << "\\hline" << endl 
-    	   << "\\multicolumn{5}{|c|}{Electron Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)} \t\\\\" << endl
-           << "\\hline" << endl; 
-
-  textfile << "Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t\\\\" << endl
-	   << "\\hline" << endl; 
-
-  for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile.precision(2);
-    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
-  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t\\\\" << endl;
-  }
-  textfile << "\\hline" << endl
-           << "\\end{tabular}" << endl
-           << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:systematicstab" << variablesName << "}" << endl
-	   << "\\end{center}" << endl
-           << "\\end{table}" << endl;
-
-  // XSECTIONS ONLY:
-  textfile << "\\begin{table}[htbH]" << endl
-	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|}" << endl
-           << "\\hline" << endl 
-    	   << "\\multicolumn{3}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Data Uncertainties (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Global Syst. (\\%)} \t\\\\" << endl
-           << "\\hline" << endl; 
-
-  textfile << "Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Comb. \t\\\\" << endl
-	   << "\\hline" << endl; 
-
-  for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile.precision(3);
-    textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile.precision(2);
-    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
-  }
-  textfile << "\\hline" << endl
-           << "\\end{tabular}" << endl
-           << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:finalxsectab" << variablesName << "}" << endl
-	   << "\\end{center}" << endl
-           << "\\end{table}" << endl;
+//  // SYSTEMATICS ONLY:
+//  textfile << "\\begin{table}[htbH]" << endl
+//	   << "\\begin{center}" << endl
+//           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}" << endl
+//           << "\\hline" << endl 
+//    	   << "\\multicolumn{5}{|c|}{Electron Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)} \t\\\\" << endl
+//           << "\\hline" << endl; 
+//
+//  textfile << "Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t\\\\" << endl
+//	   << "\\hline" << endl; 
+//
+//  for (Int_t i=0; i<jetSyst.size(); i++) {
+//    textfile.precision(2);
+//    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
+//  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t\\\\" << endl;
+//  }
+//  textfile << "\\hline" << endl
+//           << "\\end{tabular}" << endl
+//           << "\\caption{" << variablesName << "}" << endl
+//           << "\\label{tab:systematicstab" << variablesName << "}" << endl
+//	   << "\\end{center}" << endl
+//           << "\\end{table}" << endl;
+//
+//  // XSECTIONS ONLY:
+//  textfile << "\\begin{table}[htbH]" << endl
+//	   << "\\begin{center}" << endl
+//           << "\\begin{tabular}{|c|c|c|c|c|c|c|}" << endl
+//           << "\\hline" << endl 
+//    	   << "\\multicolumn{3}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Stat. Uncertainties (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Global Syst. (\\%)} \t\\\\" << endl
+//           << "\\hline" << endl; 
+//
+//  textfile << "Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Comb. \t\\\\" << endl
+//	   << "\\hline" << endl; 
+//
+//  for (Int_t i=0; i<jetSyst.size(); i++) {
+//    textfile.precision(3);
+//    textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
+//    textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
+//    textfile.precision(2);
+//    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+//  }
+//  textfile << "\\hline" << endl
+//           << "\\end{tabular}" << endl
+//           << "\\caption{" << variablesName << "}" << endl
+//           << "\\label{tab:finalxsectab" << variablesName << "}" << endl
+//	   << "\\end{center}" << endl
+//           << "\\end{table}" << endl;
 
   textfile << "\\end{document}" << endl;
 
@@ -593,4 +610,228 @@ TH1D* combineLeptonSystematics::getDataHisto (int whichHisto, string datapath) {
   }
 
   return histo;
+}
+
+std::vector<string> combineLeptonSystematics::getBinColumn(string observable, bool incMulti) {
+  std::vector<string> outputColumn;
+  outputColumn.clear();
+  if ((observable == "jetMult") && !incMulti){
+    outputColumn.push_back("Z + 1j");
+    outputColumn.push_back("Z + 2j");
+    outputColumn.push_back("Z + 3j");
+    outputColumn.push_back("Z + 4j");
+    outputColumn.push_back("Z + 5j");
+    outputColumn.push_back("Z + 6j");
+  }
+  if (observable == "jetMult" && incMulti){
+    outputColumn.push_back("Z + $geq$ 1j");
+    outputColumn.push_back("Z + $geq$ 2j");
+    outputColumn.push_back("Z + $geq$ 3j");
+    outputColumn.push_back("Z + $geq$ 4j");
+    outputColumn.push_back("Z + $geq$ 5j");
+    outputColumn.push_back("Z + $geq$ 6j");
+  }
+
+  if (observable == "jet1Pt"){
+    outputColumn.push_back("30-50");
+    outputColumn.push_back("50-70");
+    outputColumn.push_back("70-90");
+    outputColumn.push_back("90-110");
+    outputColumn.push_back("110-130");
+    outputColumn.push_back("130-150");
+    outputColumn.push_back("150-170");
+    outputColumn.push_back("170-190");
+    outputColumn.push_back("190-210");
+    outputColumn.push_back("210-230");
+    outputColumn.push_back("230-250");
+    outputColumn.push_back("250-270");
+    outputColumn.push_back("270-290");
+    outputColumn.push_back("290-310");
+    outputColumn.push_back("310-330");
+    outputColumn.push_back("330-350");
+    outputColumn.push_back("350-370");
+    outputColumn.push_back("370-390");
+  }
+  if (observable == "jet2Pt"){
+    outputColumn.push_back("30-50");
+    outputColumn.push_back("50-70");
+    outputColumn.push_back("70-90");
+    outputColumn.push_back("90-110");
+    outputColumn.push_back("110-130");
+    outputColumn.push_back("130-150");
+    outputColumn.push_back("150-170");
+    outputColumn.push_back("170-190");
+    outputColumn.push_back("190-210");
+    outputColumn.push_back("210-230");
+    outputColumn.push_back("230-250");
+    outputColumn.push_back("250-270");
+    outputColumn.push_back("270-290");
+    outputColumn.push_back("290-310");
+    outputColumn.push_back("310-330");
+  }
+  if (observable == "jet3Pt"){
+    outputColumn.push_back("30-50");
+    outputColumn.push_back("50-70");
+    outputColumn.push_back("70-90");
+    outputColumn.push_back("90-110");
+    outputColumn.push_back("110-130");
+    outputColumn.push_back("130-150");
+    outputColumn.push_back("150-170");
+    outputColumn.push_back("170-190");
+  }
+  if (observable == "jet4Pt"){
+    outputColumn.push_back("30-50");
+    outputColumn.push_back("50-70");
+    outputColumn.push_back("70-90");
+    outputColumn.push_back("90-110");
+    outputColumn.push_back("110-130");
+  }
+
+  if (observable == "jet1Ht"){
+    outputColumn.push_back("30-70");
+    outputColumn.push_back("70-110");
+    outputColumn.push_back("110-150");
+    outputColumn.push_back("150-190");
+    outputColumn.push_back("190-230");
+    outputColumn.push_back("230-270");
+    outputColumn.push_back("270-310");
+    outputColumn.push_back("310-350");
+    outputColumn.push_back("350-390");
+    outputColumn.push_back("390-430");
+    outputColumn.push_back("430-470");
+    outputColumn.push_back("470-510");
+    outputColumn.push_back("510-550");
+    outputColumn.push_back("550-590");
+    outputColumn.push_back("590-630");
+    outputColumn.push_back("630-670");
+    outputColumn.push_back("670-710");
+  }
+  if (observable == "jet2Ht"){
+    outputColumn.push_back("60-110");
+    outputColumn.push_back("110-160");
+    outputColumn.push_back("160-210");
+    outputColumn.push_back("210-260");
+    outputColumn.push_back("260-310");
+    outputColumn.push_back("310-360");
+    outputColumn.push_back("360-410");
+    outputColumn.push_back("410-460");
+    outputColumn.push_back("460-510");
+    outputColumn.push_back("510-560");
+    outputColumn.push_back("560-610");
+    outputColumn.push_back("610-660");
+    outputColumn.push_back("660-710");
+  }
+  if (observable == "jet3Ht"){
+    outputColumn.push_back("90-140");
+    outputColumn.push_back("140-190");
+    outputColumn.push_back("190-240");
+    outputColumn.push_back("240-290");
+    outputColumn.push_back("290-340");
+    outputColumn.push_back("340-390");
+    outputColumn.push_back("390-440");
+    outputColumn.push_back("440-490");
+    outputColumn.push_back("490-540");
+    outputColumn.push_back("540-590");
+    outputColumn.push_back("590-640");
+    outputColumn.push_back("640-690");
+    outputColumn.push_back("690-740");
+    outputColumn.push_back("740-790");
+  }
+  if (observable == "jet4Ht"){
+    outputColumn.push_back("120-180");
+    outputColumn.push_back("180-240");
+    outputColumn.push_back("240-300");
+    outputColumn.push_back("300-360");
+    outputColumn.push_back("360-420");
+    outputColumn.push_back("420-480");
+    outputColumn.push_back("480-540");
+    outputColumn.push_back("540-600");
+    outputColumn.push_back("600-660");
+    outputColumn.push_back("660-720");
+  }
+
+  if (observable == "jet1Eta"){
+    outputColumn.push_back("-2.4$geqeta<$-2.2");
+    outputColumn.push_back("-2.2$geqeta<$-2.0");
+    outputColumn.push_back("-2.0$geqeta<$-1.8");
+    outputColumn.push_back("-1.8$geqeta<$-1.6");
+    outputColumn.push_back("-1.6$geqeta<$-1.4");
+    outputColumn.push_back("-1.4$geqeta<$-1.2");
+    outputColumn.push_back("-1.2$geqeta<$-1.0");
+    outputColumn.push_back("-1.0$geqeta<$-0.8");
+    outputColumn.push_back("-0.8$geqeta<$-0.6");
+    outputColumn.push_back("-0.6$geqeta<$-0.4");
+    outputColumn.push_back("-0.4$geqeta<$-0.2");
+    outputColumn.push_back("-0.2$geqeta<$0.0");
+    outputColumn.push_back("0.0$geqeta<$0.2");
+    outputColumn.push_back("0.2$geqeta<$0.4");
+    outputColumn.push_back("0.4$geqeta<$0.6");
+    outputColumn.push_back("0.6$geqeta<$0.8");
+    outputColumn.push_back("0.8$geqeta<$1.0");
+    outputColumn.push_back("1.0$geqeta<$1.2");
+    outputColumn.push_back("1.2$geqeta<$1.4");
+    outputColumn.push_back("1.4$geqeta<$1.6");
+    outputColumn.push_back("1.6$geqeta<$1.8");
+    outputColumn.push_back("1.8$geqeta<$2.0");
+    outputColumn.push_back("2.0$geqeta<$2.2");
+    outputColumn.push_back("2.2$geqeta<$2.4");
+  }
+  if (observable == "jet2Eta"){
+    outputColumn.push_back("2.40$geqeta<$2.16");
+    outputColumn.push_back("2.16$geqeta<$1.92");
+    outputColumn.push_back("1.92$geqeta<$1.68");
+    outputColumn.push_back("1.68$geqeta<$1.44");
+    outputColumn.push_back("1.44$geqeta<$1.20");
+    outputColumn.push_back("1.20$geqeta<$0.96");
+    outputColumn.push_back("0.96$geqeta<$0.72");
+    outputColumn.push_back("0.72$geqeta<$0.48");
+    outputColumn.push_back("0.48$geqeta<$0.24");
+    outputColumn.push_back("0.24$geqeta<$0.00");
+    outputColumn.push_back("0.00$geqeta<$0.24");
+    outputColumn.push_back("0.24$geqeta<$0.48");
+    outputColumn.push_back("0.48$geqeta<$0.72");
+    outputColumn.push_back("0.72$geqeta<$0.96");
+    outputColumn.push_back("0.96$geqeta<$1.20");
+    outputColumn.push_back("1.20$geqeta<$1.44");
+    outputColumn.push_back("1.44$geqeta<$1.68");
+    outputColumn.push_back("1.68$geqeta<$1.92");
+    outputColumn.push_back("1.92$geqeta<$2.16");
+    outputColumn.push_back("2.16$geqeta<$2.40");
+  }
+  if (observable == "jet3Eta"){
+    outputColumn.push_back("-2.4$geqeta<$-2.1");
+    outputColumn.push_back("-2.1$geqeta<$-1.8");
+    outputColumn.push_back("-1.8$geqeta<$-1.5");
+    outputColumn.push_back("-1.5$geqeta<$-1.2");
+    outputColumn.push_back("-1.2$geqeta<$-1.9");
+    outputColumn.push_back("-0.9$geqeta<$-0.6");
+    outputColumn.push_back("-0.6$geqeta<$-0.3");
+    outputColumn.push_back("-0.3$geqeta<$0.0");
+    outputColumn.push_back("0.0$geqeta<$0.3");
+    outputColumn.push_back("0.3$geqeta<$0.6");
+    outputColumn.push_back("0.6$geqeta<$0.9");
+    outputColumn.push_back("0.9$geqeta<$1.2");
+    outputColumn.push_back("1.2$geqeta<$1.5");
+    outputColumn.push_back("1.5$geqeta<$1.8");
+    outputColumn.push_back("1.8$geqeta<$2.1");
+    outputColumn.push_back("2.1$geqeta<$2.4");
+  }
+  if (observable == "jet4Eta"){
+    outputColumn.push_back("-2.4$geqeta<$-2.0");
+    outputColumn.push_back("-2.0$geqeta<$-1.6");
+    outputColumn.push_back("-1.6$geqeta<$-1.2");
+    outputColumn.push_back("-1.2$geqeta<$-0.8");
+    outputColumn.push_back("-0.8$geqeta<$-0.4");
+    outputColumn.push_back("-0.4$geqeta<$0.0 ");
+    outputColumn.push_back("0.0$geqeta<$0.4");
+    outputColumn.push_back("0.4$geqeta<$0.8");
+    outputColumn.push_back("0.8$geqeta<$1.2");
+    outputColumn.push_back("1.2$geqeta<$1.6");
+    outputColumn.push_back("1.6$geqeta<$2.0");
+    outputColumn.push_back("2.0$geqeta<$2.4");
+  }
+
+  if (outputColumn.size()<1) cout << "getBinColumn: WRONG input string!" << endl;
+
+  return outputColumn;
 }

@@ -41,10 +41,10 @@ int combineLeptonStatistics () {
   string elePathFile;
   string muoPathFile;
 
-  elePathFile="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARC.root";
-  muoPathFile="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCMu.root";
+  elePathFile="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApproval.root";
+  muoPathFile="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApprovalMu.root";
 
-  TFile output_file("/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root","RECREATE");
+  TFile output_file("/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3PostApprovalCombined.root","RECREATE");
 
   // BEGIN COMBINATION:
 

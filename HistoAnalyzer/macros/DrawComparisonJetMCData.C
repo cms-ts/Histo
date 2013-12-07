@@ -34,7 +34,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-bool isMu=true;
+bool isMu=false;
 
 string plotpath;
 string datafile;
@@ -533,11 +533,11 @@ void comparisonJetMCData(string plot,int rebin){
     data->Draw("E1");
 
 
-    TLegend* legend = new TLegend(0.725,0.47,0.85,0.72);
+    TLegend* legend = new TLegend(0.725,0.27,0.85,0.72);
     legend->SetFillColor(0);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
-    legend->SetTextSize(0.036);
+    legend->SetTextSize(0.060);
     legend->AddEntry(data,"data","p");
 
     // hack to calculate some yields in restricted regions...
@@ -1119,12 +1119,12 @@ void comparisonJetMCData(string plot,int rebin){
     // Stacked Histogram
     //if(qcd23em) 	hs->Add(qcdTotEM);
     if(!qcdbcempty) 	hs->Add(qcdTotBC);
-    if (ww)         hs->Add(ww);
-    if (ttbar)	hs->Add(ttbar);
     if(w)  	        hs->Add(w);
+    if (ww)         hs->Add(ww);
     if(tau)		hs->Add(tau); //Z+Jets
     if (zz)         hs->Add(zz);
     if (wz)         hs->Add(wz);
+    if (ttbar)	hs->Add(ttbar);
     if(mc)		hs->Add(mc); //Z+Jets
 
     // per avere le statistiche
@@ -1153,7 +1153,7 @@ void comparisonJetMCData(string plot,int rebin){
     lumi->SetBorderSize(0);
     //lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
     lumi->Draw();
-    TLatex *latexLabel=CMSPrel(4.890,"",0.6,0.85); // make fancy label
+    TLatex *latexLabel=CMSPrel(4.890,"",0.55,0.85); // make fancy label
     latexLabel->Draw("same");
 
     CanvPlot->Update();
