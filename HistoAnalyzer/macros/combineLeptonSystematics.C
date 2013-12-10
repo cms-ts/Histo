@@ -485,6 +485,7 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 	   << "\\end{center}" << endl
            << "\\end{sidewaystable}" << endl;
 
+
   // TABLE for the paper with breakdown of combined systs:
   textfile << "\\begin{sidewaystable}[htbH]" << endl
 	   << "\\begin{center}" << endl
@@ -496,19 +497,66 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
   textfile << "Bins \t&\t Comb. Ele/Mu \t&\t Comb. Ele/Mu \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Total \t\\\\" << endl
 	   << "\\hline" << endl; 
 
-  for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile << column[i] << "\t&\t" ;
-    textfile.unsetf(ios_base::floatfield);
-    textfile.precision(3);
-    textfile << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile.precision(1);
-    textfile << std::fixed <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile << jetEff[i]*100. << "\t&\t";
-    textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+  // Folding ETA distributions:
+  double wmeanE, wsigmaE;
+  if (variablesName == "jet1Eta" || variablesName == "jet2Eta" || variablesName == "jet3Eta" || variablesName == "jet4Eta") {
+    for (Int_t i=(jetSyst.size()/2); i<jetSyst.size(); i++) {
+
+      wmeanE =   datahisto_combi->GetBinContent(i+1) + datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i);
+      wsigmaE = sqrt((jetStat[i]*jetStat[i]) 
+		     + (jetStat[jetSyst.size()-i-1]*jetStat[jetSyst.size()-i-1]));
+      datahisto_combi->SetBinContent(i+1,wmeanE);
+      jetStat[i]=wsigmaE;
+
+      wsigmaE = (jetEff[i]*datahisto_combi->GetBinContent(i+1) + jetEff[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetEff[i]=wsigmaE;
+      wsigmaE = (jetEleJEC[i]*datahisto_combi->GetBinContent(i+1) + jetEleJEC[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetEleJEC[i]=wsigmaE;
+      wsigmaE = (jetMuoJEC[i]*datahisto_combi->GetBinContent(i+1) + jetMuoJEC[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetMuoJEC[i]=wsigmaE;
+      wsigmaE = (jetEleUnf[i]*datahisto_combi->GetBinContent(i+1) + jetEleUnf[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetEleUnf[i]=wsigmaE;
+      wsigmaE = (jetMuoUnf[i]*datahisto_combi->GetBinContent(i+1) + jetMuoUnf[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetMuoUnf[i]=wsigmaE;
+      wsigmaE = (jetElePU[i]*datahisto_combi->GetBinContent(i+1) + jetElePU[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetElePU[i]=wsigmaE;
+      wsigmaE = (jetMuoPU[i]*datahisto_combi->GetBinContent(i+1) + jetMuoPU[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetMuoPU[i]=wsigmaE;
+      wsigmaE = (jetEleBkg[i]*datahisto_combi->GetBinContent(i+1) + jetEleBkg[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetEleBkg[i]=wsigmaE;
+      wsigmaE = (jetMuoBkg[i]*datahisto_combi->GetBinContent(i+1) + jetMuoBkg[jetSyst.size()-i-1]*datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i))/(datahisto_combi->GetBinContent(i+1)+datahisto_combi->GetBinContent(datahisto_combi->GetNbinsX()-i));
+      jetMuoBkg[i]=wsigmaE;
+
+
+      textfile << column[i] << "\t&\t" ;
+      textfile.unsetf(ios_base::floatfield);
+      textfile.precision(3);
+      textfile << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
+      textfile.precision(1);
+      textfile << std::fixed <<  jetStat[i]*100.  << "\t&\t" ;
+      textfile << jetEff[i]*100. << "\t&\t";
+      textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+    }
+    
+  } else {
+    for (Int_t i=0; i<jetSyst.size(); i++) {
+      textfile << column[i] << "\t&\t" ;
+      textfile.unsetf(ios_base::floatfield);
+      textfile.precision(3);
+      textfile << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
+      textfile.precision(1);
+      textfile << std::fixed <<  jetStat[i]*100.  << "\t&\t" ;
+      textfile << jetEff[i]*100. << "\t&\t";
+      textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
+      textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+    }
   }
   textfile << "\\hline" << endl
            << "\\end{tabular}" << endl
@@ -516,7 +564,7 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
            << "\\label{tab:finalsupersystematicstab}" << endl
 	   << "\\end{center}" << endl
            << "\\end{sidewaystable}" << endl;
-
+  
 
 //  // SYSTEMATICS ONLY:
 //  textfile << "\\begin{table}[htbH]" << endl
