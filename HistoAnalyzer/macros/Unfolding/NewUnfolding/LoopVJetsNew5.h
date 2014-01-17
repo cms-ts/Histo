@@ -135,7 +135,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
   RooUnfoldSvd unfold_s (&response_j, jData, kvalue);
   std::vector<double> extraMCLimitedStatErrors;
 
-  if (whichalgo=="Bayes") {
+  if (whichalgo=="BCrevoladossolaayes") {
     unf = (TH1D *) unfold_b.Hreco ();
     unfold_b.PrintTable(cout,jTrue);
     cout<<"Bayes: Chi2 of this k parameter(k="<<kvalue<<")<< is "<<unfold_b.Chi2(jTrue,RooUnfold::kErrors)<<endl;
@@ -145,7 +145,8 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfodiag= unfold_b.ErecoV(RooUnfold::kErrors);
   }
   else{
-    unf = (TH1D *) unfold_s.Hreco (RooUnfold::kErrors);
+    if (whichalgo=="Bayes") unf = (TH1D *) unfold_b.Hreco ();
+    else {unf = (TH1D *) unfold_s.Hreco (RooUnfold::kErrors);}
     unfold_s.PrintTable(cout,jTrue);
     if (extraTests) return unf;
     TVectorD vstat= unfold_s.ErecoV();
@@ -253,7 +254,7 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
 
     //Vecchio stile
     //Error procection ===============================================>
-    //if (unfoldingBinError<sqrt(unf->GetBinContent(p+1)*0.8)) unf->SetBinError(p+1,sqrt(unf->GetBinContent(p+1)*0.8)); //se unf+toy > sqrt ok, altrimenti set to sqrt
+    //if (unfoldingBinError<sqrt(unf->GetBinContent(p+1)*0.8)) unf->SetBinError(p+1,sqrt(unf->GetBinContent(p+1))); //se unf+toy > sqrt ok, altrimenti set to sqrt
     //unf->SetBinError(p+1,sqrt(unf->GetBinContent(p+1))); //se unf+toy > sqrt ok, altrimenti set to sqrt
     //*******
 
@@ -370,7 +371,10 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   
   fB->cd (sdatadir.c_str());
   gDirectory->ls("tree*");
+
   TTree *tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (scalingJEC==1) tree_fB= (TTree *) gDirectory->Get ("treeJECScaleUp_");
+  if (scalingJEC==-1) tree_fB= (TTree *) gDirectory->Get ("treeJECScaleDown_");
 
   // Configure various closure tests, if you want to do it
   if (identityCheck || splitCheck || pythiaCheck){
