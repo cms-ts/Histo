@@ -329,8 +329,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     
     if (numbOfJetsSelected==1) {
     if (isEle){
-      kmin=2;
-      kmax=3;
+      kmin=5;
+      kmax=6;
     }
     else{
       kmin=7;
@@ -341,8 +341,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     
     if (numbOfJetsSelected==2){
       if (isEle){
-	kmin=2;
-	kmax=3;
+	kmin=3;
+	kmax=4;
       }
       else{
 	kmin=3;
@@ -353,8 +353,8 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
     
     if (numbOfJetsSelected==3){
       if (isEle){
-	kmin=2;
-	kmax=3;
+	kmin=3;
+	kmax=4;
       }
       else{
 	kmin=4;
@@ -452,12 +452,12 @@ if (numbOfJetsSelected == 1){
     //maxObsPlot=maxNJets-1;
     divPlot=6.5; minObsPlot=0.5;maxObsPlot=6.5;
     if (isEle){
-      kmin=2;
-      kmax=3;
+      kmin=4;
+      kmax=5;
     }
     else{
-      kmin=3;
-      kmax=4;
+      kmin=5;
+      kmax=6;
     }
     
     if (bayesianTests) {
