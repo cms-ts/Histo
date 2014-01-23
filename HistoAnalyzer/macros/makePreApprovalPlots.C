@@ -28,7 +28,7 @@ void
 makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 {
 
-  setTDRStyle ();
+  //setTDRStyle ();
   gStyle->SetErrorX(0);
   gStyle->SetPadGridX(0);
   gStyle->SetPadGridY(0);
@@ -43,9 +43,14 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   bool incMultiplicity = false;
 
 
-  string s                = "/afs/infn.it/ts/user/schizzi/html/iMieiCoglioni/ele/";
-  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/iMieiCoglioni/muo/";
-  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/iMieiCoglioni/combined/";
+  //string s                = "/afs/infn.it/ts/user/marone/html/ZJets/articlePlots/Ele/";
+  //if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/articlePlots/Mu/";
+
+  string s                = "/tmp/";
+  if (lepton==2) string s = "/tmp/";
+
+
+  if (lepton==3) string s = "/tmp/";
   //  string s                = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/ele/";
   //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/muo/";
   //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/combined/";
@@ -62,28 +67,32 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string           pathFile ="/gpfs/cms/data/2011/Unfolding/ARCStep3.root";
-  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/ARCStep3Mu.root";
-  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root";
+  string           pathFile ="/gpfs/cms/data/2011/Unfolding/JERPatch2.root";
+  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/JERPatch2Up.root";
+  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/JERPatch2Down.root";
   
   //RIVET:
-  //  string rivetPathSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
-  string rivetPathSherpa   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
+  string rivetPthSherpa   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
+  //  string rivetPathSherpa   ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
   string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph_lhe/test_full2/merged.root";
+  //string rivetPathMadGraph ="/gpfs/cms/data/2011/Rivet/madgraph_lhe/merged.root";
   //  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
   string rivetPathPowheg    ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
 
   if (lepton == 2){
-    //    rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
-    rivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
+    rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
+    //    rivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph_lhe/test_full2/merged.root";
+    //rivetPathMadGraph ="/gpfs/cms/data/2011/Rivet/madgraph_lhe/merged.root";
     //    rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
     rivetPathPowheg        ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
   }
 
+  rivetPathPowheg=rivetPathMadGraph;
+  rivetPathSherpa=rivetPathMadGraph;
   if (lepton == 3){
-    //    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
-    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root"; // new Sherpa by Fabio
+    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
+    //    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
     rivetPathPowheg     ="/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root";
   }
@@ -529,12 +538,11 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  if (absoluteNormalization) {
-	    //	    if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
-	    //	    if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
-	    //	    if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
-	    dummyNorm= (473000./2165.19)/2; //New Sherpa by Fabio Unweighted
-	    dummyNorm= (473000./3048)/2; //New Sherpa by Fabio Unweighted
-	    if (lepton ==3) dummyNorm = dummyNorm*2; // New Sherpa by Fabio
+	    if (lepton ==1) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048);   
+	    if (lepton ==2) dummyNorm= 0.155456 *(1000000.0/907.485)*(907.485*3/3048);
+	    if (lepton ==3) dummyNorm= 0.155390 *(1000000.0/906.826)*(906.826*3/3048) + 0.155456 *(1000000.0/907.485)*(907.485*3/3048); 
+	    //	    dummyNorm= (473000/2165.19)/2; //New Sherpa by Fabio Unweighted
+	    //	    if (lepton ==3) dummyNorm = dummyNorm*2; // New Sherpa by Fabio
 	    dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	  }
 
@@ -609,8 +617,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	  if (absoluteNormalization) {
 	    //	    dummyNorm= 2.0 * 0.000000001*( (1680.67)/3048.0);
-	    //	    dummyNorm= (24492754/2497.3)*(3048/2497.3)*2/3; // vecchio madgraph caccolino
-	    dummyNorm= (24492754/3048)*3./2.; 
+	    dummyNorm= (24492754/3048)*3./2.; // vecchio madgraph caccolino
 	    if (lepton ==3) dummyNorm = dummyNorm*2;
 	    dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1));
 	  }
