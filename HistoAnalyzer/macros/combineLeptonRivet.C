@@ -2,16 +2,11 @@
 #include "TH1.h"
 #include "TDirectory.h"
 #include "TGraphAsymmErrors.h"
+#include "TH1D.h"
 #include <vector>
 #include <iostream>
 #include <sstream>
 #include <string.h>
-
-// INSTRUCTIONS:
-// .L combineLeptonStatistics.C
-// combineLeptonStatistics t
-// t.letscombine()
-// CONGRATULATIONS!
 
 class combineLeptonRivet {
 public:
@@ -22,8 +17,7 @@ public:
 Int_t combineLeptonRivet::letscombine () {
 
   // electron datasets:
-  //  string eleRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
-  string eleRivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root";
+  string eleRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod2/out.root";
   string eleRivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup2/out.root";
   string eleRivetPathSherpaDOWN   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown2/out.root";
   string eleRivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw/out.root";
@@ -33,11 +27,9 @@ Int_t combineLeptonRivet::letscombine () {
   string eleRivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   string eleRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root"; 
   string eleRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
-  string eleRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
 
   // muon datasets:
-  //  string muoRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
-  string muoRivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root";
+  string muoRivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
   string muoRivetPathSherpaUP     ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaleup_mu/out.root";
   string muoRivetPathSherpaDOWN   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_scaledown_mu/out.root";
   string muoRivetPathSherpaPDF1   ="/gpfs/cms/users/candelis/Rivet/sherpa/test_pdfmstw_mu/out.root";
@@ -47,44 +39,37 @@ Int_t combineLeptonRivet::letscombine () {
   string muoRivetPathMadGraphUP   ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleup/DYtotal.root";
   string muoRivetPathMadGraphPDF1 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfmstw/DYtotal.root";
   string muoRivetPathMadGraphPDF2 ="/gpfs/cms/users/candelis/Rivet/madgraph/pdfnn/DYtotal.root";
-  string muoRivetPathPowheg       ="/gpfs/cms/users/candelis/Rivet/powheg/test_mm/out.root";
 
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (true, i, eleRivetPathMadGraphDOWN, muoRivetPathMadGraphDOWN, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (true, i, muoRivetPathMadGraphUP, muoRivetPathMadGraphUP, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF1, muoRivetPathMadGraphPDF1, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root");
-//  }
-  for (Int_t i=1;i<15;i++) { // new sherpa from Fabio
-    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root");
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraph, muoRivetPathMadGraph, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root");
   }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (false, i, eleRivetPathSherpaUP, muoRivetPathSherpaUP, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (false, i, eleRivetPathSherpaPDF1, muoRivetPathSherpaPDF1, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root");
-//  }
-//  for (Int_t i=1;i<15;i++) {
-//    mergewhateveruwant (false, i, eleRivetPathPowheg, muoRivetPathPowheg, "/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root");
-//  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphDOWN, muoRivetPathMadGraphDOWN, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleDOWN.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, muoRivetPathMadGraphUP, muoRivetPathMadGraphUP, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_scaleUP.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF1, muoRivetPathMadGraphPDF1, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF1.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (true, i, eleRivetPathMadGraphPDF2, muoRivetPathMadGraphPDF2, "/gpfs/cms/users/schizzi/rivet/combination/MadGraph_PDF2.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpa, muoRivetPathSherpa, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaDOWN, muoRivetPathSherpaDOWN, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleDOWN.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaUP, muoRivetPathSherpaUP, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_scaleUP.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaPDF1, muoRivetPathSherpaPDF1, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF1.root");
+  }
+  for (Int_t i=1;i<14;i++) {
+    mergewhateveruwant (false, i, eleRivetPathSherpaPDF2, muoRivetPathSherpaPDF2, "/gpfs/cms/users/schizzi/rivet/combination/Sherpa_PDF2.root");
+  }
 
   return 0;
 }
@@ -140,7 +125,6 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
   if (usecase == 11) {oss1<<"20"; oss2<<"24";}
   if (usecase == 12) {oss1<<"21"; oss2<<"25";}
   if (usecase == 13) {oss1<<"22"; oss2<<"26";}
-  if (usecase == 14) {oss1<<"27"; oss2<<"28";}
   if (isMG) {
     elename="d"+oss1.str()+"-x01-y01";
     muoname="d"+oss2.str()+"-x01-y01";
@@ -148,6 +132,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
     elename="d"+oss1.str()+"_x01_y01";
     muoname="d"+oss2.str()+"_x01_y01";
   }
+
 
   // GET THE TH1's or TGraph's:
   string temp_elename;
@@ -169,7 +154,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
     if (temp_muoname == muoname) {
       histofile2->cd ("");
       if (isMG) {
-	gDirectory->GetObject (muoname.c_str (), muohisto); // Save ele histogram!
+	gDirectory->GetObject (elename.c_str (), muohisto); // Save ele histogram!
       } else {
 	gDirectory->GetObject (muoname.c_str (), muotgraph); // Save muo histogram!
       }
@@ -229,7 +214,7 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
       //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
       wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
       combinehisto->SetBinContent(i,wmean);
-      combinehisto->SetBinError(i,sqrt(pow(elehisto->GetBinError(i),2)+pow(muohisto->GetBinError(i),2))); // Errori alla "Gesu bambino che caca nutella"
+      combinehisto->SetBinError(i,0.);
     }
   } else {
     for (Int_t i=0; i<nbins_ele;i++) {
@@ -238,8 +223,8 @@ void combineLeptonRivet::mergewhateveruwant (bool isMadGraph, Int_t whichobserva
       //      wmean = (wele*dummyYvarEle + wmuo*dummyYvarMuo)/(wele+wmuo);
       wmean = dummyYvarEle + dummyYvarMuo;   // Update on normalization "alla uccello di scimpanze' con la trisomia del 21" ...
       combinetgraph->SetPoint(i,dummyXvar,wmean);
-      combinetgraph->SetPointEYhigh(i,sqrt(pow(eletgraph->GetErrorYhigh(i),2)+pow(muotgraph->GetErrorYhigh(i),2))); // Errori alla "Gesu bambino che caca nutella"
-      combinetgraph->SetPointEYlow(i,sqrt(pow(eletgraph->GetErrorYlow(i),2)+pow(muotgraph->GetErrorYlow(i),2)));
+      combinetgraph->SetPointEYhigh(i,0.);
+      combinetgraph->SetPointEYlow(i,0.);
     }
   }
 

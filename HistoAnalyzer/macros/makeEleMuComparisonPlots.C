@@ -25,11 +25,103 @@
 #include <sstream>
 #include <string.h>
 
+ofstream myfile;
+TH1D *leadingRatio;
+
+
+void correctTheErrorsForDataStatContribution(TH1D* absolutedistr,TH1D *ratio){
+
+  for (unsigned int p=0;p<jData->GetNbinsX();p++){
+    //////////////////////////////////////
+    //Extra contributo per togliere l'effetto del "gonfiamento degli errori statistici nell'unfolding"
+    // errore^2_stat= (a/b*sigma)^2*(1/a^2+1/b^4)
+  
+    double sigma=absolutedistr->GetBinError(p+1);
+    double a=absolutedistr->GetBinContent(p+1);
+    double a_over_b=ratio->GetBinContent(p+1);
+    double b=pow(a_over_b,-1)*a;
+    double errquadrostat=pow(a_over_b,2)*pow(sigma,2)*( pow(a,-2)+pow(b,-4) );
+    double errstat=sqrt(errquadrostat);
+    cout<<errstat<<endl;
+    leadingRatio->SetBinError(p+1,leadingRatio->GetBinError(p+1)-errstat);
+  }
+  ////////////////////////////////////
+  return ;
+}
+
+
+void correctTheErrorsForDataStatContribution2(TH1D* absolutesherpa,TH1D* absoluteMD, TH1D *ratio){
+
+  for (unsigned int p=0;p<absolutesherpa->GetNbinsX();p++){
+    //////////////////////////////////////
+    //Extra contributo per togliere l'effetto del "gonfiamento degli errori statistici nell'unfolding"
+    // errore^2_stat= sigma_a^2/b^2 + a^2/b^4 * sigma_b^2
+  
+    double sigmaSherpa=absolutesherpa->GetBinError(p+1);
+    double sigmaMD=absoluteMD->GetBinError(p+1);
+
+    //Subtract stat component
+    sigmaSherpa=sigmaSherpa-sqrt(absolutesherpa->GetBinContent(p+1));
+    sigmaMD=sigmaMD-sqrt(absoluteMD->GetBinContent(p+1));
+
+    double a=absolutesherpa->GetBinContent(p+1);
+    double b=absoluteMD->GetBinContent(p+1);    
+
+    double errstatQuadro=( pow(sigmaSherpa,2)/pow(b,2))+( pow(a,2)*pow(b,-4)*pow(sigmaMD,2) ); 
+    leadingRatio->SetBinError(p+1,leadingRatio->GetBinError(p+1)-sqrt(errstatQuadro));
+    cout<<"errstatr "<<sqrt(errstatQuadro)<<" leadingRatio->GetBinError(p+1) "<<leadingRatio->GetBinError(p+1)<<" data/total "<<(sqrt(errstatQuadro))/(leadingRatio->GetBinError(p+1))<<endl;
+  }
+  ////////////////////////////////////
+  return ;
+}
+
+void loopAndDumpEntries(TH1D *jData, TH1D *leading){
+
+  for (unsigned int p=0;p<jData->GetNbinsX();p++){
+
+    /*
+    //////////////////////////////////////
+    //Extra contributo per togliere l'effetto del "gonfiamento degli errori statistici nell'unfolding"
+    // errore^2_stat= (a/b*sigma)^2*(1/a^2+1/b^4)
+    
+    double sigma=leading->GetBinError(p+1);
+    double a=leading->GetBinContent(p+1);
+    double a_over_b=jData->GetBinContent(p+1);
+    double b=pow(a_over_b,-1)*a;
+    double errquadrostat=pow(a_over_b,2)*pow(sigma,2)*( pow(a,-2)+pow(b,-4) );
+    double errstat=sqrt(errquadrostat);
+    cout<<errstat<<endl;
+
+    ////////////////////////////////////
+    */
+
+    double differenceErrorRatioOne=jData->GetBinError(p+1)-fabs(1-jData->GetBinContent(p+1)/*+errstat*/);
+
+    if (differenceErrorRatioOne>0) {
+      myfile<<"0.0000"<<endl;
+      cout<<"SVD-Bayes for Bin "<<p+1<<" is "<<fabs(1-jData->GetBinContent(p+1))<<" and error +/- "<<jData->GetBinError(p+1)<<endl;
+    }
+    else {
+      cout<<"SVD-Bayes for Bin "<<p+1<<" is "<<fabs(1-jData->GetBinContent(p+1))<<" and error +/- "<<jData->GetBinError(p+1)<<"----> ";
+      double calculateExtraResidual=fabs(1-jData->GetBinContent(p+1)/*+errstat*/)-(jData->GetBinError(p+1));
+      cout<<"SVD-Bayes for Bin "<<p+1<<" is "<<calculateExtraResidual<<endl;
+      myfile<<calculateExtraResidual<<endl;
+    }
+  }
+}
+
 void
 makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 {
+  //Open the file and form the name
+  string fileSystematics; 
+  string suffix="/gpfs/cms/data/2011/Systematics/postApproval/";
+  //string suffix="/tmp/";
 
-  setTDRStyle ();
+  if (whichlepton==1) suffix=suffix+"ele/";
+  if (whichlepton==2) suffix=suffix+"muo/";
+
+  //  setTDRStyle ();
   gStyle->SetErrorX(0);
   gStyle->SetPadGridX(0);
   gStyle->SetPadGridY(0);
@@ -42,8 +134,9 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
   int whichjet = whichjet;
   string version = "_v2_32";
 
-  string s         = "/gpfs/cms/users/schizzi/EleMuComparisonPlots/PreUnfolding/";
-  //  string s         = "/gpfs/cms/users/schizzi/EleMuComparisonPlots/PreUnfolding/";
+  //string s         = "/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v41/SVDBayes/";
+  string s="/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v57_3_postApproval/ele/";
+  //  string s         = "/gpfs/cms/users/schizzi/EleMuComparisonPlots/PostUnfolding/";
   string  eleplotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
   string  muoplotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
 
@@ -52,13 +145,19 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
   TCanvas *plots = new TCanvas ("plots", "EB", 200, 100, 600, 800);
 
   //DATA:
-  string elepathFile   ="/gpfs/cms/users/schizzi/EleMuComparisonPlots/xcheckMacro/ele.root";
-  string muopathFile   ="/gpfs/cms/users/schizzi/EleMuComparisonPlots/xcheckMacro/muo.root";
-  //  string elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsNoUnfolding_v2_38.root";
-  //  string muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldedVJets2011DistributionsNoUnfolding_v2_38Mu.root";
-  //string elepathFile   ="/gpfs/cms/data/2011/Unfolding/EfficiencySystematicsARCStep2_scaleDOWN.root";
-  //string muopathFile   ="/gpfs/cms/data/2011/Unfolding/EfficiencySystematicsARCStep2_scaleUP.root";
+  //string elepathFile   ="/gpfs/cms/data/2011/Unfolding/testReferenceMu.root";
+  //string muopathFile   ="/gpfs/cms/data/2011/Unfolding/testMu.root";
+  string elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3Sherpa.root";
+  string muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3.root";
 
+  if (whichlepton==2){
+  elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3SherpaMu.root";
+  muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3Mu.root";
+  s="/afs/infn.it/ts/user/marone/html/ZJets/FinalPlotsForAN/v57_3_postApproval/muo/";
+  }
+  //string elepathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3NoSQRT.root";
+  //string muopathFile   ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV57_3NoMCToy.root";
+    
   TFile *histof = TFile::Open (elepathFile.c_str ());
   histof->cd ("");
   TDirectory *dir = gDirectory;
@@ -84,6 +183,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	  stringmatch = "JetMultiplicityUnfolded";
 	  systPathFile = eleplotpath + "systematicsEff_jetMult" + version + ".txt";
 	  systPathFileMuo = muoplotpath + "systematicsEff_jetMult" + version + ".txt";
+	  fileSystematics = suffix+"systematicsUnfMCToy_jetMult" + version + ".txt"; 
 	}
 
       if (use_case == 2) 
@@ -93,6 +193,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	      stringmatch = "jReco_leading";
 	      systPathFile = eleplotpath + "systematicsEff_jet1Pt" + version + ".txt";
 	      systPathFileMuo = muoplotpath + "systematicsEff_jet1Pt" + version + ".txt";
+	      fileSystematics = suffix+"systematicsUnfMCToy_jet1Pt" + version + ".txt"; 
 	    }
 	  
 	  if (whichjet == 2)
@@ -100,6 +201,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	      stringmatch = "jReco_subleading";
 	      systPathFile = eleplotpath + "systematicsEff_jet2Pt" + version + ".txt";
 	      systPathFileMuo = muoplotpath + "systematicsEff_jet2Pt" + version + ".txt";
+	      fileSystematics = suffix+"systematicsUnfMCToy_jet2Pt" + version + ".txt"; 
 	    }
 	  
 	  if (whichjet == 3)
@@ -107,6 +209,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	      stringmatch = "jReco_subsubleading";
 	      systPathFile = eleplotpath + "systematicsEff_jet3Pt" + version + ".txt";
 	      systPathFileMuo = muoplotpath + "systematicsEff_jet3Pt" + version + ".txt";
+	      fileSystematics = suffix+"systematicsUnfMCToy_jet3Pt" + version + ".txt"; 
 	    }
 	  
 	  if (whichjet == 4)
@@ -114,6 +217,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	      stringmatch = "jReco_subsubsubleading";
 	      systPathFile = eleplotpath + "systematicsEff_jet4Pt" + version + ".txt";
 	      systPathFileMuo = muoplotpath + "systematicsEff_jet4Pt" + version + ".txt";
+	      fileSystematics = suffix+"systematicsUnfMCToy_jet4Pt" + version + ".txt"; 
 	    }
 	}
       
@@ -123,6 +227,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "jReco_leadingeta";
 	    systPathFile = eleplotpath + "systematicsEff_jet1Eta" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet1Eta" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet1Eta" + version + ".txt"; 
 	  }
 	
 	if (whichjet == 2)
@@ -130,6 +235,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "jReco_subleadingeta";
 	    systPathFile = eleplotpath + "systematicsEff_jet2Eta" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet2Eta" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet2Eta" + version + ".txt"; 
 	  }
 
 	if (whichjet == 3)
@@ -137,6 +243,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "jReco_subsubleadingeta";
 	    systPathFile = eleplotpath + "systematicsEff_jet3Eta" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet3Eta" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet3Eta" + version + ".txt"; 
 	  }
 	
 	if (whichjet == 4)
@@ -144,6 +251,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "jReco_subsubsubleadingeta";
 	    systPathFile = eleplotpath + "systematicsEff_jet4Eta" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet4Eta" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet4Eta" + version + ".txt"; 
 	  }
       }
       
@@ -153,6 +261,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "HReco_leading";
 	    systPathFile = eleplotpath + "systematicsEff_jet1Ht" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet1Ht" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet1Ht" + version + ".txt"; 
 	  }
 	
 	if (whichjet == 2)
@@ -160,6 +269,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "HReco_subleading";
 	    systPathFile = eleplotpath + "systematicsEff_jet2Ht" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet2Ht" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet2Ht" + version + ".txt"; 
 	  }
 	
 	if (whichjet == 3)
@@ -167,6 +277,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "HReco_subsubleading";
 	    systPathFile = eleplotpath + "systematicsEff_jet3Ht" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet3Ht" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet3Ht" + version + ".txt"; 
 	  }
 
 	if (whichjet == 4)
@@ -174,6 +285,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    stringmatch = "HReco_subsubsubleading";
 	    systPathFile = eleplotpath + "systematicsEff_jet3Ht" + version + ".txt";
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet3Ht" + version + ".txt";
+	    fileSystematics = suffix+"systematicsUnfMCToy_jet4Ht" + version + ".txt"; 
 	  }
       }
 
@@ -232,8 +344,8 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	  cout << "TE SON MONA! WRONG NUMBER OF BINS (# syst from file->" <<systTmpM.size()<<" - # bins->"<<leadingRatioSystematics->GetNbinsX()<<")"<<endl;
 	for (int i = 0; i < leadingRatioSystematics->GetNbinsX (); i++)
 	  {
-	    leadingRatioSystematics->SetBinContent(i + 1, 1.0);
-	    leadingRatioSystematics->SetBinError (i + 1,sqrt(systTmpM[i]*systTmpM[i] + systTmpMmuo[i]*systTmpMmuo[i]));
+	    //leadingRatioSystematics->SetBinContent(i + 1, 1.0);
+	    //leadingRatioSystematics->SetBinError (i + 1,sqrt(systTmpM[i]*systTmpM[i] + systTmpMmuo[i]*systTmpMmuo[i]));
 	    //	    leadingRatioSystematics->SetBinContent(i + 1, 1.0);
 	    //	    leadingRatioSystematics->SetBinError (i + 1,max(systTmpM[i]/100.0,systTmpMmuo[i]/100.0));
 	  }
@@ -245,7 +357,8 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	pad1->cd();
 	pad1->SetTopMargin(0.1);
 	pad1->SetBottomMargin(0.0);
-	pad1->SetRightMargin(0.1);
+	pad1->SetLeftMargin(0.2);
+	pad1->SetRightMargin(0.0);
 	pad1->SetFillStyle(0);
 	if (use_case !=3) pad1->SetLogy(1); 
 	else pad1->SetLogy(0);
@@ -352,15 +465,21 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	legendsx_d->SetBorderSize (1);
 	legendsx_d->SetNColumns(1);
 	legendsx_d->SetTextSize(.040);
-	legendsx_d->AddEntry (leading, "Electrons", "PEL");
-	legendsx_d->AddEntry (leadingmuo, "Muons", "PEL");
+	legendsx_d->AddEntry (leading, "Sherpa", "PEL");
+	legendsx_d->AddEntry (leadingmuo, "Madgraph", "PEL");
+	//legendsx_d->AddEntry(leadingRatioSystematics,"Unf. Syst.","F");
 	legendsx_d->Draw ("same");
 
 	// Draw the ratio plot: ----------------------
 
-	TH1D *leadingRatio;
 	leadingRatio = (TH1D *) leading->Clone ("leading");
 	leadingRatio->Divide(leadingmuo);
+
+	//Follow line will correct for the data stat contribution.
+	//Simply comment to avoid this contribution
+
+	//correctTheErrorsForDataStatContribution(leadingmuo,leadingRatio);
+	//correctTheErrorsForDataStatContribution2(leading,leadingmuo,leadingRatio);
 
 	plots->cd();
 	TPad *pad3 = new TPad("pad3","pad3",0.01,0.01,0.99,0.30);
@@ -368,7 +487,8 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	pad3->cd();
 	pad3->SetTopMargin(0.0);
 	pad3->SetBottomMargin(0.3);
-	pad3->SetRightMargin(0.1);
+	pad3->SetLeftMargin(0.2);
+	pad3->SetRightMargin(0);
 	pad3->SetFillStyle(0);
 
 	leadingRatio->GetXaxis()->SetLabelFont (42);
@@ -379,19 +499,19 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio->GetYaxis()->SetTitleSize(0.11);
 	leadingRatio->GetYaxis()->SetLabelSize(0.10);
 	leadingRatio->GetYaxis()->SetTitleOffset(0.65);
-	leadingRatio->GetYaxis()->SetTitle("Ele/Mu");   
+	leadingRatio->GetYaxis()->SetTitle("SVD/Bayes");   
 	leadingRatio->GetYaxis()->SetNdivisions(5);
-	leadingRatio->GetYaxis()->SetRangeUser(0.97,1.03);
+	leadingRatio->GetYaxis()->SetRangeUser(0.4,1.6);
 
 
 	if (use_case ==1) {
 	  leadingRatio->GetXaxis ()->SetTitle ("Exclusive jet multiplicity");
 	}
 	if (use_case ==2) {
-	  if (whichjet == 1) leadingRatio->GetXaxis ()->SetTitle ("Leading jet p_{T} [GeV/c]");
-	  if (whichjet == 2) leadingRatio->GetXaxis ()->SetTitle ("Second jet p_{T} [GeV/c]");
-	  if (whichjet == 3) leadingRatio->GetXaxis ()->SetTitle ("Third jet p_{T} [GeV/c]");
-	  if (whichjet == 4) leadingRatio->GetXaxis ()->SetTitle ("Fourth jet p_{T} [GeV/c]");
+	  if (whichjet == 1) leadingRatio->GetXaxis ()->SetTitle ("Leading jet p_{T} [GeV]");
+	  if (whichjet == 2) leadingRatio->GetXaxis ()->SetTitle ("Second jet p_{T} [GeV]");
+	  if (whichjet == 3) leadingRatio->GetXaxis ()->SetTitle ("Third jet p_{T} [GeV]");
+	  if (whichjet == 4) leadingRatio->GetXaxis ()->SetTitle ("Fourth jet p_{T} [GeV]");
 	}
 	if (use_case ==3) {
 	  if (whichjet == 1) leadingRatio->GetXaxis ()->SetTitle ("Leading jet #eta");
@@ -400,25 +520,29 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	  if (whichjet == 4) leadingRatio->GetXaxis ()->SetTitle ("Fourth jet #eta");
 	}
 	if (use_case ==4) {
-	  if (whichjet == 1) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV/c]");
-	  if (whichjet == 2) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 2 [GeV/c]");
-	  if (whichjet == 3) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 3 [GeV/c]");
-	  if (whichjet == 4) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 4 [GeV/c]");
+	  if (whichjet == 1) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 1 [GeV]");
+	  if (whichjet == 2) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 2 [GeV]");
+	  if (whichjet == 3) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 3 [GeV]");
+	  if (whichjet == 4) leadingRatio->GetXaxis ()->SetTitle ("H_{T}, N_{jet} >= 4 [GeV]");
 	}
 
 	leadingRatio->SetFillColor (kRed+2);
 	leadingRatio->SetMarkerColor (kRed+2);
 	leadingRatio->SetLineColor (kRed+2);
-	leadingRatio->Draw ("E1");
+	leadingRatio->Draw ("E0");
 
 	leadingRatioSystematics->SetFillColor (kGreen+3);
 	leadingRatioSystematics->SetFillStyle (3004);
 	leadingRatioSystematics->SetMarkerColor (kGreen+3);
 	leadingRatioSystematics->SetLineColor (kGreen+3);
 	leadingRatioSystematics->SetMarkerStyle (1);
-	leadingRatioSystematics->Draw ("E3SAME");
+	//leadingRatioSystematics->Draw ("E3SAME");
 
 	leadingRatio->Draw ("E1SAME");
+
+	myfile.open (fileSystematics.c_str());
+	cout<<"TXT file saved in "<<fileSystematics<<endl;
+	loopAndDumpEntries(leadingRatio,leadingmuo);
 
 	TLine *OLine2 = new TLine(leading->GetXaxis()->GetXmin(),1.,leading->GetXaxis()->GetXmax(),1.);
 	OLine2->SetLineColor(kBlack);

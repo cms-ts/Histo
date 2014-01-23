@@ -34,7 +34,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-bool isMu=true;
+bool isMu=false;
 
 string plotpath;
 string datafile;
@@ -117,9 +117,9 @@ void DrawComparisonJetMCData(void){
 
 
 
-  version="_v2_33.root";  // which version you wonna analize
+  version="_v2_32.root";  // which version you wonna analize
   string versionMu="Mu"+version;
-  if (!isMu) version="_v2_33.root"; 
+  if (!isMu) version="_v2_32.root"; 
   if (isMu) version="Mu"+version;
   if (isMu) {
     dataLumi2011Apix=2136.00; 
@@ -132,7 +132,7 @@ void DrawComparisonJetMCData(void){
   
 plotpath		="/tmp/marone/"; //put here the path where you want the plots
 datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
- mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011"+versionMu;
+ mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_57_3.root";
 
 back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+versionMu;
 back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_27.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
@@ -186,7 +186,7 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+versionMu;
   wwEvents = numEventsPerStep(WW, "demo"); 
   // ---------------------------------------------------
 
-  string direc="/gpfs/cms/data/2011/Observables/";
+  string direc="/gpfs/cms/data/2011/Observables/Approval/";
 
   if (isAngularAnalysis){
     mcfile=direc+"MC_zjets"+version;
@@ -419,7 +419,7 @@ WW               ="/gpfs/cms/data/2011/jet/jetValidation_ww_2011"+versionMu;
 void comparisonJetMCData(string plot,int rebin){
   string tmp;
 
-  string dir="/gpfs/cms/data/2011/Observables/";
+  string dir="/gpfs/cms/data/2011/Observables/Approval/";
 	
   if (isAngularAnalysis){
     mcfile=dir+"MC_zjets"+version;
@@ -533,11 +533,11 @@ void comparisonJetMCData(string plot,int rebin){
     data->Draw("E1");
 
 
-    TLegend* legend = new TLegend(0.725,0.47,0.85,0.72);
+    TLegend* legend = new TLegend(0.725,0.27,0.85,0.72);
     legend->SetFillColor(0);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
-    legend->SetTextSize(0.036);
+    legend->SetTextSize(0.060);
     legend->AddEntry(data,"data","p");
 
     // hack to calculate some yields in restricted regions...
@@ -991,8 +991,9 @@ void comparisonJetMCData(string plot,int rebin){
       tau->Rebin(rebin);
       if(lumiweights==0) tau->Draw("HISTO SAMES");
       hsum->Rebin(rebin);
+      tau->Scale(1./1000.); //aaaaaaa
       hsum->Add(tau);
-      legend->AddEntry(tau,"TAU+jets","f");
+      legend->AddEntry(tau,"#tau#tau+jets","f");
 
       //////////
       //Storing the bckgrounds!
@@ -1119,12 +1120,12 @@ void comparisonJetMCData(string plot,int rebin){
     // Stacked Histogram
     //if(qcd23em) 	hs->Add(qcdTotEM);
     if(!qcdbcempty) 	hs->Add(qcdTotBC);
-    if (ww)         hs->Add(ww);
-    if (ttbar)	hs->Add(ttbar);
     if(w)  	        hs->Add(w);
+    if (ww)         hs->Add(ww);
     if(tau)		hs->Add(tau); //Z+Jets
     if (zz)         hs->Add(zz);
     if (wz)         hs->Add(wz);
+    if (ttbar)	hs->Add(ttbar);
     if(mc)		hs->Add(mc); //Z+Jets
 
     // per avere le statistiche
@@ -1153,7 +1154,10 @@ void comparisonJetMCData(string plot,int rebin){
     lumi->SetBorderSize(0);
     //lumi->AddEntry((TObject*)0,"#int L dt =4.9 1/fb","");
     lumi->Draw();
-    TLatex *latexLabel=CMSPrel(4.890,"",0.6,0.85); // make fancy label
+    string channel;
+    if (isMu) channel="Z#rightarrow#mu#mu";
+    if (!isMu) channel="Z#rightarrow ee";
+    TLatex *latexLabel=CMSPrel(4.890,channel,0.55,0.85); // make fancy label
     latexLabel->Draw("same");
 
     CanvPlot->Update();

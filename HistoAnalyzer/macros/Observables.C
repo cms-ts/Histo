@@ -44,6 +44,7 @@
 #include "THStack.h"
 #include <string.h>
 #include "Unfolding/NewUnfolding/getEfficiencyCorrection.C"
+#include "Unfolding/NewUnfolding/getMuscleFitCorrection.C"
 
 
 using
@@ -56,7 +57,7 @@ std::endl;
 #endif
 
 bool activateScaleFactors=true;  // Correct for the difference MC/Data in the background
-bool isMu=true;
+bool isMu=false;
 bool combineChannel=false;
 
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";
@@ -73,17 +74,18 @@ double jetThreshold=30.0;
 bool evalDiffCS=false; // if false it does not divide for # of Zs
 
 // Files to be saved
-string dir="/gpfs/cms/data/2011/Observables/";
+string dir="/gpfs/cms/data/2011/Observables/Approval/";
+//string dir="/tmp/";
 
 TFile *w;
 //List of observables to show
 TH1F *NData             = new TH1F ("Jet_multi", "Jet_multi", 8, 0.5, 8.5);
 TH1F *NDataIncl             = new TH1F ("Jet_multiIncl", "Jet_multiIncl", 8, 0.5, 8.5);
 TH1F *Ht                = new TH1F ("HT", "HT", 47, 30, 500);
-TH1F *Ht_1j                = new TH1F ("HT_1j", "HT_1j", 12, 30, 630);
-TH1F *Ht_2j                = new TH1F ("HT_2j", "HT_2j", 12, 60, 630);
-TH1F *Ht_3j                = new TH1F ("HT_3j", "HT_3j", 7, 90, 630);
-TH1F *Ht_4j                = new TH1F ("HT_4j", "HT_4j", 5, 120, 630);
+TH1F *Ht_1j                = new TH1F ("HT_1j", "HT_1j", 17, 30, 710);
+TH1F *Ht_2j                = new TH1F ("HT_2j", "HT_2j", 13, 60, 710);
+TH1F *Ht_3j                = new TH1F ("HT_3j", "HT_3j", 14, 90, 790);
+TH1F *Ht_4j                = new TH1F ("HT_4j", "HT_4j", 10, 120, 720);
 TH1F *Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
 TH1F *Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
 TH1F *Dphi_23           = new TH1F ("Dphi_23", "Dphi_23", 25, 0, TMath::Pi());
@@ -95,10 +97,10 @@ TH1F *Dphi_all_notZlead = new TH1F ("Dphi_all_notZlead", "Dphi_all_notZlead", 6,
 TH1F *ele_pT	        = new TH1F ("ele_pT", "ele_pT", 50, 0, 250);
 TH1F *ele_eta	        = new TH1F ("ele_eta", "ele_eta", 20, -3, 3);
 TH1F *ele_phi	        = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
-TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 15, 30, 330);
-TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 10, 30, 330);
+TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 18, 30, 390);
+TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 15, 30, 330);
 TH1F *jet_pT3	        = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
-TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 7, 30, 100);
+TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 5, 30, 130);
 TH1F *jet_eta	        = new TH1F ("jet_eta", "jet_eta", 24, -2.4, 2.4);
 TH1F *jet_eta2	        = new TH1F ("jet_eta2", "jet_eta2", 20, -2.4, 2.4);
 TH1F *jet_eta3	        = new TH1F ("jet_eta3", "jet_eta3", 16, -2.4, 2.4);
@@ -117,6 +119,25 @@ TH2F *NZy		= new TH2F ("NZy", "NZy", 5, 0.5, 5.5, 30, -3, 3);
 TH1F  *h_weights        = new TH1F ("h_weights","Event Weights",500,0.,5);
 TH1F  *h_invMass        = new TH1F ("h_invMass","L-L Invariant Mass Distribution",40,71.,111.);
 
+bool isJetTooCloseToLeptons(double jet_eta, double jet_phi, double lepton1_eta, double lepton1_phi, double lepton2_eta, double lepton2_phi, double maxDRAllowed) 
+{
+  //Check if the DR jet_i Vs lepton_1,2 is < 0.5. 
+  
+  double delta_phi_l1 = fabs( lepton1_phi - jet_phi);
+  double delta_phi_l2 = fabs( lepton2_phi - jet_phi);
+  double delta_eta_l1 = lepton1_eta - jet_eta;
+  double delta_eta_l2 = lepton2_eta - jet_eta;
+  
+  if (delta_phi_l1 > acos(-1)) delta_phi_l1 = 2*acos(-1) - delta_phi_l1;
+  if (delta_phi_l2 > acos(-1)) delta_phi_l2 = 2*acos(-1) - delta_phi_l2;
+  
+  double deltaR1 = sqrt( pow(delta_eta_l1,2) + pow(delta_phi_l1,2) );
+  double deltaR2 = sqrt( pow(delta_eta_l2,2) + pow(delta_phi_l2,2) );
+
+  if (deltaR1<maxDRAllowed || deltaR2 <maxDRAllowed) return false;
+  return true;
+}
+
 void
 Observables::Loop()
 {
@@ -126,7 +147,7 @@ Observables::Loop()
   double numbOfZPlus3 = 0;
   double numbOfZPlus4 = 0;
 
-string version="_v2_33.root";
+  string version="_v2_32.root";
  string versionMu=version;
  if (isMu) {
    versionMu="Mu"+version;
@@ -180,14 +201,14 @@ TDirectory *validationJECda=fda->mkdir(dirvalidation.c_str());
 //FIles do be opened
 
 string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
- string sozj=diropen+"zjets_magd_2011Mu"+version;
+ string sozj=diropen+"zjets_magd_2011Mu_v2_57_3.root";
 string sowj=diropen+"w_2011"+"_v2_27.root";//+version;
 string sott=diropen+"ttbar_2011Mu"+version;
 string soWW=diropen+"ww_2011Mu"+version;
 string soZZ=diropen+"zz_2011Mu"+version;
 string soWZ=diropen+"wz_2011Mu"+version;
 string soda=diropen+"DATA_2011"+versionMu;
- string sozjtau=diropen+"zjets_magd_2011Mu"+version;
+ string sozjtau=diropen+"zjets_magd_2011Mu_v2_57_3.root";
 
 string folderdir="validationJEC";
 string folderdir2="validationJECXSScaleDown";
@@ -281,10 +302,10 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
     NData             = new TH1F ("Jet_multi", "Jet_multi", 8, 0.5, 8.5);
     NDataIncl             = new TH1F ("Jet_multiIncl", "Jet_multiIncl", 8, 0.5, 8.5);
     Ht                = new TH1F ("HT", "HT", 47, 30, 500);
-    Ht_1j                = new TH1F ("HT_1j", "HT_1j", 12, 30, 630);
-    Ht_2j                = new TH1F ("HT_2j", "HT_2j", 12, 60, 630);
-    Ht_3j                = new TH1F ("HT_3j", "HT_3j", 7, 90, 630);
-    Ht_4j                = new TH1F ("HT_4j", "HT_4j", 5, 120, 630);
+    Ht_1j                = new TH1F ("HT_1j", "HT_1j", 17, 30, 710);
+    Ht_2j                = new TH1F ("HT_2j", "HT_2j", 13, 60, 710);
+    Ht_3j                = new TH1F ("HT_3j", "HT_3j", 14, 90, 790);
+    Ht_4j                = new TH1F ("HT_4j", "HT_4j", 10, 120, 720);
 
     Dphi_12           = new TH1F ("Dphi_12", "Dphi_12", 25, 0, TMath::Pi());
     Dphi_13           = new TH1F ("Dphi_13", "Dphi_13", 25, 0, TMath::Pi());
@@ -297,10 +318,10 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
     ele_pT	    = new TH1F ("ele_pT", "ele_pT", 50, 0, 250);
     ele_eta	    = new TH1F ("ele_eta", "ele_eta", 20, -3, 3);
     ele_phi	    = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
-    jet_pT	    = new TH1F ("jet_pT", "jet_pT", 15, 30, 330);
-    jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 10, 30, 330);
+    jet_pT	    = new TH1F ("jet_pT", "jet_pT", 18, 30, 390);
+    jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 15, 30, 330);
     jet_pT3	    = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
-    jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 7, 30, 100);
+    jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 5, 30, 130);
     jet_eta	    = new TH1F ("jet_eta", "jet_eta", 24, -2.4, 2.4);
     jet_eta2	    = new TH1F ("jet_eta2", "jet_eta2", 20, -2.4, 2.4);
     jet_eta3	    = new TH1F ("jet_eta3", "jet_eta3", 16, -2.4, 2.4);
@@ -388,21 +409,35 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 	h_weights->Fill(evWeight);
 
 
+	//Evaluate how close are the jets to electrons!
+	bool isGoodJet1=true;
+	bool isGoodJet2=true;
+	bool isGoodJet3=true;
+	bool isGoodJet4=true;
+
+	if (Jet_multiplicity>=1) isGoodJet1=isJetTooCloseToLeptons(jet1_eta, jet1_phi, e1_eta, e1_phi, e2_eta, e2_phi, 0.5); 
+	if (Jet_multiplicity>=2) isGoodJet2=isJetTooCloseToLeptons(jet2_eta, jet2_phi, e1_eta, e1_phi, e2_eta, e2_phi, 0.5); 
+	if (Jet_multiplicity>=3) isGoodJet3=isJetTooCloseToLeptons(jet3_eta, jet3_phi, e1_eta, e1_phi, e2_eta, e2_phi, 0.5); 
+	if (Jet_multiplicity>=4) isGoodJet4=isJetTooCloseToLeptons(jet4_eta, jet4_phi, e1_eta, e1_phi, e2_eta, e2_phi, 0.5); 
+
+	if (!isGoodJet1 || !isGoodJet2 || !isGoodJet3 || !isGoodJet4) continue;
+
+	//Ci va qualcosa che prende tutti i jets e la jetMulti, li valuta uno per uno e li scargnassa via se e' il caso
 
 	double multiweight=1.0*evWeight;
 	if (i>0 && activateScaleFactors) {
 	  if (isMu) {
 	    bool is2011A=false;
 	    //if (run<180000) is2011A=true;
-	    double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
-	    double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
-	    multiweight=effData/effMC;
+	    //double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
+	    //double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
+	    multiweight=getSfMuonPOG(is2011A,e1_pt ,e1_eta, e2_pt, e2_eta);
 	  }
 	  if (!isMu) {
-	    double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta);
-	    double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
-	    double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
-	    multiweight=SF*(effData/effMC);
+	    //double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta);
+	    //double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
+	    //double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
+	    multiweight=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta,false,false)*getScaleFactorPtUsingElectron(fAeff,e1_pt ,e1_eta, e2_pt, e2_eta);
 	  }
 	}
 
@@ -437,7 +472,7 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 
 	//NB!!!!!!!!!!!!!!!!!!!!!! -> Non considero il weight perche' lo considero poi in DrawComparison!!!!!!!!!!!!!!!!!!!!!
 
-	if(jet1_pt>jetThreshold && jet1_pt<350 && jet1_eta>-3 && jet1_eta<3){	
+	if(jet1_pt>jetThreshold && jet1_pt<390 && jet1_eta>-3 && jet1_eta<3){	
 	  jet_pT  -> Fill(jet1_pt,multiweight);
 	  jet_eta -> Fill(jet1_eta,multiweight);
 	}
@@ -556,22 +591,22 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
     Zjj_mass   -> GetXaxis() -> SetTitle("M_{Zjj} [GeV/c^{2}]");
     NData    -> GetXaxis() -> SetTitle("Jet multiplicity");  
     NDataIncl    -> GetXaxis() -> SetTitle("Jet multiplicity");  
-    Ht       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]"); 
-    Ht_1j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]"); 
-    Ht_2j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
-    Ht_3j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
-    Ht_4j       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
+    Ht       -> GetXaxis() -> SetTitle("H_{T} [GeV]"); 
+    Ht_1j       -> GetXaxis() -> SetTitle("H_{T} [GeV]"); 
+    Ht_2j       -> GetXaxis() -> SetTitle("H_{T} [GeV]");
+    Ht_3j       -> GetXaxis() -> SetTitle("H_{T} [GeV]");
+    Ht_4j       -> GetXaxis() -> SetTitle("H_{T} [GeV]");
     ele_pT   -> GetXaxis() -> SetTitle("Leading electron p_{T} [GeV/c]");        
     ele_eta  -> GetXaxis() -> SetTitle("Leading electron #eta");
     ele_phi  -> GetXaxis() -> SetTitle("Leading electron #phi");
-    jet_pT -> GetXaxis() -> SetTitle("Leading jet p_{T} [GeV/c]");
-    jet_pT2   -> GetXaxis() -> SetTitle("2^{nd} jet p_{T} [GeV/c]");
-    jet_pT3   -> GetXaxis() -> SetTitle("3^{rd} jet p_{T} [GeV/c]");
-    jet_pT4   -> GetXaxis() -> SetTitle("4^{th} jet p_{T} [GeV/c]");
-    jet_eta -> GetXaxis() -> SetTitle("Leading jet #eta [GeV/c]");
-    jet_eta2   -> GetXaxis() -> SetTitle("2^{nd} jet #eta [GeV/c]");
-    jet_eta3   -> GetXaxis() -> SetTitle("3^{rd} jet #eta [GeV/c]");
-    jet_eta4   -> GetXaxis() -> SetTitle("4^{th} jet #eta [GeV/c]");
+    jet_pT -> GetXaxis() -> SetTitle("Leading jet p_{T} [GeV]");
+    jet_pT2   -> GetXaxis() -> SetTitle("2^{nd} jet p_{T} [GeV]");
+    jet_pT3   -> GetXaxis() -> SetTitle("3^{rd} jet p_{T} [GeV]");
+    jet_pT4   -> GetXaxis() -> SetTitle("4^{th} jet p_{T} [GeV]");
+    jet_eta -> GetXaxis() -> SetTitle("Leading jet #eta ");
+    jet_eta2   -> GetXaxis() -> SetTitle("2^{nd} jet #eta ");
+    jet_eta3   -> GetXaxis() -> SetTitle("3^{rd} jet #eta ");
+    jet_eta4   -> GetXaxis() -> SetTitle("4^{th} jet #eta ");
     Z_pT     -> GetXaxis() -> SetTitle("Z boson p_{T} [GeV/c]");
     HZ       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
     HN       -> GetXaxis() -> SetTitle("H_{T} [GeV/c]");
@@ -586,45 +621,45 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
     Theta_JZ -> GetXaxis() -> SetTitle("cos(#theta_{J1,Z})");
     Phi_star_xs -> GetXaxis() -> SetTitle("#phi^{*}");
     
-    NData    -> GetYaxis() -> SetTitle("(Z #rightarrow e^{+}e^{-} + N_{jet})");
-    NDataIncl    -> GetYaxis() -> SetTitle("(Z #rightarrow e^{+}e^{-} >= N_{jet})");
-    Ht       -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d H_{T}");
-    Ht_1j       -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d H_{T}");
-    Ht_2j       -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d H_{T}");
-    Ht_3j       -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d H_{T}");
-    Ht_4j       -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d H_{T}");
+    NData    -> GetYaxis() -> SetTitle("Events");
+    NDataIncl    -> GetYaxis() -> SetTitle("Events");
+    Ht       -> GetYaxis() -> SetTitle("Events");
+    Ht_1j       -> GetYaxis() -> SetTitle("Events");
+    Ht_2j       -> GetYaxis() -> SetTitle("Events");
+    Ht_3j       -> GetYaxis() -> SetTitle("Events");
+    Ht_4j       -> GetYaxis() -> SetTitle("Events");
     ele_pT   -> GetYaxis() -> SetTitle("Events");        
     ele_eta  -> GetYaxis() -> SetTitle("Events");
     ele_phi  -> GetYaxis() -> SetTitle("Events");
-    jet_pT   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d p_{T}");
-    jet_pT2   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d p_{T}");
-    jet_pT3   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d p_{T}");
-    jet_pT4   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d p_{T}");
-    jet_eta  -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-}  dN/d #eta");
-    jet_eta2   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d #eta");
-    jet_eta3   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d #eta");
-    jet_eta4   -> GetYaxis() -> SetTitle("Z #rightarrow e^{+}e^{-} dN/d #eta");
+    jet_pT   -> GetYaxis() -> SetTitle("Events");
+    jet_pT2   -> GetYaxis() -> SetTitle("Events");
+    jet_pT3   -> GetYaxis() -> SetTitle("Events");
+    jet_pT4   -> GetYaxis() -> SetTitle("Events");
+    jet_eta  -> GetYaxis() -> SetTitle("Events");
+    jet_eta2   -> GetYaxis() -> SetTitle("Events");
+    jet_eta3   -> GetYaxis() -> SetTitle("Events");
+    jet_eta4   -> GetYaxis() -> SetTitle("Events");
     h_invMass   -> GetYaxis() -> SetTitle("# events");
     h_invMass   -> GetXaxis() -> SetTitle("e^{+}e^{-} invariant mass");
 
 
     if (isMu){
       h_invMass   -> GetXaxis() -> SetTitle("#mu^{+}#mu^{-} invariant mass");
-      NData    -> GetYaxis() -> SetTitle("(Z #rightarrow #mu^{+}#mu^{-} + N_{jet})");
-      NDataIncl    -> GetYaxis() -> SetTitle("(Z #rightarrow #mu^{+}#mu^{-} >= N_{jet})");
-      Ht       -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d H_{T}");
-    Ht_1j       -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d H_{T}");
-    Ht_2j       -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d H_{T}");
-    Ht_3j       -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d H_{T}");
-    Ht_4j       -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d H_{T}");
-    jet_pT   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d p_{T}");
-    jet_pT2   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d p_{T}");
-    jet_pT3   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d p_{T}");
-    jet_pT4   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d p_{T}");
-    jet_eta  -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-}   dN/d #eta");
-    jet_eta2   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d #eta");
-    jet_eta3   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d #eta");
-    jet_eta4   -> GetYaxis() -> SetTitle("Z #rightarrow #mu^{+}#mu^{-} dN/d #eta");
+      NData    -> GetYaxis() -> SetTitle("Events");
+      NDataIncl    -> GetYaxis() -> SetTitle("Events");
+      Ht       -> GetYaxis() -> SetTitle("Events");
+    Ht_1j       -> GetYaxis() -> SetTitle("Events");
+    Ht_2j       -> GetYaxis() -> SetTitle("Events");
+    Ht_3j       -> GetYaxis() -> SetTitle("Events");
+    Ht_4j       -> GetYaxis() -> SetTitle("Events");
+    jet_pT   -> GetYaxis() -> SetTitle("Events");
+    jet_pT2   -> GetYaxis() -> SetTitle("Events");
+    jet_pT3   -> GetYaxis() -> SetTitle("Events");
+    jet_pT4   -> GetYaxis() -> SetTitle("Events");
+    jet_eta  -> GetYaxis() -> SetTitle("Events");
+    jet_eta2   -> GetYaxis() -> SetTitle("Events");
+    jet_eta3   -> GetYaxis() -> SetTitle("Events");
+    jet_eta4   -> GetYaxis() -> SetTitle("Events");
     }
     Z_pT     -> GetYaxis() -> SetTitle("Events");
     HZ       -> GetYaxis() -> SetTitle("Z boson p_{T} [GeV/c]");

@@ -20,7 +20,6 @@ public:
   std::vector<double> systSum(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, TH1D*, TH1D*);
   std::vector<double> systPar(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>);
   std::vector<double> systOne(string);
-  std::vector<double> systOneCent(string);
   std::vector<double> systUnfArea(int, string, string);
   TH1D* getDataHisto(int, string);
 };
@@ -52,8 +51,6 @@ int combineLeptonSystematics::letscombine () {
   string muoJEC;
   string eleUnf;
   string muoUnf;
-  string eleGen;
-  string muoGen;
   string elePU;
   string muoPU;
   string eleBkg;
@@ -75,9 +72,7 @@ int combineLeptonSystematics::letscombine () {
 
   for (int var=0; var<variablesName.size(); var++){
 
-    //    output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
-    //    output=plotpath+"ele/"+variablesName[var]+"FinalSyst"+version+".txt";
-    output=plotpath+"muo/"+variablesName[var]+"FinalSyst"+version+".txt";
+    output=plotpath+"combination/"+variablesName[var]+"FinalSyst"+version+".txt";
     cout << "-------------------------" << endl;
     cout << "Writing " << output  << " ..."<< endl;
 
@@ -89,16 +84,18 @@ int combineLeptonSystematics::letscombine () {
     muoJEC = plotpath+"muo/systematicsJEC_"+variablesName[var]+version+".txt";
     eleUnf = plotpath+"ele/systematicsUnfMethod_"+variablesName[var]+version+".txt";
     muoUnf = plotpath+"muo/systematicsUnfMethod_"+variablesName[var]+version+".txt";
-    eleGen = plotpath+"ele/systematicsUnfGen_"+variablesName[var]+version+".txt";
-    muoGen = plotpath+"muo/systematicsUnfGen_"+variablesName[var]+version+".txt";
     elePU  = plotpath+"ele/systematicsPU_"+variablesName[var]+version+".txt";
     muoPU  = plotpath+"muo/systematicsPU_"+variablesName[var]+version+".txt";
     eleBkg = plotpath+"ele/BkgCrossSection_"+variablesName[var]+version+".txt";
     muoBkg = plotpath+"muo/BkgCrossSection_"+variablesName[var]+version+".txt";
 
-    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARC.root");
-    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCMu.root");
-    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialForStep2SFARCCombined.root");
+    //    Statistical errors file paths:
+    eleBkgStat = plotpath+"ele/backgroundStatError_"+variablesName[var]+version+".txt";
+    muoBkgStat = plotpath+"muo/backgroundStatError_"+variablesName[var]+version+".txt";
+
+    datahisto_ele   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributions_v2_35.root");
+    datahisto_muo   = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsMu_v2_35.root");
+    datahisto_combi = combineLeptonSystematics::getDataHisto(var,"/gpfs/cms/data/2011/Unfolding/UlfoldedDistributionsCombined_v2_35.root");
 
     datahisto_ele->Sumw2();
     datahisto_muo->Sumw2();
@@ -115,8 +112,6 @@ int combineLeptonSystematics::letscombine () {
     std::vector<double> jetMuoJEC = combineLeptonSystematics::systOne(muoJEC);
     std::vector<double> jetEleUnf = combineLeptonSystematics::systOne(eleUnf);
     std::vector<double> jetMuoUnf = combineLeptonSystematics::systOne(muoUnf);
-    std::vector<double> jetEleGen = combineLeptonSystematics::systOne(eleGen);
-    std::vector<double> jetMuoGen = combineLeptonSystematics::systOne(muoGen);
     std::vector<double> jetElePU  = combineLeptonSystematics::systOne(elePU); 
     std::vector<double> jetMuoPU  = combineLeptonSystematics::systOne(muoPU); 
     std::vector<double> jetEleBkg = combineLeptonSystematics::systOne(eleBkg);
@@ -130,51 +125,45 @@ int combineLeptonSystematics::letscombine () {
     jetStat.clear();
 
     // Correct Unfolding syst for Area uncertainty:
-    if (variablesName[var] == "jetMult") {
-      for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
-	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[nel] << endl;
-	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[nel]*jetEleUnfArea[nel]);
-	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[nel]*jetMuoUnfArea[nel]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[nel]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[nel]);
-      }
+    for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
+      jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + pow(jetEleUnfArea[var] * datahisto_ele->GetBinContent(nel+1),2));
+      jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + pow(jetMuoUnfArea[var] * datahisto_muo->GetBinContent(nel+1),2));
     }
-    if (variablesName[var] == "jet1Pt" || variablesName[var] == "jet1Ht" || variablesName[var] == "jet1Eta") {
-      for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
-	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[0] << endl;
-	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[0]*jetEleUnfArea[0]);
-	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[0]*jetMuoUnfArea[0]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[0]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[0]);
+
+    // Statistical uncertainties (data and bkg):
+    std::vector<double> jetEleDataStat;
+    jetEleDataStat.clear();
+    std::vector<double> jetEleBkgStat;
+    jetEleBkgStat.clear();
+    ifstream inStat1;
+    inStat1.open (eleBkgStat.c_str());
+    double tmpStat1;
+    double tmpStat2;
+    while (1) {
+      inStat1 >> tmpStat1 >> tmpStat2;
+      if (!inStat1.good()) {
+	break;
       }
+      jetEleDataStat.push_back(sqrt(tmpStat1)/4890.0);
+      jetEleBkgStat.push_back(sqrt(tmpStat2)/4890.0);
     }
-    if (variablesName[var] == "jet2Pt" || variablesName[var] == "jet2Ht" || variablesName[var] == "jet2Eta") {
-      for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
-	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[1] << endl;
-	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[1]*jetEleUnfArea[1]);
-	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[1]*jetMuoUnfArea[1]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[1]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[1]);
+    inStat1.close();
+
+    std::vector<double> jetMuoDataStat;
+    jetMuoDataStat.clear();
+    std::vector<double> jetMuoBkgStat;
+    jetMuoBkgStat.clear();
+    ifstream inStat2;
+    inStat2.open (muoBkgStat.c_str());
+    while (1) {
+      inStat2 >> tmpStat1 >> tmpStat2;
+      if (!inStat2.good()) {
+	break;
       }
+      jetMuoDataStat.push_back(sqrt(tmpStat1)/4890.0);
+      jetMuoBkgStat.push_back(sqrt(tmpStat2)/4890.0);
     }
-    if (variablesName[var] == "jet3Pt" || variablesName[var] == "jet3Ht" || variablesName[var] == "jet3Eta") {
-      for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
-	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[2] << endl;
-	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[2]*jetEleUnfArea[2]);
-	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[2]*jetMuoUnfArea[2]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[2]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[2]);
-      }
-    }
-    if (variablesName[var] == "jet4Pt" || variablesName[var] == "jet4Ht" || variablesName[var] == "jet4Eta") {
-      for (Int_t nel=0;nel<jetMuoUnf.size();nel++) {
-	//	cout << "UNF SYST: Method = " << jetEleUnf[nel] << " Area = " << jetEleUnfArea[3] << endl;
-	//	jetEleUnf[nel] = sqrt(jetEleUnf[nel]*jetEleUnf[nel] + jetEleUnfArea[3]*jetEleUnfArea[3]);
-	//	jetMuoUnf[nel] = sqrt(jetMuoUnf[nel]*jetMuoUnf[nel] + jetMuoUnfArea[3]*jetMuoUnfArea[3]);
-	jetEleUnf[nel] = max(jetEleGen[nel], jetEleUnfArea[3]);
-	jetMuoUnf[nel] = max(jetMuoGen[nel], jetMuoUnfArea[3]);
-      }
-    }
+    inStat2.close();
 
     // Compute the right contrib from efficiency:
     double epsilon=0.1;
@@ -185,20 +174,30 @@ int combineLeptonSystematics::letscombine () {
     double sigmaplus2=0.0;
     double sigmaminus2=0.0;
     for (Int_t nec=0;nec<jetMuoUnf.size();nec++) {
-      dplus2ele  = (1+epsilon)*(1+epsilon)*jetEleEff[nec]*datahisto_ele->GetBinContent(nec+1)*jetEleEff[nec]*datahisto_ele->GetBinContent(nec+1);
-      dminus2ele = (1-epsilon)*(1-epsilon)*jetEleEff[nec]*datahisto_ele->GetBinContent(nec+1)*jetEleEff[nec]*datahisto_ele->GetBinContent(nec+1);
-      dplus2muo  = (1+epsilon)*(1+epsilon)*jetMuoEff[nec]*datahisto_muo->GetBinContent(nec+1)*jetMuoEff[nec]*datahisto_muo->GetBinContent(nec+1);
-      dminus2muo = (1-epsilon)*(1-epsilon)*jetMuoEff[nec]*datahisto_muo->GetBinContent(nec+1)*jetMuoEff[nec]*datahisto_muo->GetBinContent(nec+1);
+      dplus2ele  = (1+epsilon)*(1+epsilon)*jetEleEff[nec]*jetEleEff[nec];
+      dminus2ele = (1-epsilon)*(1-epsilon)*jetEleEff[nec]*jetEleEff[nec];
+      dplus2muo  = (1+epsilon)*(1+epsilon)*jetMuoEff[nec]*jetMuoEff[nec];
+      dminus2muo = (1-epsilon)*(1-epsilon)*jetMuoEff[nec]*jetMuoEff[nec];
 
       sigmaplus2  = 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + dplus2ele) 
 			 + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dplus2muo));
       sigmaminus2 = 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + dminus2ele) 
 			 + 1.0/(datahisto_muo->GetBinError(nec+1)*datahisto_muo->GetBinError(nec+1) + dminus2muo));
-      jetEff.push_back(sqrt((sigmaplus2 - sigmaminus2)/(4*epsilon))/datahisto_combi->GetBinContent(nec+1));
-      jetStat.push_back(sqrt( 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetEleEff[nec]*datahisto_ele->GetBinContent(nec+1)*jetEleEff[nec]*datahisto_ele->GetBinContent(nec+1)) 
-				   + 1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetMuoEff[nec]*datahisto_muo->GetBinContent(nec+1)*jetMuoEff[nec]*datahisto_muo->GetBinContent(nec+1)))
-			      - (sigmaplus2 - sigmaminus2)/(4*epsilon))/datahisto_combi->GetBinContent(nec+1));
+      //      sigmaplus2  = 1.0/(1.0/(jetEleDataStat[nec]*jetEleDataStat[nec] + jetEleBkgStat[nec]*jetEleBkgStat[nec] + dplus2ele) 
+      //		     + 1.0/(jetMuoDataStat[nec]*jetMuoDataStat[nec] + jetMuoBkgStat[nec]*jetMuoBkgStat[nec] + dplus2muo));
+      //      sigmaminus2 = 1.0/(1.0/(jetEleDataStat[nec]*jetEleDataStat[nec] + jetEleBkgStat[nec]*jetEleBkgStat[nec] + dminus2ele) 
+      //		     + 1.0/(jetMuoDataStat[nec]*jetMuoDataStat[nec] + jetMuoBkgStat[nec]*jetMuoBkgStat[nec] + dminus2muo));
+
+      jetEff.push_back(sqrt((sigmaplus2 - sigmaminus2)/(4*epsilon)));
+      //      jetStat.push_back(sqrt( 1.0/(1.0/(jetEleDataStat[nec]*jetEleDataStat[nec] + jetEleBkgStat[nec]*jetEleBkgStat[nec] + jetEleEff[nec]*jetEleEff[nec]) 
+      //				 + 1.0/(jetMuoDataStat[nec]*jetMuoDataStat[nec] + jetMuoBkgStat[nec]*jetMuoBkgStat[nec] + jetMuoEff[nec]*jetMuoEff[nec]))
+      //			     - (sigmaplus2 - sigmaminus2)/(4*epsilon)));
+      jetStat.push_back(sqrt( 1.0/(1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetEleEff[nec]*jetEleEff[nec]) 
+				 + 1.0/(datahisto_ele->GetBinError(nec+1)*datahisto_ele->GetBinError(nec+1) + jetMuoEff[nec]*jetMuoEff[nec]))
+			      - (sigmaplus2 - sigmaminus2)/(4*epsilon)));
       jetEffOld.push_back(sqrt(1/(1/(jetEleEff[nec]*jetEleEff[nec]) + 1/(jetMuoEff[nec]*jetMuoEff[nec]))));
+
+      if (variablesName[var] == "jetMult") cout << "jetEleDataStat = " << jetEleDataStat[nec] << " jetMuoDataStat = " << jetMuoDataStat[nec] << " jetEleBkgStat = " << jetEleBkgStat[nec] << " jetMuoBkgStat = " << jetMuoBkgStat[nec]  << endl;
     }
 
     cout << "   -> Computing combined systematics..." << endl;
@@ -215,15 +214,9 @@ int combineLeptonSystematics::letscombine () {
     // Write Systematics combination to file!!
     ofstream syste;
     syste.open(output.c_str());
-//    for (int i=0;i<jetSyst.size();i++){
-//      syste<<jetSyst[i]<<endl;
-//    }
-    //  for (int i=0;i<jetEleS.size();i++){
-    //    syste<<jetEleS[i]<<endl;
-    //  }
-        for (int i=0;i<jetMuoS.size();i++){
-          syste<<jetMuoS[i]<<endl;
-        }
+    for (int i=0;i<jetSyst.size();i++){
+      syste<<jetSyst[i]<<endl;
+    }
     syste.close();
 
     string varnameforlatex = variablesName[var];
@@ -262,26 +255,31 @@ std::vector<double> combineLeptonSystematics::systUnfArea(int isEleOrMuo, string
   variablesUnfArea.push_back("Jet2");
   variablesUnfArea.push_back("Jet3");
   variablesUnfArea.push_back("Jet4");
-  variablesUnfArea.push_back("Jet5");
-  variablesUnfArea.push_back("Jet6");
 
   std::vector<double> jetUnfArea;   
   jetUnfArea.clear();
 
   string UnfArea;
   double centralValue, rms;
-  //  double relerr;
   ifstream inUnfArea;
 
-  for (Int_t m=0;m<variablesUnfArea.size();m++) {
+  if (isEleOrMuo == 1) UnfArea = plotpath+"ele/systematicsUnfArea_"+variablesUnfArea[1]+version+".txt";
+  if (isEleOrMuo == 2) UnfArea = plotpath+"muo/systematicsUnfArea_"+variablesUnfArea[1]+version+".txt";
+  inUnfArea.open (UnfArea.c_str());
+  inUnfArea >> centralValue >> rms;
+  inUnfArea.close ();
+  jetUnfArea.push_back(fabs(rms/centralValue));
+
+  for (Int_t n=0;n<3;n++) {
+    for (Int_t m=0;m<4;m++) {
       if (isEleOrMuo == 1) UnfArea = plotpath+"ele/systematicsUnfArea_"+variablesUnfArea[m]+version+".txt";
       if (isEleOrMuo == 2) UnfArea = plotpath+"muo/systematicsUnfArea_"+variablesUnfArea[m]+version+".txt";
       inUnfArea.open (UnfArea.c_str());
       inUnfArea >> centralValue >> rms;
       inUnfArea.close ();
       jetUnfArea.push_back(fabs(rms/centralValue));
-      //      cout << "UnfArea Syst for "<< variablesUnfArea[m] << " " << rms/centralValue << endl;
     }
+  }
 
   return jetUnfArea;
 }
@@ -297,7 +295,6 @@ std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEle
   double tmpBkg;
   double tmpSyst;
 
-
   for (Int_t i=0;i<jetEleUnf.size();i++) {
 
     tmpEff = jetEleEff[i];
@@ -305,8 +302,6 @@ std::vector<double> combineLeptonSystematics::systSum(std::vector<double> jetEle
     tmpUnf = (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
     tmpPU  = (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
     tmpBkg = (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-
-    cout << "Eff = " << tmpEff*100. << "; JEC = " << tmpJEC*100. << "; Unf = " << tmpUnf*100. << "; PU = " << tmpPU*100. << "; Bkg = " << tmpBkg*100. << endl;
 
     tmpSyst = sqrt(tmpEff*tmpEff + tmpJEC*tmpJEC + tmpUnf*tmpUnf + tmpPU*tmpPU + tmpBkg*tmpBkg);
 
@@ -363,38 +358,6 @@ std::vector<double> combineLeptonSystematics::systOne(string oneSyst){
 }
 
 
-std::vector<double> combineLeptonSystematics::systOneCent(string oneSyst){
-	
-  // Leggere nomi dei file da aprire
-   
-  std::vector<double> syst;
-   
-  ifstream inSyst;
-  inSyst.open (oneSyst.c_str());
-   
-  int i=0;
-  double tmpSyst;
-
-  cout << "Attento mona, stai tirando su delle sistematiche percentuali, sapevatelo!" << endl;
-
-  while (1) {
-    inSyst >> tmpSyst;
-
-    if (!inSyst.good()) {
-      break;
-    }
-
-    syst.push_back(tmpSyst/100.);
-
-    i++;  
-  }
-
-  inSyst.close();
-
-  return syst;
-}
-
-
 int combineLeptonSystematics::printLatex (std::vector<double> jetSyst, 
 					  std::vector<double> jetEleS, 
 					  std::vector<double> jetMuoS, 
@@ -415,17 +378,7 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
 					  TH1D* datahisto_muo,
 					  TH1D* datahisto_combi,
 					  string variablesName, string version) {
-
-  double tmpBDJEC;
-  double tmpBDUnf;
-  double tmpBDPU ;
-  double tmpBDBkg;
-
-  tmpBDJEC = (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-  tmpBDUnf = (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-  tmpBDPU  = (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));
-  tmpBDBkg = (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1));  
-
+  
   ofstream textfile;
   string tablepath = "/gpfs/cms/users/schizzi/Systematics/tables/systematics_"+variablesName+version+".tex";
   textfile.open(tablepath.c_str(), ios_base::trunc);
@@ -443,111 +396,54 @@ int combineLeptonSystematics::printLatex (std::vector<double> jetSyst,
   textfile << "\\textwidth=200mm " << endl;
   textfile << "\\begin{document}" << endl;
 
-  // FINAL TABLE:
+  // singular systs
   textfile << "\\begin{sidewaystable}[htbH]" << endl
-	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
-           << "\\hline" << endl 
-    	   << "\\multicolumn{3}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Data Uncertainties (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Electron Systematics (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Global Syst. (\\%)} \t\\\\" << endl
-           << "\\hline" << endl; 
-
-  textfile << "Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Comb. \t\\\\" << endl
-	   << "\\hline" << endl; 
-
-  for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile.precision(3);
-    textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile.precision(2);
-    textfile << jetEff[i]*100. << "\t&\t";
-    textfile << (jetEleJEC[i]*datahisto_ele->GetBinContent(i+1) + jetMuoJEC[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetEleUnf[i]*datahisto_ele->GetBinContent(i+1) + jetMuoUnf[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetElePU[i] *datahisto_ele->GetBinContent(i+1) + jetMuoPU[i] *datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << (jetEleBkg[i]*datahisto_ele->GetBinContent(i+1) + jetMuoBkg[i]*datahisto_muo->GetBinContent(i+1))/(datahisto_ele->GetBinContent(i+1) + datahisto_muo->GetBinContent(i+1))*100. << "\t&\t";
-    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
-  }
-  textfile << "\\hline" << endl
-           << "\\end{tabular}" << endl
-           << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:papersystematicsbreakdowntab}" << endl
-	   << "\\end{center}" << endl
-           << "\\end{sidewaystable}" << endl;
-
-  // TABLE for the paper with breakdown of combined systs:
-  textfile << "\\begin{sidewaystable}[htbH]" << endl
-	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
-           << "\\hline" << endl 
-    	   << "\\multicolumn{1}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{1}{|c|}{Stat. Unc. (\\%)} \t&\t \\multicolumn{6}{|c|}{Syst. Unc. (\\%)}  \t\\\\" << endl
-           << "\\hline" << endl; 
-
-  textfile << "Comb. Ele/Mu \t&\t Comb. Ele/Mu \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Total \t\\\\" << endl
-	   << "\\hline" << endl; 
-
-  for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile.precision(3);
-    textfile << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile.precision(2);
-    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
-  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t&\t";
-    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
-  }
-  textfile << "\\hline" << endl
-           << "\\end{tabular}" << endl
-           << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:finalsupersystematicstab}" << endl
-	   << "\\end{center}" << endl
-           << "\\end{sidewaystable}" << endl;
-
-
-  // SYSTEMATICS ONLY:
-  textfile << "\\begin{table}[htbH]" << endl
 	   << "\\begin{center}" << endl
            << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}" << endl
            << "\\hline" << endl 
-    	   << "\\multicolumn{5}{|c|}{Electron Systematics (\\%)} \t&\t \\multicolumn{5}{|c|}{Muon Systematics (\\%)} \t\\\\" << endl
+    	   << "\\multicolumn{5}{|c|}{Electron Systematics} \t&\t \\multicolumn{5}{|c|}{Muon Systematics} \t\\\\" << endl
            << "\\hline" << endl; 
 
-  textfile << "Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t&\t Eff. \t&\t JEC \t&\t Unf. \t&\t PU \t&\t Bkg. \t\\\\" << endl
+  textfile << "Efficiency \t&\t JEC \t&\t Unfolding \t&\t PU \t&\t Bkg subtr. \t&\t Efficiency \t&\t JEC \t&\t Unfolding \t&\t PU \t&\t Bkg subtr. \t\\\\" << endl
 	   << "\\hline" << endl; 
 
   for (Int_t i=0; i<jetSyst.size(); i++) {
-    textfile.precision(2);
-    textfile << jetEleEff[i]*100. << "\t&\t" << jetEleJEC[i]*100. << "\t&\t" << jetEleUnf[i]*100. << "\t&\t" << jetElePU[i]*100. << "\t&\t" << jetEleBkg[i]*100. << "\t&\t"
-  	     << jetMuoEff[i]*100. << "\t&\t" << jetMuoJEC[i]*100. << "\t&\t" << jetMuoUnf[i]*100. << "\t&\t" << jetMuoPU[i]*100. << "\t&\t" << jetMuoBkg[i]*100. << "\t\\\\" << endl;
+    textfile.precision(3);
+    textfile << jetEleEff[i] << "\t&\t" << jetEleJEC[i] << "\t&\t" << jetEleUnf[i] << "\t&\t" << jetElePU[i] << "\t&\t" << jetEleBkg[i] << "\t&\t"
+  	     << jetMuoEff[i] << "\t&\t" << jetMuoJEC[i] << "\t&\t" << jetMuoUnf[i] << "\t&\t" << jetMuoPU[i] << "\t&\t" << jetMuoBkg[i] << "\t\\\\" << endl;
   }
+  
+  // combination systs
   textfile << "\\hline" << endl
            << "\\end{tabular}" << endl
            << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:systematicstab" << variablesName << "}" << endl
+           << "\\label{tab:systematicstab}" << endl
 	   << "\\end{center}" << endl
-           << "\\end{table}" << endl;
+           << "\\end{sidewaystable}" << endl;
 
-  // XSECTIONS ONLY:
-  textfile << "\\begin{table}[htbH]" << endl
+  textfile << "\\begin{sidewaystable}[htbH]" << endl
 	   << "\\begin{center}" << endl
-           << "\\begin{tabular}{|c|c|c|c|c|c|c|}" << endl
+           << "\\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}" << endl
            << "\\hline" << endl 
-    	   << "\\multicolumn{3}{|c|}{DATA xsec (pb)} \t&\t \\multicolumn{3}{|c|}{Data Uncertainties (\\%)}  \t&\t  \\multicolumn{1}{|c|}{Global Syst. (\\%)} \t\\\\" << endl
+    	   << "\\multicolumn{3}{|c|}{DATA xsec (/pb)} \t&\t \\multicolumn{4}{|c|}{Data Uncertainties} \t&\t \\multicolumn{5}{|c|}{Global Systematics} \t\\\\" << endl
            << "\\hline" << endl; 
 
-  textfile << "Ele \t&\t Mu \t&\t Comb. \t&\t Ele \t&\t Mu \t&\t Comb. \t&\t Comb. \t\\\\" << endl
+  textfile << "Electrons \t&\t Muons \t&\t Combined \t&\t Electrons \t&\t Muons \t&\t Combined \t&\t Combined 2 \t&\t Efficiency comb. \t&\t Efficiency comb.2 \t&\t Electrons \t&\t Muons \t&\t Combined \t\\\\" << endl
 	   << "\\hline" << endl; 
 
   for (Int_t i=0; i<jetSyst.size(); i++) {
     textfile.precision(3);
     textfile << datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinContent(i+1) << "\t&\t" << datahisto_combi->GetBinContent(i+1) << "\t&\t" ;
-    textfile << datahisto_ele->GetBinError(i+1)*100./datahisto_ele->GetBinContent(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)*100./datahisto_muo->GetBinContent(i+1)  << "\t&\t" <<  jetStat[i]*100.  << "\t&\t" ;
-    textfile.precision(2);
-    textfile << jetSyst[i]*100.   << "\t\\\\" << endl;
+    textfile << datahisto_ele->GetBinError(i+1) << "\t&\t" << datahisto_muo->GetBinError(i+1)  << "\t&\t" <<  datahisto_combi->GetBinError(i+1)  << "\t&\t" <<  jetStat[i]  << "\t&\t" ;
+    textfile << jetEffOld[i] << "\t&\t" << jetEff[i] << "\t&\t" << jetEleS[i]  << "\t&\t" << jetMuoS[i]   << "\t&\t" << jetSyst[i]   << "\t\\\\" << endl;
   }
+  
   textfile << "\\hline" << endl
            << "\\end{tabular}" << endl
            << "\\caption{" << variablesName << "}" << endl
-           << "\\label{tab:finalxsectab" << variablesName << "}" << endl
+           << "\\label{tab:systematicstab}" << endl
 	   << "\\end{center}" << endl
-           << "\\end{table}" << endl;
+           << "\\end{sidewaystable}" << endl;
 
   textfile << "\\end{document}" << endl;
 
