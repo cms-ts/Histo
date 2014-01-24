@@ -101,73 +101,73 @@ trigger2011v3 = cms.vstring("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_
 
 # Electrons:
 
-process.TAPeleWp80 = cms.EDFilter('EfficiencyFilter',
-                              matchMC = cms.bool(False),
-                              muonEfficiency = cms.bool(False),
-                              electronCollection = cms.InputTag("patElectrons"),
-                              TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
-                              ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
-                              muonCollection = cms.InputTag("allMuons"),
-                              tightMuonCollection = cms.InputTag("tightMuons"),
-                              TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
-                              ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
-                              superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
-                              superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-                              caloMuonCollection = cms.InputTag("muons"),
-                              triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
-                              filename=cms.untracked.string("ZAnalysisFilter.root"),
-                              UseCombinedPrescales = cms.bool(False),
-                              removePU=  cms.bool(False),
-                              WP80_efficiency  =  cms.bool(True),
-                              HLTele17_efficiency  =  cms.bool(False),
-                              HLTele8_efficiency  =  cms.bool(False),
-                              RECO_efficiency  =  cms.bool(False),
-                              isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
-                                                                    cms.InputTag('elPFIsoValueGamma03PFIso'),
-                                                                    cms.InputTag('elPFIsoValueNeutral03PFIso')),
-                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
-                              electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
-                              candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
-                              JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
-                              TriggerNames = trigger2011v3
-                              )
-
-process.TAPmuoWp80 = process.TAPeleWp80.clone(muonEfficiency = cms.bool(True))
-
-process.TAPhltele8NOTele17 = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
-                                                      ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),
-                                                      TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
-                                                      ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLooseNOTtight"),
-                                                      WP80_efficiency  =  cms.bool(False),
-                                                      HLTele17_efficiency  =  cms.bool(False),
-                                                      HLTele8_efficiency  =  cms.bool(True),
-                                                      RECO_efficiency  =  cms.bool(False),
-                                                      )
-
-process.TAPhltmuoLooseNOTtight = process.TAPhltele8NOTele17.clone(muonEfficiency = cms.bool(True))
-
-process.TAPhltele17 = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
-                                               ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
-                                               TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
-                                               ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
-                                               WP80_efficiency  =  cms.bool(False),
-                                               HLTele17_efficiency  =  cms.bool(True),
-                                               HLTele8_efficiency  =  cms.bool(False),
-                                               RECO_efficiency  =  cms.bool(False),
-                                               )
-
-process.TAPhltmuoTight = process.TAPhltele17.clone(muonEfficiency = cms.bool(True))
-
-process.TAPeleReco = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
-                                          ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
-                                          ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
-                                          WP80_efficiency  =  cms.bool(False),
-                                          HLTele17_efficiency  =  cms.bool(False),
-                                          HLTele8_efficiency  =  cms.bool(False),
-                                          RECO_efficiency  =  cms.bool(True),
-                                          )
-
-process.TAPmuoReco = process.TAPeleReco.clone(muonEfficiency = cms.bool(True))
+#process.TAPeleWp80 = cms.EDFilter('EfficiencyFilter',
+#                              matchMC = cms.bool(False),
+#                              muonEfficiency = cms.bool(False),
+#                              electronCollection = cms.InputTag("patElectrons"),
+#                              TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+#                              ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
+#                              muonCollection = cms.InputTag("allMuons"),
+#                              tightMuonCollection = cms.InputTag("tightMuons"),
+#                              TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+#                              ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
+#                              superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters"),
+#                              superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+#                              caloMuonCollection = cms.InputTag("muons"),
+#                              triggerCollectionTag = cms.untracked.InputTag("TriggerResults","","HLT"),
+#                              filename=cms.untracked.string("ZAnalysisFilter.root"),
+#                              UseCombinedPrescales = cms.bool(False),
+#                              removePU=  cms.bool(False),
+#                              WP80_efficiency  =  cms.bool(True),
+#                              HLTele17_efficiency  =  cms.bool(False),
+#                              HLTele8_efficiency  =  cms.bool(False),
+#                              RECO_efficiency  =  cms.bool(False),
+#                              isoValInputTags       = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIso'),
+#                                                                    cms.InputTag('elPFIsoValueGamma03PFIso'),
+#                                                                    cms.InputTag('elPFIsoValueNeutral03PFIso')),
+#                              VertexCollectionTag = cms.InputTag('offlinePrimaryVertices'),
+#                              electronIsolatedProducer= cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
+#                              candTag= cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15LTIPixelMatchFilter"),
+#                              JetCollectionLabel = cms.InputTag("ak5PFchsJetsRCL1FastL2L3Residual"),
+#                              TriggerNames = trigger2011v3
+#                              )
+#
+#process.TAPmuoWp80 = process.TAPeleWp80.clone(muonEfficiency = cms.bool(True))
+#
+#process.TAPhltele8NOTele17 = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+#                                                      ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8NOTEle17"),
+#                                                      TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+#                                                      ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLooseNOTtight"),
+#                                                      WP80_efficiency  =  cms.bool(False),
+#                                                      HLTele17_efficiency  =  cms.bool(False),
+#                                                      HLTele8_efficiency  =  cms.bool(True),
+#                                                      RECO_efficiency  =  cms.bool(False),
+#                                                      )
+#
+#process.TAPhltmuoLooseNOTtight = process.TAPhltele8NOTele17.clone(muonEfficiency = cms.bool(True))
+#
+#process.TAPhltele17 = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+#                                               ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle17"),
+#                                               TagHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+#                                               ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsTight"),
+#                                               WP80_efficiency  =  cms.bool(False),
+#                                               HLTele17_efficiency  =  cms.bool(True),
+#                                               HLTele8_efficiency  =  cms.bool(False),
+#                                               RECO_efficiency  =  cms.bool(False),
+#                                               )
+#
+#process.TAPhltmuoTight = process.TAPhltele17.clone(muonEfficiency = cms.bool(True))
+#
+#process.TAPeleReco = process.TAPeleWp80.clone(TagHLTelectronCollection = cms.InputTag("trgmatchPatElectronsReco"),
+#                                          ProbeHLTelectronCollection = cms.InputTag("trgmatchPatElectronsEle8"),
+#                                          ProbeHLTmuonCollection = cms.InputTag("trgmatchAsymMuonsLoose"),
+#                                          WP80_efficiency  =  cms.bool(False),
+#                                          HLTele17_efficiency  =  cms.bool(False),
+#                                          HLTele8_efficiency  =  cms.bool(False),
+#                                          RECO_efficiency  =  cms.bool(True),
+#                                          )
+#
+#process.TAPmuoReco = process.TAPeleReco.clone(muonEfficiency = cms.bool(True))
 
 ### ETA-PT efficiency: ###
 
@@ -320,7 +320,7 @@ process.validationOldJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                          JECUncertainties= cms.double(0),
+                                       JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treeOLDJEC_"),
                                        isElectron= cms.untracked.bool(True)  
                                        )
@@ -344,9 +344,15 @@ process.validationTESTJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),
+                                       JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treeTESTJEC_"),
-                                       isElectron= cms.untracked.bool(True)   
+                                       isElectron= cms.untracked.bool(True),
+                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
+                                       EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                       EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                       MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                       MuGammaGenEta = cms.string('MuGammaGenEta')
                                        )
                                  
 process.validationPUJEC = cms.EDAnalyzer('jetValidation',
@@ -368,9 +374,15 @@ process.validationPUJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0),
+                                       JECUncertainties= cms.double(0),
                                        RootuplaName = cms.string("treePUJEC_"),
-                                       isElectron= cms.untracked.bool(True)   
+                                       isElectron= cms.untracked.bool(True),
+                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
+                                       EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                       EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                       MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                       MuGammaGenEta = cms.string('MuGammaGenEta')
                                        )
 
 
@@ -395,9 +407,15 @@ process.validationJEC = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0), 
+                                       JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeValidationJEC_"),
-                                       isElectron= cms.untracked.bool(True)  
+                                       isElectron= cms.untracked.bool(True),
+                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
+                                       EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                       EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                       MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                       MuGammaGenEta = cms.string('MuGammaGenEta')
                                        )
                                    
 process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
@@ -419,9 +437,15 @@ process.validationL2L3Residual = cms.EDAnalyzer('jetValidation',
                                        neutralEmEnergyFraction= cms.double(0.99),
                                        chargedHadronEnergyFraction= cms.double(0.0),
                                        chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0), 
+                                       JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeL2L3_"),
-                                       isElectron= cms.untracked.bool(True)                                               
+                                       isElectron= cms.untracked.bool(True),
+                                       WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
+                                       EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                       EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                       MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                       MuGammaGenEta = cms.string('MuGammaGenEta')
                                        )
 
 process.validationPU = cms.EDAnalyzer('jetValidation',
@@ -443,9 +467,15 @@ process.validationPU = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),  
-                                      JECUncertainties= cms.double(0),
-                                       RootuplaName = cms.string("treePU_"),
-                                       isElectron= cms.untracked.bool(True)                                   
+                                    JECUncertainties= cms.double(0),
+                                    RootuplaName = cms.string("treePU_"),
+                                    isElectron= cms.untracked.bool(True),
+                                    WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                    applyMCWeightsSherpa = cms.untracked.bool(False),
+                                    EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                    EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                    MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                    MuGammaGenEta = cms.string('MuGammaGenEta')  
                                     )
 
 
@@ -470,9 +500,15 @@ process.validationRC = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(0), 
-                                       RootuplaName = cms.string("treeRC_"),
-                                       isElectron= cms.untracked.bool(True)                                     
+                                    JECUncertainties= cms.double(0), 
+                                    RootuplaName = cms.string("treeRC_"),
+                                    isElectron= cms.untracked.bool(True),
+                                    WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                    applyMCWeightsSherpa = cms.untracked.bool(False),
+                                    EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                    EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                    MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                    MuGammaGenEta = cms.string('MuGammaGenEta')
                                     )
 
 
@@ -497,9 +533,15 @@ process.validationJECScaleUp = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(1), 
-                                       RootuplaName = cms.string("treeJECScaleUp_"),
-                                       isElectron= cms.untracked.bool(True) 
+                                    JECUncertainties= cms.double(1), 
+                                    RootuplaName = cms.string("treeJECScaleUp_"),
+                                    isElectron= cms.untracked.bool(True),
+                                    WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                    applyMCWeightsSherpa = cms.untracked.bool(False),
+                                    EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                    EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                    MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                    MuGammaGenEta = cms.string('MuGammaGenEta')
                                     )
 
 process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
@@ -523,9 +565,15 @@ process.validationJECScaleDown = cms.EDAnalyzer('jetValidation',
                                     neutralEmEnergyFraction= cms.double(0.99),
                                     chargedHadronEnergyFraction= cms.double(0.0),
                                     chargedMultiplicity= cms.int32(0),
-                                      JECUncertainties= cms.double(-1),
-                                       RootuplaName = cms.string("treeJECScaleDown_"),
-                                       isElectron= cms.untracked.bool(True) 
+                                    JECUncertainties= cms.double(-1),
+                                    RootuplaName = cms.string("treeJECScaleDown_"),
+                                    isElectron= cms.untracked.bool(True),
+                                    WeightNameSherpa = cms.string('EventWeightSherpa'),
+                                    applyMCWeightsSherpa = cms.untracked.bool(False),
+                                    EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                    EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                    MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                    MuGammaGenEta = cms.string('MuGammaGenEta')
                                     )
                                   
 process.reclusValidation = cms.EDAnalyzer('reclusVal',

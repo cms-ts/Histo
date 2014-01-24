@@ -66,7 +66,9 @@ process.GlobalTag.globaltag = 'MC_44_V5D::All'
 readFiles = cms.untracked.vstring()
 readFiles.extend([
 #"file:/gpfs/grid/srm/cms/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-08Nov2011-v1/0000/9213ACEA-B01B-E111-9BD9-002618943833.root"
-    "file:/gpfs/grid/srm/cms/store/data/Fall11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S6-START44_V5-v1/0001/B48B1A68-460A-E111-88DF-485B39800BAB.root"
+"file:/gpfs/cms/data/2011/FilesRunLocal/F6E6A225-A707-E111-B127-003048678F1C_Sherpa.root"
+#"file:/gpfs/grid/srm/cms/store/data/Fall11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S6-START44_V5-v1/0001/B48B1A68-460A-E111-88DF-485B39800BAB.root"
+#"file:/gpfs/cms/users/cossutti/Generators/zjets_studies/rivet-debug/step3.root"
     ])
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
@@ -280,8 +282,13 @@ process.validationJEC = cms.EDAnalyzer('jetValidationUnfolding',
                                        JECUncertainties= cms.double(0), 
                                        RootuplaName = cms.string("treeValidationJEC_") ,
                                        WeightNameSherpa = cms.string('EventWeightSherpa'),
-                                       applyMCWeightsSherpa = cms.untracked.bool(True),
-                                       isElectron= cms.untracked.bool(True)   
+                                       applyMCWeightsSherpa = cms.untracked.bool(False),
+                                       isSherpa= cms.untracked.bool(True),
+                                       isElectron= cms.untracked.bool(True),
+                                       EleGammaGenPt_ = cms.string('EleGammaGenPt'),
+                                       EleGammaGenEta = cms.string('EleGammaGenEta'),
+                                       MuGammaGenPt = cms.string('MuGammaGenPt'),
+                                       MuGammaGenEta = cms.string('MuGammaGenEta')
                                        )
 
 process.validationOldJEC = process.validationJEC.clone(
@@ -342,7 +349,7 @@ process.validationJECMuXSScaleDown = process.validationJECXSScaleDown.clone(
 
 
 ####################
-#### HT Analysis, MC reweight, and other stuff
+#### HLT Analysis, MC reweight, and other stuff
 ###################
 
 process.demo = cms.EDProducer('HistoAnalyzer',
@@ -366,7 +373,8 @@ process.demo = cms.EDProducer('HistoAnalyzer',
                               WhichRun = cms.string("Run2011AB"), ##UNESSENTIAL FOR DATA:Select which datasets you wonna use to reweight..
                               eventWeightsCollection= cms.string("EventWeight"),
                               giveEventWeightEqualToOne= cms.bool(False),
-                              RootuplaName = cms.string("treeVJ_")
+                              RootuplaName = cms.string("treeVJ_"),
+                              applyMCWeightsSherpa= cms.untracked.bool(True)
 )
 
 process.demoE = process.demo.clone(
@@ -1122,7 +1130,7 @@ process.JetValidation = cms.Path(
     process.goodElec*
     process.pfNoElectron*
     process.goodOfflinePrimaryVertices*
-    process.Selection*
+    #process.Selection*
     process.goodEPair*
     process.demo*
     ## gen jets without electrons
@@ -1132,8 +1140,8 @@ process.JetValidation = cms.Path(
     process.ak5PFJetsRC*
     process.ak5PFchsJetsRCL1FastL2L3*
     ## validation
-    process.validationJECXSScaleUp*
-    process.validationJECXSScaleDown*
+    #process.validationJECXSScaleUp*
+    #process.validationJECXSScaleDown*
     process.validationJEC
     )
 
@@ -1146,7 +1154,7 @@ process.JetValidationMU = cms.Path(
     (process.zmuAllmuAll+                                      ##
      process.zmuTightmuTight+                                  ##
      process.zmuMatchedmuMatched)*
-    process.SelectionMu*
+    #process.SelectionMu*
     process.demo*
     process.goodMuPair*
     process.pfNoMuon*
@@ -1157,8 +1165,8 @@ process.JetValidationMU = cms.Path(
     process.ak5PFJetsRCmu*
     process.ak5PFchsJetsRCmuL1FastL2L3*
     ## analysis
-    process.validationJECMuXSScaleUp*
-    process.validationJECMuXSScaleDown*
+    #process.validationJECMuXSScaleUp*
+    #process.validationJECMuXSScaleDown*
     process.validationJECmu
     )
 
