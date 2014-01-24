@@ -9,7 +9,7 @@
 //
 // Original Author:  Davide Scaini,Matteo Marone 27 1-013,+41227678527,
 //         Created:  Tue Jul 12 14:54:43 CEST 2011
-// $Id: HistoAnalyzer.cc,v 1.44 2012/06/01 12:57:42 marone Exp $
+// $Id: HistoAnalyzer.cc,v 1.45 2012/09/22 07:54:56 marone Exp $
 //
 //
 
@@ -658,7 +658,7 @@ double MyWeight = LumiWeights_.weight3BX( ave_nvtx );
 	  edm::Handle<GenEventInfoProduct> genEventInfoHandle;
 	  iEvent.getByLabel("generator",genEventInfoHandle);
 	  double wMCtmp = genEventInfoHandle->weight();
-	  //std::cout << "Weight MC for SHERPA -> " << wMCtmp<< std::endl; 
+	  if (debugH11) std::cout << "Weight MC for SHERPA -> " << wMCtmp<< std::endl; 
 	  EventWeightSherpa->push_back(wMCtmp);
 	}
 	else{
