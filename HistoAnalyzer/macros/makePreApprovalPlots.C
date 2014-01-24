@@ -25,7 +25,7 @@
 #include <string.h>
 
 void
-makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
+makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton, bool inclusiveMultiplicity)
 {
 
   //setTDRStyle ();
@@ -40,23 +40,14 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   int use_case = whichobservable;
   int whichjet = whichjet;
   string version = "_v2_32";
-  bool incMultiplicity = false;
+  bool incMultiplicity = inclusiveMultiplicity;
 
-
-  //string s                = "/afs/infn.it/ts/user/marone/html/ZJets/articlePlots/Ele/";
-  //if (lepton==2) string s = "/afs/infn.it/ts/user/marone/html/ZJets/articlePlots/Mu/";
-
-  string s                = "/tmp/";
-  if (lepton==2) string s = "/tmp/";
-
-
-  if (lepton==3) string s = "/tmp/";
-  //  string s                = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/ele/";
-  //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/muo/";
-  //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/NewSherpa_test/combined/";
-  //  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
-  //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
-  //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
+  string s                = "/afs/infn.it/ts/user/schizzi/html/approval/ele/";
+  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/approval/muo/";
+  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/approval/combined/";
+  //  string s                = "/afs/infn.it/ts/user/schizzi/html/test_newGenerators/ele/";
+  //  if (lepton==2) string s = "/afs/infn.it/ts/user/schizzi/html/test_newGenerators/muo/";
+  //  if (lepton==3) string s = "/afs/infn.it/ts/user/schizzi/html/test_newGenerators/combined/";
 
   string           plotpath = "/gpfs/cms/users/schizzi/Systematics/ele/";
   if (lepton == 2) plotpath = "/gpfs/cms/users/schizzi/Systematics/muo/";
@@ -77,10 +68,12 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph_lhe/test_full2/merged.root";
   //string rivetPathMadGraph ="/gpfs/cms/data/2011/Rivet/madgraph_lhe/merged.root";
   //  string rivetPathMadGraph ="/gpfs/cms/users/candelis/Rivet/madgraph/scaleorig/DYtotal.root";
+
   string rivetPathPowheg    ="/gpfs/cms/users/candelis/Rivet/powheg/test_ee/out.root";
 
   if (lepton == 2){
     rivetPathSherpa       ="/gpfs/cms/users/candelis/Rivet/sherpa/test_prod_mu/out.root";
+
     //    rivetPathSherpa       ="/gpfs/cms/users/cossutti/Generators/zjets_studies/sherpa/DYToLL_M_50_mepsnlo01_7TeV_sherpa/out.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/candelis/Rivet/madgraph_lhe/test_full2/merged.root";
     //rivetPathMadGraph ="/gpfs/cms/data/2011/Rivet/madgraph_lhe/merged.root";
@@ -92,7 +85,6 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
   rivetPathSherpa=rivetPathMadGraph;
   if (lepton == 3){
     rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_central.root";
-    //    rivetPathSherpa       ="/gpfs/cms/users/schizzi/rivet/combination/Sherpa_Unweighted_central.root"; // new Sherpa by Fabio
     rivetPathMadGraph     ="/gpfs/cms/users/schizzi/rivet/combination/MadGraph_central.root";
     rivetPathPowheg     ="/gpfs/cms/users/schizzi/rivet/combination/Powheg_central.root";
   }
@@ -266,25 +258,6 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 
 	// Get RIVET data: --------------------------------------------
 
-	TFile *histoRivetPowheg = TFile::Open (rivetPathPowheg.c_str ());
-	histoRivetPowheg->cd ("");
-	TDirectory *dirRivetPowheg = gDirectory;
-	TList *mylistRivetPowheg = (TList *) dirRivetPowheg->GetListOfKeys ();
-	TIter iterRivetPowheg (mylistRivetPowheg);
-	TObject *tobjRivetPowheg = 0;
-	while ((tobjRivetPowheg = iterRivetPowheg.Next ()))
-	  {
-	    string nameRivetPowheg = tobjRivetPowheg->GetName ();
-	    if (nameRivetPowheg == rivet_data)
-	      {
-		cout << "Getting rivet data->" << nameRivetPowheg << endl;
-		TGraphAsymmErrors *leadingRivetPowheg;
-		gDirectory->GetObject (nameRivetPowheg.c_str (), leadingRivetPowheg);
-		TGraphAsymmErrors *leadingRatioPowheg;
-		leadingRatioPowheg = (TGraphAsymmErrors *) leadingRivetPowheg->Clone ("");
-	      }
-	  }
-
 	TFile *histoRivetSherpa = TFile::Open (rivetPathSherpa.c_str ());
 	histoRivetSherpa->cd ("");
 	TDirectory *dirRivetSherpa = gDirectory;
@@ -296,11 +269,46 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	    string nameRivetSherpa = tobjRivetSherpa->GetName ();
 	    if (nameRivetSherpa == rivet_data)
 	      {
-		cout << "Getting rivet data->" << nameRivetSherpa << endl;
+		//		cout << "Getting rivet data->" << nameRivetSherpa << endl;
 		TGraphAsymmErrors *leadingRivetSherpa;
 		gDirectory->GetObject (nameRivetSherpa.c_str (), leadingRivetSherpa);
 		TGraphAsymmErrors *leadingRatioSherpa;
 		leadingRatioSherpa = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+	      }
+	  }
+
+	TFile *histoRivetPowheg = TFile::Open (rivetPathPowheg.c_str ());
+	histoRivetPowheg->cd ("");
+	TDirectory *dirRivetPowheg = gDirectory;
+	TList *mylistRivetPowheg = (TList *) dirRivetPowheg->GetListOfKeys ();
+	TIter iterRivetPowheg (mylistRivetPowheg);
+	TObject *tobjRivetPowheg = 0;
+	while ((tobjRivetPowheg = iterRivetPowheg.Next ()))
+	  {
+	    string nameRivetPowheg = tobjRivetPowheg->GetName ();
+	    if (nameRivetPowheg == rivet_data)
+	      {
+		//		cout << "Getting rivet data->" << nameRivetPowheg << endl;
+		//		TH1F *leadingRivetPowheg_TH1;
+		//		gDirectory->GetObject (nameRivetPowheg.c_str (), leadingRivetPowheg_TH1);
+		//		int nthbins = leadingRivetPowheg_TH1->GetNbinsX();
+		//		TGraphAsymmErrors *leadingRivetPowheg;
+		//		leadingRivetPowheg = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+		//		for (int n=0;n<nthbins;n++) {
+		//		  leadingRivetPowheg->SetPoint(n,leadingRivetPowheg_TH1->GetBinCenter(n+1),leadingRivetPowheg_TH1->GetBinContent(n+1));
+		//		  //leadingRivetPowheg->SetPointEXhigh(n,0.0);
+		//		  //leadingRivetPowheg->SetPointEXlow(n,0.0);
+		//		  leadingRivetPowheg->SetPointEYhigh(n,leadingRivetPowheg_TH1->GetBinError(n+1));
+		//		  leadingRivetPowheg->SetPointEYlow(n,leadingRivetPowheg_TH1->GetBinError(n+1));
+		//		}
+		//		TGraphAsymmErrors *leadingRatioPowheg;
+		//		leadingRatioPowheg = (TGraphAsymmErrors *) leadingRivetPowheg->Clone ("");
+		
+		//		cout << "Getting rivet data->" << nameRivetPowheg << endl;
+		TGraphAsymmErrors *leadingRivetPowheg;
+		gDirectory->GetObject (nameRivetPowheg.c_str (), leadingRivetPowheg);
+		TGraphAsymmErrors *leadingRatioPowheg;
+		leadingRatioPowheg = (TGraphAsymmErrors *) leadingRivetPowheg->Clone ("");
 	      }
 	  }
 
@@ -334,36 +342,6 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	//	      }
 	//	  }
 
-	//	TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
-	//	histoRivetMadGraph->cd ("");
-	//	TDirectory *dirRivetMadGraph = gDirectory;
-	//	TList *mylistRivetMadGraph = (TList *) dirRivetMadGraph->GetListOfKeys ();
-	//	TIter iterRivetMadGraph (mylistRivetMadGraph);
-	//	TObject *tobjRivetMadGraph = 0;
-	//	while ((tobjRivetMadGraph = iterRivetMadGraph.Next ()))
-	//	  {
-	//	    string nameRivetMadGraph = tobjRivetMadGraph->GetName ();
-	//	    if (nameRivetMadGraph == rivet_dataMG)
-	//	      {
-	//		cout << "Getting rivet data->" << nameRivetMadGraph << endl;
-	//		TH1D *leadingRivetMadGraph_TH1;
-	//		gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph_TH1);
-	//		int nthbins = leadingRivetMadGraph_TH1->GetNbinsX();
-	//		TGraphAsymmErrors *leadingRivetMadGraph;
-	//		leadingRivetMadGraph = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
-	//		for (int n=0;n<nthbins;n++) {
-	//		  leadingRivetMadGraph->SetPoint(n,leadingRivetMadGraph_TH1->GetBinCenter(n+1),leadingRivetMadGraph_TH1->GetBinContent(n+1));
-	//		  //leadingRivetMadGraph->SetPointEXhigh(n,0.0);
-	//		  //leadingRivetMadGraph->SetPointEXlow(n,0.0);
-	//		  leadingRivetMadGraph->SetPointEYhigh(n,leadingRivetMadGraph_TH1->GetBinError(n));
-	//		  leadingRivetMadGraph->SetPointEYlow(n,leadingRivetMadGraph_TH1->GetBinError(n));
-	//		}
-	//		TGraphAsymmErrors *leadingRatioMadGraph;
-	//		leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
-	//	      }
-	//	  }
-
-	// Madgraph vecchio inclusivo con i cazzo di T alla sburra di cherubino addolcita col miele
 	TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
 	histoRivetMadGraph->cd ("");
 	TDirectory *dirRivetMadGraph = gDirectory;
@@ -373,16 +351,26 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	while ((tobjRivetMadGraph = iterRivetMadGraph.Next ()))
 	  {
 	    string nameRivetMadGraph = tobjRivetMadGraph->GetName ();
-	    if (nameRivetMadGraph == rivet_data)
+	    if (nameRivetMadGraph == rivet_dataMG)
 	      {
-		cout << "Getting rivet data->" << nameRivetMadGraph << endl;
+		//		cout << "Getting rivet data->" << nameRivetMadGraph << endl;
+		TH1D *leadingRivetMadGraph_TH1;
+		gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph_TH1);
+		int nthbins = leadingRivetMadGraph_TH1->GetNbinsX();
 		TGraphAsymmErrors *leadingRivetMadGraph;
-		gDirectory->GetObject (nameRivetMadGraph.c_str (), leadingRivetMadGraph);
+		leadingRivetMadGraph = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ("");
+		for (int n=0;n<nthbins;n++) {
+		  leadingRivetMadGraph->SetPoint(n,leadingRivetMadGraph_TH1->GetBinCenter(n+1),leadingRivetMadGraph_TH1->GetBinContent(n+1));
+		  //leadingRivetMadGraph->SetPointEXhigh(n,0.0);
+		  //leadingRivetMadGraph->SetPointEXlow(n,0.0);
+		  leadingRivetMadGraph->SetPointEYhigh(n,leadingRivetMadGraph_TH1->GetBinError(n+1));
+		  leadingRivetMadGraph->SetPointEYlow(n,leadingRivetMadGraph_TH1->GetBinError(n+1));
+		}
 		TGraphAsymmErrors *leadingRatioMadGraph;
 		leadingRatioMadGraph = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ("");
 	      }
 	  }
-
+	
 	//-------------------------------------------------------------
 	  
 	leadingSystematics->SetName ("leadingSystematics");
@@ -463,7 +451,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  else {
 	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dN");
 	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dN");
-	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/dN");
+	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dN");
 	  }
 	}
 
@@ -472,7 +460,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  else {
 	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
 	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dp_{T}");
-	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/dp_{T}");
+	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dp_{T}");
 	  }
 	}
 
@@ -481,7 +469,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  else {
 	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/d#eta");
 	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/d#eta");
-	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/d#eta");
+	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/d#eta");
 	  }
 	}
 	  
@@ -490,7 +478,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  else {
 	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
 	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dH_{T}");
-	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow l^{+}l^{-}}) d#sigma/dH_{T}");
+	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dH_{T}");
 	  }
 	}
 	  
@@ -550,6 +538,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetSherpa->SetPointEYhigh(ovo,leadingRivetSherpa->GetErrorYhigh(ovo)/dummyNorm);
 	  leadingRivetSherpa->SetPointEYlow(ovo,leadingRivetSherpa->GetErrorYlow(ovo)/dummyNorm);
 
+	  cout << "Sherpa - " << ovo+1 << " - nevents=" << dummyYvar << " norm=" << dummyNorm << " EYlow=" << leadingRivetSherpa->GetErrorYlow(ovo)  << " EYhigh=" << leadingRivetSherpa->GetErrorYhigh(ovo)<< endl;
+
 	  leadingRatioSherpa->SetPoint(ovo,dummyXvar,1.0);
 	  leadingRatioSherpa->SetPointEYhigh(ovo,leadingRivetSherpa->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
 	  leadingRatioSherpa->SetPointEYlow(ovo,leadingRivetSherpa->GetErrorYlow(ovo)*dummyNorm/dummyYvar);
@@ -582,15 +572,19 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetPowheg->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  if (absoluteNormalization) {
-	    if (lepton ==1) dummyNorm= (4602659.0/276.761);
-	    if (lepton ==2) dummyNorm= (5719233.0/276.603);
-	    if (lepton ==3) dummyNorm= (4602659.0/276.761) + (5719233.0/276.603);
+	    //	    if (lepton ==1) dummyNorm= (4602659.0/276.761);
+	    //	    if (lepton ==2) dummyNorm= (5719233.0/276.603);
+	    //	    if (lepton ==3) dummyNorm= (4602659.0/276.761) + (5719233.0/276.603);
+	    dummyNorm= (3827475188.8/981.4)/2.0;
+	    if (lepton ==3) dummyNorm= dummyNorm*2.0;
 	    dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	  }
 
 	  leadingRivetPowheg->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
 	  leadingRivetPowheg->SetPointEYhigh(ovo,leadingRivetPowheg->GetErrorYhigh(ovo)/dummyNorm);
 	  leadingRivetPowheg->SetPointEYlow(ovo,leadingRivetPowheg->GetErrorYlow(ovo)/dummyNorm);
+
+	  cout << "Powheg - " << ovo+1 << " - nevents=" << dummyYvar << " norm=" << dummyNorm << " EYlow=" << leadingRivetPowheg->GetErrorYlow(ovo)  << " EYhigh=" << leadingRivetPowheg->GetErrorYhigh(ovo)<< endl;
 
 	  leadingRatioPowheg->SetPoint(ovo,dummyXvar,1.0);
 	  leadingRatioPowheg->SetPointEYhigh(ovo,leadingRivetPowheg->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
@@ -625,7 +619,6 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
 
 	  leadingRivetMadGraph->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  if (use_case ==1) cout << "MERDA: " << dummyYvar/dummyNorm << endl;
 	  leadingRivetMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)/dummyNorm);
 	  leadingRivetMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)/dummyNorm);
 
@@ -690,7 +683,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	if (use_case ==2 || use_case ==1 || use_case == 4){
 	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.20, 0.21);	// make fancy label
 	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.20, 0.21);	// make fancy label
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.20, 0.21);	// make fancy label
+	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow e^{+}e^{-}/#mu^{+}#mu^{-} channel", 0.20, 0.21);	// make fancy label
 	}
 
 	leadingSystematics->SetMarkerColor(kBlack);
@@ -737,10 +730,10 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioSystematics->GetYaxis()->SetTitleOffset(0.45);
 	leadingRatioSystematics->GetYaxis()->SetTitle("Data/MC");   
 	leadingRatioSystematics->GetYaxis()->SetNdivisions(505);
-	leadingRatioSystematics->GetYaxis()->SetRangeUser(0.4,1.6);
+	leadingRatioSystematics->GetYaxis()->SetRangeUser(0.2,1.8);
 	leadingRatioSystematics->SetTitle("");	  
-	leadingRatioSystematics->Draw ("E0");
-	leadingRatio->Draw ("E0SAME");
+	leadingRatioSystematics->Draw ("E1");
+	leadingRatio->Draw ("E1SAME");
 
 	leadingRatioSherpa->SetFillColor(kBlue-4);
 	leadingRatioSherpa->SetFillStyle(3004);
@@ -750,8 +743,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioSherpa->Draw("2");
 	//	leadingRatioSherpa->Draw("pz");
 
-	leadingRatioSystematics->Draw ("E0SAME");
-	leadingRatio->Draw ("E0SAME");
+	leadingRatioSystematics->Draw ("E1SAME");
+	leadingRatio->Draw ("E1SAME");
 
 	TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	OLine->SetLineColor(kBlack);
@@ -786,10 +779,10 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio3Systematics->GetYaxis()->SetTitleOffset(0.45);
 	leadingRatio3Systematics->GetYaxis()->SetTitle("Data/MC");   
 	leadingRatio3Systematics->GetYaxis()->SetNdivisions(505);
-	leadingRatio3Systematics->GetYaxis()->SetRangeUser(0.4,1.6);
+	leadingRatio3Systematics->GetYaxis()->SetRangeUser(0.2,1.8);
 	leadingRatio3Systematics->SetTitle("");	  
-	leadingRatio3Systematics->Draw ("E0");
-	leadingRatio3->Draw ("E0SAME");
+	leadingRatio3Systematics->Draw ("E1");
+	leadingRatio3->Draw ("E1SAME");
 
 	leadingRatioPowheg->SetFillColor(kGreen+3);
 	leadingRatioPowheg->SetFillStyle(3001);
@@ -799,8 +792,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioPowheg->Draw("2");
 	//	leadingRatioPowheg->Draw("pz");
 
-	leadingRatio3Systematics->Draw ("E0SAME");
-	leadingRatio3->Draw ("E0SAME");
+	leadingRatio3Systematics->Draw ("E1SAME");
+	leadingRatio3->Draw ("E1SAME");
 
 	TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	OLine->SetLineColor(kBlack);
@@ -836,7 +829,7 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio2Systematics->GetYaxis()->SetTitleOffset(0.65);
 	leadingRatio2Systematics->GetYaxis()->SetTitle("Data/MC");   
 	leadingRatio2Systematics->GetYaxis()->SetNdivisions(505);
-	leadingRatio2Systematics->GetYaxis()->SetRangeUser(0.4,1.6);
+	leadingRatio2Systematics->GetYaxis()->SetRangeUser(0.2,1.8);
 
 
 	leadingRatioMadGraph->SetTitle("");	  
@@ -864,8 +857,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	  if (whichjet == 4) leadingRatio2Systematics->GetXaxis ()->SetTitle ("H_{T}, N_{jet} #geq 4 [GeV]");
 	}
 
-	leadingRatio2Systematics->Draw ("E0");
-	leadingRatio2->Draw ("E0SAME");
+	leadingRatio2Systematics->Draw ("E1");
+	leadingRatio2->Draw ("E1SAME");
 	  
 	leadingRatioMadGraph->SetFillColor(kOrange+10);
 	leadingRatioMadGraph->SetFillStyle(3005);
@@ -875,8 +868,8 @@ makePreApprovalPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatioMadGraph->Draw("2");
 	//	leadingRatioMadGraph->Draw("pz");
 	  
-	leadingRatio2Systematics->Draw ("E0SAME");
-	leadingRatio2->Draw ("E0SAME");
+	leadingRatio2Systematics->Draw ("E1SAME");
+	leadingRatio2->Draw ("E1SAME");
 	  
 	TLine *OLine2 = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
 	OLine2->SetLineColor(kBlack);

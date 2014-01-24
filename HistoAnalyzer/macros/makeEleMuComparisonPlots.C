@@ -2,7 +2,6 @@
 #include "TH1.h"
 #include "TDirectory.h"
 #include "TLine.h"
-#include "Unfolding/MakePlotLumiLabel.C"
 #include "TH2.h"
 #include "TF1.h"
 #include "TStyle.h"
@@ -263,7 +262,6 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	    systPathFileMuo = muoplotpath + "systematicsEff_jet1Ht" + version + ".txt";
 	    fileSystematics = suffix+"systematicsUnfMCToy_jet1Ht" + version + ".txt"; 
 	  }
-	
 	if (whichjet == 2)
 	  {
 	    stringmatch = "HReco_subleading";
@@ -283,9 +281,9 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	if (whichjet == 4)
 	  {
 	    stringmatch = "HReco_subsubsubleading";
-	    systPathFile = eleplotpath + "systematicsEff_jet3Ht" + version + ".txt";
-	    systPathFileMuo = muoplotpath + "systematicsEff_jet3Ht" + version + ".txt";
 	    fileSystematics = suffix+"systematicsUnfMCToy_jet4Ht" + version + ".txt"; 
+	    systPathFile = eleplotpath + "systematicsEff_jet4Ht" + version + ".txt";
+	    systPathFileMuo = muoplotpath + "systematicsEff_jet4Ht" + version + ".txt";
 	  }
       }
 
@@ -306,6 +304,12 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	gDirectory->GetObject (name.c_str (), leadingmuo);
 	leadingmuo->SetMarkerSize(0.9);
 	leadingmuo->Sumw2();
+
+	//	/// EFFICIENCY Systematics:
+	//	for (int nnbins=1;nnbins<=leading->GetNbinsX ();nnbins++) {
+	  //	  cout << fabs(leading->GetBinContent(nnbins)-leadingmuo->GetBinContent(nnbins))/(2*leading->GetBinContent(nnbins)) << endl;
+	  //	  cout << leading->GetBinContent(nnbins)-leadingmuo->GetBinContent(nnbins) << endl;
+	//	}
 
 	// read from file ---------------------------------------------
 	double dat;
@@ -440,24 +444,6 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 
 	//-------------------------------------------
 
-	// Draw the label and save plot: (in the proper position)
-	/*
-	TLatex *latexLabel;
-
-	if (use_case ==3){
-	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.425, 0.19);	// make fancy label
-	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.425, 0.19);	// make fancy label
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.425, 0.19);	// make fancy label
-	}
-
-	if (use_case ==2 || use_case ==1 || use_case == 4){
-	  if (lepton ==1) latexLabel = CMSPrel (4.890, "Z#rightarrow ee channel", 0.20, 0.21);	// make fancy label
-	  if (lepton ==2) latexLabel = CMSPrel (4.890, "Z#rightarrow #mu#mu channel", 0.20, 0.21);	// make fancy label
-	  if (lepton ==3) latexLabel = CMSPrel (4.890, "Z#rightarrow ll channel", 0.20, 0.21);	// make fancy label
-	}
-
-	latexLabel->Draw ("same");
-	*/
 	TLegend *legendsx_d;
 	legendsx_d = new TLegend (0.74, 0.6, 0.98, 0.88);	   
 
@@ -467,7 +453,6 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	legendsx_d->SetTextSize(.040);
 	legendsx_d->AddEntry (leading, "Sherpa", "PEL");
 	legendsx_d->AddEntry (leadingmuo, "Madgraph", "PEL");
-	//legendsx_d->AddEntry(leadingRatioSystematics,"Unf. Syst.","F");
 	legendsx_d->Draw ("same");
 
 	// Draw the ratio plot: ----------------------
@@ -475,11 +460,9 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio = (TH1D *) leading->Clone ("leading");
 	leadingRatio->Divide(leadingmuo);
 
-	//Follow line will correct for the data stat contribution.
-	//Simply comment to avoid this contribution
-
-	//correctTheErrorsForDataStatContribution(leadingmuo,leadingRatio);
-	//correctTheErrorsForDataStatContribution2(leading,leadingmuo,leadingRatio);
+	for (int mem=1; mem<=leadingRatio->GetNbinsX(); mem++) {
+	  cout << "Syst for bin nr." << mem << ":\t" << fabs(leadingRatio->GetBinContent(mem)-1.0)/2 << endl;
+	}
 
 	plots->cd();
 	TPad *pad3 = new TPad("pad3","pad3",0.01,0.01,0.99,0.30);
@@ -499,7 +482,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	leadingRatio->GetYaxis()->SetTitleSize(0.11);
 	leadingRatio->GetYaxis()->SetLabelSize(0.10);
 	leadingRatio->GetYaxis()->SetTitleOffset(0.65);
-	leadingRatio->GetYaxis()->SetTitle("SVD/Bayes");   
+	leadingRatio->GetYaxis()->SetTitle("Ratio");   
 	leadingRatio->GetYaxis()->SetNdivisions(5);
 	leadingRatio->GetYaxis()->SetRangeUser(0.4,1.6);
 
@@ -555,7 +538,7 @@ makeEleMuComparisonPlots (int whichobservable, int whichjet, int whichlepton)
 	/////////////////////////////////////////////////////
 	  
 	string title1;
-	title1 = s + "DifferentialX" + stringmatch + ".png";
+	title1 = s + "DifferentialX" + stringmatch + ".pdf";
 	cout << title1 << endl;
 	plots->Print (title1.c_str ());
 	plots->Draw();

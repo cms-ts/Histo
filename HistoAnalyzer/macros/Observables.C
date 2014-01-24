@@ -56,6 +56,7 @@ std::endl;
 
 #endif
 
+//Andrea: ele girati con 2_28 , mu girati con 2_33 MU
 bool activateScaleFactors=true;  // Correct for the difference MC/Data in the background
 bool isMu=false;
 bool combineChannel=false;
@@ -152,6 +153,7 @@ Observables::Loop()
  if (isMu) {
    versionMu="Mu"+version;
  }
+ version=versionMu;
  if (!isMu){
    //version="_v2_30.root"; 
    //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_28.root";
@@ -201,6 +203,7 @@ TDirectory *validationJECda=fda->mkdir(dirvalidation.c_str());
 //FIles do be opened
 
 string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
+<<<<<<< HEAD
  string sozj=diropen+"zjets_magd_2011Mu_v2_57_3.root";
 string sowj=diropen+"w_2011"+"_v2_27.root";//+version;
 string sott=diropen+"ttbar_2011Mu"+version;
@@ -217,18 +220,25 @@ string folderdir2="validationJECXSScaleDown";
    string folderdir2="validationJECXSScaleDownmu";
  }
 
- string sodzj=sozj+":/EPTmuoReco_MC";
- string sodwj=sowj+":validationJEC";
- string sodtt=sott+":/EPTmuoReco_MC";
- string sodWW=soWW+":/EPTmuoReco_MC";
- string sodZZ=soZZ+":/EPTmuoReco_MC";
- //if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
- 
- string sodWZ=soWZ+":/EPTmuoReco_MC";
- string sodda=soda+":/validationJEC";
- string sodzjtau=sozjtau+":/EPTmuoReco_MC";
+ string sozj=diropen+"zjets_magd_2011"+version;
+string sowj=diropen+"w_2011"+version;//+version; NO MU!!
+string sott=diropen+"ttbar_2011"+version;
+string soWW=diropen+"ww_2011"+version;
+string soZZ=diropen+"zz_2011"+version;
+string soWZ=diropen+"wz_2011"+version;
+string soda=diropen+"DATA_2011"+version;
+ string sozjtau=diropen+"zjets_magd_2011"+version;
 
- if (isMu) sodda=soda+":/EPTmuoReco";
+// // ele 2_28:
+// string sodzj=sozj+":/validationJEC";
+// string sodwj=sowj+":validationJEC";
+// string sodtt=sott+":/validationJECXSScaleDown";
+// string sodWW=soWW+":/validationJECXSScaleDown";
+// string sodZZ=soZZ+":/validationJECXSScaleDown";
+// string sodWZ=soWZ+":/validationJECXSScaleDown";
+// string sodda=soda+":/validationJEC";
+// string sodzjtau=sozjtau+":/validationJEC";
+ // muo 2_33:
 
 TFile *Fzj = new TFile (sozj.c_str());
 TFile *Fwj = new TFile (sowj.c_str());
@@ -268,10 +278,10 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
       if (i==0)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
       if (i==1)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
       //if (i>1) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==2) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==3) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==4) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
-      if (i==5) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
+      if (i==2) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==3) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==4) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==5) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
       if (i==6) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
       if (i==7)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
     }
@@ -284,7 +294,7 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
       if (i==3 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
       if (i==4 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
       if (i==5 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
-      if (i==6 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==6 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
       if (i==7 && isMu)tree_fB = (TTree *) gDirectory->Get ("treeValidationJECMu_");
     }
     
