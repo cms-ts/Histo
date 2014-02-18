@@ -49,9 +49,12 @@ public :
    Double_t	   jet1_mass; 
    Double_t	   jet2_mass; 
    Double_t	   evWeight; 
-   //Double_t	   invMass; 
+   Double_t	   invMass; 
    Bool_t          isTaugen;
    Int_t           run;    
+   Bool_t          isAnyJetTooCloseToLepton;
+   Double_t	   jet5_pt; 
+   Double_t	   jet6_pt; 
 
    // List of branches
    TBranch        *b_Z_pt;   //!
@@ -82,10 +85,13 @@ public :
    TBranch	  *b_jet1_mass; 
    TBranch	  *b_jet2_mass; 
    TBranch	  *b_evWeight;
-   //TBranch	  *b_invMass;
+   TBranch	  *b_invMass;
    TBranch        *b_isTaugen;
    TBranch        *b_run;
- 
+   TBranch        *b_isAnyJetTooCloseToLepton;
+   TBranch	  *b_jet5_pt;
+   TBranch	  *b_jet6_pt;   
+
    Observables(TTree *tree=0);
    virtual ~Observables();
    virtual Int_t    Cut(Long64_t entry);
@@ -186,11 +192,12 @@ void Observables::Init(TTree *tree)
    fChain->SetBranchAddress("jet4_phi", &jet4_phi, &b_jet4_phi);
    fChain->SetBranchAddress("jetHt", &jetHt, &b_jetHt);
    fChain->SetBranchAddress("evWeight", &evWeight, &b_evWeight);
-   //   fChain->SetBranchAddress("z_mass", &invMass, &b_invMass);
+   fChain->SetBranchAddress("z_mass", &invMass, &b_invMass);
    fChain->SetBranchAddress("isTaugen", &isTaugen, &b_isTaugen);
    fChain->SetBranchAddress("run", &run, &b_run);
-
-
+   fChain->SetBranchAddress("isAnyJetTooCloseToLepton", &isAnyJetTooCloseToLepton, &b_isAnyJetTooCloseToLepton);
+   fChain->SetBranchAddress("jet5_pt", &jet5_pt, &b_jet5_pt);
+   fChain->SetBranchAddress("jet6_pt", &jet6_pt, &b_jet6_pt);
    Notify();
 }
 

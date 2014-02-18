@@ -58,6 +58,7 @@ using namespace reco;
 using namespace std;
 
 bool debugJet=false; //If true it will activate the cout verbosity
+const double asymmetricRangeLeadingJetPt[18]={30,50,70,90,110,130,150,170,190,210,230,250,280,310,350,400,500,700};
 
 class TTree;
 
@@ -393,6 +394,8 @@ class jetValidation : public edm::EDAnalyzer {
      
       //vertices
       int numberOfVertices;
+      bool isAnyJetTooCloseToLepton;
+      std::vector<math::XYZTLorentzVector> JetContainerFull;
 };
 
 jetValidation::jetValidation(const edm::ParameterSet& conf)
@@ -576,11 +579,13 @@ jetValidation::jetValidation(const edm::ParameterSet& conf)
   h_zYieldVsjets  = fs->make<TH1F>("h_zYieldVsjets","zYieldVsjets",10,0,10);
   h_zYieldVsjetsVtx1  = fs->make<TH1F>("h_zYieldVsjetsVtx1","zYieldVsjetsVtx1",10,0,10);
   h_zYieldVsjetsVtx5  = fs->make<TH1F>("h_zYieldVsjetsVtx5","zYieldVsjetsVtx5",10,0,10);
-  h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",17,asymmetricRangeLeadingJetPt);
+  //h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",divPlot_leading-1,30,3000);
   h_jetPtNjet2 = fs->make<TH1F>("h_jetPtNjet2","jetPtNjet2",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
   h_jetPtNjet3 = fs->make<TH1F>("h_jetPtNjet3","jetPtNjet3",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
   h_jetPtNjet4 = fs->make<TH1F>("h_jetPtNjet4","jetPtNjet4",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);
-  h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",divPlot_leading,minPtPlot_leading,maxPtPlot_leading);
+  //h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",divPlot_leading-1,asymmetricRangeLeadingJetPt);
+  h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",17,asymmetricRangeLeadingJetPt);
   h_jetPtNjet2Incl = fs->make<TH1F>("h_jetPtNjet2Incl","jetPtNjet2Incl",divPlot_subleading,minPtPlot_subleading,maxPtPlot_subleading);
   h_jetPtNjet3Incl = fs->make<TH1F>("h_jetPtNjet3Incl","jetPtNjet3Incl",divPlot_subsubleading,minPtPlot_subsubleading,maxPtPlot_subsubleading);
   h_jetPtNjet4Incl = fs->make<TH1F>("h_jetPtNjet4Incl","jetPtNjet4Incl",divPlot_subsubsubleading,minPtPlot_subsubsubleading,maxPtPlot_subsubsubleading);

@@ -199,18 +199,11 @@ Unfolding::LoopHt (int Nj)
   bool Debug = false;		//decomment it to increase verbosity
 
 
-  //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-  bool indentityCheck=false;    //to perform identity check
-  bool splitCheck=false;
-  bool pythiaCheck=false;
-  bool bayesianTest=false;
-  //////////////////////////////////////////////////////////////////
   
-  
-  if (splitCheck) indentityCheck=true;
-  if (pythiaCheck) indentityCheck=true;
+  if (splitCheck) identityCheck=true;
+  if (pythiaCheck) identityCheck=true;
 
-  if (indentityCheck) {
+  if (identityCheck) {
     correctForEff=false;
     correctForBkg=false;
   }
@@ -223,7 +216,7 @@ Unfolding::LoopHt (int Nj)
   if (isMu) {
     smcdir=smc+":/EPTmuoReco_MC";
   }
-  if (indentityCheck) sdatadir=smcdir;
+  if (identityCheck) sdatadir=smcdir;
 
   RooUnfoldResponse unfold_secondpythia(HMCreco,HTrue);
   unfold_secondpythia.UseOverflow();
@@ -322,9 +315,9 @@ gDirectory->ls("tree*");
   fB->cd (sdatadir.c_str());
   gDirectory->ls("tree*");
   TTree *tree_fB;
-  if (!indentityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (!identityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
   //FOR closure tests
-  if (indentityCheck){  
+  if (identityCheck){  
     fB->cd (smcdir.c_str());
     if (!isMu) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
     if (isMu) tree_fB= (TTree *) gDirectory->Get ("treeValidationJECMu_");
@@ -421,7 +414,7 @@ gDirectory->ls("tree*");
       //cout<<"Ht gen="<<Ht_gen<<"    "<<"Ht="<<Ht<<endl;
 
       double effcorrmc=1.0*evWeight;
-      if (indentityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
+      if (identityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
       double efferrmc=0.0;
 
       if (correctForSecondaryMigrations){
@@ -705,7 +698,7 @@ gDirectory->ls("tree*");
 
   int k0=1;
   int k1=2;
-  if (bayesianTest){
+  if (bayesianTests){
   k0=0;
   k1=1;    
   }

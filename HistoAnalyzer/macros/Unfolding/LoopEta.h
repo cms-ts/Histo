@@ -139,13 +139,6 @@ TH1F *relativebkg = new TH1F("relativebkg", "relativebkg bin contribution",divPl
   //Module D histo
   TH1D* modD;
 
- //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-  bool identityCheck=false;    //to perform identity check
-  bool splitCheck=false;
-  bool pythiaCheck=false;
-  bool bayesianTests=false;
-  //////////////////////////////////////////////////////////////////
-
   if (splitCheck) identityCheck=true;
   if (pythiaCheck) identityCheck=true;
 

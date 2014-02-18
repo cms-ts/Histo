@@ -68,8 +68,8 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfo= unfold_s.ErecoV(RooUnfold::kCovToy);
     TVectorD vunfomat= unfold_s.ErecoV(RooUnfold::kCovariance);
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
-    //TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Hmeasured(),(TH1D*)response_j.Htruth(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
-    TSVDUnfold unfold_modD (jData,jMCreco,jTrue,jMatx); // per calcolare il modulo
+    TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Hmeasured(),(TH1D*)response_j.Htruth(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
+    //TSVDUnfold unfold_modD (jData,jMCreco,jTrue,jMatx); // per calcolare il modulo
     TH1D* unfresult = unfold_modD.Unfold(kvalue); modD = unfold_modD.GetD();
     TMatrixD covmatrix=unfold_s.Ereco(RooUnfold::kCovariance);
     TMatrixD covmatrixtoy=unfold_s.Ereco(RooUnfold::kCovToy);
@@ -240,6 +240,9 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, 
 		       ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets);  
 
+
+      //printObservables(jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, Jet_multiplicity_gen, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,Jet_multiplicity, jet_Obs, jet_Obs_gen);
+
       //Eta Case...by default, events missed can be =0, removed by hands
       if (jet_Obs==0 && whichtype=="Eta") {
 	jet_Obs=-99;
@@ -247,7 +250,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       if (jet_Obs_gen==0 && whichtype=="Eta") {
 	jet_Obs_gen=-99;
-      } 
+      }
+
 
      // Get Efficiency
       double effcorrmc=1.00;
@@ -285,7 +289,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       //Filling histograms, old way... Kept as a reference
       jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
-
 
      // Generated outside the accpetance!
       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
@@ -339,7 +342,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	recoButInvMassOut++; continue;
       }
       
-      if (whichtype=="Multiplicity"){
+      if (whichtype=="Multiplicito"){
 	if (ValidGenJets >=numbOfJetsSelected && ValidRecoJets >= numbOfJetsSelected) {
 	  response_fillfake.Fill(jet_Obs,jet_Obs_gen,effcorrmc); genRecoAfterGenCorr++;
 	}
@@ -435,7 +438,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       num.str("");
   } 
 
-  if (!identityCheck || splitCheck || pythiaCheck){
+  if (identityCheck || splitCheck || pythiaCheck){
     jReco->Scale(1./jReco->Integral());             
     jTrue->Scale(1./jTrue->Integral());
     jMCreco->Scale(1./jMCreco->Integral());

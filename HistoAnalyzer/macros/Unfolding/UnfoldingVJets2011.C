@@ -51,11 +51,11 @@ std::endl;
 #endif
 
 string version="_v2_32.root";
-bool isMu=true;  
+bool isMu=false;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
-bool doUnfold=false; //if false, it does not perform unfolding
+bool doUnfold=true; //if false, it does not perform unfolding
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
@@ -88,7 +88,8 @@ bool pythiaCheck=false;
 bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
 //string filename=direct+"UnfoldedVJets2011DistributionsPreapproval3Bayes_v2_35.root";//+version;
-string filename=direct+"UnfoldedVJets2011DistributionsNoUnfoldingMu_v2_35.root";
+//string filename=direct+"UnfoldedVJets2011DistributionsNoUnfoldingMu_v2_35.root";
+string filename=direct+"test.root";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -173,7 +174,7 @@ void UnfoldingVJets2011::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=4;
+  int numbOfJetsForLoop=1;
   string whichtype="Eta";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);

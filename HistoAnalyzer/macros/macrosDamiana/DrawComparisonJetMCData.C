@@ -22,16 +22,15 @@
 #include <string.h>
 
 #include "lumi_scale_factors.h"
-<<<<<<< DrawComparisonJetMCData.C
+
 //#include "lumi_scale_factors_scaleUp.h"
 //#include "lumi_scale_factors_scaleDown.h"
-=======
+
 //#include "lumi_scale_factorsLO.h"
 
->>>>>>> 1.23
+
 #include "Unfolding/MakePlotLumiLabel.C"
 
-<<<<<<< DrawComparisonJetMCData.C
 
 bool isMu = false;
 //bool isMu = true;

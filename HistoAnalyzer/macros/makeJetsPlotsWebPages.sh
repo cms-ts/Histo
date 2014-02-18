@@ -1,7 +1,7 @@
 #definizioni
 dir="/afs/infn.it/ts/user/marone/html/ZJets"
 #newdir="2011_v2_33Mu/"
-newdir="Observables_v2_33/" 
+newdir="Variables_v2_58_jetRemoval_Mu"
 actdir=`pwd`
 
 #azioni

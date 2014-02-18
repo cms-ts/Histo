@@ -5,15 +5,14 @@
 #include <iostream>
 using namespace std;
 
-
-
-	gSystem->Load("libRooUnfold");
-	gROOT->LoadMacro("Unfolding.C++");
-	gROOT->ProcessLine("Unfolding a;");
-	gROOT->ForceStyle();
-	gROOT->LoadMacro("tdrStyle.C++");
-	tdrStyle();	
-	gROOT->SetStyle("Plain");
-	gROOT->ProcessLine("a.Loop();");
-
+ gSystem->Load("libRooUnfold");
+ gROOT->LoadMacro("Unfolding.C++");
+ gROOT->ProcessLine("Unfolding a;");
+ gROOT->ForceStyle();
+ gROOT->LoadMacro("tdrStyle.C++");
+ tdrStyle();	
+ gROOT->SetStyle("Plain");
+ gROOT->ProcessLine("a.Loop();");
+ //gROOT->LoadMacro("/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/diow.C++");
+ //gROOT->ProcessLine("diow();");
 }

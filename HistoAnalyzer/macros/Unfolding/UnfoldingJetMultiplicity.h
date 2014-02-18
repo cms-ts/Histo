@@ -99,12 +99,7 @@ void Unfolding::LoopJetMultiplicity ()
 #endif
 
   //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-  bool indentityCheck=false;    //to perform identity check
-  bool splitCheck=false;
-  bool pythiaCheck=false;
-  bool bayesianTests=false;
-  //////////////////////////////////////////////////////////////////
-  
+ 
   //Settings for Jet Multiplicity
   kminN=6;
   kmaxN=7;
@@ -118,10 +113,10 @@ void Unfolding::LoopJetMultiplicity ()
     kmaxN=maxNJets; 
   }
 
-  if (splitCheck) indentityCheck=true;
-  if (pythiaCheck) indentityCheck=true;
+  if (splitCheck) identityCheck=true;
+  if (pythiaCheck) identityCheck=true;
   
-  if (indentityCheck) {
+  if (identityCheck) {
     correctForEff=false;
     correctForBkg=false;
   }
@@ -134,7 +129,7 @@ void Unfolding::LoopJetMultiplicity ()
   if (isMu) {
     smcdir=smc+":/EPTmuoReco_MC";
   }
-  if (indentityCheck) sdatadir=smcdir;
+  if (identityCheck) sdatadir=smcdir;
 
   //if (pythiaCheck) smcdir=smcpythia+":/EPTmuoReco_MC";  
 
@@ -147,9 +142,9 @@ void Unfolding::LoopJetMultiplicity ()
   gDirectory->ls("tree*");
 
   TTree *tree_fB;
-  if (!indentityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
+  if (!identityCheck) tree_fB= (TTree *) gDirectory->Get ("treeValidationJEC_");
   //FOR closure tests
-  if (indentityCheck){  
+  if (identityCheck){  
     //if (pythiaCheck) {
     //TFile *_file0 = TFile::Open(smcpythia.c_str()); 
     //_file0->cd("EPTmuoReco_MC");
@@ -310,7 +305,7 @@ void Unfolding::LoopJetMultiplicity ()
       offsetJetMultiplicity=getNumberOfFakeGenJets(Jet_multiplicity_gen,threshPt,threshEta,jet1_pt_gen,jet2_pt_gen,jet3_pt_gen,jet4_pt_gen,jet5_pt_gen,jet6_pt_gen,jet1_eta_gen,jet2_eta_gen,jet3_eta_gen,jet4_eta_gen,jet5_eta_gen,jet6_eta_gen);
 
       double effcorrmc=1.0*evWeight;
-      if (indentityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
+      if (identityCheck) effcorrmc=1.0; //Quando fai il closure test non vuoi correggere per i weights...
 
       if (correctForEff){
 	if (!useElectronsToCorrect){
@@ -431,11 +426,14 @@ void Unfolding::LoopJetMultiplicity ()
     ofstream backSignificance;
     if (MCstatError && !isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJetMulti.txt");
     if (MCstatError && isMu) backSignificance.open ("/gpfs/cms/data/2011/BackgroundEvaluation/backgroundStatErrorJetMultiMu.txt");
-
     std::vector<double> bckcoeff;
+    cout<<bkgstring<<endl;
     bckcoeff=getBackgroundContributions(bkgstring,"jet_Multiplicity");
+
     for (unsigned int k=0; k< maxNJets; k++){
+
       NData->SetBinContent(k+1, NData->GetBinContent(k+1) - bckcoeff[k]);  //K+1 perche' c'e' il bkgr a 0 Jets...
+      NData->SetBinError(k+1, sqrt(pow(NData->GetBinError(k+1),2) + pow(sqrt(bckcoeff[k]),2)) );  //Set also the error
       if (NData->GetBinContent(k+1)>0) {
 	double backvalue=bckcoeff[k];
 	if (bckcoeff[k]<0.000000001) backvalue=0.0;
@@ -450,9 +448,9 @@ void Unfolding::LoopJetMultiplicity ()
 	cout<<"Data:"<<NData->GetBinContent(k+1)<<" bck:"<<bckcoeff[k]<<" (coefficient is "<<bckcoeff[k]<<"). Relative bin ratio is 0"<<endl;
 	if (MCstatError) backSignificance<<NData->GetBinContent(k+1)<<" "<<backvalue<<endl;
       }
-      cout<<"after "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;
+      //cout<<"after "<<bckcoeff[k]/NData->GetBinContent(k+1)<<endl;
     }
-    backSignificance.close();
+    if (MCstatError) backSignificance.close();
   }
 
   // Fill the matrix response with the MC values, this time as histograms!
@@ -512,14 +510,16 @@ void Unfolding::LoopJetMultiplicity ()
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Z + N Jets distribution. "+title;
       cout<<title<<endl;
-      
+
       if (method=="Bayesian") {
-	RooUnfoldBayes unfold_N (&response_N, NData, myNumber);
+	RooUnfoldBayes unfold_N (&unfold_second, NData, myNumber);
 	NReco = (TH1D *) unfold_N.Hreco ();
 	unfold_N.PrintTable(cout,NTrue);
+
+
       }
       if (method=="Svd"){
-	RooUnfoldSvd unfold_N (&unfold_second, NData, myNumber,1000);	// OR
+	RooUnfoldSvd unfold_N (&unfold_second, NData, myNumber,10000);	// OR
 	NReco = (TH1D *) unfold_N.Hreco ();
 	unfold_N.PrintTable(cout,NTrue);
 	cout<<"Chi2 of this k parameter(k="<<myNumber<<")<< is "<<unfold_N.Chi2(NTrue,RooUnfold::kCovariance)<<endl;
@@ -527,15 +527,38 @@ void Unfolding::LoopJetMultiplicity ()
 	TSVDUnfold unfold_t (NData, NTrue,NMCreco,NMatx); // per IL TEST PYTHIA!!!!!!!!!!!!!!!!!!!!!!
 	TH1D* unfresult = unfold_t.Unfold( myNumber );
 	modD = unfold_t.GetD();
-      }
+	TVectorD vstat= unfold_N.ErecoV();
+	TVectorD vunfo= unfold_N.ErecoV(RooUnfold::kCovToy);
+	TVectorD vunfomat= unfold_N.ErecoV(RooUnfold::kCovariance);
+	TVectorD vunfodiag= unfold_N.ErecoV(RooUnfold::kErrors);
 
+	/////////////////////
+	/// Error treatment
+	/////////////////////
+	
+	// Extract covariance matrix TMatrixD m= unfold_j.Ereco();
+	
+	for (unsigned int k=0; k<NData->GetNbinsX(); k++){
+	  cout<<"stat error "<< vstat[k]<<" unfo error "<<vunfo[k]<< " vunfomat "<<vunfomat[k]<<" vunfodiag "<<vunfodiag[k]<<endl;
+	  // Old hipothesis with giuseppe!! jReco->SetBinError(k+1,sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)) )); // How we chose to treat the eerros.. quatradutre sum
+	  NReco->SetBinError(k+1,vunfo[k+1] ); // Suggerita da andrea... conta il toy, quando e' simile a quello di partenza
+	  //NReco->SetBinError(k+1,sqrt(NReco->GetBinContent(k+1))); //FIXME!!!!!!!!!!!!!!!!!!!!!
+	  //err.push_back(sqrt(pow(vstat[k],2) + sqrt(pow(vunfo[k],2)))); 
+	}
+      }
+      
       NReco->Sumw2();
+      
 
       if (differentialCrossSection){
 	NReco->Scale(1./NReco->Integral());		
 	NTrue->Scale(1./NTrue->Integral());
 	NMCreco->Scale(1./NMCreco->Integral());
 	NData->Scale(1./NData->Integral());
+      }
+
+      for (unsigned int k=0; k< maxNJets; k++){
+	cout<<"Stat Error on Jet Multi, bin :"<<k+1<<"->"<<NReco->GetBinError(k+1)<<" ----- "<<NReco->GetBinContent(k+1)<<" -- ratio "<<NReco->GetBinError(k+1)/NReco->GetBinContent(k+1)<<endl;
       }
 
       JetMultiplicityUnfolded=(TH1F*) NReco->Clone("NReco");
@@ -710,9 +733,12 @@ void Unfolding::LoopJetMultiplicity ()
       cmultip->Print(title3.c_str());
       num.str("");
       cout<<"PDF file saved (maybe) on "<<title3<<endl;
+
+
       }
     }
   }
+
   }
 
   double unfarea=JetMultiplicityUnfolded->Integral()/4890.0;
@@ -732,16 +758,18 @@ void Unfolding::LoopJetMultiplicity ()
   if (!UnfoldDistributions) JetMultiplicityUnfolded=(TH1F*) NData->Clone();
   JetMultiplicityUnfolded->SetName("JetMultiplicityUnfolded");
 
-  TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
-  moduloD->cd ();
-  gPad->SetLogy (1);
-  modD->SetStats (111111);
-  modD->GetXaxis()->SetTitle("K Parameters");
-  modD->GetYaxis()->SetTitle("Value");
-  modD->SetLineColor(kRed);
-  modD->Draw();
-  string title7=s+"moduloD_jetMulti.pdf";
-  moduloD->Print(title7.c_str()); 
+  if (!bayesianTests){
+    TCanvas *moduloD= new TCanvas ("moduloD", "moduloD", 1000, 700);
+    moduloD->cd ();
+    gPad->SetLogy (1);
+    modD->SetStats (111111);
+    modD->GetXaxis()->SetTitle("K Parameters");
+    modD->GetYaxis()->SetTitle("Value");
+    modD->SetLineColor(kRed);
+    modD->Draw();
+    string title7=s+"moduloD_jetMulti.pdf";
+    moduloD->Print(title7.c_str()); 
+  }  
 
   if (saveFile){
     TFile* w = new TFile(filename.c_str(), "UPDATE");

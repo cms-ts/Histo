@@ -49,16 +49,26 @@
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TUrl.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMap.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/THashTable.h
-./UnfoldingVJets2011_C.so: RooUnfoldResponse.h
-./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixD.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TLorentzVector.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMath.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TError.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TVector3.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TVector2.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrix.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixF.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixT.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixTBase.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixFBasefwd.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixDBasefwd.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TVectorFfwd.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TVectorDfwd.h
-./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TError.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixTUtils.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixFfwd.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixFUtils.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixFUtilsfwd.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TRotation.h
+./UnfoldingVJets2011_C.so: RooUnfoldResponse.h
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixD.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixDfwd.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixDUtils.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixDUtilsfwd.h
@@ -80,6 +90,7 @@
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixDSparse.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TMatrixDSparsefwd.h
 ./UnfoldingVJets2011_C.so: RooUnfoldSvd.h RooUnfoldBinByBin.h
+./UnfoldingVJets2011_C.so: RooUnfoldInvert.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TH2.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TF1.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TFormula.h
@@ -112,8 +123,10 @@
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TProfile.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TProfile2D.h
 ./UnfoldingVJets2011_C.so: getEfficiencyCorrection.C tdrstyle.C
-./UnfoldingVJets2011_C.so: MakePlotLumiLabel.C LoopVJets.h TSVDUnfold.h
+./UnfoldingVJets2011_C.so: MakePlotLumiLabel.C
+./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/TRandom3.h
+./UnfoldingVJets2011_C.so: LoopVJetsNew5.h TSVDUnfold.h JERCorrection.h
 ./UnfoldingVJets2011_C.so: SetObs.h DrawUnfolding.h BackgroundRemoval.h
-./UnfoldingVJets2011_C.so: SaveUnfolding.h
+./UnfoldingVJets2011_C.so: SaveUnfolding.h MCLimitedStatTool.h
 ./UnfoldingVJets2011_C.so: /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/cintdictversion.h /cvmfs/cms.cern.ch/slc5_amd64_gcc434/lcg/root/5.27.06b-cms25/include/RVersion.h
 UnfoldingVJets2011_C__ROOTBUILDVERSION= 5.27/06b

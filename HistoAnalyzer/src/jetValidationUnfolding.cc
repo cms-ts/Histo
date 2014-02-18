@@ -180,6 +180,13 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    std::vector<math::XYZTLorentzVector> JetContainer;  
    JetContainer.clear();
+
+   std::vector<math::XYZTLorentzVector> JetContainerFullEvent;
+   JetContainerFullEvent.clear();
+
+   std::vector<math::XYZTLorentzVector> GenJetContainerFullEvent;
+   JetContainerFullEvent.clear();
+
    std::vector<math::XYZTLorentzVector> GenJetContainerForAbsolutePtValue;
    GenJetContainerForAbsolutePtValue.clear();
    std::vector<TLorentzVector> GenJetContainer;  
@@ -202,6 +209,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
    TLorentzVector l1, l2, l_pair;
    std::vector<TLorentzVector> leptonContainer;
+   std::vector<TLorentzVector> leptonsGen; //Copy to pass gen ele to dr gen evaluation
    double zInvMass = 0;  
    
    //New set of variables to retrieve FSR
@@ -311,6 +319,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
        if (itgen->pdgId()>0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRp,genMuEtaFSRp,itgen->phi(),itgen->mass());
        if (itgen->pdgId()<0 && fabs(itgen->pdgId())==13 ) l1.SetPtEtaPhiM(genMuPtFSRm,genMuEtaFSRm,itgen->phi(),itgen->mass());
        leptonContainer.push_back(l1);
+       leptonsGen.push_back(l1);
      } 
    }
    
@@ -428,17 +437,23 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
      
      Handle<PFJetCollection> pfJets;
      iEvent.getByLabel(jetCollection_, pfJets);
+
+     isAnyJetTooCloseToLepton=false;
+
      if (pfJets.isValid()) {
        //  
        // ===== riordina in pt i jets
        //
+
        for(reco::PFJetCollection::const_iterator jet = pfJets->begin(); 
 	   jet!=pfJets->end (); jet++) {
 	 double uncert=evaluateJECUncertainties(jet->pt(), jet->eta()); //pt of the jet changed, if JEC unc are "active".
 	 double corr=(1.0+uncert*param);                                // "param" is defined in the cfi: ±1 -> sistematics, 0 normal
 	 math::XYZTLorentzVector myjet(jet->px()*corr, jet->py()*corr, jet->pz()*corr, jet->p()*corr);
 	 // check if the jet is equal to one of the isolated electrons
-	 cout<<uncert<<endl;
+
+	 // check if the jet is equal to one of the isolated electrons
+	 //cout<<uncert<<endl;
 	 deltaPhi = fabs(jet->phi()-e1.Phi());
 	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 	 double deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e1.Eta(),2) );
@@ -447,9 +462,9 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 	 double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
 
-	 if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet 
+	 if (
 	     // cut on the jet pt 
-	     && myjet.Pt()> minPtJets  
+	     myjet.Pt()> minPtJets  
 	     && fabs(jet->eta())<maxEtaJets
 	     && jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
 	     && jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
@@ -457,13 +472,14 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	     && jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
 	     && jet->chargedMultiplicity()>chargedMultiplicity
 	     ){ 
-	   JetContainer.push_back(myjet);
-
+	   JetContainerFullEvent.push_back(myjet);
+	   if (deltaR1 < deltaRConeJet || deltaR2 < deltaRConeJet){ isAnyJetTooCloseToLepton=true; cout<<"Jet Too Close (reco level), discarge the jet"<<endl;}
+	   if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet) JetContainer.push_back(myjet);
 	   /////////////////////
 	   //Filling constituents of the reco jet   ; Debugging reco not gen events, 6% of total cases
 	   /////////////////////
-
-
+	 
+	 
 	   pat::PFCandidateFwdPtrCollection iparticlesRef;
 	   std::vector< reco::PFCandidatePtr > iparticles = jet->getPFConstituents();
 	   int i=0; double totalJetEnergy=0;
@@ -488,33 +504,37 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	     if (candId==7) fractionOfPFID7+=candEnergy;
 	     totalJetEnergy+=candEnergy;
 	   }
-	   fractionOfPFID0RecoJet.push_back(fractionOfPFID0/totalJetEnergy);
-	   fractionOfPFID1RecoJet.push_back(fractionOfPFID1/totalJetEnergy);
-	   fractionOfPFID2RecoJet.push_back(fractionOfPFID2/totalJetEnergy);
-	   fractionOfPFID3RecoJet.push_back(fractionOfPFID3/totalJetEnergy);
-	   fractionOfPFID4RecoJet.push_back(fractionOfPFID4/totalJetEnergy);
-	   fractionOfPFID5RecoJet.push_back(fractionOfPFID5/totalJetEnergy);
-	   fractionOfPFID6RecoJet.push_back(fractionOfPFID6/totalJetEnergy);
-	   fractionOfPFID7RecoJet.push_back(fractionOfPFID7/totalJetEnergy);
-
-	   if (Debug) cout<<" Fractions: 0:"<<fractionOfPFID0/totalJetEnergy;
-	   if (Debug) cout<<" 1:"<<fractionOfPFID1/totalJetEnergy; 
-	   if (Debug) cout<<" 2:"<<fractionOfPFID2/totalJetEnergy; 
-	   if (Debug) cout<<" 3:"<<fractionOfPFID3/totalJetEnergy; 
-	   if (Debug) cout<<" 4:"<<fractionOfPFID4/totalJetEnergy; 
-	   if (Debug) cout<<" 5:"<<fractionOfPFID5/totalJetEnergy; 
-	   if (Debug) cout<<" 6:"<<fractionOfPFID6/totalJetEnergy; 
-	   if (Debug) cout<<" 7:"<<fractionOfPFID7/totalJetEnergy;
-	   if (Debug) cout<<" total energy:"<<totalJetEnergy<<endl; 
+	   
+	   if (totalJetEnergy>0){
+	     fractionOfPFID0RecoJet.push_back(fractionOfPFID0/totalJetEnergy);
+	     fractionOfPFID1RecoJet.push_back(fractionOfPFID1/totalJetEnergy);
+	     fractionOfPFID2RecoJet.push_back(fractionOfPFID2/totalJetEnergy);
+	     fractionOfPFID3RecoJet.push_back(fractionOfPFID3/totalJetEnergy);
+	     fractionOfPFID4RecoJet.push_back(fractionOfPFID4/totalJetEnergy);
+	     fractionOfPFID5RecoJet.push_back(fractionOfPFID5/totalJetEnergy);
+	     fractionOfPFID6RecoJet.push_back(fractionOfPFID6/totalJetEnergy);
+	     fractionOfPFID7RecoJet.push_back(fractionOfPFID7/totalJetEnergy);
+	     
+	     if (Debug) cout<<" Fractions: 0:"<<fractionOfPFID0/totalJetEnergy;
+	     if (Debug) cout<<" 1:"<<fractionOfPFID1/totalJetEnergy; 
+	     if (Debug) cout<<" 2:"<<fractionOfPFID2/totalJetEnergy; 
+	     if (Debug) cout<<" 3:"<<fractionOfPFID3/totalJetEnergy; 
+	     if (Debug) cout<<" 4:"<<fractionOfPFID4/totalJetEnergy; 
+	     if (Debug) cout<<" 5:"<<fractionOfPFID5/totalJetEnergy; 
+	     if (Debug) cout<<" 6:"<<fractionOfPFID6/totalJetEnergy; 
+	     if (Debug) cout<<" 7:"<<fractionOfPFID7/totalJetEnergy;
+	     if (Debug) cout<<" total energy:"<<totalJetEnergy<<endl;
+	     
+	   }
 	 }
        }
        std::stable_sort(JetContainer.begin(),JetContainer.end(),GreaterPt()); 
        Jet_multiplicity=JetContainer.size();
        for (int k=0; k<Jet_multiplicity;k++){
-	 if (k==0) {
-	   jet1_pt=JetContainer[k].Pt();
-	   jet1_eta=JetContainer[k].Eta();
-	   jet1_phi=JetContainer[k].Phi();
+	   if (k==0) {
+	     jet1_pt=JetContainer[k].Pt();
+	     jet1_eta=JetContainer[k].Eta();
+	     jet1_phi=JetContainer[k].Phi();
 	 }
 	 if (k==1) {
 	   jet2_pt=JetContainer[k].Pt();
@@ -551,7 +571,8 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
      else{cout<<"No valid Jets Collection"<<endl;}
    }
    
-   
+   JetContainerFull=JetContainerFullEvent;
+
    /////////////////////
    /// Create a JetGenContainer, as done for the RecoJets, to create the jetpt variable, afterwards
    ////////////////////
@@ -562,44 +583,78 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
    if (usingMC){
      edm::Handle<reco::GenJetCollection> genJets;
      iEvent.getByLabel(genJetsCollection, genJets );
-     int numbOfJets=0;      
+     int numbOfJets=0;     
      
+    isAnyGenJetTooCloseToLepton=false;
+
      for (reco::GenJetCollection::const_iterator jet=genJets->begin();jet!=genJets->end();++jet){
        
-	   if (
-	       // cut on the jet pt 
-	       jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
-	       && fabs(jet->eta())<genJetEtaThreshold //A minimux allowed eeta for GEN-JET!!!!!
-	       //&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
-	       //&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
-	       //&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
-	       //&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
-	       //&& jet->charge()>chargedMultiplicity
-	       ){
-	     
-	     //Check if it is a charged jet!
-	     double isChargedJet=false;
-	     std::vector<const GenParticle*> mcparticles = jet->getGenConstituents();
-	     for(std::vector <const GenParticle*>::const_iterator thepart =mcparticles.begin();thepart != mcparticles.end(); ++ thepart ) {
-	       if (Debug) cout<<"Charge of constituents->"<<(abs((**thepart).charge()))<<endl;
-	       if ( (**thepart).charge()!=0 ){
-		 isChargedJet=true;
-	       }
-	     }
-	     if (Debug) cout<<"final charge->"<<isChargedJet<<endl;
-	     TLorentzVector vec;
-	     vec.SetPtEtaPhiM(jet->pt(),jet->eta(),jet->phi(),jet->mass());
-	     if (isChargedJet) {
-	       if (Debug) cout<<"filling Container "<<jet->pt()<<endl; 
-	       math::XYZTLorentzVector mygjet(jet->px(), jet->py(), jet->pz(), jet->p());
-	       GenJetContainerForAbsolutePtValue.push_back(mygjet);
-	       GenJetContainer.push_back(vec); 
-	     }
-	     if (isChargedJet) GenJetContainer2.push_back(vec); 
-	     isChargedJet=false;
-	     if (isChargedJet)  numbOfJets++;
-	     if (Debug) cout<<"Jet has energy:"<<jet->pt()<<" and eta:"<<jet->eta()<<endl;
+   // check if the jet is equal to one of the isolated electrons
+
+       double deltaR1=0;
+       double deltaR2=0;
+
+       if (leptonsGen.size()>0){
+	 deltaPhi = fabs(jet->phi()-leptonsGen[0].Phi());
+	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	 deltaR1 = sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-leptonsGen[0].Eta(),2) );
+	 
+	 deltaPhi = fabs(jet->phi()-leptonsGen[1].Phi());
+	 if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
+	 deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-leptonsGen[1].Eta(),2) );
+       }
+       else{
+       deltaR1=999;
+       deltaR2=999;
+       }
+
+       leptonsGen.clear(); //Clearing the leptonGen to avoid memory leak!
+
+       if (
+	   // cut on the jet pt 
+	   jet->pt()> genJetPtThreshold //A minimux allowed energy for GEN-JET!!!!!
+	   && fabs(jet->eta())<genJetEtaThreshold //A minimux allowed eeta for GEN-JET!!!!!
+	   //&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
+	   //&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
+	   //&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
+	   //&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
+	   //&& jet->charge()>chargedMultiplicity
+	   ){
+	 
+	 //Check if it is a charged jet!
+	 double isChargedJet=false;
+	 std::vector<const GenParticle*> mcparticles = jet->getGenConstituents();
+	 for(std::vector <const GenParticle*>::const_iterator thepart =mcparticles.begin();thepart != mcparticles.end(); ++ thepart ) {
+	   if (Debug) cout<<"Charge of constituents->"<<(abs((**thepart).charge()))<<endl;
+	   if ( (**thepart).charge()!=0 ){
+	     isChargedJet=true;
 	   }
+	 }
+	 if (Debug) cout<<"final charge->"<<isChargedJet<<endl;
+	 TLorentzVector vec;
+	 vec.SetPtEtaPhiM(jet->pt(),jet->eta(),jet->phi(),jet->mass());
+	 if (isChargedJet) { //Cut for lepton proximity
+
+	   if (Debug) cout<<"filling Container "<<jet->pt()<<endl; 
+	   math::XYZTLorentzVector mygjet(jet->px(), jet->py(), jet->pz(), jet->p());
+	   
+	   GenJetContainerFullEvent.push_back(mygjet);
+
+	   if (deltaR1 < deltaRConeJet || deltaR2 < deltaRConeJet){ 
+	     isAnyGenJetTooCloseToLepton=true; 
+	     cout<<"Jet Too Close (gen level), discarge the jet"<<endl;
+	   }
+	   
+	   if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet){
+	     GenJetContainerForAbsolutePtValue.push_back(mygjet);
+	     GenJetContainer.push_back(vec); 
+	   }
+	 }
+	 if (isChargedJet && (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet) ) GenJetContainer2.push_back(vec); 
+	 isChargedJet=false;
+	 if (isChargedJet)  numbOfJets++;
+	 if (Debug) cout<<"Jet has energy:"<<jet->pt()<<" and eta:"<<jet->eta()<<endl;
+       }
      }
      if (Debug) cout<<"Jet Multiplicity (GEN) "<<numbOfJets<<endl;
      if (numbOfJets<100) {
@@ -620,7 +675,7 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
      if (response==1) isTaugen=true; // if response is 1 is a tau, see function isTauOrMu
      if (response==2) isMugen=true; // if 2 is a muon
    }
-      
+
       //bUILDING THE Z GEN BOSON
 
       if (usingMC){
@@ -814,7 +869,12 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	//cout<<"gen jet1 has pt "<<jet1_pt_gen<<" jet2 "<<jet2_pt_gen<<" jet3 "<<jet3_pt_gen<<" jet4_pt_gen "<<jet4_pt_gen<<endl;
       }
+
+      //Store full information
+      GenJetContainerFull=GenJetContainerFullEvent;
+
       GenJetContainer.clear();
+      GenJetContainerFullEvent.clear();
       GenJetContainerForAbsolutePtValue.clear();
       //cout<<"------"<<endl;
 
@@ -823,6 +883,57 @@ jetValidationUnfolding::analyze(const edm::Event& iEvent, const edm::EventSetup&
       //Fill Unfolding rootuple!
       if (Debug) cout<<"After: recoZInAcceptance->"<<recoZInAcceptance<<" genZInAcceptance->"<<genZInAcceptance<<" Jet_multi->"<<Jet_multiplicity<<" Jet_multi_gen->"<<Jet_multiplicity_gen<<endl;
       if (Jet_multiplicity>0 || Jet_multiplicity_gen>0) treeUN_->Fill();
+
+
+      ///////////////////////
+      /// Filling Static Histos
+      ///////////////////////
+
+      int totJets=Jet_multiplicity;
+      double inclHt=0;
+
+      h_zYieldVsjets->Fill(totJets,myweight[0]);
+
+      if (totJets >= 1) h_zEtaNjet1Incl->Fill(e_pair.Eta(),myweight[0]);
+      if (totJets >= 2) h_zEtaNjet2Incl->Fill(e_pair.Eta(),myweight[0]);
+      if (totJets >= 3) h_zEtaNjet3Incl->Fill(e_pair.Eta(),myweight[0]);
+      if (totJets >= 4) h_zEtaNjet4Incl->Fill(e_pair.Eta(),myweight[0]);
+      
+      
+      for (std::vector<math::XYZTLorentzVector>::const_iterator jet = JetContainer.begin ();
+	   jet != JetContainer.end (); jet++) {
+	inclHt += jet->Pt();
+	
+	if (totJets == 1) h_jetPtNjet1->Fill(jet->Pt(),myweight[0]);
+	if (totJets == 2) h_jetPtNjet2->Fill(jet->Pt(),myweight[0]);
+	if (totJets == 3) h_jetPtNjet3->Fill(jet->Pt(),myweight[0]);
+	if (totJets == 4) h_jetPtNjet4->Fill(jet->Pt(),myweight[0]);
+	
+	if (totJets == 1) h_jetEtaNjet1->Fill(jet->Eta(),myweight[0]);
+	if (totJets == 2) h_jetEtaNjet2->Fill(jet->Eta(),myweight[0]);
+	if (totJets == 3) h_jetEtaNjet3->Fill(jet->Eta(),myweight[0]);
+	if (totJets == 4) h_jetEtaNjet4->Fill(jet->Eta(),myweight[0]);
+	
+	if (totJets >= 1) h_jetPtNjet1Incl->Fill(jet->Pt(),myweight[0]);
+	if (totJets >= 2) h_jetPtNjet2Incl->Fill(jet->Pt(),myweight[0]);
+	if (totJets >= 3) h_jetPtNjet3Incl->Fill(jet->Pt(),myweight[0]);
+	if (totJets >= 4) h_jetPtNjet4Incl->Fill(jet->Pt(),myweight[0]);
+	
+	if (totJets >= 1) h_jetEtaNjet1Incl->Fill(jet->Eta(),myweight[0]);
+	if (totJets >= 2) h_jetEtaNjet2Incl->Fill(jet->Eta(),myweight[0]);
+	if (totJets >= 3) h_jetEtaNjet3Incl->Fill(jet->Eta(),myweight[0]);
+	if (totJets >= 4) h_jetEtaNjet4Incl->Fill(jet->Eta(),myweight[0]);
+      }
+      
+      if (totJets >= 1) h_jetHtNjet1->Fill(inclHt,myweight[0]);
+      if (totJets >= 2) h_jetHtNjet2->Fill(inclHt,myweight[0]);
+      if (totJets >= 3) h_jetHtNjet3->Fill(inclHt,myweight[0]);
+      if (totJets >= 4) h_jetHtNjet4->Fill(inclHt,myweight[0]);
+      
+      
+      
+
+
 
 
       ////////////////////
@@ -1053,15 +1164,19 @@ jetValidationUnfolding::beginJob()
   treeUN_->Branch("recoZInAcceptance",&recoZInAcceptance);
   treeUN_->Branch("deltaRRecoGenJet",&deltaRRecoGenJet);
   treeUN_->Branch("numberOfVertices",&numberOfVertices);
+  treeUN_->Branch("isAnyJetTooCloseToLepton",&isAnyJetTooCloseToLepton);
+  treeUN_->Branch("isAnyGenJetTooCloseToLepton",&isAnyGenJetTooCloseToLepton);
+  treeUN_->Branch("JetContainerFull",&JetContainerFull);
+  treeUN_->Branch("GenJetContainerFull",&GenJetContainerFull);
 
-  //treeUN_->Branch("fractionOfPFID0RecoJet",&fractionOfPFID0RecoJet);
-  //treeUN_->Branch("fractionOfPFID1RecoJet",&fractionOfPFID1RecoJet);
-  //treeUN_->Branch("fractionOfPFID2RecoJet",&fractionOfPFID2RecoJet);
-  //treeUN_->Branch("fractionOfPFID3RecoJet",&fractionOfPFID3RecoJet);
-  //treeUN_->Branch("fractionOfPFID4RecoJet",&fractionOfPFID4RecoJet);
-  //treeUN_->Branch("fractionOfPFID5RecoJet",&fractionOfPFID5RecoJet);
-  //treeUN_->Branch("fractionOfPFID6RecoJet",&fractionOfPFID6RecoJet);
-  //treeUN_->Branch("fractionOfPFID7RecoJet",&fractionOfPFID7RecoJet);
+  treeUN_->Branch("fractionOfPFID0RecoJet",&fractionOfPFID0RecoJet);
+  treeUN_->Branch("fractionOfPFID1RecoJet",&fractionOfPFID1RecoJet);
+  treeUN_->Branch("fractionOfPFID2RecoJet",&fractionOfPFID2RecoJet);
+  treeUN_->Branch("fractionOfPFID3RecoJet",&fractionOfPFID3RecoJet);
+  treeUN_->Branch("fractionOfPFID4RecoJet",&fractionOfPFID4RecoJet);
+  treeUN_->Branch("fractionOfPFID5RecoJet",&fractionOfPFID5RecoJet);
+  treeUN_->Branch("fractionOfPFID6RecoJet",&fractionOfPFID6RecoJet);
+  treeUN_->Branch("fractionOfPFID7RecoJet",&fractionOfPFID7RecoJet);
 
   cout<<endl;
   cout<<"##############################"<<endl;

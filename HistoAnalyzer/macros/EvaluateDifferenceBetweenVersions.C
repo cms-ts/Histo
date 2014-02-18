@@ -23,12 +23,12 @@ TH1D* h_itEB_data42;
 // Just Select your version that you wonna compare!! And the path in which you'll store it!!!!
 //
 
-TFile *CMSSW44 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_24TP.root");
-TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_24wp90.root"); 
-std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/WP90_80/"; //put here the path where you want the plots
+TFile *CMSSW44 = TFile::Open("rfio:/tmp/mu.root");
+TFile *CMSSW42 = TFile::Open("rfio:/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v2_28.root"); 
+std::string plotpath ="/afs/infn.it/ts/user/marone/html/ZJets/MuVsEle/"; //put here the path where you want the plots
 std::string whichdirectory="validationJEC";
-string name1="v24, WP80"; // Name on the Plot's Label
-string name2="v24, WP90"; // Name on the Plot's Label
+string name1="RunA Mu"; // Name on the Plot's Label
+string name2="RunA Ele"; // Name on the Plot's Label
 
 bool normalizeToEntries=false; //if true it will normalize to entries!
 
@@ -121,7 +121,7 @@ void EvaluateDifferenceBetweenVersions(string plot, string directory){
   if (normalizeToEntries) obj42->Scale((double)entries44/(double)entries42);
 
   if (str.Contains("jet") && !str.Contains("Num") && !str.Contains("Eta") && !str.Contains("Phi") && !str.Contains("eld") && !str.Contains("h_meanPtZVsNjet")) {
-    int rebin=5;
+    int rebin=1;
     if (!entries42==0) obj42->Rebin(rebin);
     if (!entries44==0) obj44->Rebin(rebin);
   }

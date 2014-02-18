@@ -50,14 +50,15 @@ std::cout;
 using std::endl;
 #endif
 
-string version="_v2_32.root";
-bool isMu=false;  
+string version="_v2_58.root";
+bool isMu=true;  
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
 bool doUnfold=true; //if false, it does not perform unfolding
+bool unfoldWithAsymmetricBins=true;
 
-string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_57_3.root"; //V45 was the default one
+string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_58.root"; //V45 was the default one
 string sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
 //string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011_v2_32.root";
 string smcpythia="/gpfs/cms/data/2011/jet/jetValidation_zjets_sherpa_2011Mu_v2_58.root";
@@ -66,9 +67,9 @@ bool unfoldWithSherpa=false;
 
 //Normalizations...
 // The choice of the K value can affect the normalization. The following list of XS supersede the one in data
-bool activateXSSuperseding=false;
-double XSMuon[4]={63.081,13.228,2.500,0.475};                    //<============= V57
-double XSElectron[4]={62.80,13.201,2.504,0.485};        //<============= V57
+bool activateXSSuperseding=true;
+double XSMuon[4]={61.349,12.834,2.476,0.462};                    //<============= V57
+double XSElectron[4]={61.289,12.871,2.515,0.485};        //<============= V57
 
 //For gen Jet
 double threshPt=30;
@@ -79,7 +80,7 @@ TFile *fB;
 TFile *fPythia;
 
 //////////////////////// VARIOUS CLOSURE TESTS ///////////////////
-bool identityCheck=true;    //to perform identity check
+bool identityCheck=false;    //to perform identity check
 bool splitCheck=false;
 bool pythiaCheck=false;
 
@@ -89,10 +90,10 @@ bool extraTests=false; //to perform several cross checks
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA_New2/";
 
 //SAVE histos to be used afterward
-bool saveFile=false; //saveFile True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=true; //saveFile True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
 //string filename="/tmp/pippo";
-string filename=direct+"UnfoldingOfficialV57_3PostApproval_JEC_Downxdddd";
+string filename=direct+"UnfoldingOfficialV58_BinWidth2";
 
 // Efficiency corrections
 bool correctForEff=true; // If true, it will take the correction factor from outside
@@ -113,11 +114,14 @@ int smearingJERSyst=0; //==>0 Apply JER, ==>1 JER UP, ==> -1 JER Down, ==>-9999 
 // Scaling JEC
 int scalingJEC=0; //==>0 Apply JER, ==>1 JER UP, ==> -1 JER Down
 
+//Activate PU systematics  Uncertainties evaluation
+
+
 // name of the root file containing background evaluation
 string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 
 //string bkgstring=dir+"Backgrounds"+version;
-string bkgstring=dir+"Backgrounds_v2_33.root";
+string bkgstring=dir+"Backgrounds_v2_58.root";
 
 // MC limited stat effect
 bool MClimitedStatEffect=false;
@@ -204,7 +208,7 @@ void UnfoldingVJets2011::Loop()
   setTDRStyle();
 
   int numbOfJetsForLoop=1;
-  string whichtype="Eta";
+  string whichtype="Pt";
   string whichalgo="SVD";
   LoopVJets(numbOfJetsForLoop,whichtype, whichalgo);
 
@@ -232,7 +236,7 @@ void UnfoldingVJets2011::LoopText(string algo, string type, int numbJets,bool is
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreview.root";//+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate.root";
-    bkgstring=dir+"BackgroundsMu_v2_33.root";
+    bkgstring=dir+"BackgroundsMu_v2_58.root";
     filename=filename+"Mu.root";//+version;
   }
   else{
@@ -285,7 +289,7 @@ void UnfoldingVJets2011::LoopOneFour(bool isMuon)
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_ARCreviewTEST.root";
     //efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_38TEST.root";
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011_v2_41_MCtemplate.root";
-    bkgstring=dir+"BackgroundsMu_v2_33.root";
+    bkgstring=dir+"BackgroundsMu_v2_58.root";
     filename=filename+"Mu.root";//+version;
   }
   else{

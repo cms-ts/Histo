@@ -98,7 +98,14 @@ public :
    Double_t        jet6_eta_gen_abs;
    Double_t        jet7_eta_gen_abs;
 
+   Double_t        jet1_phi;
+   Double_t        jet2_phi;   
+   Double_t        jet3_phi;
+   Double_t        jet4_phi;
+   Double_t        jet5_phi;
+   Double_t        jet6_phi;
    int numberOfVertices;
+   Bool_t isAnyJetTooCloseToLepton;
 
    // List of branches
    TBranch        *b_evWeight;   //!
@@ -173,6 +180,15 @@ public :
    TBranch        *b_jet7_eta_gen_abs;
 
    TBranch        *b_numberOfVertices;
+
+   TBranch        *b_jet1_phi;
+   TBranch        *b_jet2_phi;
+   TBranch        *b_jet3_phi;
+   TBranch        *b_jet4_phi;
+   TBranch        *b_jet5_phi;
+   TBranch        *b_jet6_phi;
+
+   TBranch        *b_isAnyJetTooCloseToLepton;
 
    UnfoldingVJets2011(TTree *tree=0);
    virtual ~UnfoldingVJets2011();
@@ -326,6 +342,14 @@ void UnfoldingVJets2011::Init(TTree *tree)
    fChain->SetBranchAddress("jet6_eta_gen_abs", &jet6_eta_gen_abs, &b_jet6_eta_gen_abs);
    fChain->SetBranchAddress("jet7_eta_gen_abs", &jet7_eta_gen_abs, &b_jet7_eta_gen_abs);
 
+   fChain->SetBranchAddress("jet1_phi", &jet1_phi, &b_jet1_phi);
+   fChain->SetBranchAddress("jet2_phi", &jet2_phi, &b_jet2_phi);
+   fChain->SetBranchAddress("jet3_phi", &jet3_phi, &b_jet3_phi);
+   fChain->SetBranchAddress("jet4_phi", &jet4_phi, &b_jet4_phi);
+   fChain->SetBranchAddress("jet5_phi", &jet5_phi, &b_jet5_phi);
+   fChain->SetBranchAddress("jet6_phi", &jet6_phi, &b_jet6_phi);
+
+   fChain->SetBranchAddress("isAnyJetTooCloseToLepton",&isAnyJetTooCloseToLepton,&b_isAnyJetTooCloseToLepton);
    Notify();
 }
 

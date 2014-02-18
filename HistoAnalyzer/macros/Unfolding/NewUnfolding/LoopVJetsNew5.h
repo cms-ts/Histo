@@ -16,6 +16,7 @@ int divPlot=15;
 int kmin=1;
 int kmax=1;
 bool spanKvalues=false;
+const double asymmetricRangeLeadingJetPt[18]={30,50,70,90,110,130,150,170,190,210,230,250,280,310,350,400,500,700};
 
 double jet_Obs_gen=0;double jet_Obs=0;
 double jet_Obs_gen_abs=0;
@@ -43,6 +44,18 @@ string titleCovToy;
 string titleCovToySumUp;
 string titleCovToySumUpRatio;
 TH1D *jDataPreUnf;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TH1D* dividePlotsForBinWidth(TH1D* histold){
+  TH1D* histo;
+  histo=(TH1D*) histold->Clone("histold");
+  histo->SetName("histo");
+  for (int i=1; i<histo->GetNbinsX()+1; i++){
+    double newValue=histold->GetBinContent(i)/histold->GetBinWidth(i);
+    histo->SetBinContent(i,newValue);
+  }
+  return histo;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -353,6 +366,20 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   TH2D *jMatxlong = new TH2D ("jMatxlong", "Unfolding Matrix jeet long",divPlot2+1,minObsPlot2-((maxObsPlot2-minObsPlot2)/divPlot2),maxObsPlot2,divPlot2+1,minObsPlot2-((maxObsPlot2-minObsPlot2)/divPlot2),maxObsPlot2);
   TH1D *jMCreco = new TH1D ("jMCreco", "jet mcreco",divPlot2,minObsPlot2,maxObsPlot2);
 
+  if (numbOfJetsSelected==1 && whichtype=="Pt" && unfoldWithAsymmetricBins){
+  jTrue->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jTrueMatched->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jTruePythia->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jData->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jReco->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jRecoMatched->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jRecoAnne->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  jMatx->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt,divPlot2-1,asymmetricRangeLeadingJetPt);
+  jMatxAnneMarie->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt,divPlot2-1,asymmetricRangeLeadingJetPt);
+  jMatxlong->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt,divPlot2-1,asymmetricRangeLeadingJetPt);
+  jMCreco->SetBins(divPlot2-1,asymmetricRangeLeadingJetPt);
+  }
+
   jData->Sumw2(); jTrue->Sumw2(); jReco->Sumw2(); jMatx->Sumw2(); jMatxlong->Sumw2(); jMCreco->Sumw2(); jTruePythia->Sumw2();
 
   //////////////////////////
@@ -446,12 +473,17 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       jet_Obs_gen=0;
       jet_Obs=0;
 
+      //isAnyJetTooCloseToLepton
+
       if (Jet_multiplicity > 10 || Jet_multiplicity_gen > 10 ) continue;     
       //In this way, jets with more than 25 GeV are accounted!! --> getNumberOfValidJets to change it offline..
       //int ValidGenJets=Jet_multiplicity_gen;//getNumberOfValidJets(Jet_multiplicity_gen, 30.0, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
 
       int ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, 30, 2.4, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);
       int ValidRecoJets=Jet_multiplicity;
+
+      //Extra control on DR lepton-jet arisen during Approval
+      //bool resu=setRecoVariablesFilteringDRLeptons( e1_eta,  e2_eta,  e1_phi,  e2_phi,  jet1_pt,  jet2_pt,  jet3_pt,  jet4_pt,   jet5_pt,   jet6_pt,  jet1_eta,  jet2_eta,  jet3_eta,  jet4_eta,  jet5_eta,  jet6_eta,   jet1_phi,  jet2_phi,  jet3_phi,  jet4_phi,   jet5_phi,  jet6_phi, Jet_multiplicity);
       
       // Initialize the Observables
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets,jet1_pt_gen_abs, jet2_pt_gen_abs, jet3_pt_gen_abs, jet4_pt_gen_abs,  jet5_pt_gen_abs,  jet6_pt_gen_abs, jet1_eta_gen_abs, jet2_eta_gen_abs, jet3_eta_gen_abs, jet4_eta_gen_abs, jet5_eta_gen_abs, jet6_eta_gen_abs);
@@ -497,6 +529,11 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
       if (jet_Obs_gen==0 && jet_Obs==0) {  continue;}
       
+      //std::vector<double> binRanges;
+      //binRanges.push_back(30.0);binRanges.push_back(100.0);binRanges.push_back(300.0);binRanges.push_back(800.0);
+      //int asymmetricbin=returnBinInAsymmetricBinRange(binRanges, jet1_pt);
+	
+
       if (genZInAcceptance && recoZInAcceptance) {
 	//printObservables( jet1_pt_gen,  jet2_pt_gen,  jet3_pt_gen,  jet4_pt_gen,   jet5_pt_gen,   jet6_pt_gen,  jet1_eta_gen,  jet2_eta_gen,  jet3_eta_gen,  jet4_eta_gen,  jet5_eta_gen,  jet6_eta_gen,  Jet_multiplicity_gen,  jet1_pt,  jet2_pt,  jet3_pt,  jet4_pt,   jet5_pt,   jet6_pt,  jet1_eta,  jet2_eta,  jet3_eta,  jet4_eta,  jet5_eta,  jet6_eta, Jet_multiplicity,  jet_Obs, jet_Obs_gen);
 	//cout<<"Reco and Gen. ";
@@ -539,6 +576,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	continue;
       }
     } 
+ 
 
   //Rescaling for non unitariety of the PU reweighting...
   double PUscaleFactor=PUreweightArea/PUreweightEvents;
@@ -625,12 +663,43 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
   ///
   //////////////////////////////
   
-  
   cout<<"These are the values PRE unfolding "<<endl;
   loopAndDumpEntries(jData);
   jDataPreUnf=(TH1D*) jData->Clone("jData");
   jDataPreUnf->SetName("jDataPreUnf");
   cout<<"================================== "<<endl;
+
+  const int numberOfBins=jTrue->GetXaxis()->GetNbins();
+  cout<<numberOfBins<<endl;
+
+  TH1D* jData2 = new TH1D("jData2","jData2",numberOfBins,0,numberOfBins);
+  TH1D *jDataSwap=(TH1D*) jData->Clone("jData"); 
+  jDataSwap->SetName("jDataSwap");
+
+  TH1D* jTrue2 = new TH1D("jTrue2","jTrue2",numberOfBins,0,numberOfBins);
+  TH1D *jTrueSwap=(TH1D*) jTrue->Clone("jTrue"); 
+  jTrueSwap->SetName("jTrueSwap");
+
+  TH1D* jMCreco2 = new TH1D("jMCreco2","jMCreco2",numberOfBins,0,numberOfBins);
+  TH1D *jMCrecoSwap=(TH1D*) jMCreco->Clone("jMCreco"); 
+  jMCrecoSwap->SetName("jMCrecoSwap");
+
+  TH2D* jMatx2 = new TH2D("jMatx2","jMatx2",numberOfBins,0,numberOfBins,numberOfBins,0,numberOfBins);
+  TH2D *jMatxSwap=(TH2D*) jMatx->Clone("jMatx"); 
+  jMatxSwap->SetName("jMatxSwap"); 
+
+  if (numbOfJetsSelected==1 && whichtype=="Pt" && unfoldWithAsymmetricBins){
+    for(int k=1; k<=numberOfBins; k++){
+      jData2->SetBinContent(k,jData->GetBinContent(k));
+      jTrue2->SetBinContent(k,jTrue->GetBinContent(k));
+      jMCreco2->SetBinContent(k,jMCreco->GetBinContent(k));
+      for (int kk=1; kk<=numberOfBins; kk++) {jMatx2->SetBinContent(k,kk,jMatx->GetBinContent(k,kk));}
+    }
+    jData=jData2;
+    jTrue=jTrue2;
+    jMCreco=jMCreco2;
+    jMatx=jMatx2;
+  }
 
   //Old stile to perform the unfolding
   RooUnfoldResponse response_j(jMCreco, jTrue, jMatx); 
@@ -660,6 +729,29 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       }
       num.str("");
   } 
+
+  TH1D *jReco2=(TH1D*) jDataSwap->Clone("jDataSwap"); 
+  jReco2->SetName("jReco2");
+
+  if (numbOfJetsSelected==1 && whichtype=="Pt" && unfoldWithAsymmetricBins){
+    for(int k=1; k<=numberOfBins; k++){
+      jReco2->SetBinContent(k,jReco->GetBinContent(k));
+      jDataSwap->SetBinContent(k,jData->GetBinContent(k));
+      jTrueSwap->SetBinContent(k,jTrue->GetBinContent(k));
+      jMCrecoSwap->SetBinContent(k,jMCrecoSwap->GetBinContent(k));
+      for (int kk=1; kk<=numberOfBins; kk++) {jMatxSwap->SetBinContent(k,kk,jMatx->GetBinContent(k,kk));}
+    }
+    jReco=jReco2;
+    jData=jDataSwap;
+    jTrue=jTrueSwap;
+    jMCreco=jMCrecoSwap;
+    jMatx=jMatxSwap;
+  }
+
+  //TCanvas cccc;
+  //jReco->Draw();
+  //cccc.Print("/tmp/a.png");
+  //return;
 
   //if (!extraTests) jReco->Scale(PUscaleFactor);
   /////////////////////////
@@ -709,9 +801,17 @@ cout<<(jReco->GetBinContent(4)+jReco->GetBinContent(5)+jReco->GetBinContent(6))/
       cout<<"Rescaled to "<<XSMuon[numbOfJetsSelected-1]<<endl;
       jReco->Scale(XSMuon[numbOfJetsSelected-1]/unfarea);
     }
+    jReco->Scale(1.0/4890.0); //Scale for lumi
   }
   loopAndDumpEntries(jReco);
-  if (saveFile) saveIntoFile(numbOfJetsSelected, whichtype, jReco, jTrue, jMatx, jMCreco, jData);
+
+  TH1D* jRecoBinWidth;
+  jRecoBinWidth=(TH1D*) jReco->Clone("jReco");
+  jRecoBinWidth->SetName("jRecoBinWidth");
+  jRecoBinWidth->Sumw2();
+  jRecoBinWidth=dividePlotsForBinWidth(jReco);
+
+  if (saveFile) saveIntoFile(numbOfJetsSelected, whichtype, jRecoBinWidth, jTrue, jMatx, jMCreco, jData);
 
 
   delete relativebkg;

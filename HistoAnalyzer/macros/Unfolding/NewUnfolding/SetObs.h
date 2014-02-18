@@ -1,5 +1,63 @@
 //After that, Observables are set...
 
+bool isJetCloseToLeptons(double jet_eta, double jet_phi, double lepton1_eta, double lepton1_phi, double lepton2_eta, double lepton2_phi, double maxDRAllowed) 
+{
+  //Check if the DR jet_i Vs lepton_1,2 is < 0.5. 
+  
+  double delta_phi_l1 = fabs( lepton1_phi - jet_phi);
+  double delta_phi_l2 = fabs( lepton2_phi - jet_phi);
+  double delta_eta_l1 = lepton1_eta - jet_eta;
+  double delta_eta_l2 = lepton2_eta - jet_eta;
+  
+  if (delta_phi_l1 > acos(-1)) delta_phi_l1 = 2*acos(-1) - delta_phi_l1;
+  if (delta_phi_l2 > acos(-1)) delta_phi_l2 = 2*acos(-1) - delta_phi_l2;
+  
+  double deltaR1 = sqrt( pow(delta_eta_l1,2) + pow(delta_phi_l1,2) );
+  double deltaR2 = sqrt( pow(delta_eta_l2,2) + pow(delta_phi_l2,2) );
+
+  if (deltaR1<maxDRAllowed || deltaR2 <maxDRAllowed) return false;
+  return true;
+}
+
+bool setRecoVariablesFilteringDRLeptons(double lepton1_eta, double lepton2_eta, double lepton1_phi, double lepton2_phi, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,  double jet1_phi, double jet2_phi, double jet3_phi, double jet4_phi,  double jet5_phi,  double jet6_phi, int Jet_multiplicity){
+  bool res=true;
+
+  //Put all variables in a wonderful vector!
+  std::vector<std::vector <double> > jetscontainer;
+
+  for (int i=1;i<=Jet_multiplicity; i++){
+    double jeteta=0; double jetphi=0; double jetpt=0;
+    
+    if (i==1){jeteta=jet1_eta; jetphi=jet1_phi; jetpt=jet1_pt;}
+    if (i==2){jeteta=jet2_eta; jetphi=jet2_phi; jetpt=jet2_pt;}
+    if (i==3){jeteta=jet3_eta; jetphi=jet3_phi; jetpt=jet3_pt;}
+    if (i==4){jeteta=jet4_eta; jetphi=jet4_phi; jetpt=jet4_pt;}
+    if (i==5){jeteta=jet5_eta; jetphi=jet5_phi; jetpt=jet5_pt;}
+    if (i==6){jeteta=jet6_eta; jetphi=jet6_phi; jetpt=jet6_pt;}
+    
+    if (!isJetCloseToLeptons(jeteta, jetphi, lepton1_eta, lepton1_phi, lepton2_eta, lepton2_phi, 0.5) ) {res=false;}
+    else {
+      std::vector<double> j;
+      j.push_back(jeteta); j.push_back(jetphi); j.push_back(jetpt); 
+      jetscontainer.push_back(j);
+    } 
+  }
+  
+  if (res) return res;
+  //Riassegna i valori
+  
+  for (int j=0; j<=jetscontainer.size();j++){
+    std::vector<double> jet=jetscontainer[j];
+    if (j==0) jet1_eta=jet[0]; jet1_phi=jet[1]; jet1_pt=jet[2];
+    if (j==1) jet2_eta=jet[0]; jet2_phi=jet[1]; jet2_pt=jet[2];
+    if (j==2) jet3_eta=jet[0]; jet3_phi=jet[1]; jet3_pt=jet[2];
+    if (j==3) jet4_eta=jet[0]; jet4_phi=jet[1]; jet4_pt=jet[2];
+    if (j==4) jet5_eta=jet[0]; jet5_phi=jet[1]; jet5_pt=jet[2];
+    if (j==5) jet6_eta=jet[0]; jet6_phi=jet[1]; jet6_pt=jet[2];
+  }
+  return false;
+}
+
 void printObservables(double jet1_pt_gen, double jet2_pt_gen, double jet3_pt_gen, double jet4_pt_gen,  double jet5_pt_gen,  double jet6_pt_gen, double jet1_eta_gen, double jet2_eta_gen, double jet3_eta_gen, double jet4_eta_gen, double jet5_eta_gen, double jet6_eta_gen, int Jet_multiplicity_gen, double jet1_pt, double jet2_pt, double jet3_pt, double jet4_pt,  double jet5_pt,  double jet6_pt, double jet1_eta, double jet2_eta, double jet3_eta, double jet4_eta, double jet5_eta, double jet6_eta,int Jet_multiplicity, double Jet_Obs, double Jet_Obs_gen)
 {
   cout<<endl;
@@ -251,7 +309,7 @@ void setPlotsDivisionsAndRanges(int numbOfJetsSelected, string whichtype, string
       minObsPlot=30;
       maxObsPlot=390;
       divPlot=18;
-  
+
       if (isEle){
 	kmin=7;
 	kmax=8;
@@ -456,8 +514,8 @@ if (numbOfJetsSelected == 1){
       kmax=5;
     }
     else{
-      kmin=5;
-      kmax=6;
+      kmin=4;
+      kmax=5;
     }
     
     if (bayesianTests) {
@@ -527,3 +585,17 @@ bool verifyAcceptance(string whichtype, double Obs, double Obs_pt, int Jet_multi
  return false;
 }
 
+////////////////////////////////////////
+// Thus funciont is used to adapt asymmetric binning in the SVD unfolding
+//
+// Takes the energy of the jet and returns an interger indicating which is the new bin for this variable, provided a definition of the binning you wish to have
+
+int returnBinInAsymmetricBinRange(std::vector<double> binRanges, double variableValue){
+  int i=0;
+  int vectorsize=binRanges.size();
+
+  for (int j=0; j<vectorsize; j++){
+    if (variableValue>binRanges[j] && variableValue <=binRanges[j+1]) i=j;
+  }
+  return i;
+}

@@ -33,7 +33,7 @@ void systFinalSum() {
    gStyle->SetLabelColor(1);
    
    
-   string version="_v2_27";
+   string version="_v2_28";
    string plotpathOut="/gpfs/cms/data/2011/Uncertainties/";
    string plotpathIn="./";
 

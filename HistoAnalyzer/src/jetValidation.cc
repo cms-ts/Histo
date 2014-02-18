@@ -227,11 +227,17 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       std::vector<math::XYZTLorentzVector> JetContainer;  
       JetContainer.clear();
+      std::vector<math::XYZTLorentzVector> JetContainerFullEvent;
+      JetContainerFullEvent.clear();
+
       std::vector<math::XYZTLorentzVector> GenJetContainer;  
       GenJetContainer.clear();
 
       Handle<PFJetCollection> pfJets;
       iEvent.getByLabel(jetCollection_, pfJets);
+
+      isAnyJetTooCloseToLepton=false;
+	   
       if (pfJets.isValid()) {
 	 //  
 	 // ===== riordina in pt i jets
@@ -251,23 +257,30 @@ jetValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if (deltaPhi > acos(-1)) deltaPhi= 2*acos(-1) - deltaPhi;
 	   double deltaR2= sqrt( deltaPhi*deltaPhi  + pow(jet->eta()-e2.Eta(),2) );
 
-	    if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet 
-		// cut on the jet pt 
-		&& myjet.Pt()> minPtJets
+ 	    if (// cut on the jet pt 
+		myjet.Pt()> minPtJets
 		&& fabs(jet->eta())<maxEtaJets
 		&& jet->chargedEmEnergyFraction()<chargedEmEnergyFraction
 		&& jet->neutralHadronEnergyFraction()<neutralHadronEnergyFraction
 		&& jet->neutralEmEnergyFraction()<neutralEmEnergyFraction
 		&& jet->chargedHadronEnergyFraction()>chargedHadronEnergyFraction
 		&& jet->chargedMultiplicity()>chargedMultiplicity
-	       ){ 
-	       JetContainer.push_back(myjet); 
+		){ 
+	      //This vector is 
+	      JetContainerFullEvent.push_back(myjet);
+	      if (deltaR1 < deltaRConeJet || deltaR2 < deltaRConeJet){ isAnyJetTooCloseToLepton=true; cout<<"Jet Too Close (reco level), discarge the jet"<<endl;}
+	      if (deltaR1 > deltaRConeJet && deltaR2 > deltaRConeJet){ JetContainer.push_back(myjet);} 
 	    }
 	 }
          std::stable_sort(JetContainer.begin(),JetContainer.end(),GreaterPt()); 
+         std::stable_sort(JetContainerFullEvent.begin(),JetContainerFullEvent.end(),GreaterPt()); 
       }
       else{cout<<"No valid Jets Collection"<<endl;}
  
+      //Store Jets full event description
+
+      JetContainerFull=JetContainerFullEvent;
+
 //------------------------------------------------------------------------------------------------- 
 // study in the cone around the electrons *********************************************************
 //------------------------------------------------------------------------------------------------- 
@@ -981,7 +994,8 @@ jetValidation::beginJob()
   treeUN_->Branch("isElectron",&isElectron);
 
   treeUN_->Branch("Run",&Run);
-
+  treeUN_->Branch("isAnyJetTooCloseToLepton",&isAnyJetTooCloseToLepton);
+  treeUN_->Branch("JetContainerFull",&JetContainerFull);
 
   cout<<endl;
   cout<<"##############################"<<endl;
@@ -990,6 +1004,7 @@ jetValidation::beginJob()
   cout<<endl; 
   cout<<"Jet Min Pt="<<minPtJets<<", within |eta|<"<<maxEtaJets<<endl;
   cout<<"DR isolation cone="<<deltaRCone<<", at gen Level="<<deltaConeGen<<endl;
+  cout<<"DR isolation lepton-jet cone="<<deltaRConeJet<<", at gen Level="<<deltaRConeJet<<endl;
   cout<<"chargedEmEnergyFraction<"<<chargedEmEnergyFraction<<endl;
   cout<<"neutralHadronEnergyFraction<"<<neutralHadronEnergyFraction<<endl;
   cout<<"neutralEmEnergyFraction<"<<neutralEmEnergyFraction<<endl;

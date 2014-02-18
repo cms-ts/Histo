@@ -11,7 +11,11 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-const std::string datafile   = "/gpfs/cms/data/2011/jet/jetValidation_DATA_2011A_v1_10.root";
+
+bool isMu=true;
+
+const std::string datafile   = "/gpfs/cms/data/2011/jet/jetValidation_DATA_2011_v2_32.root";
+//const std::string dirname = "EPTmuoReco";
 const std::string dirname = "validationJEC";
 
 

@@ -24,21 +24,21 @@ TH1D *errorstat = new TH1D ("errorstat", "errors",divPlot,0,divPlot);
 TH1F *efficiencycorrections = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);       
 TH1F *efficiencycorrectionsmc = new TH1F ("efficiencycorrections", "efficiencycorrections",60,0,3);
 TH1D* modD; TCanvas *c; TCanvas *d; 
-
+TH2D * pippotoy;
 #include "SetObs.h" //Contains SetObservablesMC, SetObservablesData, SetPlotDiviisons, getNumberOfValidJets
 #include "DrawUnfolding.h" //Contains DrawPlots
 #include "BackgroundRemoval.h" // COntains correctForBackgrounds
 #include "SaveUnfolding.h" // COntains correctForBackgrounds
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void formatCovMaxtrixLatex(TMatrixD matrix, int divPlot)
+
+void DivideTwoMatrixes(TMatrixD matrix, TMatrixD matrix2, int divPlot)
 {
-  matrix.Print();
   cout<<"=================================="<<endl;
   for(int h=1;h<=divPlot; h++){
     for(int y=1; y<=divPlot; y++){
-      if (y<divPlot) cout<<matrix[h][y]<<" & ";
-      else cout<<matrix[h][y]<<" \\\\ ";
+      if (y<divPlot) cout<<matrix[h][y]/matrix2[h][y]<<" & ";
+      else cout<<matrix[h][y]/matrix2[h][y]<<" \\\\ ";
     }
     cout<<endl;
   }
@@ -62,18 +62,28 @@ TH1D* performUnfolding(string whichalgo, int kvalue, TH1D *jData, TH1D *jTrue, R
     TVectorD vunfodiag= unfold_b.ErecoV(RooUnfold::kErrors);
   }
   else{
-    unf = (TH1D *) unfold_s.Hreco ();
+    unf = (TH1D *) unfold_s.Hreco (RooUnfold::kCovToy);
     unfold_s.PrintTable(cout,jTrue);
     TVectorD vstat= unfold_s.ErecoV();
     TVectorD vunfo= unfold_s.ErecoV(RooUnfold::kCovToy);
     TVectorD vunfomat= unfold_s.ErecoV(RooUnfold::kCovariance);
     TVectorD vunfodiag= unfold_s.ErecoV(RooUnfold::kErrors);
-    TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
+    TSVDUnfold unfold_modD (jData,(TH1D*)response_j.Hmeasured(),(TH1D*)response_j.Htruth(),(TH2D*)response_j.Hresponse()); // per calcolare il modulo
+    //TSVDUnfold unfold_modD (jData,jTrue,jMCreco,jMatx); // per calcolare il modulo
     TH1D* unfresult = unfold_modD.Unfold( kvalue); modD = unfold_modD.GetD();
     TMatrixD covmatrix=unfold_s.Ereco(RooUnfold::kCovariance);
-    formatCovMaxtrixLatex(covmatrix,divPlot);
+    TMatrixD covmatrixtoy=unfold_s.Ereco(RooUnfold::kCovToy);
+    //formatCovMaxtrixLatex(covmatrix,divPlot);
+    //formatCovMaxtrixLatex(covmatrixtoy,divPlot);
+    //pippotoy=unfold_modD.GetAdetCovMatrix(1000);
+
+    //TSVDUnfold *unfold_modD2 =new TSVDUnfold(jData,pippotoy,jTrue,jMCreco,jMatx); // per calcolare il modulo
+    //TH1D* unfresult2 = unfold_modD.Unfold( kvalue);
+    //DivideTwoMatrixes(covmatrix, covmatrixtoy,divPlot);
+    //TSVDUnfold unfold_modD2 (jData,covmatrix,jTrue,jMCreco,jMatx); // per calcolare il modulo
+    //TH1D* unfresult2 = unfold_modD2.Unfold( kvalue); 
+    //unf=unfresult;
   }
-  
   for (unsigned int p=0;p<unf->GetNbinsX();p++){
     errors->SetBinContent(p+1,unf->GetBinError(p+1)); errorstat->SetBinContent(p+1,sqrt(unf->GetBinContent(p+1)));
     cout<<"Bin "<<p+1<<" has "<<unf->GetBinError(p+1)<<" sta error is "<<sqrt(unf->GetBinContent(p+1));
@@ -206,6 +216,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 
   if (fChain == 0) return; if (!doUnfold) nentries=0;
 
+  for (int g=0; g<1; g++){
+
   for (Long64_t jentry = 0; jentry < nentries; jentry++)
     {
       Long64_t ientry = LoadTree (jentry);
@@ -238,9 +250,43 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	jet_Obs_gen=-99;
       } 
 
+     // Get Efficiency
+      double effcorrmc=1.00;
+      if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
+
+      if (correctForEff) {
+	//if (fabs(e1_pt)==9999) continue; 
+	
+	//Normal eff
+	//if (!isEle) effcorrmc=effcorrmc/getEfficiencyMuonPOG(true,true,e1_pt,e1_eta,e2_pt,e2_eta);
+        //if (isEle ) effcorrmc=effcorrmc/(getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true, false, false) * getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC"));
+	
+	
+	// Scale factors
+	if (isMu) {
+	  bool is2011A=false;
+	  //if (run<180000) is2011A=true;
+	  //double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
+	  //double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
+	  //effcorrmc=(effData/effMC);
+	  effcorrmc=1./getSfMuonPOG(is2011A, e1_pt ,e1_eta, e2_pt ,e2_eta);
+	}
+	if (!isMu) {
+	  double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta,false,false)*getScaleFactorPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta);
+	  effcorrmc=1./(SF);
+	}
+      }
+
+      efficiencycorrectionsmc->Fill(effcorrmc);
+
+
       //////////////////////////////////
       // Gen Level Correction
       //////////////////////////////////
+
+      //Filling histograms, old way... Kept as a reference
+      jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
+
 
      // Generated outside the accpetance!
       if (genZInAcceptance  && (l1_pt_gen<20 || l2_pt_gen<20 || fabs(l1_eta_gen)>2.4 || fabs(l2_eta_gen)>2.4 || invMass_gen>111 || invMass_gen<71)) genOutsideTheLimits++;
@@ -252,63 +298,31 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       //Generated Outside and Reco
       if (recoZInAcceptance && genZInAcceptance  && !((l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)) ) recoButNotGenerated++; //accounted afterwards! low pt , invmass, etc
       if (recoZInAcceptance) recostructedEvents++; 
-      
-      ///////////////////////////////////
+ 
+      if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs); 
+      recoinTheGap++; continue;
+      }
+
+     ///////////////////////////////////
       //account for the gap!
       //////////////////////////////////
       if ( ((fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566 && fabs(l2_eta_gen)<2.4) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566 && fabs(l1_eta_gen)<2.4)) && l1_pt_gen>20 && l2_pt_gen>20 && (invMass_gen<111 && invMass_gen>71) && isElectron){
 	if (ValidGenJets >=numbOfJetsSelected) {
-	  response_fillfake.Miss(jet_Obs_gen); 
+	  //response_fillfake.Miss(jet_Obs_gen); 
 	  inTheGap++;
 	}
-	//continue;
-      }
+	continue;
+      }     
       
       ////////////////////////////////////////
       // If there are no Z reco, it is a miss. We prefer to account for it using the efficieny derived from data, that's why I don't fill any matrixes!
       //////////////////////////////////////// 
       if (!recoZInAcceptance && genZInAcceptance && (l1_pt_gen>20 && l2_pt_gen>20) && (fabs(l1_eta_gen)<2.4 && fabs(l2_eta_gen)<2.4) & (invMass_gen<111 && invMass_gen>71)  ){
-	//if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
+	if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Miss(jet_Obs_gen);
 	genButNotReco++; //Questa se vuoi e' l'essenza delle efficienze... Se c'e' questa attivata non serve a nulla l'effificeinza, perche' te la ricalcoli tu!
         continue; //<================= check removing it
       }
- 
-
-     // Get Efficiency
-      double effcorrmc=1.00;
-      if (correctForMCReweighting) effcorrmc=effcorrmc*evWeight;      // Weights per il PU
-      //if old (correctForEff) effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-      if (correctForEff) {
-	//if (fabs(e1_pt)==9999) continue; 
-	//Normal eff
-	if (!isEle) effcorrmc=effcorrmc/getEfficiencyMuonPOG(true,true,e1_pt,e1_eta,e2_pt,e2_eta);
-        if (isEle ) effcorrmc=effcorrmc/(getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, true, false, false) * getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC"));
-	// //old effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
-
-	// Scale factors
-	/*if (isMu) {
-	  bool is2011A=false;
-	  //if (run<180000) is2011A=true;
-	  //double effMC=getEfficiencyMuonPOG(is2011A , true, e1_pt ,e1_eta, e2_pt, e2_eta);
-	  //double effData=getEfficiencyMuonPOG(is2011A , false, e1_pt ,e1_eta, e2_pt ,e2_eta);
-	  effcorrmc=getSfMuonPOG(is2011A, e1_pt ,e1_eta, e2_pt ,e2_eta);
-	    //effcorrmc=1./(effData/effMC);
-	}
-	if (!isMu) {
-	  double SF=getSfEGammaPOG(e1_pt ,e1_eta, e2_pt , e2_eta,false,false)* getScaleFactorPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta);
-	//double effData=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "data");
-	//double effMC=getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "MC");
-	effcorrmc=(SF);
-	}*/
-	if (effcorrmc > 10  && effcorrmc < 0.1) {
-	  effcorrmc=1.0;
-	}
-      }
-      efficiencycorrectionsmc->Fill(effcorrmc);
-
-      //Filling histograms, old way... Kept as a reference
-      jTrue->Fill (jet_Obs_gen); jMatx->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMatxlong->Fill (jet_Obs, jet_Obs_gen,effcorrmc); jMCreco->Fill (jet_Obs,effcorrmc);
-
  
      
       if ( (l1_pt_gen<20 || l2_pt_gen<20) && (recoZInAcceptance) ){
@@ -324,11 +338,6 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       if ( (invMass_gen>111 || invMass_gen<71) && (recoZInAcceptance) ){
 	if (ValidRecoJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc);  
 	recoButInvMassOut++; continue;
-      }
-      
-      if ( (( fabs(l1_eta_gen)>1.442 && fabs(l1_eta_gen)<1.566) || ( fabs(l2_eta_gen)>1.442 && fabs(l2_eta_gen)<1.566)) && isElectron && recoZInAcceptance){
-      if (ValidGenJets >=numbOfJetsSelected) response_fillfake.Fake(jet_Obs,effcorrmc); 
-      recoinTheGap++; continue;
       }
       
       if (whichtype=="zzz"){
@@ -348,13 +357,13 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
 	if ( (ValidGenJets >=numbOfJetsSelected && jet_Obs_pt_gen>threshPt && fabs(jet_Obs_eta_gen)<threshEta) && !(ValidRecoJets >= numbOfJetsSelected && jet_Obs_pt>threshPt && fabs(jet_Obs_eta)<threshEta) ) {genNoRecoAfterGenCorr++; response_fillfake.Miss(jet_Obs_gen);}
       }
     }
-
+  
   //Numbers for debug.. Output in our code
   cout<<"Total Number of events inside the rootupla==>"<<nentries<<endl;
   cout<<"Generated Outside the detector limits=>"<<genOutsideTheLimits<<", of which "<<recoButNotGenerated<<" reconstructed."<<"So,"<<notGenNotReco<<" not reco not gen. Filling gap for ele with "<<inTheGap<<endl;
   cout<<"<Reconstructed events==>"<<recostructedEvents<<". Reco but gen in the gap=>"<<recoinTheGap<<" gen low pt=>"<<recoButPtLow<<" gen high eta=>"<<recoButEtaHigh<<" gen outInvMass=>"<<recoButInvMassOut<<" recoNotGen=>"<<recoButNotGenerated<<" genNotReco=>"<<genButNotReco<<endl;
   cout<<"Gen & Reco after GEN Level Correction=>"<<genRecoAfterGenCorr<<"Gen & !Reco=>"<<genNoRecoAfterGenCorr<<"!Gen & Reco=>"<<noGenRecoAfterGenCorr<<endl;
-
+  }
   /* Loop Data */
   int numbOfEventsInData=0;
   fChain = tree_fB;
@@ -374,9 +383,9 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     //if ((fabs(e1_eta)>2.0) || (fabs(e2_eta)>2.0))  continue;
     
     //When you test pythia or identity, this dataset becomes a MC one... So it requires some more gym
-    if (!identityCheck) setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
+    if (identityCheck) setObservablesData(numbOfJetsSelected, whichtype, jet1_pt, jet2_pt, jet3_pt, jet4_pt, jet5_pt, jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta, Jet_multiplicity);
 
-    if (identityCheck){
+    if (!identityCheck){
       int ValidGenJets=Jet_multiplicity_gen;      int ValidRecoJets=Jet_multiplicity;
       ValidGenJets=getNumberOfValidJets(Jet_multiplicity_gen, threshPt, threshEta, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen, jet5_pt_gen, jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen);    
       setObservablesMC(numbOfJetsSelected, whichtype, jet1_pt_gen, jet2_pt_gen, jet3_pt_gen, jet4_pt_gen,  jet5_pt_gen,  jet6_pt_gen, jet1_eta_gen, jet2_eta_gen, jet3_eta_gen, jet4_eta_gen, jet5_eta_gen, jet6_eta_gen, ValidGenJets, jet1_pt, jet2_pt, jet3_pt, jet4_pt,  jet5_pt,  jet6_pt, jet1_eta, jet2_eta, jet3_eta, jet4_eta, jet5_eta, jet6_eta,ValidRecoJets); 
@@ -384,8 +393,8 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
     
     double effcorrdata=1.0;
     if (correctForEff) {
-      if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
-      if (isEle) effcorrdata=effcorrdata/(getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false, false, false) * getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "Data"));
+      //if (!isEle) effcorrdata=effcorrdata/getEfficiencyMuonPOG(true,false,e1_pt,e1_eta,e2_pt,e2_eta);
+      //if (isEle) effcorrdata=effcorrdata/(getEfficiencyEGammaPOG(e1_pt ,e1_eta, e2_pt, e2_eta, false, false, false) * getEfficiencyCorrectionPtUsingElectron(fAeff, e1_pt , e1_eta, e2_pt, e2_eta, "Data"));
       //cout<<effcorrdata<<endl;
       //effcorrmc=effcorrmc/getEfficiencyCorrectionPtUsingElectron(fAeff,fBeff,e1_pt,e1_eta,e2_pt,e2_eta,"MC",isEle);
     }
@@ -429,7 +438,7 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       string title="Data unfolding "+method+" method with K="+num.str();
       std::string title2="Jet pT diff xsec distribution. "+title;
       if (doUnfold) {
-	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_j, jMCreco,jMatx);
+	if (identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
 	if (!identityCheck) jReco=performUnfolding(whichalgo, k, jData, jTrue,response_fillfake, jMCreco,jMatx);
       }
       else{
@@ -439,26 +448,13 @@ void UnfoldingVJets2011::LoopVJets (int numbOfJetsSelected,string whichtype, str
       num.str("");
   } 
 
-  if (identityCheck || splitCheck || pythiaCheck){
+  if (!identityCheck || splitCheck || pythiaCheck){
     jReco->Scale(1./jReco->Integral());             
     jTrue->Scale(1./jTrue->Integral());
     jMCreco->Scale(1./jMCreco->Integral());
     jData->Scale(1./jData->Integral());
     if (pythiaCheck) jTruePythia->Scale(1./jTruePythia->Integral());
   }
-
-  if (differentialCrossSection){
-    double areavalue=jReco->Integral();
-    jTrue->Scale(areavalue/jTrue->Integral());
-    jMCreco->Scale(areavalue/jMCreco->Integral());
-    //jData->Scale(areavalue/jData->Integral());
-  }
-  //jData->SetLineColor(kGreen);
-  //jReco->Draw();
-  //jData->Draw("SAME");
-  //jTrue->SetLineColor(kRed);  
-  //jTrue->Draw("SAME");
-  //return;
 
   //Drawing Histograms
   if (doUnfold && !pythiaCheck) { c= drawPlots(jReco,jData,jTrue,jMCreco,jMatxlong,numbOfJetsSelected,whichtype, whichalgo, kmin); c->Draw(); }

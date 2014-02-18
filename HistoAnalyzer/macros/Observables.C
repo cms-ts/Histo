@@ -58,7 +58,7 @@ std::endl;
 
 //Andrea: ele girati con 2_28 , mu girati con 2_33 MU
 bool activateScaleFactors=true;  // Correct for the difference MC/Data in the background
-bool isMu=false;
+bool isMu=true;
 bool combineChannel=false;
 
 //string efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30.root";
@@ -77,6 +77,8 @@ bool evalDiffCS=false; // if false it does not divide for # of Zs
 // Files to be saved
 string dir="/gpfs/cms/data/2011/Observables/Approval/";
 //string dir="/tmp/";
+
+const double asymmetricRangeLeadingJetPt[18]={30,50,70,90,110,130,150,170,190,210,230,250,280,310,350,400,500,700};
 
 TFile *w;
 //List of observables to show
@@ -98,7 +100,8 @@ TH1F *Dphi_all_notZlead = new TH1F ("Dphi_all_notZlead", "Dphi_all_notZlead", 6,
 TH1F *ele_pT	        = new TH1F ("ele_pT", "ele_pT", 50, 0, 250);
 TH1F *ele_eta	        = new TH1F ("ele_eta", "ele_eta", 20, -3, 3);
 TH1F *ele_phi	        = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
-TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 18, 30, 390);
+//TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT", 18, 30, 390);
+TH1F *jet_pT	        = new TH1F ("jet_pT", "jet_pT",17,asymmetricRangeLeadingJetPt);
 TH1F *jet_pT2	        = new TH1F ("jet_pT2", "jet_pT2", 15, 30, 330);
 TH1F *jet_pT3	        = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
 TH1F *jet_pT4	        = new TH1F ("jet_pT4", "jet_pT4", 5, 30, 130);
@@ -148,7 +151,7 @@ Observables::Loop()
   double numbOfZPlus3 = 0;
   double numbOfZPlus4 = 0;
 
-  string version="_v2_32.root";
+  string version="_v2_58.root";
  string versionMu=version;
  if (isMu) {
    versionMu="Mu"+version;
@@ -169,6 +172,7 @@ Observables::Loop()
 //Open MC and data files to retrieve effciencies
 TFile *fAeff = new TFile (efffile.c_str());// WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 TFile *fBeff = new TFile (efffile.c_str()); 
+
 
 string szj=dir+"MC_zjets"+versionMu;
 string swj=dir+"MC_wjets"+versionMu;
@@ -203,42 +207,35 @@ TDirectory *validationJECda=fda->mkdir(dirvalidation.c_str());
 //FIles do be opened
 
 string diropen="/gpfs/cms/data/2011/jet/jetValidation_";
-<<<<<<< HEAD
- string sozj=diropen+"zjets_magd_2011Mu_v2_57_3.root";
-string sowj=diropen+"w_2011"+"_v2_27.root";//+version;
-string sott=diropen+"ttbar_2011Mu"+version;
-string soWW=diropen+"ww_2011Mu"+version;
-string soZZ=diropen+"zz_2011Mu"+version;
-string soWZ=diropen+"wz_2011Mu"+version;
+ string sozj=diropen+"zjets_magd_2011Mu_v2_58.root";
+string sowj=diropen+"w_2011Mu"+"_v2_33.root";//+version;
 string soda=diropen+"DATA_2011"+versionMu;
- string sozjtau=diropen+"zjets_magd_2011Mu_v2_57_3.root";
 
-string folderdir="validationJEC";
-string folderdir2="validationJECXSScaleDown";
- if (isMu){
-   string folderdir="validationJECmu";
-   string folderdir2="validationJECXSScaleDownmu";
- }
+//Decomment once bkg are ready
+string sott=diropen+"ttbar_2011Mu_v2_58.root";
+string soWW=diropen+"ww_2011Mu_v2_58.root";
+string soZZ=diropen+"zz_2011Mu_v2_58.root";
+string soWZ=diropen+"wz_2011Mu_v2_58.root";
 
- string sozj=diropen+"zjets_magd_2011"+version;
-string sowj=diropen+"w_2011"+version;//+version; NO MU!!
-string sott=diropen+"ttbar_2011"+version;
-string soWW=diropen+"ww_2011"+version;
-string soZZ=diropen+"zz_2011"+version;
-string soWZ=diropen+"wz_2011"+version;
-string soda=diropen+"DATA_2011"+version;
- string sozjtau=diropen+"zjets_magd_2011"+version;
+//string sott=diropen+"ttbar_2011Mu_v2_32.root";                                                                                                                         
+//string soWW=diropen+"ww_2011Mu_v2_32.root";                                                                                                                            
+//string soZZ=diropen+"zz_2011Mu_v2_32.root";                                                                                                                            
+//string soWZ=diropen+"wz_2011Mu_v2_32.root";
 
-// // ele 2_28:
-// string sodzj=sozj+":/validationJEC";
-// string sodwj=sowj+":validationJEC";
-// string sodtt=sott+":/validationJECXSScaleDown";
-// string sodWW=soWW+":/validationJECXSScaleDown";
-// string sodZZ=soZZ+":/validationJECXSScaleDown";
-// string sodWZ=soWZ+":/validationJECXSScaleDown";
-// string sodda=soda+":/validationJEC";
-// string sodzjtau=sozjtau+":/validationJEC";
- // muo 2_33:
+ string sozjtau=diropen+"zjets_magd_2011Mu_v2_58.root";
+
+ string sodzj=sozj+":/EPTmuoReco_MC";
+ string sodwj=sowj+":/EPTmuoReco_MC";
+ string sodtt=sott+":/EPTmuoReco_MC";
+ string sodWW=soWW+":/EPTmuoReco_MC";
+ string sodZZ=soZZ+":/EPTmuoReco_MC";
+ //if (isMu) sodWW=soWW+":/EPTmuoReco_MC";
+ 
+ string sodWZ=soWZ+":/EPTmuoReco_MC";
+ string sodda=soda+":/validationJEC";
+ string sodzjtau=sozjtau+":/EPTmuoReco_MC";
+
+ if (isMu) sodda=soda+":/EPTmuoReco";
 
 TFile *Fzj = new TFile (sozj.c_str());
 TFile *Fwj = new TFile (sowj.c_str());
@@ -262,14 +259,14 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
   cout<<"If you see an unexpected crash, control in which gDyrectory the tree treeUN has been stored.."<<endl;
   //DATA
   for(int i=0; i<8; i++){
-    if (i==0) Fda->cd (sodda.c_str());
-    if (i==1) Fzj->cd (sodzj.c_str());
-    if (i==2) Ftt->cd (sodtt.c_str());
-    if (i==3) FWW->cd (sodWW.c_str());
-    if (i==4) FWZ->cd (sodWZ.c_str());
-    if (i==5) FZZ->cd (sodZZ.c_str());
-    if (i==6) Fwj->cd (sodwj.c_str());
-    if (i==7) Fzjtau->cd (sodzjtau.c_str());
+    if (i==0) fda->cd (sodda.c_str());
+    if (i==1) fzj->cd (sodzj.c_str());
+    if (i==2) ftt->cd (sodtt.c_str());
+    if (i==3) fWW->cd (sodWW.c_str());
+    if (i==4) fWZ->cd (sodWZ.c_str());
+    if (i==5) fZZ->cd (sodZZ.c_str());
+    if (i==6) fwj->cd (sodwj.c_str());
+    if (i==7) fzjtau->cd (sodzjtau.c_str());
 
     cout<<"Act #"<<i<<endl;
 
@@ -278,11 +275,15 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
       if (i==0)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");
       if (i==1)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
       //if (i>1) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==2) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==3) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==4) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==5) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
-      if (i==6) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==2) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
+      if (i==3) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
+      if (i==4) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
+      if (i==5) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
+      //if (i==2) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      //if (i==3) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      //if (i==4) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      //if (i==5) tree_fB = (TTree *) gDirectory->Get ("treeUN_");
+      if (i==6) tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
       if (i==7)tree_fB = (TTree *) gDirectory->Get ("treeValidationJEC_");      
     }
     else{
@@ -328,7 +329,8 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
     ele_pT	    = new TH1F ("ele_pT", "ele_pT", 50, 0, 250);
     ele_eta	    = new TH1F ("ele_eta", "ele_eta", 20, -3, 3);
     ele_phi	    = new TH1F ("ele_phi", "ele_phi", 20, 0, 6);
-    jet_pT	    = new TH1F ("jet_pT", "jet_pT", 18, 30, 390);
+    //jet_pT	    = new TH1F ("jet_pT", "jet_pT", 18, 30, 390);
+    jet_pT	    = new TH1F ("jet_pT", "jet_pT",17,asymmetricRangeLeadingJetPt);
     jet_pT2	    = new TH1F ("jet_pT2", "jet_pT2", 15, 30, 330);
     jet_pT3	    = new TH1F ("jet_pT3", "jet_pT3", 8, 30, 190);
     jet_pT4	    = new TH1F ("jet_pT4", "jet_pT4", 5, 30, 130);
@@ -419,6 +421,7 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 	h_weights->Fill(evWeight);
 
 
+	/* Old method
 	//Evaluate how close are the jets to electrons!
 	bool isGoodJet1=true;
 	bool isGoodJet2=true;
@@ -431,6 +434,9 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 	if (Jet_multiplicity>=4) isGoodJet4=isJetTooCloseToLeptons(jet4_eta, jet4_phi, e1_eta, e1_phi, e2_eta, e2_phi, 0.5); 
 
 	if (!isGoodJet1 || !isGoodJet2 || !isGoodJet3 || !isGoodJet4) continue;
+	*/
+
+	//if (isAnyJetTooCloseToLepton) continue;
 
 	//Ci va qualcosa che prende tutti i jets e la jetMulti, li valuta uno per uno e li scargnassa via se e' il caso
 
@@ -461,14 +467,6 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 	///  HT, inclusive pt,eta and phi
 	/////////////////// 
 
-
-	if(Jet_multiplicity>0) {
-	  Ht->Fill(jetHt,multiweight);
-	  if (Jet_multiplicity>0) Ht_1j->Fill(jetHt,multiweight);
-	  if (Jet_multiplicity>1) Ht_2j->Fill(jetHt,multiweight);
-	  if (Jet_multiplicity>2) Ht_3j->Fill(jetHt,multiweight);
-	  if (Jet_multiplicity>3) Ht_4j->Fill(jetHt,multiweight);
-	}
 	
 	//NON APPLICO ANCORA I SCALE FACTORS
 	ele_pT   ->Fill(e1_pt,multiweight);
@@ -482,7 +480,7 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 
 	//NB!!!!!!!!!!!!!!!!!!!!!! -> Non considero il weight perche' lo considero poi in DrawComparison!!!!!!!!!!!!!!!!!!!!!
 
-	if(jet1_pt>jetThreshold && jet1_pt<390 && jet1_eta>-3 && jet1_eta<3){	
+	if(jet1_pt>jetThreshold && jet1_pt<7000 && jet1_eta>-3 && jet1_eta<3){	
 	  jet_pT  -> Fill(jet1_pt,multiweight);
 	  jet_eta -> Fill(jet1_eta,multiweight);
 	}
@@ -509,6 +507,26 @@ TFile *Fzjtau = new TFile (sozjtau.c_str());
 	  jet_eta4 -> Fill(jet4_eta,multiweight);
 	}
 	
+
+	double jetHtCalculated=0;
+	
+	if (Jet_multiplicity>0 && jet1_pt>30 && jet1_pt<7000) jetHtCalculated+=jet1_pt;
+	if (Jet_multiplicity>1 && jet2_pt>30 && jet2_pt<7000) jetHtCalculated+=jet2_pt;
+	if (Jet_multiplicity>2 && jet3_pt>30 && jet3_pt<7000) jetHtCalculated+=jet3_pt;
+	if (Jet_multiplicity>3 && jet4_pt>30 && jet4_pt<7000) jetHtCalculated+=jet4_pt;
+	if (Jet_multiplicity>4 && jet5_pt>30 && jet5_pt<7000) jetHtCalculated+=jet5_pt;
+	if (Jet_multiplicity>5 && jet6_pt>30 && jet6_pt<7000) jetHtCalculated+=jet6_pt;
+
+	
+
+	if(Jet_multiplicity>0) {
+	  Ht->Fill(jetHt,multiweight);
+	  if (Jet_multiplicity>0) Ht_1j->Fill(jetHtCalculated,multiweight);
+	  if (Jet_multiplicity>1) Ht_2j->Fill(jetHtCalculated,multiweight);
+	  if (Jet_multiplicity>2) Ht_3j->Fill(jetHtCalculated,multiweight);
+	  if (Jet_multiplicity>3) Ht_4j->Fill(jetHtCalculated,multiweight);
+	}
+
 	///////////////////
 	///  Z Boson, Ht and angles and other
 	/////////////////// 

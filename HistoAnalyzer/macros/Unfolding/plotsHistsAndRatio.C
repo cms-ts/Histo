@@ -96,7 +96,6 @@ TCanvas* plotHistsAndRatio(vector<TH1F*> numeratorHistograms, TH1F* denominatorH
     hist_over_denomHist[i]->Divide(denominatorHistogram);
   }
 
-
   //*************************************************
   // Bottom plot
   TPad *c1_1 = new TPad("c1_1", "newpad",0.01,0.0.01,0.99,0.32);
@@ -107,7 +106,13 @@ TCanvas* plotHistsAndRatio(vector<TH1F*> numeratorHistograms, TH1F* denominatorH
   c1_1->SetRightMargin(0.1);
   c1_1->SetFillStyle(0);
 
+  cout<<"AAAAAAAAAAAAAAAAA"<<endl;
   hist_over_denomHist[0]->Draw();
+  TH1F* pippo=hist_over_denomHist[0];
+  for (int i=0; i<pippo->GetNbinsX(); i++) {
+    cout<<fabs(100-(pippo->GetBinContent(i+1))*100)<<endl;
+  }
+  
   hist_over_denomHist[0]->SetLineWidth(1);
   hist_over_denomHist[0]->SetLineColor(histColors[0]);
   hist_over_denomHist[0]->SetMinimum(defaultRatioYmin);

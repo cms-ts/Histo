@@ -10,7 +10,7 @@ source /afs/infn.it/ts/project/cms/LCG/cms_ui_env.sh
 source /afs/infn.it/ts/project/cms/CRAB/crab.sh
 
 user=`whoami`
-m=2
+m=111
 
 echo
 echo "user="$user" max jobs="$m

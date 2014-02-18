@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldSvd.h 261 2011-01-13 19:00:40Z T.J.Adye $
+//      $Id: RooUnfoldSvd.h 296 2011-09-30 00:46:54Z T.J.Adye $
 //
 // Description:
 //      SVD unfolding. Just an interface to RooUnfHistoSvd.
@@ -62,15 +62,16 @@ private:
 
 protected:
   // instance variables
-  TSVDUnfold* _svd;
+  TSVDUnfold* _svd;  //! Implementation in TSVDUnfold object (no streamer)
   Int_t _kreg;
+  Int_t _nb;
   Int_t _ntoyssvd;
 
   TH1D *_meas1d, *_train1d, *_truth1d;
   TH2D *_reshist;
 
 public:
-  ClassDef (RooUnfoldSvd, 0) // SVD Unfolding (interface to TSVDUnfold)
+  ClassDef (RooUnfoldSvd, 1) // SVD Unfolding (interface to TSVDUnfold)
 };
 
 // Inline method definitions

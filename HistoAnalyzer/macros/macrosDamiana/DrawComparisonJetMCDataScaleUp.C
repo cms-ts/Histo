@@ -22,11 +22,12 @@
 
 //#include "lumi_scale_factors_scaleUp50.h"
 //#include "lumi_scale_factors_scaleUp.h"
-#include "lumi_scale_factors_scaleUpARC.h"
 //#include "lumi_scale_factors.h"
+#include "lumi_scale_factors_scaleUpARC.h"
+//#include "lumi_scale_factors_scaleUpARCTTBar.h"
 
-bool isMu = true;
-//bool isMu = false;
+//bool isMu = true;
+bool isMu = false;
 
 bool isAngularAnalysis= true; 
 //bool isAngularAnalysis= false;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
@@ -36,7 +37,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-string versionPath      ="_v2_33";
+string versionPath      ="_v2_58";
 //string versionPath      ="_v2_17pf";
 string version          = versionPath+".root";  // which version you wonna analize
 string plotpath;
@@ -47,7 +48,7 @@ string plotpathMu    	="plotMuXSecUP"+versionPath+"/"; //put here the path where
 
 string datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
 string mcfile		="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version; 
-string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011Mu"+version; 
+string back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011Mu"+version;
 string back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_17pf.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
 
 string qcd23bc		="/gpfs/cms/data/2011/jet/jetValidation_Qcd_Pt-20to30_BCtoE_v1_4.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!
@@ -80,8 +81,9 @@ double wwEvents=-999;
 //storing background infos in:
 //string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string dir=plotpathEle;
+
 //string version="_UP_v2_22.root";
-string bkg=dir+"BackgroundsUP"+version;
+string bkg=dir+"Backgrounds"+version;
 TFile* fzj = new TFile(bkg.c_str(), "RECREATE");
 //Tree to store vthe values
 TTree *treeBKG_= new TTree("treeBKG_","treeBKG_");
@@ -140,7 +142,7 @@ void DrawComparisonJetMCDataScaleUp(void){
   wwEvents = numEventsPerStep(WW, "demo"); 
   // ---------------------------------------------------
 
-  string direc="/gpfs/cms/data/2011/Observables/";
+  string direc="/gpfs/cms/data/2011/Observables/Approval/";
   //string direc=dir;
   //string versionO="_v2_30.root";
   string versionO=version;
@@ -338,7 +340,7 @@ void DrawComparisonJetMCDataScaleUp(void){
 void comparisonJetMCData(string plot,int rebin){
   string tmp;
 
-  string dir="/gpfs/cms/data/2011/Observables/";
+  string dir="/gpfs/cms/data/2011/Observables/Approval/";
   //string dir=plotpath;
   //string versionO="_v2_30.root";
   string versionO=version;

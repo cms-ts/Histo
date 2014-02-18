@@ -56,6 +56,7 @@ bool isMu=true;
 bool isEle=!isMu;
 bool makeSecondaryPlots=true;
 bool correctForSecondaryMigrations=true;
+bool unfold=false; //if false, it does not perform the unfoding
 
 string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
 //string smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu"+version;
@@ -76,13 +77,19 @@ TFile *fA;
 TFile *fB;
 TFile *fPythia;
 
+//////////////////////// VARIOUS CLOSURE TESTS ///////////////////
+bool identityCheck=false;    //to perform identity check
+bool splitCheck=false;
+bool pythiaCheck=false;
+bool bayesianTests=false;
+
 //Directory and files to start with
  string s = "/afs/infn.it/ts/user/marone/html/ZJets/Unfolding/DATA/";
 
 //Save histos to be used afterward
-bool saveFile=false; //if True, it will save the rootfile. Switch it, when you are sure!
+bool saveFile=true; //if True, it will save the rootfile. Switch it, when you are sure!
 string direct="/gpfs/cms/data/2011/Unfolding/";
-string filename=direct+"UlfoldedDistributions_v2_35.root";//+version;
+string filename=direct+"DistributionNoUnfoldingMu_v2_35.root";//+version;
 //string filename="/tmp/pippo.root";
 
 // Efficiency corrections
@@ -110,7 +117,7 @@ TFile *fAeff; // WHY 2 FILES? DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 TFile *fBeff; 
 
 //Save info about MC stat error
-bool MCstatError=true;
+bool MCstatError=false;
 
 /* Number of jet associated to a Z distribution */
 //-------------------------
@@ -151,8 +158,8 @@ Unfolding::Loop()
     smc="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_35.root";
     sdata="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011Mu"+version;
     efffile="/gpfs/cms/data/2011/TaP/efficiencies_2011Mu_v2_30_approval.root";//+version;
-    bkgstring=dir+"BackgroundsMu_v2_30.root";
-    filename=direct+"UlfoldedDistributionsMu_v2_35.root";//+version;
+    bkgstring=dir+"BackgroundsMu_v2_33.root";
+    //filename=direct+"UlfoldedDistributionsMu_v2_35.root";//+version;
   }
 
   //smc="/tmp/matteo.root";
@@ -176,10 +183,10 @@ Unfolding::Loop()
 
   setTDRStyle();
 
-  int numbOfJetsForLoop=2;
-  //LoopJetPt(numbOfJetsForLoop);
-  //LoopHt(numbOfJetsForLoop);
-  LoopJetEta(numbOfJetsForLoop);
+  int numbOfJetsForLoop=1;
+  LoopJetPt(numbOfJetsForLoop);
+  LoopHt(numbOfJetsForLoop);
+  //LoopJetEta(numbOfJetsForLoop);
 
   //LoopJetMultiplicity();
   
@@ -217,14 +224,14 @@ Unfolding::LoopOneFour()
   setTDRStyle();
 
   for (int i=1; i<=4; i++){
-    LoopHt(i);
+    //LoopHt(i);
     //LoopZpt();
     //LoopZy();
-    LoopJetPt(i);
+    //LoopJetPt(i);
     LoopJetEta(i); // ------------------------> Correggere baco, fare metodo Miss,Fake e controllare "correctGenJetEta"
   }
 
-  LoopJetMultiplicity();
+  //LoopJetMultiplicity();
 
 }
 

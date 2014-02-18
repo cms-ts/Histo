@@ -21,12 +21,14 @@
 #include <string.h>
 
 //#include "lumi_scale_factors_scaleDown50.h"
-#//include "lumi_scale_factors_scaleDown.h"
+//include "lumi_scale_factors_scaleDown.h"
+//#include "lumi_scale_factors.h"
 #include "lumi_scale_factors_scaleDownARC.h"
+//#include "lumi_scale_factors_scaleDownARCTTBar.h"
 
 
-//bool isMu = false;
-bool isMu = true;
+//bool isMu = true;
+bool isMu = false;
 
 bool isAngularAnalysis= true;  // If true it will produce the plots connected to the differential and angular analysis. If false the usual control plots
 
@@ -35,7 +37,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-string versionPath      ="_v2_33";
+string versionPath      ="_v2_58";
 string version          = versionPath+".root";  // which version you wonna analize
 string plotpath;
 string plotpathEle	="plotEleXSecDOWN"+versionPath+"/"; //put here the path where you want the plots
@@ -79,7 +81,7 @@ double wwEvents=-999;
 //string dir="/gpfs/cms/data/2011/BackgroundEvaluation/";
 string dir=plotpathEle;
 //string version="_DOWN_v2_22.root";
-string bkg=dir+"BackgroundsDOWN"+version;
+string bkg=dir+"Backgrounds"+version;
 TFile* fzj = new TFile(bkg.c_str(), "RECREATE");
 //Tree to store vthe values
 TTree *treeBKG_= new TTree("treeBKG_","treeBKG_");
@@ -138,7 +140,7 @@ void DrawComparisonJetMCDataScaleDown(void){
   wwEvents = numEventsPerStep(WW, "demo"); 
   // ---------------------------------------------------
 
-  string direc="/gpfs/cms/data/2011/Observables/";
+  string direc="/gpfs/cms/data/2011/Observables/Approval/";
   //string direc=dir;
   //string versionO="_v2_30.root";
   string versionO=version;
@@ -337,7 +339,7 @@ void DrawComparisonJetMCDataScaleDown(void){
 void comparisonJetMCData(string plot,int rebin){
   string tmp;
 
-  string dir="/gpfs/cms/data/2011/Observables/";
+  string dir="/gpfs/cms/data/2011/Observables/Approval/";
   //string dir=plothpath;
   //string versionO="_v2_30.root";
   string versionO=version;

@@ -57,7 +57,7 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True),
                                      makeTriggerResults=cms.untracked.bool(True),
                                      )
 
-process.GlobalTag.globaltag = 'MC_44_V5D::All'
+#process.GlobalTag.globaltag = 'MC_44_V5D::All'
 
 ####################
 #### Files
@@ -269,7 +269,7 @@ process.validationJEC = cms.EDAnalyzer('jetValidationUnfolding',
                                        usingPF = cms.untracked.bool(True),
                                        #deltaRConeJet           = cms.double(0.3),
                                        #deltaRCone           = cms.double(0.3),
-                                       deltaRConeJet           = cms.double(-1),
+                                       deltaRConeJet           = cms.double(0.5),
                                        deltaRCone           = cms.double(-1),
                                        deltaRConeGen         = cms.double(0.1),
                                        maxEtaJets           = cms.double(2.4),

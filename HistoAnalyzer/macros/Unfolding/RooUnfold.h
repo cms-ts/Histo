@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfold.h 261 2011-01-13 19:00:40Z T.J.Adye $
+//      $Id: RooUnfold.h 296 2011-09-30 00:46:54Z T.J.Adye $
 //
 // Description:
 //      Unfolding framework base class.
@@ -62,7 +62,11 @@ public:
 
   virtual RooUnfold& Setup (const RooUnfoldResponse* res, const TH1* meas);
   virtual void SetMeasured (const TH1* meas);
+  virtual void SetMeasured (const TVectorD& meas, const TMatrixD& cov);
+  virtual void SetMeasured (const TVectorD& meas, const TVectorD& err);
+  virtual void SetMeasuredCov (const TMatrixD& cov);
   virtual void SetResponse (const RooUnfoldResponse* res);
+
   virtual void Reset ();
 
   // Accessors
@@ -72,6 +76,7 @@ public:
   virtual       TH1* Hreco (ErrorTreatment withError=kErrors);
   const    TVectorD& Vmeasured() const;   // Measured distribution as a TVectorD
   const    TVectorD& Emeasured() const;   // Measured distribution errors as a TVectorD
+  const    TMatrixD& GetMeasuredCov() const;   // Measured distribution covariance matrix
 
   virtual TVectorD&  Vreco();
   virtual TMatrixD   Ereco  (ErrorTreatment witherror=kCovariance);
@@ -90,7 +95,7 @@ public:
   Double_t GetMaxParm() const;
   Double_t GetStepSizeParm() const;
   Double_t GetDefaultParm() const;
-  TH1* Runtoy(ErrorTreatment doerror=kNoError,double* chi2=0,const TH1* hTrue=0) const;
+  RooUnfold* RunToy() const;
   void Print(Option_t *opt="")const;
 
 protected:
@@ -103,9 +108,10 @@ protected:
   virtual void GetSettings();
   virtual Bool_t UnfoldWithErrors (ErrorTreatment withError);
 
-  static TH1*     Add_Random   (const TH1* meas);
   static TMatrixD CutZeros     (const TMatrixD& ereco);
   static TH1D*    HistNoOverflow (const TH1* h, Bool_t overflow);
+  static TMatrixD& ABAT (const TMatrixD& a, const TMatrixD& b, TMatrixD& c);
+  static TH1*     Resize (TH1* h, Int_t nx, Int_t ny=-1, Int_t nz=-1);
 
 private:
   void Init();
@@ -128,18 +134,22 @@ protected:
   Bool_t   _have_err_mat;  // have _err_mat
   Bool_t   _fail;          // unfolding failed
   Bool_t   _haveErrors;    // have _variances
+  Bool_t   _haveCovMes;    // _covMes was set, not just cached
   const RooUnfoldResponse* _res;   // Response matrix (not owned)
   const TH1*               _meas;  // Measured distribution (not owned)
+  TH1*     _measmine;      // Owned measured histogram
   TVectorD _rec;           // Reconstructed distribution
   TMatrixD _cov;           // Reconstructed distribution covariance
   TVectorD _variances;     // Error matrix diagonals
   TMatrixD _err_mat;       // Error matrix from toys
   mutable TVectorD* _vMes; //! Cached measured vector
   mutable TVectorD* _eMes; //! Cached measured error
+  mutable TMatrixD* _covMes;       // Measurement covariance matrix
+  mutable TMatrixD* _covL; //! Cached lower triangular matrix for which _covMes = _covL * _covL^T.
 
 public:
 
-  ClassDef (RooUnfold, 0) // Unfolding base class: implementations in RooUnfoldBayes, RooUnfoldSvd, RooUnfoldBinByBin, RooUnfoldTUnfold, and RooUnfoldInvert
+  ClassDef (RooUnfold, 1) // Unfolding base class: implementations in RooUnfoldBayes, RooUnfoldSvd, RooUnfoldBinByBin, RooUnfoldTUnfold, and RooUnfoldInvert
 };
 
 //==============================================================================

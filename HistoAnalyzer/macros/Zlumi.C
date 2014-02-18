@@ -72,7 +72,7 @@ cout << nentries << " nentries \n";
 
 TH2I *LumiSRun = new TH2I("LumiSRun", "LS vs Run", maxLS, 0, maxLS, maxRun-minRun+2, minRun-1, maxRun+1);
 TH1I *Runs = new TH1I("Runs","Run", maxRun-minRun+2, minRun-1, maxRun+1);
-
+ Runs->Sumw2();
 nbytes = 0; nb = 0;
 for (Long64_t jentry=0; jentry<nentries;jentry++) {
 	Long64_t ientry = LoadTree(jentry);
@@ -86,10 +86,12 @@ for (Long64_t jentry=0; jentry<nentries;jentry++) {
 }
 	printf("minRun %i maxRun %i \n",minRun,maxRun);
 LumiSRun->Draw();
+ for (int h=0;h<Runs->GetNbinsX();h++){
+   Runs->SetBinError(h+1,sqrt(Runs->GetBinContent(h+1)) );
+ }
 Runs->Draw();
 //test->Draw();
 //test2->Draw();
-
 
 TH1F *FileRuns = new TH1F("FileRuns","Run from Lumicalc", maxRun-minRun+2, minRun-1, maxRun+1);
 TH1D *XsecDistro = new TH1D("XsecDistro","X sec distribution", 60, 0., 0.6);
@@ -107,7 +109,7 @@ TH1D *XsecDistro = new TH1D("XsecDistro","X sec distribution", 60, 0., 0.6);
 
 	   file >> fileRun[npt] >> Lumi[npt];
 	   if ( ! file.good() ) break;
-	   //cout << "x = " << fileRun[npt] << " y = " << Lumi[npt] << endl;
+	   cout << "x = " << fileRun[npt] << " y = " << Lumi[npt] << endl;
 	   
 	   FileRuns->SetBinContent((fileRun[npt]-minRun+2),0.2);
 	   npt++;
@@ -116,13 +118,13 @@ TH1D *XsecDistro = new TH1D("XsecDistro","X sec distribution", 60, 0., 0.6);
    file.close();
    printf("found %d Runs in file \n", npt);
 
-
 bool flaggg=1;
 TH1D *LumiRuns = new TH1D("LumiRuns","Zyield vs Run", maxRun-minRun+2, minRun-1, maxRun+1);
+ LumiRuns->Sumw2();
 for(int i=0; i<npt;i++){
 	for(int j=0;j<maxRun;j++){
 		if(fileRun[i]==(minRun+j)){
-	//cout << fileRun[i]-minRun+1 <<" "<< ((float)Runs->GetBinContent(j+1))/Lumi[i] <<" "<< Lumi[i] << " matched run \n";
+		  cout << fileRun[i]-minRun+1 <<" "<< ((float)Runs->GetBinContent(j+1))/Lumi[i] <<" "<< Lumi[i] << " matched run \n";
 		if(Lumi[i]>0.&&Runs->GetBinContent(j+2)>0.){
 			LumiRuns->SetBinContent(fileRun[i]-minRun+2,(((double)Runs->GetBinContent(j+2))/Lumi[i])*1000);
 			LumiRuns->SetBinError(fileRun[i]-minRun+2,((TMath::Sqrt((double)Runs->GetBinContent(j+2)))/Lumi[i])*1000);

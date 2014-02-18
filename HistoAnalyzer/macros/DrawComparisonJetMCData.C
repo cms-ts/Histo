@@ -34,7 +34,7 @@ bool WholeStat= true;                // if true, reweing on RunA lumi, if false,
 bool RunA= true;                // if true, reweing on RunA lumi, if false, on RunB
 bool lumiPixel = true;           // if true, Lumi estimated using pixel, else with HF
 
-bool isMu=false;
+bool isMu=true;
 
 string plotpath;
 string datafile;
@@ -117,9 +117,9 @@ void DrawComparisonJetMCData(void){
 
 
 
-  version="_v2_32.root";  // which version you wonna analize
+  version="_v2_58.root";  // which version you wonna analize
   string versionMu="Mu"+version;
-  if (!isMu) version="_v2_32.root"; 
+  if (!isMu) version="_v2_58.root"; 
   if (isMu) version="Mu"+version;
   if (isMu) {
     dataLumi2011Apix=2136.00; 
@@ -132,7 +132,7 @@ void DrawComparisonJetMCData(void){
   
 plotpath		="/tmp/marone/"; //put here the path where you want the plots
 datafile		="/gpfs/cms/data/2011/jet/jetValidation_DATA_2011"+version;
- mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_57_3.root";
+ mcfile                ="/gpfs/cms/data/2011/jet/jetValidation_zjets_magd_2011Mu_v2_58.root";
 
 back_ttbar	="/gpfs/cms/data/2011/jet/jetValidation_ttbar_2011"+versionMu;
 back_w		="/gpfs/cms/data/2011/jet/jetValidation_w_2011_v2_27.root"; //DA RIATTIVARE SOTTO, GREPPA hs->!!!!

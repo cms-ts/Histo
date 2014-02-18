@@ -57,6 +57,8 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
+const double asymmetricRangeLeadingJetPt[18]={30,50,70,90,110,130,150,170,190,210,230,250,280,310,350,400,500,700};
+
 class TTree;
 
 /////
@@ -134,6 +136,7 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double Z_pt_gen;
       double Z_y_gen;
       int Jet_multiplicity_gen;
+
       double jet1_pt_gen;
       double jet2_pt_gen;
       double jet3_pt_gen;
@@ -141,6 +144,22 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet5_pt_gen;
       double jet6_pt_gen;
       double jet7_pt_gen;
+
+      double jet1_pt_gen_abs;
+      double jet2_pt_gen_abs;
+      double jet3_pt_gen_abs;
+      double jet4_pt_gen_abs;
+      double jet5_pt_gen_abs;
+      double jet6_pt_gen_abs;
+      double jet7_pt_gen_abs;
+
+      double jet1_eta_gen_abs;
+      double jet2_eta_gen_abs;
+      double jet3_eta_gen_abs;
+      double jet4_eta_gen_abs;
+      double jet5_eta_gen_abs;
+      double jet6_eta_gen_abs;
+      double jet7_eta_gen_abs;
 
       double jet1_eta_gen;
       double jet2_eta_gen;
@@ -200,6 +219,9 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       double jet2_phi;
       double jet3_phi;
       double jet4_phi;
+      double jet5_phi;
+      double jet6_phi;
+      double jet7_phi;
       double jet1_mass;
       double jet2_mass;
       double jet3_mass; 
@@ -214,6 +236,26 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
       // Weight
       TH1F * h_weights;
       TH1F * h_weightsSherpa;
+
+      // PaticleId of RecoJets
+      std::vector<double> fractionOfPFID0RecoJet;
+      std::vector<double> fractionOfPFID1RecoJet;
+      std::vector<double> fractionOfPFID2RecoJet;
+      std::vector<double> fractionOfPFID3RecoJet;
+      std::vector<double> fractionOfPFID4RecoJet;
+      std::vector<double> fractionOfPFID5RecoJet;
+      std::vector<double> fractionOfPFID6RecoJet;
+      std::vector<double> fractionOfPFID7RecoJet;
+
+      double fractionOfPFID0;
+      double fractionOfPFID1;
+      double fractionOfPFID2;
+      double fractionOfPFID3;
+      double fractionOfPFID4;
+      double fractionOfPFID5;
+      double fractionOfPFID6;
+      double fractionOfPFID7;
+
 
 //EB ==============================
       // jets
@@ -419,6 +461,10 @@ class jetValidationUnfolding : public edm::EDAnalyzer {
      
       //vertices
       int numberOfVertices;
+      bool isAnyJetTooCloseToLepton;
+      bool isAnyGenJetTooCloseToLepton;
+      std::vector<math::XYZTLorentzVector> JetContainerFull;
+      std::vector<math::XYZTLorentzVector> GenJetContainerFull;
 };
 
 jetValidationUnfolding::jetValidationUnfolding(const edm::ParameterSet& conf)
@@ -611,11 +657,13 @@ jetValidationUnfolding::jetValidationUnfolding(const edm::ParameterSet& conf)
   h_zYieldVsjets  = fs->make<TH1F>("h_zYieldVsjets","zYieldVsjets",10,0,10);
   h_zYieldVsjetsVtx1  = fs->make<TH1F>("h_zYieldVsjetsVtx1","zYieldVsjetsVtx1",10,0,10);
   h_zYieldVsjetsVtx5  = fs->make<TH1F>("h_zYieldVsjetsVtx5","zYieldVsjetsVtx5",10,0,10);
-  h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",divPlot_leading2,minPtPlot_leading2,maxPtPlot_leading2);
+  //h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",divPlot_leading2,minPtPlot_leading2,maxPtPlot_leading2);
+  h_jetPtNjet1 = fs->make<TH1F>("h_jetPtNjet1","jetPtNjet1",17,asymmetricRangeLeadingJetPt);
   h_jetPtNjet2 = fs->make<TH1F>("h_jetPtNjet2","jetPtNjet2",divPlot_subleading2,minPtPlot_subleading2,maxPtPlot_subleading2);
   h_jetPtNjet3 = fs->make<TH1F>("h_jetPtNjet3","jetPtNjet3",divPlot_subsubleading2,minPtPlot_subsubleading2,maxPtPlot_subsubleading2);
   h_jetPtNjet4 = fs->make<TH1F>("h_jetPtNjet4","jetPtNjet4",divPlot_subsubsubleading2,minPtPlot_subsubsubleading2,maxPtPlot_subsubsubleading2);
-  h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",divPlot_leading2,minPtPlot_leading2,maxPtPlot_leading2);
+  h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",17,asymmetricRangeLeadingJetPt);
+  //h_jetPtNjet1Incl = fs->make<TH1F>("h_jetPtNjet1Incl","jetPtNjet1Incl",divPlot_leading2,minPtPlot_leading2,maxPtPlot_leading2);
   h_jetPtNjet2Incl = fs->make<TH1F>("h_jetPtNjet2Incl","jetPtNjet2Incl",divPlot_subleading2,minPtPlot_subleading2,maxPtPlot_subleading2);
   h_jetPtNjet3Incl = fs->make<TH1F>("h_jetPtNjet3Incl","jetPtNjet3Incl",divPlot_subsubleading2,minPtPlot_subsubleading2,maxPtPlot_subsubleading2);
   h_jetPtNjet4Incl = fs->make<TH1F>("h_jetPtNjet4Incl","jetPtNjet4Incl",divPlot_subsubsubleading2,minPtPlot_subsubsubleading2,maxPtPlot_subsubsubleading2);

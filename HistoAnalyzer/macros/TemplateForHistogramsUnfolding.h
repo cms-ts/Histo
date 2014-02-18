@@ -3,20 +3,20 @@
 /////////////////////////////////////
 
 int minPtPlot_leading2=30;
-int maxPtPlot_leading2=330;
-int divPlot_leading2=15;
+int maxPtPlot_leading2=390;
+int divPlot_leading2=18;
 
 int minPtPlot_subleading2=30;
 int maxPtPlot_subleading2=330;
-int divPlot_subleading2=10;
+int divPlot_subleading2=15;
 
 int minPtPlot_subsubleading2=30;
 int maxPtPlot_subsubleading2=190;
 int divPlot_subsubleading2=8;
 
 int minPtPlot_subsubsubleading2=30;
-int maxPtPlot_subsubsubleading2=100;
-int divPlot_subsubsubleading2=7;
+int maxPtPlot_subsubsubleading2=130;
+int divPlot_subsubsubleading2=5;
 
 /////////////////////////////////////
 /// Jet Eta 
@@ -43,18 +43,18 @@ int divPlot_subsubsubleading2eta=12;
 /////////////////////////////////////
 
 int minHtPlot_leading2=30;
-int maxHtPlot_leading2=630;
-int divHtPlot_leading2=12;
+int maxHtPlot_leading2=710;
+int divHtPlot_leading2=17;
 
 int minHtPlot_subleading2=60;
-int maxHtPlot_subleading2=630;
-int divHtPlot_subleading2=12;
+int maxHtPlot_subleading2=710;
+int divHtPlot_subleading2=13;
 
 int minHtPlot_subsubleading2=90;
-int maxHtPlot_subsubleading2=630;
-int divHtPlot_subsubleading2=7;
+int maxHtPlot_subsubleading2=790;
+int divHtPlot_subsubleading2=14;
 
 int minHtPlot_subsubsubleading2=120;
-int maxHtPlot_subsubsubleading2=630;
-int divHtPlot_subsubsubleading2=5;
+int maxHtPlot_subsubsubleading2=720;
+int divHtPlot_subsubsubleading2=10;
 

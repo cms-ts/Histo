@@ -1,6 +1,6 @@
 //=====================================================================-*-C++-*-
 // File and Version Information:
-//      $Id: RooUnfoldBinByBin.h 261 2011-01-13 19:00:40Z T.J.Adye $
+//      $Id: RooUnfoldBinByBin.h 276 2011-02-10 02:00:45Z T.J.Adye $
 //
 // Description:
 //      Unfolding class using the bin by bin method of conversion factors.
@@ -13,6 +13,7 @@
 #define ROOUNFOLDBINBYBIN_H_
 
 #include "RooUnfold.h"
+#include "TVectorD.h"
 
 class RooUnfoldResponse;
 class TH1;
@@ -31,13 +32,19 @@ public:
   virtual RooUnfoldBinByBin* Clone (const char* newname= 0) const;
   RooUnfoldBinByBin (const RooUnfoldResponse* res, const TH1* meas, const char* name=0, const char* title=0);
 
+  TVectorD* Impl();
+
 protected:
   virtual void Unfold();
   virtual void GetCov();
   virtual void GetSettings();
 
+protected:
+  // instance variables
+  TVectorD _factors;
+
 public:
-  ClassDef (RooUnfoldBinByBin, 0)  // Bin-by-bin unfolding
+  ClassDef (RooUnfoldBinByBin, 1)  // Bin-by-bin unfolding
 };
 
 
