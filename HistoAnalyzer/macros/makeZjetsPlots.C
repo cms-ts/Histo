@@ -63,9 +63,9 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   TFile dumphistos_file("/tmp/dump_histos.root","UPDATE");
 
   //DATA:
-  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth.root";
-  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidthMu.root";
-  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidthCombined.root";
+  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth2.root";
+  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth2Mu.root";
+  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth2Combined.root";
 
   //RIVET:
   string rivetPathSherpa           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CentralSherpa/out.root";
@@ -86,6 +86,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   string rivetPathPowheg           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/CentralPowheg/scaleorig.root";
   string rivetPathPowhegUP         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/PowhegScaleUp/scaleup.root";
   string rivetPathPowhegDOWN       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/PowhegScaleDown/scaledown.root";  
+
 
   if (lepton == 2){
     rivetPathSherpa           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CentralSherpa/out.root";
@@ -1044,38 +1045,19 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  leadingRivetSherpaDOWN->GetPoint(ovo,x1temp,y1temp); 
 	  leadingRivetSherpaUP->GetPoint(ovo,x2temp,y2temp); 
 
-//	  cout << "diff = " << fabs(y1temp-y2temp) 
-//	       << "; uncertainty = " << sqrt(leadingRivetSherpaDOWN->GetErrorYhigh(ovo)*leadingRivetSherpaDOWN->GetErrorYhigh(ovo) + leadingRivetSherpaUP->GetErrorYhigh(ovo)*leadingRivetSherpaUP->GetErrorYhigh(ovo))
-//	       << "; relative = " << sqrt(leadingRivetSherpaDOWN->GetErrorYhigh(ovo)*leadingRivetSherpaDOWN->GetErrorYhigh(ovo) + leadingRivetSherpaUP->GetErrorYhigh(ovo)*leadingRivetSherpaUP->GetErrorYhigh(ovo))/fabs(y1temp-y2temp) << endl;
-//
-//	  statTest->SetPoint(ovo,dummyXvar,sqrt(leadingRivetSherpaDOWN->GetErrorYhigh(ovo)*leadingRivetSherpaDOWN->GetErrorYhigh(ovo) + leadingRivetSherpaUP->GetErrorYhigh(ovo)*leadingRivetSherpaUP->GetErrorYhigh(ovo))/fabs(y1temp-y2temp));//stattest
-
 	  if (absoluteNormalization) {
 	    dummyNorm= (1.0);
 	    if (lepton ==3) dummyNorm= dummyNorm*1.0;
-	    //dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); 
 	  }
 
 	  leadingRivetSherpa->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  //	  leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
-	  //	  leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
-	  //	  leadingRivetSherpa->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm + leadingRivetSherpaStat->GetErrorYhigh(ovo));
-	  //	  leadingRivetSherpa->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm + leadingRivetSherpaStat->GetErrorYlow(ovo));
 	  leadingRivetSherpa->SetPointEYhigh(ovo,sqrt(pow(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm,2) + pow(leadingRivetSherpaStat->GetErrorYhigh(ovo),2)));
 	  leadingRivetSherpa->SetPointEYlow(ovo,sqrt(pow(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm,2) + pow(leadingRivetSherpaStat->GetErrorYlow(ovo),2)));
 
-	  //	  cout << "Sherpa - " << ovo+1 << " - xsec=" << dummyYvar/dummyNorm << endl;
-
 	  leadingRatioSherpa->SetPoint(ovo,dummyXvar,(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1));
-	  //	  leadingRatioSherpa->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
-	  //	  leadingRatioSherpa->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
-	  //	  leadingRatioSherpa->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm + leadingRivetSherpaStat->GetErrorYhigh(ovo))/(dummyYvar/dummyNorm)); WRONG!!!
-	  //	  leadingRatioSherpa->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm + leadingRivetSherpaStat->GetErrorYlow(ovo))/(dummyYvar/dummyNorm)); WRONG!!!
 	  leadingRatioSherpa->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRatioSherpaStat->GetErrorYhigh(ovo),2)));
 	  leadingRatioSherpa->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRatioSherpaStat->GetErrorYlow(ovo),2)));
-	  //	  cout << "FR: " << leadingRatioSherpa->GetErrorYhigh(ovo) << " " << (-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm)  << endl;	    
 	  leadingRatio->SetBinContent(ovo+1,1.0);
-	  //	  leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)*(dummyYvar/dummyNorm)/(leadingSystematics->GetBinContent(ovo+1)*leadingSystematics->GetBinContent(ovo+1)));
 	  leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)/leading->GetBinContent(ovo+1));
 
 	  leadingRatioSystematics->SetBinContent(ovo+1,1.0);
@@ -1147,7 +1129,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  //	  leadingRatioSherpaQcut->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar + leadingRatioSherpaQ->GetErrorYhigh(ovo));
 	  //	  leadingRatioSherpaQcut->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar + leadingRatioSherpaQ->GetErrorYlow(ovo));
 	  leadingRatioSherpaQcut->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYhigh(ovo),2)));
-	  leadingRatioSherpaQcut->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYlow(ovo),2)));
+	  leadingRatioSherpaQcut->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYlow(ovo),2)));
 	  //	  cout << "Qcut: " << leadingRatioSherpaQcut->GetErrorYhigh(ovo) << " " << (-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar << endl;
 	}
 
@@ -1289,18 +1271,31 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	Double_t y2temp = 0.;
 	Double_t x1temp = 0.;
 	Double_t x2temp = 0.;
+	Double_t r1temp = 0.;
+	Double_t r2temp = 0.;
 
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	  leadingRivetPowheg2ENV->GetPoint(ovo,dummyXvar,dummyYvar); 
+	  leadingRivetPowheg2ENV->GetPoint(ovo,dummyXvar,dummyYvar);
+	  leadingRivetPowhegDOWN->GetPoint(ovo,x1temp,y1temp); 
+	  leadingRivetPowhegUP->GetPoint(ovo,x2temp,y2temp); 
 
-	  leadingRivetPowheg2ENV->SetPoint(ovo,dummyXvar,dummyYvar);
-	  leadingRivetPowheg2ENV->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar)-dummyYvar + leadingRivetPowheg->GetErrorYhigh(ovo));
-	  leadingRivetPowheg2ENV->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar) + leadingRivetPowheg->GetErrorYlow(ovo));
-
+	  //Set upper plot
+	  leadingRivetPowheg2ENV->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
+	  //Set Ratio Plot
 	  leadingRatioPowheg2ENV->SetPoint(ovo,dummyXvar,(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1));
-	  leadingRatioPowheg2ENV->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar + leadingRatioPowheg->GetErrorYhigh(ovo));
-	  leadingRatioPowheg2ENV->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar + leadingRatioPowheg->GetErrorYlow(ovo));
 
+	  //Set Bands for upper plots (not used...)
+	  leadingRivetPowheg2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRivetPowhegStat->GetErrorYhigh(ovo),2)));
+	  leadingRivetPowheg2ENV->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRivetPowhegStat->GetErrorYlow(ovo),2)));
+
+
+	  //Set Bands for lower plots
+	  leadingRatioPowheg2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioPowhegStat->GetErrorYhigh(ovo),2)));
+	  leadingRatioPowheg2ENV->SetPointEYlow(ovo,sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioPowhegStat->GetErrorYlow(ovo),2)));
+
+	  cout<<"high "<<sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioPowheg2ENV->GetErrorYhigh(ovo),2))<<endl;
+	  cout<<"low "<<sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioPowheg2ENV->GetErrorYlow(ovo),2))<<endl;
+	  cout<<"central "<<(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1)<<endl;
 	}
 
 	
@@ -1382,12 +1377,12 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	//	leadingRivetSherpaStat->Draw("2");
 	leadingRivetSherpaStat->Draw("pz");
 
-	//	leadingRivetPowheg2ENV->SetFillColor(kGreen-6);
-	//	leadingRivetPowheg2ENV->SetFillStyle(3004);
-	//	leadingRivetPowheg2ENV->SetLineColor(kGreen-6);
-	//	leadingRivetPowheg2ENV->SetMarkerColor(kGreen-6);
-	//	leadingRivetPowheg2ENV->SetLineWidth(0.6);
-	//	leadingRivetPowheg2ENV->Draw("5");
+	//leadingRivetPowheg2ENV->SetFillColor(kGreen-6);
+	//leadingRivetPowheg2ENV->SetFillStyle(3004);
+	//leadingRivetPowheg2ENV->SetLineColor(kGreen-6);
+	//leadingRivetPowheg2ENV->SetMarkerColor(kGreen-6);
+	//leadingRivetPowheg2ENV->SetLineWidth(0.6);
+	//leadingRivetPowheg2ENV->Draw("5");
 	//
 	//	leadingRivetPowheg->SetFillColor(kGreen+2);
 	//	leadingRivetPowheg->SetFillStyle(3004);
@@ -1422,9 +1417,9 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
 	TLatex *latexLabel;
 
-	if (lepton ==1) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ee channel", 0.20, 0.21);
-	if (lepton ==2) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow #mu#mu channel", 0.20, 0.21);
-	if (lepton ==3) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ll channel", 0.20, 0.21);
+	if (lepton ==1) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ee channel", 0.20, 0.16);
+	if (lepton ==2) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow #mu#mu channel", 0.20, 0.16);
+	if (lepton ==3) latexLabel = CMSPrel (4.890, "Z/#gamma*#rightarrow ll channel", 0.20, 0.16);
 
 	leadingSystematics->SetMarkerColor(kBlack);
 	leadingSystematics->SetMarkerSize(0.8);
@@ -1561,19 +1556,19 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	leadingRatio3Systematics->Draw ("E2");
 	leadingRatio3->Draw ("E1SAME");
 
-	//	leadingRatioPowheg2ENV->SetFillColor(kGreen-6);
-	//	leadingRatioPowheg2ENV->SetFillStyle(3004);
-	//	leadingRatioPowheg2ENV->SetLineColor(kGreen-6);
-	//	leadingRatioPowheg2ENV->SetMarkerColor(kGreen-6);
-	//	leadingRatioPowheg2ENV->SetLineWidth(0.6);
-	//	leadingRatioPowheg2ENV->Draw("5");
-	//
-	//	leadingRatioPowheg->SetFillColor(kGreen+2);
-	//	leadingRatioPowheg->SetFillStyle(3004);
-	//	leadingRatioPowheg->SetLineColor(kGreen+2);
-	//	leadingRatioPowheg->SetMarkerColor(kGreen+2);
-	//	leadingRatioPowheg->SetLineWidth(0.6);
-	//	leadingRatioPowheg->Draw("5");
+	leadingRatioPowheg2ENV->SetFillColor(kGreen-7);
+	leadingRatioPowheg2ENV->SetFillStyle(1001);
+	leadingRatioPowheg2ENV->SetLineColor(kGreen-6);
+	leadingRatioPowheg2ENV->SetMarkerColor(kGreen-6);
+	leadingRatioPowheg2ENV->SetLineWidth(0.6);
+	leadingRatioPowheg2ENV->Draw("5");
+	
+	//leadingRatioPowheg->SetFillColor(kGreen+2);
+	//leadingRatioPowheg->SetFillStyle(3004);
+	//leadingRatioPowheg->SetLineColor(kGreen+2);
+	//leadingRatioPowheg->SetMarkerColor(kGreen+2);
+	//leadingRatioPowheg->SetLineWidth(0.6);
+	//leadingRatioPowheg->Draw("5");
 
 	leadingRatioPowhegStat->SetFillColor(kGreen+8);
 	leadingRatioPowhegStat->SetFillStyle(1001);
@@ -1601,11 +1596,12 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	//	latexLabel->DrawLatex(0.2,0.09,"Powheg");	  
 
 	TLegend *legendPowheg;
-	legendPowheg = new TLegend (0.19, 0.05, 0.40, 0.14);	   
+	legendPowheg = new TLegend (0.19, 0.05, 0.40, 0.22);	   
 	legendPowheg->SetFillColor (0);
 	legendPowheg->SetFillStyle (0);
 	legendPowheg->SetBorderSize (0);
 	legendPowheg->AddEntry (leadingRatioPowhegStat, "Stat. unc. (gen)", "F");
+	legendPowheg->AddEntry (leadingRatioPowheg2ENV, "Theory unc. (gen)", "F");
 	legendPowheg->Draw ("same");
 
 
