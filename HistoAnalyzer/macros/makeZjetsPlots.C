@@ -30,7 +30,7 @@
 #include <string.h>
 
 void
-makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusiveMultiplicity)
+makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusiveMultiplicity, bool isPDFComparison)
 {
 
   setTDRStyle ();
@@ -63,9 +63,9 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   TFile dumphistos_file("/tmp/dump_histos.root","UPDATE");
 
   //DATA:
-  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth2.root";
-  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth2Mu.root";
-  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth2Combined.root";
+  string           pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidth.root";
+  if (lepton == 2) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidthMu.root";
+  if (lepton == 3) pathFile ="/gpfs/cms/data/2011/Unfolding/UnfoldingOfficialV58_BinWidthCombined.root";
 
   //RIVET:
   string rivetPathSherpa           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CentralSherpa/out.root";
@@ -82,49 +82,44 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   string  rivetPathSherpaNNPDF      ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/NNPDF/out.root";
   
   string rivetPathMadGraph         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Madgraph/CentralMadgraph/DYToLL.root";
+  string rivetPathMadGraphUP       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Madgraph/CentralMadgraph/DYToLL.root";
+  string rivetPathMadGraphDOWN     ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Madgraph/CentralMadgraph/DYToLL.root";
 
   string rivetPathPowheg           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/CentralPowheg/scaleorig.root";
   string rivetPathPowhegUP         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/PowhegScaleUp/scaleup.root";
   string rivetPathPowhegDOWN       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/PowhegScaleDown/scaledown.root";  
 
+  string rivetPathAlphaStrongUpVersusCT10="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/AsUp/out.root";
+  string rivetPathAlphaStrongDownVersusCT10="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/AsDown/out.root";
 
-  if (lepton == 2){
-    rivetPathSherpa           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CentralSherpa/out.root";
-    rivetPathSherpaUP         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/FRUp/out.root";
-    rivetPathSherpaDOWN       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/FRDown/out.root";
+  string rivetPathVariationPDF_CT10_down="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CT10/CT10DownUp/Observables_CT10_down.root";
+  string rivetPathVariationPDF_CT10_up="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CT10/CT10DownUp/Observables_CT10_up.root";
 
-    rivetPathSherpaQUP        ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QUp/out.root";
-    rivetPathSherpaQDOWN      ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QDown/out.root";
-    rivetPathSherpaQcutUP     ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QCutUp/out.root";
-    rivetPathSherpaQcutDOWN   ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QCutDown/out.root";
+  string rivetPathVariationPDF_MSTW_down="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/MSTW/MSTWUpDown/Observables_MSTW2008_down.root";
+  string rivetPathVariationPDF_MSTW_up="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/MSTW/MSTWUpDown/Observables_MSTW2008_up.root";
 
-    rivetPathSherpaMSTW       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/MSTW/out.root";
-    rivetPathSherpaNNPDF      ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/NNPDF/out.root";
-  
-    rivetPathMadGraph         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Madgraph/CentralMadgraph/DYToLL.root";
-    rivetPathPowheg           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/CentralPowheg/scaleorig.root";
-
-  }
-
-  if (lepton == 3){
-    rivetPathSherpa           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/CentralSherpa/out.root";
-    rivetPathSherpaUP         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/FRUp/out.root";
-    rivetPathSherpaDOWN       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/FRDown/out.root";
-
-    rivetPathSherpaQUP        ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QUp/out.root";
-    rivetPathSherpaQDOWN      ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QDown/out.root";
-    rivetPathSherpaQcutUP     ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QCutUp/out.root";
-    rivetPathSherpaQcutDOWN   ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/QCutDown/out.root";
-
-    rivetPathSherpaMSTW       ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/MSTW/out.root";
-    rivetPathSherpaNNPDF      ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/NNPDF/out.root";
-  
-    rivetPathMadGraph         ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Madgraph/CentralMadgraph/DYToLL.root";
-    rivetPathPowheg           ="/gpfs/cms/data/2011/Rivet/FinalDatasets/Powheg/CentralPowheg/scaleorig.root";
-
+  string rivetPathVariationPDF_NNPDF_down="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/NNPDF/NNPDFUpDown/Observables_NNPDF21_down.root";
+  string rivetPathVariationPDF_NNPDF_up="/gpfs/cms/data/2011/Rivet/FinalDatasets/Sherpa/NNPDF/NNPDFUpDown/Observables_NNPDF21_up.root";
 
   TFile dumphistos_file("/tmp/dump_histos.root","UPDATE");
+
+    //Switchjing paths when we compare PDFs
+  if (isPDFComparison){
+    rivetPathPowheg=rivetPathSherpaMSTW;
+    rivetPathMadGraph=rivetPathSherpaNNPDF;
+
+    rivetPathSherpaUP=rivetPathAlphaStrongUpVersusCT10;
+    rivetPathSherpaDOWN=rivetPathAlphaStrongDownVersusCT10;
+    rivetPathSherpaQUP=rivetPathVariationPDF_CT10_up;
+    rivetPathSherpaQDOWN=rivetPathVariationPDF_CT10_down;
+
+    rivetPathPowhegUP=rivetPathVariationPDF_MSTW_up;         
+    rivetPathPowhegDOWN=rivetPathVariationPDF_MSTW_down;       
+
+    rivetPathMadGraphUP=rivetPathVariationPDF_NNPDF_up;         
+    rivetPathMadGraphDOWN=rivetPathVariationPDF_NNPDF_down;         
   }
+
 
   TFile *histof = TFile::Open (pathFile.c_str ());
   histof->cd ("");
@@ -136,6 +131,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
   string stringmatch;
   string systPathFile;
   string rivet_data;
+  string rivet_data_minus;
   string rivet_dataMG;
 
   int i = 0;			// solo di servizio quando debuggo...
@@ -260,10 +256,13 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
       string rivetname="d"+oss.str()+"_x01_y01";
       string rivetnameMG="d"+oss.str()+"_x01_y01";
+      rivet_data_minus="d"+oss.str()+"-x01-y01";
       if (incMultiplicity) {
 	rivetname="d"+ossInc.str()+"_x01_y01";
 	rivetnameMG="d"+ossInc.str()+"_x01_y01";
       }
+
+
 
       rivet_data    = rivetname;
       rivet_dataMG    = rivetnameMG;
@@ -295,10 +294,6 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	if (etaFolded && use_case==3) {
 	  double wmean, wsigma;
 	  for (int mdm=(leading->GetNbinsX()/2)+1; mdm<=leading->GetNbinsX(); mdm++) {
-	    //	    wmean =   (leading->GetBinContent(mdm)/(leading->GetBinError(mdm)*leading->GetBinError(mdm)) 
-	    //		       + leading->GetBinContent(leading->GetNbinsX()-mdm+1)/(leading->GetBinError(leading->GetNbinsX()-mdm+1)*leading->GetBinError(leading->GetNbinsX()-mdm+1))) 
-	    //	      / (1./(leading->GetBinError(mdm)*leading->GetBinError(mdm)) 
-	    //		 + 1./(leading->GetBinError(leading->GetNbinsX()-mdm+1)*leading->GetBinError(leading->GetNbinsX()-mdm+1)));
 	    wmean =   leading->GetBinContent(mdm) + leading->GetBinContent(leading->GetNbinsX()-mdm+1);
 	    wsigma = sqrt((leading->GetBinError(mdm)*leading->GetBinError(mdm)) 
 			     + (leading->GetBinError(leading->GetNbinsX()-mdm+1)*leading->GetBinError(leading->GetNbinsX()-mdm+1)));
@@ -442,23 +437,31 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	while ((tobjRivetSherpaQUP = iterRivetSherpaQUP.Next ()))
 	  {
 	    string nameRivetSherpaQUP = tobjRivetSherpaQUP->GetName ();
-	    if (nameRivetSherpaQUP == rivet_data)
+	    if (nameRivetSherpaQUP == rivet_data || (isPDFComparison && (nameRivetSherpaQUP == rivet_data_minus) ) )
 	      {
-		TGraphAsymmErrors *leadingRivetSherpaQUP;
-		gDirectory->GetObject (nameRivetSherpaQUP.c_str (), leadingRivetSherpaQUP);
-		if (etaFolded && use_case==3) {
-		  double xx1temp, xx2temp, yy1temp, yy2temp;
-		  for (int mdm=leadingRivetSherpaQUP->GetN()/2; mdm<leadingRivetSherpaQUP->GetN(); mdm++) {
-		    leadingRivetSherpaQUP->GetPoint(mdm,xx1temp,yy1temp);
-		    leadingRivetSherpaQUP->GetPoint(leadingRivetSherpaQUP->GetN()-mdm-1,xx2temp,yy2temp);
-		    leadingRivetSherpaQUP->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
-		    leadingRivetSherpaQUP->SetPointEYhigh(mdm,sqrt(pow(leadingRivetSherpaQUP->GetErrorYhigh(mdm),2) + pow(leadingRivetSherpaQUP->GetErrorYhigh(leadingRivetSherpaQUP->GetN()-mdm-1),2)));
-		    leadingRivetSherpaQUP->SetPointEYlow(mdm,sqrt(pow(leadingRivetSherpaQUP->GetErrorYlow(mdm),2) + pow(leadingRivetSherpaQUP->GetErrorYlow(leadingRivetSherpaQUP->GetN()-mdm-1),2)));
-		  }
+		if (!isPDFComparison) {
+		  TGraphAsymmErrors *leadingRivetSherpaQUP;
+		  gDirectory->GetObject (nameRivetSherpaQUP.c_str (), leadingRivetSherpaQUP);
+		}
+		else{
+		  TH1F *histo;
+		  gDirectory->GetObject (nameRivetSherpaQUP.c_str (), histo);
+		  TGraphAsymmErrors *leadingRivetSherpaQUP=new TGraphAsymmErrors(histo);
 		}
 	      }
+	    if (etaFolded && use_case==3) {
+	      double xx1temp, xx2temp, yy1temp, yy2temp;
+	      for (int mdm=leadingRivetSherpaQUP->GetN()/2; mdm<leadingRivetSherpaQUP->GetN(); mdm++) {
+		leadingRivetSherpaQUP->GetPoint(mdm,xx1temp,yy1temp);
+		leadingRivetSherpaQUP->GetPoint(leadingRivetSherpaQUP->GetN()-mdm-1,xx2temp,yy2temp);
+		leadingRivetSherpaQUP->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		leadingRivetSherpaQUP->SetPointEYhigh(mdm,sqrt(pow(leadingRivetSherpaQUP->GetErrorYhigh(mdm),2) + pow(leadingRivetSherpaQUP->GetErrorYhigh(leadingRivetSherpaQUP->GetN()-mdm-1),2)));
+		leadingRivetSherpaQUP->SetPointEYlow(mdm,sqrt(pow(leadingRivetSherpaQUP->GetErrorYlow(mdm),2) + pow(leadingRivetSherpaQUP->GetErrorYlow(leadingRivetSherpaQUP->GetN()-mdm-1),2)));
+	      }
+	    }
 	  }
-
+	
+	
 	TFile *histoRivetSherpaQDOWN = TFile::Open (rivetPathSherpaQDOWN.c_str ());
 	histoRivetSherpaQDOWN->cd ("");
 	TDirectory *dirRivetSherpaQDOWN = gDirectory;
@@ -468,25 +471,34 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	while ((tobjRivetSherpaQDOWN = iterRivetSherpaQDOWN.Next ()))
 	  {
 	    string nameRivetSherpaQDOWN = tobjRivetSherpaQDOWN->GetName ();
-	    if (nameRivetSherpaQDOWN == rivet_data)
+	    cout<<nameRivetSherpaQDOWN<<" "<<rivet_data<<" "<<rivet_data_minus<<endl;
+	    if (nameRivetSherpaQDOWN == rivet_data || (isPDFComparison && (nameRivetSherpaQDOWN == rivet_data_minus) ) )
 	      {
-		TGraphAsymmErrors *leadingRivetSherpaQDOWN;
-		gDirectory->GetObject (nameRivetSherpaQDOWN.c_str (), leadingRivetSherpaQDOWN);
-		if (etaFolded && use_case==3) {
-		  double xx1temp, xx2temp, yy1temp, yy2temp;
-		  for (int mdm=leadingRivetSherpaQDOWN->GetN()/2; mdm<leadingRivetSherpaQDOWN->GetN(); mdm++) {
-		    leadingRivetSherpaQDOWN->GetPoint(mdm,xx1temp,yy1temp);
-		    leadingRivetSherpaQDOWN->GetPoint(leadingRivetSherpaQDOWN->GetN()-mdm-1,xx2temp,yy2temp);
-		    leadingRivetSherpaQDOWN->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
-		    leadingRivetSherpaQDOWN->SetPointEYhigh(mdm,sqrt(pow(leadingRivetSherpaQDOWN->GetErrorYhigh(mdm),2) + pow(leadingRivetSherpaQDOWN->GetErrorYhigh(leadingRivetSherpaQDOWN->GetN()-mdm-1),2)));
-		    leadingRivetSherpaQDOWN->SetPointEYlow(mdm,sqrt(pow(leadingRivetSherpaQDOWN->GetErrorYlow(mdm),2) + pow(leadingRivetSherpaQDOWN->GetErrorYlow(leadingRivetSherpaQDOWN->GetN()-mdm-1),2)));
-		  }
+		if (!isPDFComparison) {
+		  TGraphAsymmErrors *leadingRivetSherpaQDOWN;
+		  gDirectory->GetObject (nameRivetSherpaQDOWN.c_str (), leadingRivetSherpaQDOWN);
 		}
+		else{
+		  TH1F *histo;
+		  gDirectory->GetObject (nameRivetSherpaQDOWN.c_str (), histo);
+		  TGraphAsymmErrors *leadingRivetSherpaQDOWN=new TGraphAsymmErrors(histo);
+		}
+	      }	    
+	    if (etaFolded && use_case==3) {
+	      double xx1temp, xx2temp, yy1temp, yy2temp;
+	      for (int mdm=leadingRivetSherpaQDOWN->GetN()/2; mdm<leadingRivetSherpaQDOWN->GetN(); mdm++) {
+		leadingRivetSherpaQDOWN->GetPoint(mdm,xx1temp,yy1temp);
+		leadingRivetSherpaQDOWN->GetPoint(leadingRivetSherpaQDOWN->GetN()-mdm-1,xx2temp,yy2temp);
+		leadingRivetSherpaQDOWN->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		leadingRivetSherpaQDOWN->SetPointEYhigh(mdm,sqrt(pow(leadingRivetSherpaQDOWN->GetErrorYhigh(mdm),2) + pow(leadingRivetSherpaQDOWN->GetErrorYhigh(leadingRivetSherpaQDOWN->GetN()-mdm-1),2)));
+		leadingRivetSherpaQDOWN->SetPointEYlow(mdm,sqrt(pow(leadingRivetSherpaQDOWN->GetErrorYlow(mdm),2) + pow(leadingRivetSherpaQDOWN->GetErrorYlow(leadingRivetSherpaQDOWN->GetN()-mdm-1),2)));
 	      }
+	    }
 	  }
-
-
-	TFile *histoRivetSherpaQcutUP = TFile::Open (rivetPathSherpaQcutUP.c_str ());
+	
+	
+      
+      TFile *histoRivetSherpaQcutUP = TFile::Open (rivetPathSherpaQcutUP.c_str ());
 	histoRivetSherpaQcutUP->cd ("");
 	TDirectory *dirRivetSherpaQcutUP = gDirectory;
 	TList *mylistRivetSherpaQcutUP = (TList *) dirRivetSherpaQcutUP->GetListOfKeys ();
@@ -570,7 +582,6 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	      }
 	  }
 
-
 	/////////////
 	// Powheg
 	/////////////
@@ -617,22 +628,31 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	while ((tobjRivetPowhegUP = iterRivetPowhegUP.Next ()))
 	  {
 	    string nameRivetPowhegUP = tobjRivetPowhegUP->GetName ();
-	    if (nameRivetPowhegUP == rivet_data)
+	    if (nameRivetPowhegUP == rivet_data || (isPDFComparison && (nameRivetPowhegUP == rivet_data_minus) ) )
 	      {
-		TGraphAsymmErrors *leadingRivetPowhegUP;
-		gDirectory->GetObject (nameRivetPowhegUP.c_str (), leadingRivetPowhegUP);
-		if (etaFolded && use_case==3) {
-		  double xx1temp, xx2temp, yy1temp, yy2temp;
-		  for (int mdm=leadingRivetPowhegUP->GetN()/2; mdm<leadingRivetPowhegUP->GetN(); mdm++) {
-		    leadingRivetPowhegUP->GetPoint(mdm,xx1temp,yy1temp);
-		    leadingRivetPowhegUP->GetPoint(leadingRivetPowhegUP->GetN()-mdm-1,xx2temp,yy2temp);
-		    leadingRivetPowhegUP->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
-		    leadingRivetPowhegUP->SetPointEYhigh(mdm,sqrt(pow(leadingRivetPowhegUP->GetErrorYhigh(mdm),2) + pow(leadingRivetPowhegUP->GetErrorYhigh(leadingRivetPowhegUP->GetN()-mdm-1),2)));
-		    leadingRivetPowhegUP->SetPointEYlow(mdm,sqrt(pow(leadingRivetPowhegUP->GetErrorYlow(mdm),2) + pow(leadingRivetPowhegUP->GetErrorYlow(leadingRivetPowhegUP->GetN()-mdm-1),2)));
-		  }
+		if (!isPDFComparison) {
+		  TGraphAsymmErrors *leadingRivetPowhegUP;
+		  gDirectory->GetObject (nameRivetPowhegUP.c_str (), leadingRivetPowhegUP);
+		}
+		else{
+		  TH1F *histo;
+		  gDirectory->GetObject (nameRivetPowhegUP.c_str (), histo);
+		  TGraphAsymmErrors *leadingRivetPowhegUP=new TGraphAsymmErrors(histo);
 		}
 	      }
+	    if (etaFolded && use_case==3) {
+	      double xx1temp, xx2temp, yy1temp, yy2temp;
+	      for (int mdm=leadingRivetPowhegUP->GetN()/2; mdm<leadingRivetPowhegUP->GetN(); mdm++) {
+		leadingRivetPowhegUP->GetPoint(mdm,xx1temp,yy1temp);
+		leadingRivetPowhegUP->GetPoint(leadingRivetPowhegUP->GetN()-mdm-1,xx2temp,yy2temp);
+		leadingRivetPowhegUP->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		leadingRivetPowhegUP->SetPointEYhigh(mdm,sqrt(pow(leadingRivetPowhegUP->GetErrorYhigh(mdm),2) + pow(leadingRivetPowhegUP->GetErrorYhigh(leadingRivetPowhegUP->GetN()-mdm-1),2)));
+		leadingRivetPowhegUP->SetPointEYlow(mdm,sqrt(pow(leadingRivetPowhegUP->GetErrorYlow(mdm),2) + pow(leadingRivetPowhegUP->GetErrorYlow(leadingRivetPowhegUP->GetN()-mdm-1),2)));
+	      }
+	    }
 	  }
+
+
 
 	TFile *histoRivetPowhegDOWN = TFile::Open (rivetPathPowhegDOWN.c_str ());
 	histoRivetPowhegDOWN->cd ("");
@@ -643,21 +663,28 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	while ((tobjRivetPowhegDOWN = iterRivetPowhegDOWN.Next ()))
 	  {
 	    string nameRivetPowhegDOWN = tobjRivetPowhegDOWN->GetName ();
-	    if (nameRivetPowhegDOWN == rivet_data)
+	    if (nameRivetPowhegDOWN == rivet_data || (isPDFComparison && (nameRivetPowhegDOWN == rivet_data_minus) ) )
 	      {
-		TGraphAsymmErrors *leadingRivetPowhegDOWN;
-		gDirectory->GetObject (nameRivetPowhegDOWN.c_str (), leadingRivetPowhegDOWN);
-		if (etaFolded && use_case==3) {
-		  double xx1temp, xx2temp, yy1temp, yy2temp;
-		  for (int mdm=leadingRivetPowhegDOWN->GetN()/2; mdm<leadingRivetPowhegDOWN->GetN(); mdm++) {
-		    leadingRivetPowhegDOWN->GetPoint(mdm,xx1temp,yy1temp);
-		    leadingRivetPowhegDOWN->GetPoint(leadingRivetPowhegDOWN->GetN()-mdm-1,xx2temp,yy2temp);
-		    leadingRivetPowhegDOWN->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
-		    leadingRivetPowhegDOWN->SetPointEYhigh(mdm,sqrt(pow(leadingRivetPowhegDOWN->GetErrorYhigh(mdm),2) + pow(leadingRivetPowhegDOWN->GetErrorYhigh(leadingRivetPowhegDOWN->GetN()-mdm-1),2)));
-		    leadingRivetPowhegDOWN->SetPointEYlow(mdm,sqrt(pow(leadingRivetPowhegDOWN->GetErrorYlow(mdm),2) + pow(leadingRivetPowhegDOWN->GetErrorYlow(leadingRivetPowhegDOWN->GetN()-mdm-1),2)));
-		  }
+		if (!isPDFComparison) {
+		  TGraphAsymmErrors *leadingRivetPowhegDOWN;
+		  gDirectory->GetObject (nameRivetPowhegDOWN.c_str (), leadingRivetPowhegDOWN);
+		}
+		else{
+		  TH1F *histo;
+		  gDirectory->GetObject (nameRivetPowhegDOWN.c_str (), histo);
+		  TGraphAsymmErrors *leadingRivetPowhegDOWN=new TGraphAsymmErrors(histo);
 		}
 	      }
+	    if (etaFolded && use_case==3) {
+	      double xx1temp, xx2temp, yy1temp, yy2temp;
+	      for (int mdm=leadingRivetPowhegDOWN->GetN()/2; mdm<leadingRivetPowhegDOWN->GetN(); mdm++) {
+		leadingRivetPowhegDOWN->GetPoint(mdm,xx1temp,yy1temp);
+		leadingRivetPowhegDOWN->GetPoint(leadingRivetPowhegDOWN->GetN()-mdm-1,xx2temp,yy2temp);
+		leadingRivetPowhegDOWN->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		leadingRivetPowhegDOWN->SetPointEYhigh(mdm,sqrt(pow(leadingRivetPowhegDOWN->GetErrorYhigh(mdm),2) + pow(leadingRivetPowhegDOWN->GetErrorYhigh(leadingRivetPowhegDOWN->GetN()-mdm-1),2)));
+		leadingRivetPowhegDOWN->SetPointEYlow(mdm,sqrt(pow(leadingRivetPowhegDOWN->GetErrorYlow(mdm),2) + pow(leadingRivetPowhegDOWN->GetErrorYlow(leadingRivetPowhegDOWN->GetN()-mdm-1),2)));
+	      }
+	    }
 	  }
 	
 
@@ -665,6 +692,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	// Madgraph
 	/////////////////
 
+	//Central value
 
 	TFile *histoRivetMadGraph = TFile::Open (rivetPathMadGraph.c_str ());
 	histoRivetMadGraph->cd ("");
@@ -696,7 +724,82 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	      }
 	  }
 
+
+	//Madgrap up (used only in PDF, for the scaling...)
+	TFile *histoRivetMadGraphDOWN = TFile::Open (rivetPathMadGraphDOWN.c_str ());
+	histoRivetMadGraphDOWN->cd ("");
+	TDirectory *dirRivetMadGraphDOWN = gDirectory;
+	TList *mylistRivetMadGraphDOWN = (TList *) dirRivetMadGraphDOWN->GetListOfKeys ();
+	TIter iterRivetMadGraphDOWN (mylistRivetMadGraphDOWN);
+	TObject *tobjRivetMadGraphDOWN = 0;
+	while ((tobjRivetMadGraphDOWN = iterRivetMadGraphDOWN.Next ()))
+	  {
+	    string nameRivetMadGraphDOWN = tobjRivetMadGraphDOWN->GetName ();
+	    if (nameRivetMadGraphDOWN == rivet_data || (isPDFComparison && (nameRivetMadGraphDOWN == rivet_data_minus) ) )
+	      {
+		if (!isPDFComparison) {
+		  TGraphAsymmErrors *leadingRivetMadGraphDOWN;
+		  gDirectory->GetObject (nameRivetMadGraphDOWN.c_str (), leadingRivetMadGraphDOWN);
+		}
+		else{
+		  TH1F *histo;
+		  gDirectory->GetObject (nameRivetMadGraphDOWN.c_str (), histo);
+		  TGraphAsymmErrors *leadingRivetMadGraphDOWN=new TGraphAsymmErrors(histo);
+		}
+	      }
+	    if (etaFolded && use_case==3) {
+	      double xx1temp, xx2temp, yy1temp, yy2temp;
+	      for (int mdm=leadingRivetMadGraphDOWN->GetN()/2; mdm<leadingRivetMadGraphDOWN->GetN(); mdm++) {
+		leadingRivetMadGraphDOWN->GetPoint(mdm,xx1temp,yy1temp);
+		leadingRivetMadGraphDOWN->GetPoint(leadingRivetMadGraphDOWN->GetN()-mdm-1,xx2temp,yy2temp);
+		leadingRivetMadGraphDOWN->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		leadingRivetMadGraphDOWN->SetPointEYhigh(mdm,sqrt(pow(leadingRivetMadGraphDOWN->GetErrorYhigh(mdm),2) + pow(leadingRivetMadGraphDOWN->GetErrorYhigh(leadingRivetMadGraphDOWN->GetN()-mdm-1),2)));
+		leadingRivetMadGraphDOWN->SetPointEYlow(mdm,sqrt(pow(leadingRivetMadGraphDOWN->GetErrorYlow(mdm),2) + pow(leadingRivetMadGraphDOWN->GetErrorYlow(leadingRivetPowhegDOWN->GetN()-mdm-1),2)));
+	      }
+	    }
+	  }
+
+
+
+	//MadGraph Down (used only in PD1F), for the scaling
+	TFile *histoRivetMadGraphUP = TFile::Open (rivetPathMadGraphUP.c_str ());
+	histoRivetMadGraphUP->cd ("");
+	TDirectory *dirRivetMadGraphUP = gDirectory;
+	TList *mylistRivetMadGraphUP = (TList *) dirRivetMadGraphUP->GetListOfKeys ();
+	TIter iterRivetMadGraphUP (mylistRivetMadGraphUP);
+	TObject *tobjRivetMadGraphUP = 0;
+	while ((tobjRivetMadGraphUP = iterRivetMadGraphUP.Next ()))
+	  {
+	    string nameRivetMadGraphUP = tobjRivetMadGraphUP->GetName ();
+	    if (nameRivetMadGraphUP == rivet_data || (isPDFComparison && (nameRivetMadGraphUP == rivet_data_minus) ) )
+	      {
+		if (!isPDFComparison) {
+		  TGraphAsymmErrors *leadingRivetMadGraphUP;
+		  gDirectory->GetObject (nameRivetMadGraphUP.c_str (), leadingRivetMadGraphUP);
+		}
+		else{
+		  TH1F *histo;
+		  gDirectory->GetObject (nameRivetMadGraphUP.c_str (), histo);
+		  TGraphAsymmErrors *leadingRivetMadGraphUP=new TGraphAsymmErrors(histo);
+		}
+	      }
+	    if (etaFolded && use_case==3) {
+	      double xx1temp, xx2temp, yy1temp, yy2temp;
+	      for (int mdm=leadingRivetMadGraphUP->GetN()/2; mdm<leadingRivetMadGraphUP->GetN(); mdm++) {
+		leadingRivetMadGraphUP->GetPoint(mdm,xx1temp,yy1temp);
+		leadingRivetMadGraphUP->GetPoint(leadingRivetMadGraphUP->GetN()-mdm-1,xx2temp,yy2temp);
+		leadingRivetMadGraphUP->SetPoint(mdm,xx1temp,yy1temp+yy2temp);
+		leadingRivetMadGraphUP->SetPointEYhigh(mdm,sqrt(pow(leadingRivetMadGraphUP->GetErrorYhigh(mdm),2) + pow(leadingRivetMadGraphUP->GetErrorYhigh(leadingRivetMadGraphUP->GetN()-mdm-1),2)));
+		leadingRivetMadGraphUP->SetPointEYlow(mdm,sqrt(pow(leadingRivetMadGraphUP->GetErrorYlow(mdm),2) + pow(leadingRivetMadGraphUP->GetErrorYlow(leadingRivetPowhegUP->GetN()-mdm-1),2)));
+	      }
+	    }
+	  }
+	
+
 	//-------------------------------------------------------------
+	// Systematics
+	/////
+
 	
 	leadingSystematics->SetName ("leadingSystematics");
 	if (systTmpM.size () != leadingSystematics->GetNbinsX ())
@@ -795,29 +898,14 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
 	if (use_case ==1) {
 	  if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dN [pb]");
-	  //	  else {
-	  //	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dN");
-	  //	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dN");
-	  //	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dN");
-	  //	  }
 	}
 
 	if (use_case ==2) {
 	  if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dp_{T} [pb/GeV]");
-	  //	  else {
-	  //	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dp_{T}");
-	  //	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dp_{T}");
-	  //	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dp_{T}");
-	  //	  }
 	}
 
 	if (use_case ==3) {
 	  if (absoluteNormalization) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/d#eta [pb]");
-	  //	  else {
-	  //	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/d#eta");
-	  //	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/d#eta");
-	  //	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/d#eta");
-	  //	  }
 	}
 	  
 	if (use_case ==4) {
@@ -825,11 +913,6 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  if (absoluteNormalization && whichjet==2) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb/GeV]");
 	  if (absoluteNormalization && whichjet==3) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb/GeV]");
 	  if (absoluteNormalization && whichjet==4) leadingSystematics->GetYaxis ()->SetTitle ("d#sigma/dH_{T} [pb/GeV]");
-	  //	  else {
-	  //	    if (lepton == 1) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}}) d#sigma/dH_{T}");
-	  //	    if (lepton == 2) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow #mu^{+}#mu^{-}}) d#sigma/dH_{T}");
-	  //	    if (lepton == 3) leadingSystematics->GetYaxis ()->SetTitle ("(1/#sigma_{Z #rightarrow e^{+}e^{-}/#mu^{+}#mu^{-}}) d#sigma/dH_{T}");
-	  //	  }
 	}
 
 	if (etaFolded && use_case==3) leadingSystematics->GetXaxis()->SetRange((leadingSystematics->GetNbinsX()/2)+1,leadingSystematics->GetNbinsX());  
@@ -865,7 +948,8 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	///////////
 	// SHERPA:
 	////////////
-
+	
+	//if (isPDFComparison)
 
 	nRivetPoints = leadingRivetSherpa->GetN();
 	//	if (nRivetPoints != leadingSystematics->GetNbinsX ()) {cout << "Different number of bins wrt RIVET... quitting" << endl; return 0;}
@@ -906,7 +990,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
 	Double_t dummyNorm = 0.;
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	  leadingRivetSherpaQUP->GetPoint(ovo,dummyXvar,dummyYvar); 
+	  leadingRivetSherpaQUP->GetPoint(ovo,dummyXvar,dummyYvar);
 	  dummyNorm = dummyNorm + dummyYvar;
 	}
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
@@ -1035,6 +1119,10 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	Double_t y2temp = 0.;
 	Double_t x1temp = 0.;
 	Double_t x2temp = 0.;
+
+	std::vector<double> DeltaAsUp_CT10_Ratio;
+	std::vector<double> DeltaAsDown_CT10_Ratio;
+
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	  leadingRivetSherpa->GetPoint(ovo,dummyXvar,dummyYvar); 
 	  dummyNorm = dummyNorm + dummyYvar;
@@ -1059,6 +1147,10 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  leadingRatioSherpa->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRatioSherpaStat->GetErrorYlow(ovo),2)));
 	  leadingRatio->SetBinContent(ovo+1,1.0);
 	  leadingRatio->SetBinError(ovo+1,leading->GetBinError(ovo+1)/leading->GetBinContent(ovo+1));
+
+	  //Filling DeltaAsForTheOtherPDF
+	  DeltaAsUp_CT10_Ratio.push_back((max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
+	  DeltaAsDown_CT10_Ratio.push_back(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
 
 	  leadingRatioSystematics->SetBinContent(ovo+1,1.0);
 	  leadingRatioSystematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/leadingSystematics->GetBinContent(ovo+1));
@@ -1100,39 +1192,46 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	}
 
 	// Qcut envelop for Sherpa:
-	TGraphAsymmErrors *leadingRivetSherpaQcut;
-	leadingRivetSherpaQcut = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ();
-	TGraphAsymmErrors *leadingRatioSherpaQcut;
-	leadingRatioSherpaQcut = (TGraphAsymmErrors *) leadingRatioSherpa->Clone ();
-
-	Double_t y1temp = 0.;
-	Double_t y2temp = 0.;
-	Double_t x1temp = 0.;
-	Double_t x2temp = 0.;
-	Double_t r1temp = 0.;
-	Double_t r2temp = 0.;
-
-	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
-	  leadingRivetSherpaQcut->GetPoint(ovo,dummyXvar,dummyYvar); 
-	  leadingRivetSherpaQcutUP->GetPoint(ovo,x1temp,y1temp); 
-	  leadingRivetSherpaQcutDOWN->GetPoint(ovo,x2temp,y2temp); 
-
-	  leadingRivetSherpaQcut->SetPoint(ovo,dummyXvar,dummyYvar);
-	  //	  leadingRivetSherpaQcut->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar)-dummyYvar + leadingRivetSherpaQ->GetErrorYhigh(ovo));
-	  //	  leadingRivetSherpaQcut->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar) + leadingRivetSherpaQ->GetErrorYlow(ovo));
-	  leadingRivetSherpaQcut->SetPointEYhigh(ovo,sqrt(pow(max(max(y1temp,y2temp),dummyYvar)-dummyYvar,2) + pow(leadingRivetSherpaQ->GetErrorYhigh(ovo),2)));
-	  leadingRivetSherpaQcut->SetPointEYlow(ovo,sqrt(pow(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar,2) + pow(leadingRivetSherpaQ->GetErrorYlow(ovo),2)));
-
-	  leadingRatioSherpa->GetPoint(ovo,r1temp,r2temp); 
-
-	  leadingRatioSherpaQ->SetPoint(ovo,r1temp,r2temp);
-	  //	  leadingRatioSherpaQcut->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar + leadingRatioSherpaQ->GetErrorYhigh(ovo));
-	  //	  leadingRatioSherpaQcut->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar + leadingRatioSherpaQ->GetErrorYlow(ovo));
-	  leadingRatioSherpaQcut->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYhigh(ovo),2)));
-	  leadingRatioSherpaQcut->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYlow(ovo),2)));
-	  //	  cout << "Qcut: " << leadingRatioSherpaQcut->GetErrorYhigh(ovo) << " " << (-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar << endl;
+	if (!isPDFComparison){
+	  TGraphAsymmErrors *leadingRivetSherpaQcut;
+	  leadingRivetSherpaQcut = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ();
+	  TGraphAsymmErrors *leadingRatioSherpaQcut;
+	  leadingRatioSherpaQcut = (TGraphAsymmErrors *) leadingRatioSherpa->Clone ();
+	  
+	  Double_t y1temp = 0.;
+	  Double_t y2temp = 0.;
+	  Double_t x1temp = 0.;
+	  Double_t x2temp = 0.;
+	  Double_t r1temp = 0.;
+	  Double_t r2temp = 0.;
+	  
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetSherpaQcut->GetPoint(ovo,dummyXvar,dummyYvar); 
+	    leadingRivetSherpaQcutUP->GetPoint(ovo,x1temp,y1temp); 
+	    leadingRivetSherpaQcutDOWN->GetPoint(ovo,x2temp,y2temp); 
+	    
+	    leadingRivetSherpaQcut->SetPoint(ovo,dummyXvar,dummyYvar);
+	    leadingRivetSherpaQcut->SetPointEYhigh(ovo,sqrt(pow(max(max(y1temp,y2temp),dummyYvar)-dummyYvar,2) + pow(leadingRivetSherpaQ->GetErrorYhigh(ovo),2)));
+	    leadingRivetSherpaQcut->SetPointEYlow(ovo,sqrt(pow(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar,2) + pow(leadingRivetSherpaQ->GetErrorYlow(ovo),2)));
+	    
+	    leadingRatioSherpa->GetPoint(ovo,r1temp,r2temp); 
+	    
+	    leadingRatioSherpaQ->SetPoint(ovo,r1temp,r2temp);
+	    leadingRatioSherpaQcut->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYhigh(ovo),2)));
+	    leadingRatioSherpaQcut->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioSherpaQ->GetErrorYlow(ovo),2)));
+	  }
 	}
 
+
+	//////////////////////////
+	/// Nota Bene
+	//////////////////////////
+
+
+	// Cancella alla fine! Qui non c'e' piu' bisogno di mettere la PDF. Ora abbiamo 2 canvas separati!!!
+	// 
+
+	/*
 	// PDF envelop for Sherpa:
 	TGraphAsymmErrors *leadingRivetSherpaPDF;
 	leadingRivetSherpaPDF = (TGraphAsymmErrors *) leadingRivetSherpa->Clone ();
@@ -1158,6 +1257,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  leadingRatioSherpaPDF->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar + leadingRatioSherpaQcut->GetErrorYlow(ovo));
 
 	}
+	*/
 
 	///////////////	
 	// POWHEG:
@@ -1244,13 +1344,10 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  }
 
 	  leadingRivetPowheg->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  //	  leadingRivetPowheg->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
-	  //	  leadingRivetPowheg->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
 	  leadingRivetPowheg->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm + leadingRivetPowhegStat->GetErrorYhigh(ovo));
 	  leadingRivetPowheg->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm + leadingRivetPowhegStat->GetErrorYlow(ovo));
+
 	  leadingRatioPowheg->SetPoint(ovo,dummyXvar,(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1));
-	  //	  leadingRatioPowheg->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
-	  //	  leadingRatioPowheg->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
 	  leadingRatioPowheg->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm + leadingRivetPowhegStat->GetErrorYhigh(ovo))/(dummyYvar/dummyNorm));
 	  leadingRatioPowheg->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm + leadingRivetPowhegStat->GetErrorYlow(ovo))/(dummyYvar/dummyNorm));
 	    
@@ -1288,14 +1385,19 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  leadingRivetPowheg2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRivetPowhegStat->GetErrorYhigh(ovo),2)));
 	  leadingRivetPowheg2ENV->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRivetPowhegStat->GetErrorYlow(ovo),2)));
 
-
 	  //Set Bands for lower plots
-	  leadingRatioPowheg2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioPowhegStat->GetErrorYhigh(ovo),2)));
-	  leadingRatioPowheg2ENV->SetPointEYlow(ovo,sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioPowhegStat->GetErrorYlow(ovo),2)));
 
-	  cout<<"high "<<sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioPowheg2ENV->GetErrorYhigh(ovo),2))<<endl;
-	  cout<<"low "<<sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioPowheg2ENV->GetErrorYlow(ovo),2))<<endl;
-	  cout<<"central "<<(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1)<<endl;
+	  double extraQuantityFromAlphaStrong_up=0.0;
+	  double extraQuantityFromAlphaStrong_down=0.0;
+
+	  if (isPDFComparison){
+	    extraQuantityFromAlphaStrong_up=DeltaAsUp_CT10_Ratio[ovo];
+	    extraQuantityFromAlphaStrong_down=DeltaAsDown_CT10_Ratio[ovo];
+	  }
+
+	  leadingRatioPowheg2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioPowhegStat->GetErrorYhigh(ovo),2)+ pow(extraQuantityFromAlphaStrong_up,2) ));
+	  leadingRatioPowheg2ENV->SetPointEYlow(ovo,sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioPowhegStat->GetErrorYlow(ovo),2)+ pow(extraQuantityFromAlphaStrong_down,2) ));
+
 	}
 
 	
@@ -1314,22 +1416,16 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
 	for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
 	  if (absoluteNormalization) {
-	    dummyNorm= 2475.0/3048.0;
-	    if (lepton ==3) dummyNorm = dummyNorm*1.0;
-	    //dummyNorm= dummyNorm / (leading->GetXaxis()->GetBinWidth(1)); //Divide by the bin width 
+	    if (!isPDFComparison) dummyNorm= 2475.0/3048.0; else dummyNorm=1.0;
 	  }
 	  leadingRivetMadGraph->GetPoint(ovo,dummyXvar,dummyYvar); 
-	  //	  leadingRivetMadGraphDOWN->GetPoint(ovo,x1temp,y1temp); 
-	  //	  leadingRivetMadGraphUP->GetPoint(ovo,x2temp,y2temp); 
 	  leadingRivetMadGraph->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
-	  //	  leadingRivetMadGraph->SetPointEYhigh(ovo,max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm);
-	  //	  leadingRivetMadGraph->SetPointEYlow(ovo,-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm);
+
 	  leadingRivetMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)/dummyNorm);
 	  leadingRivetMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)/dummyNorm);
 
 	  leadingRatioMadGraph->SetPoint(ovo,dummyXvar,(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1));
-	  //	  leadingRatioMadGraph->SetPointEYhigh(ovo,(max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
-	  //	  leadingRatioMadGraph->SetPointEYlow(ovo,(-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm));
+
 	  leadingRatioMadGraph->SetPointEYhigh(ovo,leadingRivetMadGraph->GetErrorYhigh(ovo)*dummyNorm/dummyYvar);
 	  leadingRatioMadGraph->SetPointEYlow(ovo,leadingRivetMadGraph->GetErrorYlow(ovo)*dummyNorm/dummyYvar);
 
@@ -1339,6 +1435,57 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	  leadingRatio2Systematics->SetBinContent(ovo+1,1.0);
 	  leadingRatio2Systematics->SetBinError(ovo+1,leadingSystematics->GetBinError(ovo+1)/leadingSystematics->GetBinContent(ovo+1));
 	}
+
+	// 2nd envelop for Madgraph:
+	TGraphAsymmErrors *leadingRivetMadGraph2ENV;
+	leadingRivetMadGraph2ENV = (TGraphAsymmErrors *) leadingRivetMadGraph->Clone ();
+	TGraphAsymmErrors *leadingRatioMadGraph2ENV;
+	leadingRatioMadGraph2ENV = (TGraphAsymmErrors *) leadingRatioMadGraph->Clone ();
+
+	Double_t y1temp = 0.;
+	Double_t y2temp = 0.;
+	Double_t x1temp = 0.;
+	Double_t x2temp = 0.;
+	Double_t r1temp = 0.;
+	Double_t r2temp = 0.;
+	
+	if (isPDFComparison){
+	  
+	  for (Int_t ovo=0;ovo<nRivetPoints;ovo++) {
+	    leadingRivetMadGraph2ENV->GetPoint(ovo,dummyXvar,dummyYvar);
+	    leadingRivetMadGraphDOWN->GetPoint(ovo,x1temp,y1temp); 
+	    leadingRivetMadGraphUP->GetPoint(ovo,x2temp,y2temp); 
+
+	    //Set upper plot
+	    leadingRivetMadGraph2ENV->SetPoint(ovo,dummyXvar,dummyYvar/dummyNorm);
+	    //Set Ratio Plot
+	    leadingRatioMadGraph2ENV->SetPoint(ovo,dummyXvar,(dummyYvar/dummyNorm)/leadingSystematics->GetBinContent(ovo+1));
+
+	  double extraQuantityFromAlphaStrong_up=0.0;
+	  double extraQuantityFromAlphaStrong_down=0.0;
+	  
+	  if (isPDFComparison){
+	    extraQuantityFromAlphaStrong_up=DeltaAsUp_CT10_Ratio[ovo];
+	    extraQuantityFromAlphaStrong_down=DeltaAsDown_CT10_Ratio[ovo];
+	  }
+
+	    //Set Bands for upper plots (not used...)
+	  leadingRivetMadGraph2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar/dummyNorm)-dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRivetMadGraph->GetErrorYhigh(ovo),2)));
+	  leadingRivetMadGraph2ENV->SetPointEYlow(ovo, sqrt(pow((-min(min(y1temp,y2temp),dummyYvar/dummyNorm)+dummyYvar/dummyNorm)/(dummyYvar/dummyNorm),2) + pow(leadingRivetMadGraph->GetErrorYlow(ovo),2)));
+	  
+	  
+	  //Set Bands for lower plots
+	  leadingRatioMadGraph2ENV->SetPointEYhigh(ovo,sqrt(pow((max(max(y1temp,y2temp),dummyYvar)-dummyYvar)/dummyYvar,2) + pow(leadingRatioMadGraph->GetErrorYhigh(ovo),2) + pow(extraQuantityFromAlphaStrong_up,2) ));
+	  leadingRatioMadGraph2ENV->SetPointEYlow(ovo,sqrt(pow((-min(min(y1temp,y2temp),dummyYvar)+dummyYvar)/dummyYvar,2) + pow(leadingRatioMadGraph->GetErrorYlow(ovo),2)+ pow (extraQuantityFromAlphaStrong_down,2) ));
+	  
+	  }
+	}
+
+	///////////////
+	/////// DRAWING THE RESULTS
+	///////////////////////
+
+
 
 	//	leadingRivetSherpaPDF->SetFillColor(kBlue-9);
 	//	leadingRivetSherpaPDF->SetFillStyle(3004);
@@ -1434,9 +1581,16 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	legenddx_d->SetTextFont(42);
 	legenddx_d->SetTextSize(.05);
 	legenddx_d->AddEntry (leadingSystematics, "Data", "PLEF");
-	legenddx_d->AddEntry (leadingRivetSherpaStat, "Sherpa2 (0,1j@NLO #leq4j@LO +PS)", "PLEF");
-	legenddx_d->AddEntry (leadingRivetPowhegStat, "Powheg+Pythia6 (Z+1j@NLO +PS)", "PLEF");
-	legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph+Pythia6 (#leq4j@LO +PS)", "PLEF");
+	if (!isPDFComparison){
+	  legenddx_d->AddEntry (leadingRivetSherpaStat, "Sherpa2 (0,1j@NLO #leq4j@LO +PS)", "PLEF");
+	  legenddx_d->AddEntry (leadingRivetPowhegStat, "Powheg+Pythia6 (Z+1j@NLO +PS)", "PLEF");
+	  legenddx_d->AddEntry (leadingRivetMadGraph, "MadGraph+Pythia6 (#leq4j@LO +PS)", "PLEF");
+	}
+	else{
+	  legenddx_d->AddEntry (leadingRivetSherpaStat, "Sherpa2 CT10", "PLEF");
+	  legenddx_d->AddEntry (leadingRivetPowhegStat, "Sherpa2 NNPDF", "PLEF");
+	  legenddx_d->AddEntry (leadingRivetMadGraph, "Sherpa2 MSTW2008", "PLEF");
+	}
 	legenddx_d->Draw ("same");
 
 
@@ -1458,7 +1612,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	leadingRatioSystematics->GetYaxis()->SetTitleSize(0.14);
 	leadingRatioSystematics->GetYaxis()->SetLabelSize(0.14);
 	leadingRatioSystematics->GetYaxis()->SetTitleOffset(0.45);
-	leadingRatioSystematics->GetYaxis()->SetTitle("Sherpa2/Data   ");   
+	if (!isPDFComparison) leadingRatioSystematics->GetYaxis()->SetTitle("Sherpa2/Data   "); else   leadingRatioSystematics->GetYaxis()->SetTitle("CT10/Data   ");
 	leadingRatioSystematics->GetYaxis()->SetNdivisions(505);
 	leadingRatioSystematics->GetYaxis()->SetRangeUser(0.2,1.8);
 	leadingRatioSystematics->SetTitle("");	  
@@ -1474,21 +1628,24 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	//	leadingRatioSherpaPDF->SetLineWidth(0.6);
 	//	leadingRatioSherpaPDF->Draw("5");
 	
-	leadingRatioSherpaQcut->SetFillColor(kBlue-10);
-	leadingRatioSherpaQcut->SetFillStyle(1001);
-	leadingRatioSherpaQcut->SetLineColor(kBlue-10);
-	leadingRatioSherpaQcut->SetMarkerStyle(24);
-	leadingRatioSherpaQcut->SetMarkerColor(kBlue-10);
-	leadingRatioSherpaQcut->SetLineWidth(1);
-	leadingRatioSherpaQcut->Draw("2");
-	leadingRatioSherpaQcut->Draw("pz");
-	
-	//	leadingRatioSherpaQ->SetFillColor(kBlue-7);
-	//	leadingRatioSherpaQ->SetFillStyle(3004);
-	//	leadingRatioSherpaQ->SetLineColor(kBlue-7);
-	//	leadingRatioSherpaQ->SetMarkerColor(kBlue-7);
-	//	leadingRatioSherpaQ->SetLineWidth(0.6);
-	//	leadingRatioSherpaQ->Draw("5");
+	if (!isPDFComparison){
+	  leadingRatioSherpaQcut->SetFillColor(kBlue-10);
+	  leadingRatioSherpaQcut->SetFillStyle(1001);
+	  leadingRatioSherpaQcut->SetLineColor(kBlue-10);
+	  leadingRatioSherpaQcut->SetMarkerStyle(24);
+	  leadingRatioSherpaQcut->SetMarkerColor(kBlue-10);
+	  leadingRatioSherpaQcut->SetLineWidth(1);
+	  leadingRatioSherpaQcut->Draw("2");
+	  leadingRatioSherpaQcut->Draw("pz");
+	}
+	else{
+	  leadingRatioSherpaQ->SetFillColor(kBlue-7);
+	  leadingRatioSherpaQ->SetFillStyle(3004);
+	  leadingRatioSherpaQ->SetLineColor(kBlue-7);
+	  leadingRatioSherpaQ->SetMarkerColor(kBlue-7);
+	  leadingRatioSherpaQ->SetLineWidth(0.6);
+	  leadingRatioSherpaQ->Draw("5");
+	}
 	//	
 	//	leadingRatioSherpa->SetFillColor(kBlue-4);
 	//	leadingRatioSherpa->SetFillStyle(3004);
@@ -1508,19 +1665,6 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 
 	leadingRatioSystematics->Draw ("E2SAME");
 	leadingRatio->Draw ("E1SAME");
-
-	//	TLine *OLine = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
-	//	OLine->SetLineColor(kBlack);
-	//	OLine->SetLineStyle(1);
-	//	OLine->SetLineWidth(0.);
-	//	OLine->Draw();
-
-	//	TLatex *latexLabel = new TLatex();
-	//	latexLabel->SetTextSize(0.14);
-	//	latexLabel->SetTextFont(42);
-	//	latexLabel->SetLineWidth(2);
-	//	latexLabel->SetNDC();
-	//	latexLabel->DrawLatex(0.2,0.09,"Sherpa2");	  
 
 	TLegend *legendSherpa;
 	legendSherpa = new TLegend (0.19, 0.05, 0.40, 0.22);	   
@@ -1547,7 +1691,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	leadingRatio3Systematics->GetYaxis()->SetTitleSize(0.14);
 	leadingRatio3Systematics->GetYaxis()->SetLabelSize(0.14);
 	leadingRatio3Systematics->GetYaxis()->SetTitleOffset(0.45);
-	leadingRatio3Systematics->GetYaxis()->SetTitle("Powheg/Data   ");   
+	if (!isPDFComparison) leadingRatio3Systematics->GetYaxis()->SetTitle("Powheg/Data   "); else leadingRatio3Systematics->GetYaxis()->SetTitle("MSTW2008/Data");
 	leadingRatio3Systematics->GetYaxis()->SetNdivisions(505);
 	leadingRatio3Systematics->GetYaxis()->SetRangeUser(0.2,1.8);
 	leadingRatio3Systematics->SetMarkerStyle(1);
@@ -1582,26 +1726,14 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	leadingRatio3Systematics->Draw ("E2SAME");
 	leadingRatio3->Draw ("E1SAME");
 
-	//	TLine *OLine3 = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
-	//	OLine3->SetLineColor(kBlack);
-	//	OLine3->SetLineWidth(1);
-	//	OLine3->SetLineStyle(1);
-	//	OLine3->Draw();
-
-	//	TLatex *latexLabel = new TLatex();
-	//	latexLabel->SetTextSize(0.14);
-	//	latexLabel->SetTextFont(42);
-	//	latexLabel->SetLineWidth(2);
-	//	latexLabel->SetNDC();
-	//	latexLabel->DrawLatex(0.2,0.09,"Powheg");	  
 
 	TLegend *legendPowheg;
 	legendPowheg = new TLegend (0.19, 0.05, 0.40, 0.22);	   
 	legendPowheg->SetFillColor (0);
 	legendPowheg->SetFillStyle (0);
 	legendPowheg->SetBorderSize (0);
-	legendPowheg->AddEntry (leadingRatioPowhegStat, "Stat. unc. (gen)", "F");
 	legendPowheg->AddEntry (leadingRatioPowheg2ENV, "Theory unc. (gen)", "F");
+	legendPowheg->AddEntry (leadingRatioPowhegStat, "Stat. unc. (gen)", "F");
 	legendPowheg->Draw ("same");
 
 
@@ -1623,7 +1755,7 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	leadingRatio2Systematics->GetYaxis()->SetTitleSize(0.1);
 	leadingRatio2Systematics->GetYaxis()->SetLabelSize(0.10);
 	leadingRatio2Systematics->GetYaxis()->SetTitleOffset(0.63);
-	leadingRatio2Systematics->GetYaxis()->SetTitle("MadGraph/Data   ");   
+	if (!isPDFComparison) leadingRatio2Systematics->GetYaxis()->SetTitle("MadGraph/Data   "); else leadingRatio2Systematics->GetYaxis()->SetTitle("NNPDF/Data   ");    
 	leadingRatio2Systematics->GetYaxis()->SetNdivisions(505);
 	leadingRatio2Systematics->GetYaxis()->SetRangeUser(0.2,1.8);
 
@@ -1674,6 +1806,15 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	//	leadingRatioMadGraphPDF->SetLineColor(kOrange+2);
 	//	leadingRatioMadGraphPDF->SetLineWidth(0.6);
 	//	leadingRatioMadGraphPDF->Draw("5");
+
+	if (isPDFComparison){
+	  leadingRatioMadGraph2ENV->SetFillColor(kOrange-6);
+	  leadingRatioMadGraph2ENV->SetFillStyle(1001);
+	  leadingRatioMadGraph2ENV->SetLineColor(kOrange-6);
+	  leadingRatioMadGraph2ENV->SetMarkerColor(kOrange-6);
+	  leadingRatioMadGraph2ENV->SetLineWidth(0.6);
+	  leadingRatioMadGraph2ENV->Draw("5");
+	}	
       
 	leadingRatioMadGraph->SetFillColor(kOrange-2);
 	leadingRatioMadGraph->SetFillStyle(1001);
@@ -1683,31 +1824,22 @@ makeZjetsPlots (int whichobservable, int whichjet, int whichlepton, bool inclusi
 	leadingRatioMadGraph->SetLineWidth(1);
 	leadingRatioMadGraph->Draw("2");
 	leadingRatioMadGraph->Draw("pz");
-	  
+
+
 	leadingRatio2Systematics->Draw ("E2SAME");
 	leadingRatio2->Draw ("E1SAME");
 	  
-	//	TLine *OLine2 = new TLine(leadingSystematics->GetXaxis()->GetXmin(),1.,leadingSystematics->GetXaxis()->GetXmax(),1.);
-	//	OLine2->SetLineColor(kBlack);
-	//	OLine2->SetLineStyle(1);
-	//	OLine2->SetLineWidth(1);
-	//	OLine2->Draw();
-	  
-	//	TLatex *latexLabel = new TLatex();
-	//	latexLabel->SetTextSize(0.1);
-	//	latexLabel->SetTextFont(42);
-	//	latexLabel->SetLineWidth(2);
-	//	latexLabel->SetNDC();
-	//	latexLabel->DrawLatex(0.2,0.37,"MadGraph");	  
 
 	TLegend *legendMadGraph;
-	legendMadGraph = new TLegend (0.19, 0.33, 0.40, 0.39);	   
+	if (isPDFComparison) legendMadGraph = new TLegend (0.19, 0.31, 0.39, 0.44);	   
+	else legendMadGraph = new TLegend (0.19, 0.33, 0.40, 0.39);	   
 	legendMadGraph->SetFillColor (0);
 	legendMadGraph->SetFillStyle (0);
 	legendMadGraph->SetBorderSize (0);
-	legendMadGraph->AddEntry (leadingRatioMadGraph, "Stat. unc. (gen)", "F");
+	if (isPDFComparison) legendMadGraph->AddEntry (leadingRatioMadGraph2ENV, "Theory unc. (gen)", "F");
+	legendMadGraph->AddEntry (leadingRatioMadGraph, "Statistical unc. (gen)", "F");
 	legendMadGraph->Draw ("same");
-	  
+
 	string title1;
 	title1 = s + "DifferentialX" + stringmatch + ".pdf";
 	if (incMultiplicity) title1 = s + "DifferentialXInc" + stringmatch + ".pdf";
